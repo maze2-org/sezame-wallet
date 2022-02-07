@@ -8,9 +8,9 @@
     "invalidEmail": "Invalid email address."
   },
   "welcomeScreen": {
-    "poweredBy": "POWERED BY IGNITE",
+    "welcome": "Welcome",
     "readyForLaunch": "Ready for launch.",
-    "continue": "CONTINUE"
+    "continue": "Create wallet"
   },
   "demoScreen": {
     "howTo": "HOW TO",
