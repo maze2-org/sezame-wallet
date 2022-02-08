@@ -10,7 +10,9 @@
   "welcomeScreen": {
     "welcome": "Welcome",
     "readyForLaunch": "Ready for launch.",
-    "continue": "Create wallet"
+    "continue": "continue",
+    "create": "New wallet",
+    "restore": "Import existing wallet"
   },
   "demoScreen": {
     "howTo": "HOW TO",
@@ -36,5 +38,13 @@
   "storybook": {
     "placeholder": "Placeholder",
     "field": "Field"
+  },
+  "createWallet": {
+    "newWallet": "New Wallet",
+    "create": "Create"
+  },
+  "importWallet": {
+    "importWallet": "Import Wallet",
+    "import": "Import"
   }
 }
