@@ -2185,16 +2185,27 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
+<<<<<<< HEAD
 "@maze2/sezame-sdk@^1.3.6":
   version "1.3.6"
   resolved "https://registry.yarnpkg.com/@maze2/sezame-sdk/-/sezame-sdk-1.3.6.tgz#10ae6a95f42b29e57acaf1e1fd0548901f635d8b"
   integrity sha512-jqkCLex+Nk3ag9GvaG00ols+NNaXmZ4S0DcWaCvQyGiXsEvhnYrUp9U5EUpiXsz4se/txPb3N3HHvSPLE2qnxA==
+=======
+"@maze2/sezame-sdk@1.3.4":
+  version "1.3.4"
+  resolved "https://registry.yarnpkg.com/@maze2/sezame-sdk/-/sezame-sdk-1.3.4.tgz#92fe89dddbfc46c878f7c3c05fa87be950d726a5"
+  integrity sha512-90JP6InzyDzbNx0eiUj5Q20YjqNpqYjtPKmtCLk4rmfQimD+KVI7uKEMlaKES+ufLCSF3MMgcuTijeoI/5+PNQ==
+>>>>>>> 251bcbfbccca9fac1f311548a6d9d61385351fad
   dependencies:
     "@metamask/eth-sig-util" "^4.0.0"
     "@polkadot/keyring" "5.9.2"
     "@polkadot/util" "5.9.2"
     "@polkadot/util-crypto" "5.9.2"
+<<<<<<< HEAD
     alephium-js "^1.0.10"
+=======
+    alephium-js "^1.0.9"
+>>>>>>> 251bcbfbccca9fac1f311548a6d9d61385351fad
     avn-api "^0.5.1"
     axios "0.21.1"
     bignumber "^1.1.0"
@@ -2209,6 +2220,7 @@
     ethereumjs-wallet "1.0.1"
     hdkey "2.0.1"
     isomorphic-fetch "^3.0.0"
+    patch-package "^6.4.7"
     web3 "1.5.2"
 
 "@metamask/eth-sig-util@^4.0.0":
@@ -3387,12 +3399,18 @@
   integrity sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ==
 
 "@types/node-fetch@^2.5.8":
+<<<<<<< HEAD
   version "2.5.12"
   resolved "https://registry.npmjs.org/@types/node-fetch/-/node-fetch-2.5.12.tgz"
   integrity sha512-MKgC4dlq4kKNa/mYrwpKfzQMB5X3ee5U6fSprkKpToBqBmX4nFZL9cW5jl6sWn+xpRJ7ypWh2yyqqr8UUCstSw==
+=======
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/@types/node-fetch/-/node-fetch-2.6.0.tgz#bf854a36a0d0d99436fd199e06612ef4e73591b6"
+  integrity sha512-HT+uU6V27wJFXgEqTk/+rVE1MWcp5bg7Yuz//43TZ2PjpQbQ8vDLwVmB+fSpgs83j/+p+rMIlDRo9TL3IexWMA==
+>>>>>>> 251bcbfbccca9fac1f311548a6d9d61385351fad
   dependencies:
     "@types/node" "*"
-    form-data "^3.0.0"
+    form-data "^2.3.3"
 
 "@types/node@*":
   version "17.0.15"
@@ -4007,7 +4025,11 @@ ajv@^8.6.3:
     require-from-string "^2.0.2"
     uri-js "^4.2.2"
 
+<<<<<<< HEAD
 alephium-js@^1.0.10:
+=======
+alephium-js@^1.0.9:
+>>>>>>> 251bcbfbccca9fac1f311548a6d9d61385351fad
   version "1.0.10"
   resolved "https://registry.yarnpkg.com/alephium-js/-/alephium-js-1.0.10.tgz#a6d64e97b86cd66b4d1a8c437c6801c78b9b1972"
   integrity sha512-n41OA5lnnWZ7suEBuPIlNLAZfosEyVWHiwdnjezkb6V4WXKkMh7RcXh0AvjqsBzuyhWlwoNuiE8upzSI9KOjMg==
@@ -9301,7 +9323,7 @@ find-yarn-workspace-root@^1.2.1:
     fs-extra "^4.0.3"
     micromatch "^3.1.4"
 
-find-yarn-workspace-root@~2.0.0:
+find-yarn-workspace-root@^2.0.0, find-yarn-workspace-root@~2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/find-yarn-workspace-root/-/find-yarn-workspace-root-2.0.0.tgz"
   integrity sha512-1IMnbjt4KzsQfnhnzNd8wUEgXZ44IzZaZmnLYx7D5FZlaHt2gW20Cri8Q+E/t5tIj4+epTBub+2Zxu/vNILzqQ==
@@ -9432,7 +9454,7 @@ fork-ts-checker-webpack-plugin@4.1.6:
     tapable "^1.0.0"
     worker-rpc "^0.1.0"
 
-form-data@^2.3.2:
+form-data@^2.3.2, form-data@^2.3.3:
   version "2.5.1"
   resolved "https://registry.npmjs.org/form-data/-/form-data-2.5.1.tgz"
   integrity sha512-m21N3WOmEEURgk6B9GLOE4RuWOFf28Lhh9qGYeNlGq4VDXUlJy2th2slBNU8Gp8EzloYZOibZJ7t5ecIrFSjVA==
@@ -9542,7 +9564,7 @@ fs-extra@^4.0.2, fs-extra@^4.0.3:
     jsonfile "^4.0.0"
     universalify "^0.1.0"
 
-fs-extra@^7.0.0:
+fs-extra@^7.0.0, fs-extra@^7.0.1:
   version "7.0.1"
   resolved "https://registry.npmjs.org/fs-extra/-/fs-extra-7.0.1.tgz"
   integrity sha512-YJDaCJZEnBmcbw13fvdAM9AwNOJwOzrE4pqMqBq5nFiEqXUqHwlK4B+3pUw6JNvfSPtX05xFHtYy/1ni01eGCw==
@@ -12330,6 +12352,13 @@ kind-of@^6.0.0, kind-of@^6.0.2:
   resolved "https://registry.npmjs.org/kind-of/-/kind-of-6.0.3.tgz"
   integrity sha512-dcS1ul+9tmeD95T+x28/ehLgd9mENa3LsvDTtzm3vyBEO7RPptvAD+t44WVXaUjTBRcrpFeFlC8WCruUR456hw==
 
+klaw-sync@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/klaw-sync/-/klaw-sync-6.0.0.tgz#1fd2cfd56ebb6250181114f0a581167099c2b28c"
+  integrity sha512-nIeuVSzdCCs6TDPTqI8w1Yre34sSq7AkZ4B3sfOBbI2CgVSB4Du4aLQijFU2+lhAFCwt9+42Hel6lQNIv6AntQ==
+  dependencies:
+    graceful-fs "^4.1.11"
+
 klaw@^1.0.0:
   version "1.3.1"
   resolved "https://registry.npmjs.org/klaw/-/klaw-1.3.1.tgz"
@@ -14326,7 +14355,7 @@ open@^6.2.0, open@^6.3.0:
   dependencies:
     is-wsl "^1.1.0"
 
-open@^7.0.0, open@^7.0.2:
+open@^7.0.0, open@^7.0.2, open@^7.4.2:
   version "7.4.2"
   resolved "https://registry.npmjs.org/open/-/open-7.4.2.tgz"
   integrity sha512-MVHddDVweXZF3awtlAS+6pgKLlm/JgxZ90+/NBurBoQctVOOB/zDdVjcyPzQ+0laDGbsWgrRkflI65sQeOgT9Q==
@@ -14766,6 +14795,25 @@ password-prompt@^1.0.4:
   dependencies:
     ansi-escapes "^3.1.0"
     cross-spawn "^6.0.5"
+
+patch-package@^6.4.7:
+  version "6.4.7"
+  resolved "https://registry.yarnpkg.com/patch-package/-/patch-package-6.4.7.tgz#2282d53c397909a0d9ef92dae3fdeb558382b148"
+  integrity sha512-S0vh/ZEafZ17hbhgqdnpunKDfzHQibQizx9g8yEf5dcVk3KOflOfdufRXQX8CSEkyOQwuM/bNz1GwKvFj54kaQ==
+  dependencies:
+    "@yarnpkg/lockfile" "^1.1.0"
+    chalk "^2.4.2"
+    cross-spawn "^6.0.5"
+    find-yarn-workspace-root "^2.0.0"
+    fs-extra "^7.0.1"
+    is-ci "^2.0.0"
+    klaw-sync "^6.0.0"
+    minimist "^1.2.0"
+    open "^7.4.2"
+    rimraf "^2.6.3"
+    semver "^5.6.0"
+    slash "^2.0.0"
+    tmp "^0.0.33"
 
 path-browserify@0.0.1:
   version "0.0.1"
@@ -17792,6 +17840,11 @@ slash@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/slash/-/slash-1.0.0.tgz"
   integrity sha1-xB8vbDn8FtHNF61LXYlhFK5HDVU=
+
+slash@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/slash/-/slash-2.0.0.tgz#de552851a1759df3a8f206535442f5ec4ddeab44"
+  integrity sha512-ZYKh3Wh2z1PpEXWr0MpSBZ0V6mZHAQfYevttO11c51CaWjGTaadiKZ+wVt1PbMlDV5qhMFslpZCemhwOK7C89A==
 
 slash@^3.0.0:
   version "3.0.0"
