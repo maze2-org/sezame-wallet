@@ -19,6 +19,7 @@ import { AppNavigator, useNavigationPersistence } from "./navigators"
 import { RootStore, RootStoreProvider, setupRootStore } from "./models"
 import { ToggleStorybook } from "../storybook/toggle-storybook"
 import { ErrorBoundary } from "./screens/error/error-boundary"
+import FlashMessage from "react-native-flash-message"
 
 // This puts screens in a native ViewController or Activity. If you want fully native
 // stack navigation, use `createNativeStackNavigator` in place of `createStackNavigator`:
@@ -64,6 +65,7 @@ function App() {
               onStateChange={onNavigationStateChange}
             />
           </ErrorBoundary>
+          <FlashMessage position="bottom" />
         </SafeAreaProvider>
       </RootStoreProvider>
     </ToggleStorybook>

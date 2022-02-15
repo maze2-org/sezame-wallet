@@ -5,7 +5,7 @@
  * and a "main" flow which the user will use once logged in.
  */
 import React from "react"
-import { TouchableOpacity, useColorScheme } from "react-native"
+import { TextStyle, TouchableOpacity, useColorScheme, View, ViewStyle } from "react-native"
 import { NavigationContainer, DefaultTheme, DarkTheme } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import {
@@ -19,11 +19,32 @@ import {
 } from "../screens"
 import { navigationRef, useBackButtonHandler } from "./navigation-utilities"
 import IonicIcon from "react-native-vector-icons/Ionicons"
+import FontAwesomeIcon from "react-native-vector-icons/FontAwesome5"
+import { spacing } from "../theme"
 
+const NAV_HEADER_BTN_CONTAINER: ViewStyle = {
+  display: "flex",
+  flexDirection: "row",
+}
+const NAV_HEADER_BTN: ViewStyle = {
+  padding: spacing[2],
+}
+
+const BTN_ICON: TextStyle = {
+  color: "#000000",
+}
 const SettingsBtn = () => (
-  <TouchableOpacity>
-    <IonicIcon name="settings-sharp" size={23} color={"#F9F7F1"} />
-  </TouchableOpacity>
+  <View style={NAV_HEADER_BTN_CONTAINER}>
+    <TouchableOpacity style={NAV_HEADER_BTN}>
+      <FontAwesomeIcon style={BTN_ICON} name="qrcode" size={23} />
+    </TouchableOpacity>
+    <TouchableOpacity style={NAV_HEADER_BTN}>
+      <FontAwesomeIcon style={BTN_ICON} name="plus" size={23} />
+    </TouchableOpacity>
+    <TouchableOpacity style={NAV_HEADER_BTN}>
+      <FontAwesomeIcon style={BTN_ICON} name="user-cog" size={23} />
+    </TouchableOpacity>
+  </View>
 )
 
 /**
@@ -70,7 +91,16 @@ const AppStack = () => {
       />
       <Stack.Screen name="importWallet" component={ImportWalletScreen} />
       <Stack.Screen name="createWallet" component={CreateWalletScreen} />
-      <Stack.Screen name="dashboard" component={DashboardScreen} />
+      <Stack.Screen
+        name="dashboard"
+        component={DashboardScreen}
+        options={{
+          headerShown: true,
+          headerRight: SettingsBtn,
+          headerBackVisible: false,
+          headerTitle: "",
+        }}
+      />
       {/** 🔥 Your screens go here */}
     </Stack.Navigator>
   )
