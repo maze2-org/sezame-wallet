@@ -21,6 +21,7 @@ import { navigationRef, useBackButtonHandler } from "./navigation-utilities"
 import IonicIcon from "react-native-vector-icons/Ionicons"
 import FontAwesomeIcon from "react-native-vector-icons/FontAwesome5"
 import { spacing } from "../theme"
+import { WalletReadyScreen } from "../screens/wallet-ready/home-screen"
 
 const NAV_HEADER_BTN_CONTAINER: ViewStyle = {
   display: "flex",
@@ -67,6 +68,7 @@ export type NavigatorParamList = {
   importWallet: undefined
   createWallet: undefined
   dashboard: undefined
+  walletReady: undefined
   // 🔥 Your screens go here
 }
 
@@ -101,6 +103,7 @@ const AppStack = () => {
           headerTitle: "",
         }}
       />
+      <Stack.Screen name="walletReady" component={WalletReadyScreen} />
       {/** 🔥 Your screens go here */}
     </Stack.Navigator>
   )

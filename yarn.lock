@@ -2185,27 +2185,16 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-<<<<<<< HEAD
 "@maze2/sezame-sdk@^1.3.6":
   version "1.3.6"
   resolved "https://registry.yarnpkg.com/@maze2/sezame-sdk/-/sezame-sdk-1.3.6.tgz#10ae6a95f42b29e57acaf1e1fd0548901f635d8b"
   integrity sha512-jqkCLex+Nk3ag9GvaG00ols+NNaXmZ4S0DcWaCvQyGiXsEvhnYrUp9U5EUpiXsz4se/txPb3N3HHvSPLE2qnxA==
-=======
-"@maze2/sezame-sdk@1.3.4":
-  version "1.3.4"
-  resolved "https://registry.yarnpkg.com/@maze2/sezame-sdk/-/sezame-sdk-1.3.4.tgz#92fe89dddbfc46c878f7c3c05fa87be950d726a5"
-  integrity sha512-90JP6InzyDzbNx0eiUj5Q20YjqNpqYjtPKmtCLk4rmfQimD+KVI7uKEMlaKES+ufLCSF3MMgcuTijeoI/5+PNQ==
->>>>>>> 251bcbfbccca9fac1f311548a6d9d61385351fad
   dependencies:
     "@metamask/eth-sig-util" "^4.0.0"
     "@polkadot/keyring" "5.9.2"
     "@polkadot/util" "5.9.2"
     "@polkadot/util-crypto" "5.9.2"
-<<<<<<< HEAD
     alephium-js "^1.0.10"
-=======
-    alephium-js "^1.0.9"
->>>>>>> 251bcbfbccca9fac1f311548a6d9d61385351fad
     avn-api "^0.5.1"
     axios "0.21.1"
     bignumber "^1.1.0"
@@ -2220,7 +2209,6 @@
     ethereumjs-wallet "1.0.1"
     hdkey "2.0.1"
     isomorphic-fetch "^3.0.0"
-    patch-package "^6.4.7"
     web3 "1.5.2"
 
 "@metamask/eth-sig-util@^4.0.0":
@@ -3399,15 +3387,9 @@
   integrity sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ==
 
 "@types/node-fetch@^2.5.8":
-<<<<<<< HEAD
-  version "2.5.12"
-  resolved "https://registry.npmjs.org/@types/node-fetch/-/node-fetch-2.5.12.tgz"
-  integrity sha512-MKgC4dlq4kKNa/mYrwpKfzQMB5X3ee5U6fSprkKpToBqBmX4nFZL9cW5jl6sWn+xpRJ7ypWh2yyqqr8UUCstSw==
-=======
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/@types/node-fetch/-/node-fetch-2.6.0.tgz#bf854a36a0d0d99436fd199e06612ef4e73591b6"
   integrity sha512-HT+uU6V27wJFXgEqTk/+rVE1MWcp5bg7Yuz//43TZ2PjpQbQ8vDLwVmB+fSpgs83j/+p+rMIlDRo9TL3IexWMA==
->>>>>>> 251bcbfbccca9fac1f311548a6d9d61385351fad
   dependencies:
     "@types/node" "*"
     form-data "^2.3.3"
@@ -4025,11 +4007,7 @@ ajv@^8.6.3:
     require-from-string "^2.0.2"
     uri-js "^4.2.2"
 
-<<<<<<< HEAD
 alephium-js@^1.0.10:
-=======
-alephium-js@^1.0.9:
->>>>>>> 251bcbfbccca9fac1f311548a6d9d61385351fad
   version "1.0.10"
   resolved "https://registry.yarnpkg.com/alephium-js/-/alephium-js-1.0.10.tgz#a6d64e97b86cd66b4d1a8c437c6801c78b9b1972"
   integrity sha512-n41OA5lnnWZ7suEBuPIlNLAZfosEyVWHiwdnjezkb6V4WXKkMh7RcXh0AvjqsBzuyhWlwoNuiE8upzSI9KOjMg==
