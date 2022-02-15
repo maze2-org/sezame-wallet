@@ -1,17 +1,57 @@
 import React, { FC } from "react"
 import { observer } from "mobx-react-lite"
-import { ViewStyle } from "react-native"
+import { TextStyle, View, ViewStyle, Image, ImageStyle } from "react-native"
 import { StackScreenProps } from "@react-navigation/stack"
 import { NavigatorParamList } from "../../navigators"
-import { Screen, Text } from "../../components"
+import { Header, Screen, Text } from "../../components"
 // import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "../../models"
-import { color } from "../../theme"
+import { color, spacing } from "../../theme"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
   flex: 1,
 }
+const PORTFOLIO_CONTAINER: ViewStyle = {
+  display: "flex",
+  marginTop: spacing[3],
+}
+const PORTFOLIO: TextStyle = {
+  display: "flex",
+  textAlign: "center",
+  fontSize: 31,
+  fontWeight: "bold",
+}
+const WALLET_NAME: TextStyle = {
+  display: "flex",
+  textAlign: "center",
+}
+
+const NETWORK_CONTAINER: ViewStyle = {
+  marginTop: spacing[3],
+}
+const NETWORK: ViewStyle = {
+  display: "flex",
+  flexDirection: "row",
+  padding: spacing[2],
+}
+const NETWORK_IMAGE: ImageStyle = {
+  width: 50,
+  height: 50,
+  margin: spacing[2],
+}
+const NETWOKRS = [
+  {
+    name: "bitcoin",
+    ticker: "BTC",
+    image: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
+  },
+  {
+    name: "ethereum",
+    ticker: "ETH",
+    image: "https://assets.coingecko.com/coins/images/279/large/ethereum.png",
+  },
+]
 
 export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard">> = observer(
   function DashboardScreen() {
@@ -22,7 +62,19 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
     // const navigation = useNavigation()
     return (
       <Screen style={ROOT} preset="scroll">
-        <Text preset="header" text="dashboard" />
+        <View style={PORTFOLIO_CONTAINER}>
+          <Text style={PORTFOLIO}>~43'234 $</Text>
+          <Text style={WALLET_NAME}>Wallet name </Text>
+        </View>
+        <View style={NETWORK_CONTAINER}>
+          {NETWOKRS.map((network) => (
+            <View style={NETWORK} key={network.name}>
+              <Image style={NETWORK_IMAGE} source={{ uri: network.image }}></Image>
+              <Text>{network.name}</Text>
+              {/* <Text>2.343</Text> */}
+            </View>
+          ))}
+        </View>
       </Screen>
     )
   },
