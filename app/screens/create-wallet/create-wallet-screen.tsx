@@ -7,7 +7,7 @@ import PagerView from "react-native-pager-view"
 import Clipboard from "@react-native-clipboard/clipboard"
 import { showMessage } from "react-native-flash-message"
 import IonicIcon from "react-native-vector-icons/FontAwesome5"
-// import { WalletGenerator } from "@maze2/sezame-sdk"
+import { WalletGenerator } from "@maze2/sezame-sdk"
 import { NavigatorParamList } from "../../navigators"
 import { Button, Header, Screen, Text } from "../../components"
 // import { useNavigation } from "@react-navigation/native"
@@ -111,8 +111,7 @@ export const CreateWalletScreen: FC<
 
   const [mnemonic, setMnemonic] = useState("")
   const createWallet = async () => {
-    const newMnemonic =
-      "typical ceiling beef churn penalty vital ten raw claim orchard tell uncle fish celery suffer" // WalletGenerator.generateMnemonic()
+    const newMnemonic = WalletGenerator.generateMnemonic()
     setMnemonic(newMnemonic)
     refPagerView.current?.setPage(1)
   }

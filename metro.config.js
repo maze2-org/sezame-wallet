@@ -18,6 +18,7 @@ module.exports = (async () => {
     resolver: {
       resolveRequest: MetroSymlinksResolver(),
       assetExts: [...defaultConfig.resolver.assetExts, "bin"],
+      sourceExts: [...defaultConfig.resolver.sourceExts, "mjs"],
     },
   })
 })()
