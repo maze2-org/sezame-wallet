@@ -19,9 +19,13 @@ import {
 } from "../screens"
 import { navigationRef, useBackButtonHandler } from "./navigation-utilities"
 import IonicIcon from "react-native-vector-icons/Ionicons"
-import FontAwesomeIcon from "react-native-vector-icons/FontAwesome5"
-import { spacing } from "../theme"
-import { WalletReadyScreen } from "../screens/wallet-ready/home-screen"
+import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5"
+import FontAwesomeIcon from "react-native-vector-icons/FontAwesome"
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
+
+import { color, spacing } from "../theme"
+import { WalletReadyScreen } from "../screens/wallet-ready/wallet-ready-screen"
+import { NftsScreen } from "../screens/nfts/nfts-screen"
 
 const NAV_HEADER_BTN_CONTAINER: ViewStyle = {
   display: "flex",
@@ -32,18 +36,18 @@ const NAV_HEADER_BTN: ViewStyle = {
 }
 
 const BTN_ICON: TextStyle = {
-  color: "#000000",
+  color: color.palette.black,
 }
 const SettingsBtn = () => (
   <View style={NAV_HEADER_BTN_CONTAINER}>
     <TouchableOpacity style={NAV_HEADER_BTN}>
-      <FontAwesomeIcon style={BTN_ICON} name="qrcode" size={23} />
+      <FontAwesome5Icon style={BTN_ICON} name="qrcode" size={23} />
     </TouchableOpacity>
     <TouchableOpacity style={NAV_HEADER_BTN}>
-      <FontAwesomeIcon style={BTN_ICON} name="plus" size={23} />
+      <FontAwesome5Icon style={BTN_ICON} name="plus" size={23} />
     </TouchableOpacity>
     <TouchableOpacity style={NAV_HEADER_BTN}>
-      <FontAwesomeIcon style={BTN_ICON} name="user-cog" size={23} />
+      <FontAwesome5Icon style={BTN_ICON} name="user-cog" size={23} />
     </TouchableOpacity>
   </View>
 )
@@ -69,9 +73,32 @@ export type NavigatorParamList = {
   createWallet: undefined
   dashboard: undefined
   walletReady: undefined
+  nfts: undefined
   // 🔥 Your screens go here
 }
 
+const Tab = createBottomTabNavigator()
+const BottomTabNavigator = () => {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+
+        // eslint-disable-next-line react/display-name
+        tabBarIcon: ({ focused, currentColor, size }) => {
+          if (route.name === "home") {
+            return <FontAwesome5Icon name="wallet" size={23} color={currentColor} />
+          } else if (route.name === "nfts") {
+            return <FontAwesomeIcon name="file-picture-o" size={size} color={currentColor} />
+          }
+        },
+      })}
+    >
+      <Tab.Screen name="home" component={DashboardScreen} />
+      <Tab.Screen name="nfts" component={NftsScreen} />
+    </Tab.Navigator>
+  )
+}
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createNativeStackNavigator<NavigatorParamList>()
 
@@ -88,14 +115,14 @@ const AppStack = () => {
       <Stack.Screen name="demoList" component={DemoListScreen} />
       <Stack.Screen
         name="home"
-        component={HomeScreen}
+        component={BottomTabNavigator}
         options={{ headerShown: true, headerRight: SettingsBtn }}
       />
       <Stack.Screen name="importWallet" component={ImportWalletScreen} />
       <Stack.Screen name="createWallet" component={CreateWalletScreen} />
       <Stack.Screen
         name="dashboard"
-        component={DashboardScreen}
+        component={BottomTabNavigator}
         options={{
           headerShown: true,
           headerRight: SettingsBtn,

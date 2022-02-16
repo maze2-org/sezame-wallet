@@ -37,7 +37,7 @@ export const WalletReadyScreen: FC<StackScreenProps<NavigatorParamList, "home">>
     // })
     return (
       <Screen style={ROOT} preset="scroll">
-        <Text preset="header" style={TITLE} text="Home" />
+        <Text preset="header" style={TITLE} text="Wallet is ready" />
       </Screen>
     )
   },
