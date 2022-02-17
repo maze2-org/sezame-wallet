@@ -26,6 +26,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import { color, spacing } from "../theme"
 import { WalletReadyScreen } from "../screens/wallet-ready/wallet-ready-screen"
 import { NftsScreen } from "../screens/nfts/nfts-screen"
+import { CoinDetailsScreen } from "../screens/coin-details/coin-details-screen"
 
 const NAV_HEADER_BTN_CONTAINER: ViewStyle = {
   display: "flex",
@@ -74,6 +75,7 @@ export type NavigatorParamList = {
   dashboard: undefined
   walletReady: undefined
   nfts: undefined
+  coinDetails: undefined
   // 🔥 Your screens go here
 }
 
@@ -131,6 +133,7 @@ const AppStack = () => {
         }}
       />
       <Stack.Screen name="walletReady" component={WalletReadyScreen} />
+      <Stack.Screen name="coinDetails" component={CoinDetailsScreen} />
       {/** 🔥 Your screens go here */}
     </Stack.Navigator>
   )
