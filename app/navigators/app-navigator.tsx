@@ -75,7 +75,9 @@ export type NavigatorParamList = {
   dashboard: undefined
   walletReady: undefined
   nfts: undefined
-  coinDetails: undefined
+  coinDetails: {
+    coinId: string
+  }
   // 🔥 Your screens go here
 }
 
