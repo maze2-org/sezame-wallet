@@ -14,6 +14,15 @@ export async function loadString(key: string): Promise<string | null> {
   }
 }
 
+export async function getListOfWallets(): Promise<string[]> {
+  const list = await AsyncStorage.getAllKeys()
+
+  const data = list
+    .filter((name) => name.startsWith("wallet_"))
+    .map((item) => item.replace("wallet_", ""))
+  return data
+}
+
 /**
  * Saves a string to storage.
  *

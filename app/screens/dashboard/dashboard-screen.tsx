@@ -1,4 +1,4 @@
-import React, { FC } from "react"
+import React, { FC, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { TextStyle, View, ViewStyle, Image, ImageStyle } from "react-native"
 import { StackScreenProps } from "@react-navigation/stack"
@@ -7,6 +7,7 @@ import { Header, Screen, Text } from "../../components"
 // import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
+import { currentWalletStore } from "../../models"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
@@ -60,6 +61,13 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
 
     // Pull in navigation via hook
     // const navigation = useNavigation()
+
+    useEffect(() => {
+      currentWalletStore.getWallet().then((wallet) => {
+        console.log(JSON.stringify(wallet, null, 2))
+      })
+    }, [])
+
     return (
       <Screen style={ROOT} preset="scroll">
         <View style={PORTFOLIO_CONTAINER}>
