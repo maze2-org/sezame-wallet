@@ -58,9 +58,9 @@ export const CreateWalletScreen: FC<
     if (stepName === "Step3") {
       // Process is complete
       const storedWallet = new StoredWallet(walletName, seedPhrase, walletPassword)
-      await storedWallet.addAutoAsset("BTC")
+      // await storedWallet.addAutoAsset("BTC")
       await storedWallet.save()
-      navigation.navigate("chooseWallet")
+      navigation.replace("chooseWallet")
     } else {
       setCurrentStep(currentStep + 1)
     }

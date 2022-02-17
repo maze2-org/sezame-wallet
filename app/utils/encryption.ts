@@ -32,7 +32,6 @@ export const encrypt = (password: string, dataRaw: string) => {
 
 export const decrypt = (password: string, payloadRaw: string) => {
   const payload = JSON.parse(payloadRaw)
-
   const version = payload.version
   if (version !== 1) {
     throw new Error(`Invalid version: got ${version}, expected: 1`)
@@ -61,5 +60,5 @@ const createDecipher = (key: CipherKey, iv: BinaryLike | null) => {
 }
 
 const keyFromPassword = (password: BinaryLike, salt: BinaryLike) => {
-  return pbkdf2Sync(password, salt, 10000, 32, "sha256")
+  return pbkdf2Sync(password, salt, 1000, 32, "sha256")
 }

@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite"
 import { View, ViewStyle } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import { NavigatorParamList } from "../../navigators"
-import { Button, Header, Screen, Text } from "../../components"
+import { Button, Header, Screen } from "../../components"
 // import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "../../models"
 import { color } from "../../theme"
@@ -118,6 +118,13 @@ export const ChooseWalletScreen: FC<
           disabled={!isValid || loading}
           text={loading ? "Loading ..." : "Continue"}
           onPress={handleSubmit(onSubmit)}
+        />
+      </View>
+
+      <View style={footBtn}>
+        <Button
+          text="Create or import a new wallet"
+          onPress={() => navigation.replace("welcome")}
         />
       </View>
     </Screen>

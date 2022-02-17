@@ -37,7 +37,7 @@ export class StoredWallet {
 
   static async loadFromStorage(walletName: string, password: string) {
     try {
-      const encryptedData = await loadString(`wallet_${walletName}`)
+      const encryptedData = await loadString(`${walletName}`, "wallets")
       const walletData: WalletJson = JSON.parse(decrypt(password, encryptedData))
 
       const storedWallet = new StoredWallet(
@@ -89,8 +89,9 @@ export class StoredWallet {
 
   save() {
     return saveString(
-      `wallet_${this.walletName}`,
+      `${this.walletName}`,
       encrypt(this.password, JSON.stringify(this.toJson())),
+      "wallets",
     )
   }
 }

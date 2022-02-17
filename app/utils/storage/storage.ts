@@ -1,13 +1,14 @@
-import AsyncStorage from "@react-native-async-storage/async-storage"
+import { MMKV } from "react-native-mmkv"
 
 /**
  * Loads a string from storage.
  *
  * @param key The key to fetch.
  */
-export async function loadString(key: string): Promise<string | null> {
+export async function loadString(key: string, id?: string): Promise<string | null> {
   try {
-    return await AsyncStorage.getItem(key)
+    const storage = new MMKV({ id })
+    return storage.getString(key)
   } catch {
     // not sure why this would fail... even reading the RN docs I'm unclear
     return null
@@ -15,12 +16,11 @@ export async function loadString(key: string): Promise<string | null> {
 }
 
 export async function getListOfWallets(): Promise<string[]> {
-  const list = await AsyncStorage.getAllKeys()
+  const storage = new MMKV({
+    id: "wallets",
+  })
 
-  const data = list
-    .filter((name) => name.startsWith("wallet_"))
-    .map((item) => item.replace("wallet_", ""))
-  return data
+  return storage.getAllKeys()
 }
 
 /**
@@ -29,9 +29,13 @@ export async function getListOfWallets(): Promise<string[]> {
  * @param key The key to fetch.
  * @param value The value to store.
  */
-export async function saveString(key: string, value: string): Promise<boolean> {
+export async function saveString(key: string, value: string, id?: string): Promise<boolean> {
   try {
-    await AsyncStorage.setItem(key, value)
+    const storage = new MMKV({
+      id,
+    })
+
+    storage.set(key, value)
     return true
   } catch {
     return false
@@ -43,9 +47,12 @@ export async function saveString(key: string, value: string): Promise<boolean> {
  *
  * @param key The key to fetch.
  */
-export async function load(key: string): Promise<any | null> {
+export async function load(key: string, id?: string): Promise<any | null> {
   try {
-    const almostThere = await AsyncStorage.getItem(key)
+    const storage = new MMKV({
+      id,
+    })
+    const almostThere = await storage.getString(key)
     return JSON.parse(almostThere)
   } catch {
     return null
@@ -58,9 +65,12 @@ export async function load(key: string): Promise<any | null> {
  * @param key The key to fetch.
  * @param value The value to store.
  */
-export async function save(key: string, value: any): Promise<boolean> {
+export async function save(key: string, value: any, id?: string): Promise<boolean> {
   try {
-    await AsyncStorage.setItem(key, JSON.stringify(value))
+    const storage = new MMKV({
+      id,
+    })
+    storage.set(key, JSON.stringify(value))
     return true
   } catch {
     return false
@@ -72,17 +82,29 @@ export async function save(key: string, value: any): Promise<boolean> {
  *
  * @param key The key to kill.
  */
-export async function remove(key: string): Promise<void> {
+export async function remove(key: string, id?: string): Promise<boolean> {
   try {
-    await AsyncStorage.removeItem(key)
-  } catch {}
+    const storage = new MMKV({
+      id,
+    })
+    storage.delete(key)
+    return true
+  } catch {
+    return false
+  }
 }
 
 /**
  * Burn it all to the ground.
  */
-export async function clear(): Promise<void> {
+export async function clear(id?: string): Promise<boolean> {
   try {
-    await AsyncStorage.clear()
-  } catch {}
+    const storage = new MMKV({
+      id,
+    })
+    await storage.clearAll()
+    return true
+  } catch {
+    return false
+  }
 }
