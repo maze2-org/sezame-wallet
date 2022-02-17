@@ -21,7 +21,6 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
 
     // Pull in navigation via hook
     const navigation = useNavigation()
-    console.log("navigation ", route?.params?.coinId)
     return (
       <Screen style={ROOT} preset="scroll">
         <Text preset="header" text={route?.params?.coinId} />
