@@ -43,6 +43,10 @@
     "newWallet": "New Wallet",
     "create": "Create"
   },
+  "chooseWallet": {
+    "title": "Choose a wallet",
+    "login": "Log-in"
+  },
   "importWallet": {
     "importWallet": "Import Wallet",
     "import": "Import"

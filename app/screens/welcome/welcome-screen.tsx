@@ -12,13 +12,10 @@ import {
 } from "../../components"
 import { color, spacing, typography } from "../../theme"
 import { NavigatorParamList } from "../../navigators"
+import { RootPageStyle } from "../../theme/elements"
 
 const sesameLogo = require("./sesame.png")
 
-const FULL: ViewStyle = { 
-  flex: 1 ,
-  backgroundColor: "#161619",
-}
 const CONTAINER: ViewStyle = {
   backgroundColor: "#161619",
   paddingHorizontal: spacing[4],
@@ -49,7 +46,7 @@ const CONTINUE_TEXT: TextStyle = {
   fontSize: 15,
   letterSpacing: 2,
 }
-const FOOTER: ViewStyle = { backgroundColor: "transparent",  marginTop: spacing[5] }
+const FOOTER: ViewStyle = { backgroundColor: "transparent", marginTop: spacing[5] }
 const FOOTER_CONTENT: ViewStyle = {
   paddingVertical: spacing[4],
   paddingHorizontal: spacing[4],
@@ -57,36 +54,33 @@ const FOOTER_CONTENT: ViewStyle = {
 
 export const WelcomeScreen: FC<StackScreenProps<NavigatorParamList, "welcome">> = observer(
   ({ navigation }) => {
-    
-
     return (
-      <View testID="WelcomeScreen" style={FULL}>
-     
-        <Screen style={CONTAINER} >
-  
+      <View testID="WelcomeScreen" style={RootPageStyle}>
+        <Screen style={CONTAINER}>
           <Image source={sesameLogo} style={SESAMELOGO} />
-
-      
-        <SafeAreaView style={FOOTER}>
-          <View style={FOOTER_CONTENT}>
-            <Button
-              testID="next-screen-button"
-              style={CONTINUE}
-              textStyle={CONTINUE_TEXT}
-              tx="welcomeScreen.create"
-              onPress={() => navigation.navigate("createWallet")}
-            />
-          </View>
-          <View style={FOOTER_CONTENT}>
-            <Button
-              testID="next-screen-button"
-              style={CONTINUE}
-              textStyle={CONTINUE_TEXT}
-              tx="welcomeScreen.restore"
-              onPress={() => navigation.navigate("importWallet")}
-            />
-          </View>
-        </SafeAreaView>
+          <SafeAreaView style={FOOTER}>
+            <View style={FOOTER_CONTENT}>
+              <Button
+                testID="next-screen-button"
+                style={CONTINUE}
+                textStyle={CONTINUE_TEXT}
+                tx="welcomeScreen.create"
+                onPress={() => {
+                  console.log("CREATE A WALLET")
+                  navigation.navigate("createWallet")
+                }}
+              />
+            </View>
+            <View style={FOOTER_CONTENT}>
+              <Button
+                testID="next-screen-button"
+                style={CONTINUE}
+                textStyle={CONTINUE_TEXT}
+                tx="welcomeScreen.restore"
+                onPress={() => navigation.navigate("importWallet")}
+              />
+            </View>
+          </SafeAreaView>
         </Screen>
       </View>
     )

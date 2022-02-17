@@ -4,21 +4,12 @@
  * Generally speaking, it will contain an auth flow (registration, login, forgot password)
  * and a "main" flow which the user will use once logged in.
  */
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { TextStyle, TouchableOpacity, useColorScheme, View, ViewStyle } from "react-native"
 import { NavigationContainer, DefaultTheme, DarkTheme } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
-import {
-  WelcomeScreen,
-  DemoScreen,
-  DemoListScreen,
-  HomeScreen,
-  ImportWalletScreen,
-  CreateWalletScreen,
-  DashboardScreen,
-} from "../screens"
+import { WelcomeScreen, ImportWalletScreen, CreateWalletScreen, DashboardScreen } from "../screens"
 import { navigationRef, useBackButtonHandler } from "./navigation-utilities"
-import IonicIcon from "react-native-vector-icons/Ionicons"
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5"
 import FontAwesomeIcon from "react-native-vector-icons/FontAwesome"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
@@ -27,6 +18,8 @@ import { color, spacing } from "../theme"
 import { WalletReadyScreen } from "../screens/wallet-ready/wallet-ready-screen"
 import { NftsScreen } from "../screens/nfts/nfts-screen"
 import { CoinDetailsScreen } from "../screens/coin-details/coin-details-screen"
+import { ChooseWalletScreen } from "../screens/choose-wallet/choose-wallet-screen"
+import { getListOfWallets } from "../utils/storage"
 
 const NAV_HEADER_BTN_CONTAINER: ViewStyle = {
   display: "flex",
@@ -67,11 +60,10 @@ const SettingsBtn = () => (
  */
 export type NavigatorParamList = {
   welcome: undefined
-  demo: undefined
-  demoList: undefined
   home: undefined
   importWallet: undefined
   createWallet: undefined
+  chooseWallet: undefined
   dashboard: undefined
   walletReady: undefined
   nfts: undefined
@@ -89,11 +81,11 @@ const BottomTabNavigator = () => {
         headerShown: false,
 
         // eslint-disable-next-line react/display-name
-        tabBarIcon: ({ focused, currentColor, size }) => {
+        tabBarIcon: ({ focused, color, size }) => {
           if (route.name === "home") {
-            return <FontAwesome5Icon name="wallet" size={23} color={currentColor} />
+            return <FontAwesome5Icon name="wallet" size={23} color={color} />
           } else if (route.name === "nfts") {
-            return <FontAwesomeIcon name="file-picture-o" size={size} color={currentColor} />
+            return <FontAwesomeIcon name="file-picture-o" size={size} color={color} />
           }
         },
       })}
@@ -107,37 +99,51 @@ const BottomTabNavigator = () => {
 const Stack = createNativeStackNavigator<NavigatorParamList>()
 
 const AppStack = () => {
+  const [initialRouteName, setInitialRouteName] = useState<any>(null)
+  useEffect(() => {
+    getListOfWallets().then((walletNames) => {
+      if (walletNames.length) {
+        setInitialRouteName("chooseWallet")
+      } else {
+        setInitialRouteName("welcome")
+      }
+    })
+  }, [])
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
-      initialRouteName="welcome"
-    >
-      <Stack.Screen name="welcome" component={WelcomeScreen} />
-      <Stack.Screen name="demo" component={DemoScreen} />
-      <Stack.Screen name="demoList" component={DemoListScreen} />
-      <Stack.Screen
-        name="home"
-        component={BottomTabNavigator}
-        options={{ headerShown: true, headerRight: SettingsBtn }}
-      />
-      <Stack.Screen name="importWallet" component={ImportWalletScreen} />
-      <Stack.Screen name="createWallet" component={CreateWalletScreen} />
-      <Stack.Screen
-        name="dashboard"
-        component={BottomTabNavigator}
-        options={{
-          headerShown: true,
-          headerRight: SettingsBtn,
-          headerBackVisible: false,
-          headerTitle: "",
-        }}
-      />
-      <Stack.Screen name="walletReady" component={WalletReadyScreen} />
-      <Stack.Screen name="coinDetails" component={CoinDetailsScreen} />
-      {/** 🔥 Your screens go here */}
-    </Stack.Navigator>
+    <>
+      {initialRouteName && (
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+          }}
+          initialRouteName={initialRouteName}
+        >
+          <Stack.Screen name="chooseWallet" component={ChooseWalletScreen} />
+          <Stack.Screen name="welcome" component={WelcomeScreen} />
+          <Stack.Screen
+            name="home"
+            component={BottomTabNavigator}
+            options={{ headerShown: true, headerRight: SettingsBtn }}
+          />
+          <Stack.Screen name="importWallet" component={ImportWalletScreen} />
+          <Stack.Screen name="createWallet" component={CreateWalletScreen} />
+
+          <Stack.Screen
+            name="dashboard"
+            component={BottomTabNavigator}
+            options={{
+              headerShown: true,
+              headerRight: SettingsBtn,
+              headerBackVisible: false,
+              headerTitle: "",
+            }}
+          />
+          <Stack.Screen name="walletReady" component={WalletReadyScreen} />
+          <Stack.Screen name="coinDetails" component={CoinDetailsScreen} />
+          {/** 🔥 Your screens go here */}
+        </Stack.Navigator>
+      )}
+    </>
   )
 }
 
