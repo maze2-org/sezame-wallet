@@ -17,6 +17,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import { color, spacing } from "../theme"
 import { WalletReadyScreen } from "../screens/wallet-ready/wallet-ready-screen"
 import { NftsScreen } from "../screens/nfts/nfts-screen"
+import { CoinDetailsScreen } from "../screens/coin-details/coin-details-screen"
 import { ChooseWalletScreen } from "../screens/choose-wallet/choose-wallet-screen"
 import { getListOfWallets } from "../utils/storage"
 
@@ -66,6 +67,9 @@ export type NavigatorParamList = {
   dashboard: undefined
   walletReady: undefined
   nfts: undefined
+  coinDetails: {
+    coinId: string
+  }
   // 🔥 Your screens go here
 }
 
@@ -77,11 +81,11 @@ const BottomTabNavigator = () => {
         headerShown: false,
 
         // eslint-disable-next-line react/display-name
-        tabBarIcon: ({ focused, currentColor, size }) => {
+        tabBarIcon: ({ focused, color, size }) => {
           if (route.name === "home") {
-            return <FontAwesome5Icon name="wallet" size={23} color={currentColor} />
+            return <FontAwesome5Icon name="wallet" size={23} color={color} />
           } else if (route.name === "nfts") {
-            return <FontAwesomeIcon name="file-picture-o" size={size} color={currentColor} />
+            return <FontAwesomeIcon name="file-picture-o" size={size} color={color} />
           }
         },
       })}
@@ -135,6 +139,7 @@ const AppStack = () => {
             }}
           />
           <Stack.Screen name="walletReady" component={WalletReadyScreen} />
+          <Stack.Screen name="coinDetails" component={CoinDetailsScreen} />
           {/** 🔥 Your screens go here */}
         </Stack.Navigator>
       )}

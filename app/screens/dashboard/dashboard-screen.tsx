@@ -1,13 +1,16 @@
 import React, { FC, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { TextStyle, View, ViewStyle, Image, ImageStyle } from "react-native"
-import { StackScreenProps } from "@react-navigation/stack"
+import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import { NavigatorParamList } from "../../navigators"
 import { Header, Screen, Text } from "../../components"
 // import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
+import { TouchableOpacity } from "react-native-gesture-handler"
+import { useNavigation } from "@react-navigation/native"
 import { currentWalletStore } from "../../models"
+import { StoredWallet } from "utils/stored-wallet"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
@@ -60,9 +63,11 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
     // const { someStore, anotherStore } = useStores()
 
     // Pull in navigation via hook
+    const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
     // const navigation = useNavigation()
 
     useEffect(() => {
+      console.log("current wallet ", currentWalletStore.wallet)
       currentWalletStore.getWallet().then((wallet) => {
         console.log(JSON.stringify(wallet, null, 2))
       })
@@ -77,7 +82,11 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
         <View style={NETWORK_CONTAINER}>
           {NETWOKRS.map((network) => (
             <View style={NETWORK} key={network.name}>
-              <Image style={NETWORK_IMAGE} source={{ uri: network.image }}></Image>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("coinDetails", { coinId: network.name })}
+              >
+                <Image style={NETWORK_IMAGE} source={{ uri: network.image }}></Image>
+              </TouchableOpacity>
               <Text>{network.name}</Text>
               {/* <Text>2.343</Text> */}
             </View>
