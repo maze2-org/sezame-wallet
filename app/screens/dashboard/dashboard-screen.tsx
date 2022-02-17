@@ -10,6 +10,7 @@ import { color, spacing } from "../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { useNavigation } from "@react-navigation/native"
 import { currentWalletStore } from "../../models"
+import { StoredWallet } from "utils/stored-wallet"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
@@ -66,6 +67,7 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
     // const navigation = useNavigation()
 
     useEffect(() => {
+      console.log("current wallet ", currentWalletStore.wallet)
       currentWalletStore.getWallet().then((wallet) => {
         console.log(JSON.stringify(wallet, null, 2))
       })
