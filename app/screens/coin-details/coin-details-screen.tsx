@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { View, ViewStyle, Image, ImageStyle } from "react-native"
-import { StackScreenProps } from "@react-navigation/stack"
+import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import { NavigatorParamList } from "../../navigators"
 import { Button, PriceChart, Screen, Text } from "../../components"
 // import { useNavigation } from "@react-navigation/native"
@@ -39,7 +39,8 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
       setCoinData(data)
     }
     // Pull in navigation via hook
-    const navigation = useNavigation()
+    const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
+    const goToSend = () => navigation.navigate("send")
     return (
       <Screen style={ROOT} preset="scroll">
         {coinData && (
@@ -48,7 +49,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
             <Text preset="header" text={coinData.name} />
             <PriceChart data={coinData.market_data.sparkline_7d?.price}></PriceChart>
             <View style={BTNS_CONTAINER}>
-              <Button text="Send" />
+              <Button text="Send" onPress={goToSend} />
               <Button text="Receive" />
             </View>
             <View>

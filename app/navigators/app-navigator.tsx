@@ -8,11 +8,18 @@ import React, { useEffect, useState } from "react"
 import { TextStyle, TouchableOpacity, useColorScheme, View, ViewStyle } from "react-native"
 import { NavigationContainer, DefaultTheme, DarkTheme } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
-import { WelcomeScreen, ImportWalletScreen, CreateWalletScreen, DashboardScreen } from "../screens"
+import {
+  WelcomeScreen,
+  ImportWalletScreen,
+  CreateWalletScreen,
+  DashboardScreen,
+  SendScreen,
+} from "../screens"
 import { navigationRef, useBackButtonHandler } from "./navigation-utilities"
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5"
 import FontAwesomeIcon from "react-native-vector-icons/FontAwesome"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
+import Icon from "react-native-vector-icons/Ionicons"
 
 import { color, spacing } from "../theme"
 import { WalletReadyScreen } from "../screens/wallet-ready/wallet-ready-screen"
@@ -70,6 +77,7 @@ export type NavigatorParamList = {
   coinDetails: {
     coinId: string
   }
+  send: undefined
   // 🔥 Your screens go here
 }
 
@@ -140,6 +148,16 @@ const AppStack = () => {
           />
           <Stack.Screen name="walletReady" component={WalletReadyScreen} />
           <Stack.Screen name="coinDetails" component={CoinDetailsScreen} />
+          <Stack.Screen
+            options={{
+              presentation: "modal",
+              headerShown: true,
+              title: "",
+            }}
+            name="send"
+            component={SendScreen}
+          />
+
           {/** 🔥 Your screens go here */}
         </Stack.Navigator>
       )}
