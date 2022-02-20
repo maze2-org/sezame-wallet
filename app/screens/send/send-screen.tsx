@@ -13,24 +13,17 @@ const ROOT: ViewStyle = {
   flex: 1,
 }
 
-// STOP! READ ME FIRST!
-// To fix the TS error below, you'll need to add the following things in your navigation config:
-// - Add `send: undefined` to NavigatorParamList
-// - Import your screen, and add it to the stack:
-//     `<Stack.Screen name="send" component={SendScreen} />`
-// Hint: Look for the 🔥!
+export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = observer(
+  function SendScreen() {
+    // Pull in one of our MST stores
+    // const { someStore, anotherStore } = useStores()
 
-// REMOVE ME! ⬇️ This TS ignore will not be necessary after you've added the correct navigator param type
-// @ts-ignore
-export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = observer(function SendScreen() {
-  // Pull in one of our MST stores
-  // const { someStore, anotherStore } = useStores()
-
-  // Pull in navigation via hook
-  // const navigation = useNavigation()
-  return (
-    <Screen style={ROOT} preset="scroll">
-      <Text preset="header" text="send" />
-    </Screen>
-  )
-})
+    // Pull in navigation via hook
+    // const navigation = useNavigation()
+    return (
+      <Screen style={ROOT} preset="scroll">
+        <Text preset="header" text="send" />
+      </Screen>
+    )
+  },
+)
