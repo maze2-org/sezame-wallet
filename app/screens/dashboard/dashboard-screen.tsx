@@ -11,6 +11,7 @@ import { TouchableOpacity } from "react-native-gesture-handler"
 import { useNavigation } from "@react-navigation/native"
 import { useStores } from "../../models"
 import { StoredWallet } from "utils/stored-wallet"
+import { getBalance } from "services/api"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
@@ -64,6 +65,13 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
 
     const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
 
+    useEffect(() => {
+      const getBalances = async () => {
+        await Promise.all(assets.map((asset) => getBalance(asset)))
+      }
+
+      getBalances()
+    }, [])
     return (
       <Screen style={ROOT} preset="scroll">
         <View style={PORTFOLIO_CONTAINER}>
@@ -79,7 +87,7 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
                 <Image style={NETWORK_IMAGE} source={{ uri: asset.image }}></Image>
               </TouchableOpacity>
               <Text>{asset.name}</Text>
-              {/* <Text>2.343</Text> */}
+              <Text>{asset.balance}</Text>
             </View>
           ))}
         </View>

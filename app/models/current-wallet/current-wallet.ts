@@ -52,6 +52,13 @@ export const CurrentWalletModel = types
     close: () => {
       self.wallet = null
     },
+    setBalance: (asset, balance: number) => {
+      const storedAsset = self.assets.find((a) => a.symbol === asset.symbol)
+
+      if (storedAsset) {
+        storedAsset.balance = balance
+      }
+    },
   })) // eslint-disable-line @typescript-eslint/no-unused-vars
 
 export const currentWalletStore = CurrentWalletModel.create({
