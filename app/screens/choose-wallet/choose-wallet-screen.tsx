@@ -14,8 +14,9 @@ import DropDownPicker from "react-native-dropdown-picker"
 import { TextInputField } from "../../components/text-input-field/text-input-field"
 import { StoredWallet } from "../../utils/stored-wallet"
 import { showMessage } from "react-native-flash-message"
-import { currentWalletStore } from "../../models"
+
 import { useNavigation } from "@react-navigation/native"
+import { useStores } from "models"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
@@ -25,6 +26,7 @@ const ROOT: ViewStyle = {
 export const ChooseWalletScreen: FC<
   StackScreenProps<NavigatorParamList, "chooseWallet">
 > = observer(function ChooseWalletScreen() {
+  const { currentWalletStore } = useStores()
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
 
   const [walletNames, setWalletNames] = useState<string[]>([])
@@ -56,6 +58,7 @@ export const ChooseWalletScreen: FC<
       currentWalletStore.open(loadedWallet)
       navigation.navigate("dashboard")
     } catch (err) {
+      console.log(err)
       showMessage({ message: "Unable to decrypt this wallet", type: "danger" })
     } finally {
       setLoading(false)

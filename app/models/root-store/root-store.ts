@@ -1,10 +1,13 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { CurrentWalletModel } from "models/current-wallet/current-wallet"
 
 /**
  * A RootStore model.
  */
 // prettier-ignore
 export const RootStoreModel = types.model("RootStore").props({
+  currentWalletStore: types.optional(CurrentWalletModel, {} as any),
+
 })
 
 /**

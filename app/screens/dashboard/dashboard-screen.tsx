@@ -9,7 +9,7 @@ import { Header, Screen, Text } from "../../components"
 import { color, spacing } from "../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { useNavigation } from "@react-navigation/native"
-import { currentWalletStore } from "../../models"
+import { useStores } from "../../models"
 import { StoredWallet } from "utils/stored-wallet"
 
 const ROOT: ViewStyle = {
@@ -59,19 +59,10 @@ const NETWOKRS = [
 
 export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard">> = observer(
   function DashboardScreen() {
-    // Pull in one of our MST stores
-    // const { someStore, anotherStore } = useStores()
+    const { currentWalletStore } = useStores()
+    const { assets } = currentWalletStore
 
-    // Pull in navigation via hook
     const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
-    // const navigation = useNavigation()
-
-    useEffect(() => {
-      console.log("current wallet ", currentWalletStore.wallet)
-      currentWalletStore.getWallet().then((wallet) => {
-        console.log(JSON.stringify(wallet, null, 2))
-      })
-    }, [])
 
     return (
       <Screen style={ROOT} preset="scroll">
@@ -80,14 +71,14 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
           <Text style={WALLET_NAME}>Wallet name </Text>
         </View>
         <View style={NETWORK_CONTAINER}>
-          {NETWOKRS.map((network) => (
-            <View style={NETWORK} key={network.name}>
+          {assets.map((asset) => (
+            <View style={NETWORK} key={asset.name}>
               <TouchableOpacity
-                onPress={() => navigation.navigate("coinDetails", { coinId: network.name })}
+                onPress={() => navigation.navigate("coinDetails", { coinId: asset.name })}
               >
-                <Image style={NETWORK_IMAGE} source={{ uri: network.image }}></Image>
+                <Image style={NETWORK_IMAGE} source={{ uri: asset.image }}></Image>
               </TouchableOpacity>
-              <Text>{network.name}</Text>
+              <Text>{asset.name}</Text>
               {/* <Text>2.343</Text> */}
             </View>
           ))}

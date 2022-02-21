@@ -12,6 +12,7 @@ import { RootPageStyle } from "../../theme/elements"
 import { CreateWalletStep3 } from "./steps/create-wallet-step3"
 import { StoredWallet } from "../../utils/stored-wallet"
 import { loadString } from "../../utils/storage"
+import { defaultAssets } from "utils/consts"
 
 interface WalletCreateContext {
   walletName: string
@@ -58,7 +59,8 @@ export const CreateWalletScreen: FC<
     if (stepName === "Step3") {
       // Process is complete
       const storedWallet = new StoredWallet(walletName, seedPhrase, walletPassword)
-      // await storedWallet.addAutoAsset("BTC")
+      await storedWallet.addAssets(defaultAssets)
+
       await storedWallet.save()
       navigation.replace("chooseWallet")
     } else {

@@ -1,49 +1,36 @@
 import { Chains, WalletGenerator } from "@maze2/sezame-sdk"
+import { IWalletAsset } from "models/current-wallet/current-wallet"
+import { defaultAssets } from "./consts"
 import { decrypt, encrypt } from "./encryption"
 import { loadString, saveString } from "./storage"
-
-export interface WalletAsset {
-  chain: string
-  publicKey: string
-  privateKey: string
-  address: string
-}
 
 export interface WalletJson {
   walletName: string
   mnemonic: string
   password: string
-  assets: Array<WalletAsset>
+  assets: Array<IWalletAsset>
 }
 
 export class StoredWallet {
   mnemonic: string
   password: string
   walletName: string
-  assets: Array<WalletAsset>
+  assets: Array<IWalletAsset> = []
   creationDate: Date
 
-  constructor(walletName: string, mnemonic: string, password: string, assets?: Array<WalletAsset>) {
+  constructor(walletName: string, mnemonic: string, password: string) {
     this.walletName = walletName
     this.mnemonic = mnemonic
     this.creationDate = new Date()
     this.password = password
-
-
-    this.assets = assets || []
   }
 
   static async loadFromStorage(walletName: string, password: string) {
     try {
       const encryptedData = await loadString(`${walletName}`, "wallets")
       const walletData: WalletJson = JSON.parse(decrypt(password, encryptedData))
-
-      const storedWallet = new StoredWallet(
-        walletData.walletName,
-        walletData.mnemonic,
-        password,
-        walletData.assets,
-      )
+      const storedWallet = new StoredWallet(walletData.walletName, walletData.mnemonic, password)
+      await storedWallet.addAssets(walletData.assets)
       return storedWallet
     } catch (err) {
       throw new Error("Unable to open this wallet")
@@ -51,28 +38,30 @@ export class StoredWallet {
   }
 
   static async loadFromJson(json: WalletJson) {
-    return new StoredWallet(json.walletName, json.mnemonic, json.password, json.assets)
+    const wallet = new StoredWallet(json.walletName, json.mnemonic, json.password)
+    await wallet.addAssets(json.assets)
+    return wallet
   }
 
-  addAsset(asset: WalletAsset) {
+  addAsset(asset: IWalletAsset) {
     this.assets.push(asset)
   }
 
-  async addAutoAsset(chain: string) {
+  async addAutoAsset(asset: IWalletAsset) {
     try {
       const wallet = await WalletGenerator.generateKeyPairFromMnemonic(
         this.mnemonic,
-        chain as Chains,
+        asset.chain as Chains,
         0,
       )
       this.addAsset({
-        chain,
+        ...asset,
         publicKey: wallet.publicKey,
         privateKey: wallet.privateKey,
         address: wallet.address,
       })
     } catch (e) {
-      throw new Error(`${chain} block chain is not supported yet: ` + e)
+      throw new Error(`${asset.chain} block chain is not supported yet: ` + e)
     }
   }
 
@@ -86,10 +75,15 @@ export class StoredWallet {
   }
 
   save() {
+    console.log("save wallet ", JSON.stringify(this.toJson()), this.toJson().assets)
     return saveString(
       `${this.walletName}`,
       encrypt(this.password, JSON.stringify(this.toJson())),
       "wallets",
     )
+  }
+
+  public async addAssets(assets) {
+    await Promise.all(assets.map(async (asset) => this.addAutoAsset(asset)))
   }
 }

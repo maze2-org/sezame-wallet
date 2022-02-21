@@ -1,10 +1,10 @@
-import { Wallet } from "./wallet"
+import { IWalletAsset } from "models/current-wallet/current-wallet"
 
 export const ASSET_TYPE_COIN = "coin"
 export const ASSET_TYPE_TOKEN = "token"
 export const ASSET_TYPE_NFT = "nft"
 
-export const COIN_LIST: Wallet[] = [
+export const defaultAssets: IWalletAsset[] = [
   {
     symbol: "BTC",
     name: "Bitcoin",
@@ -12,14 +12,12 @@ export const COIN_LIST: Wallet[] = [
     chain: "BTC",
     type: ASSET_TYPE_COIN,
     decimals: 8,
-    contract: null,
-    privKey: null,
-    walletAddress: null,
+    privateKey: "",
+    publicKey: "",
+    address: "",
     balance: 0,
-    unconfirmedBalance: 0,
     value: 0,
-    price: 0,
-    active: true,
+    rate: 0,
     image: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
     version: 1,
   },
@@ -30,14 +28,12 @@ export const COIN_LIST: Wallet[] = [
     chain: "ETH",
     type: ASSET_TYPE_COIN,
     decimals: 18,
-    contract: null,
-    privKey: null,
-    walletAddress: null,
+    privateKey: "",
+    publicKey: "",
+    address: "",
     balance: 0,
-    unconfirmedBalance: 0,
     value: 0,
-    price: 0,
-    active: true,
+    rate: 0,
     image: "https://assets.coingecko.com/coins/images/279/large/ethereum.png",
     version: 1,
   },
