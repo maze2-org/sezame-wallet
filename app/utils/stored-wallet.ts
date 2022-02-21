@@ -29,10 +29,8 @@ export class StoredWallet {
     this.creationDate = new Date()
     this.password = password
 
-    this.assets = []
-    if (assets) {
-      this.assets = assets
-    }
+
+    this.assets = assets || []
   }
 
   static async loadFromStorage(walletName: string, password: string) {
