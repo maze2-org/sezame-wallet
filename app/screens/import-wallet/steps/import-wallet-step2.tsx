@@ -8,8 +8,12 @@ import { StepProps } from "../../../utils/MultiStepController/Step"
 import { useForm, Controller } from "react-hook-form"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { TextInputField } from "../../../components/text-input-field/text-input-field"
-import { ImportWalletScreen, WalletImportContext } from "../import-wallet-screen"
-import { WalletGenerator } from "@maze2/sezame-sdk"
+import { WalletImportContext } from "../import-wallet-screen"
+import { StoredWallet } from "utils/stored-wallet"
+import { StackNavigationProp } from "@react-navigation/stack"
+import { NavigatorParamList } from "navigators/app-navigator"
+import { useNavigation } from "@react-navigation/native"
+import { defaultAssets } from "utils/consts"
 
 export function ImportWalletStep2(props: StepProps) {
   // Pull in navigation via hook
@@ -21,15 +25,18 @@ export function ImportWalletStep2(props: StepProps) {
     handleSubmit,
     formState: { errors, isValid },
   } = useForm({ mode: "onChange" })
+  const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
 
-  const onSubmit = (data) => {
-    setSeedPhrase(data.seedPhrase)
-    onButtonNext()
+  const { seedPhrase, walletName, walletPassword } = useContext(WalletImportContext)
+  const onSubmit = async (data) => {
+    const storedWallet = new StoredWallet(walletName, data.seedPhrase, walletPassword)
+
+    await storedWallet.addAssets(defaultAssets)
+
+    await storedWallet.save()
+    navigation.replace("chooseWallet")
   }
 
-  const { setSeedPhrase, seedPhrase } = useContext(WalletImportContext)
-
-  console.log("seed ", seedPhrase)
   return (
     <SafeAreaView {...props}>
       <Header headerText="Import wallet" />

@@ -75,7 +75,6 @@ export class StoredWallet {
   }
 
   save() {
-    console.log("save wallet ", JSON.stringify(this.toJson()), this.toJson().assets)
     return saveString(
       `${this.walletName}`,
       encrypt(this.password, JSON.stringify(this.toJson())),

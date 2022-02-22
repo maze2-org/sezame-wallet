@@ -45,18 +45,6 @@ const NETWORK_IMAGE: ImageStyle = {
   height: 50,
   margin: spacing[2],
 }
-const NETWOKRS = [
-  {
-    name: "bitcoin",
-    ticker: "BTC",
-    image: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
-  },
-  {
-    name: "ethereum",
-    ticker: "ETH",
-    image: "https://assets.coingecko.com/coins/images/279/large/ethereum.png",
-  },
-]
 
 export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard">> = observer(
   function DashboardScreen() {
@@ -82,7 +70,7 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
           {assets.map((asset) => (
             <View style={NETWORK} key={asset.name}>
               <TouchableOpacity
-                onPress={() => navigation.navigate("coinDetails", { coinId: asset.name })}
+                onPress={() => navigation.navigate("coinDetails", { coinId: asset.cid })}
               >
                 <Image style={NETWORK_IMAGE} source={{ uri: asset.image }}></Image>
               </TouchableOpacity>

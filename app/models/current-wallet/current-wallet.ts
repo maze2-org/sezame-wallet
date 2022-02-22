@@ -36,7 +36,6 @@ export const CurrentWalletModel = types
       return null
     },
     getAssets: async () => {
-      console.log("assets ", self.assets, self.wallet)
       return self.assets
     },
   })) // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -45,7 +44,6 @@ export const CurrentWalletModel = types
       self.assets = assets
     },
     open: (wallet: StoredWallet) => {
-      console.log("open wallet ", wallet, wallet.toJson())
       self.wallet = JSON.stringify(wallet.toJson())
       self.assets = wallet.toJson().assets as any
     },
@@ -58,6 +56,9 @@ export const CurrentWalletModel = types
       if (storedAsset) {
         storedAsset.balance = balance
       }
+    },
+    getAssetById: (cid: string) => {
+      return self.assets.find((a) => a.cid === cid)
     },
   })) // eslint-disable-line @typescript-eslint/no-unused-vars
 

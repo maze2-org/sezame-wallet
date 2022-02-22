@@ -10,6 +10,7 @@ import { color, spacing } from "../../theme"
 import { useNavigation } from "@react-navigation/native"
 import { getCoinDetails } from "utils/apis"
 import { CoingeckoCoin } from "types/coingeckoCoin"
+import { useStores } from "models"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
@@ -30,6 +31,11 @@ const BTNS_CONTAINER: ViewStyle = {
 export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDetails">> = observer(
   function CoinDetailsScreen({ route }) {
     const [coinData, setCoinData] = useState<CoingeckoCoin | null>(null)
+
+    const { currentWalletStore } = useStores()
+    const { getAssetById } = currentWalletStore
+
+    const asset = getAssetById(route.params.coinId)
     useEffect(() => {
       getCoinData(route?.params?.coinId || "bitcoin")
     }, [])
@@ -40,12 +46,12 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     }
     // Pull in navigation via hook
     const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
-    const goToSend = () => navigation.navigate("send")
+    const goToSend = () => navigation.navigate("send", { coinId: route.params.coinId })
     return (
       <Screen style={ROOT} preset="scroll">
         {coinData && (
           <View>
-            <Image style={COIN_IMAGE} source={{ uri: coinData.image.small }}></Image>
+            <Image style={COIN_IMAGE} source={{ uri: coinData.image?.small }}></Image>
             <Text preset="header" text={coinData.name} />
             <PriceChart data={coinData.market_data.sparkline_7d?.price}></PriceChart>
             <View style={BTNS_CONTAINER}>

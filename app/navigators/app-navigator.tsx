@@ -77,7 +77,9 @@ export type NavigatorParamList = {
   coinDetails: {
     coinId: string
   }
-  send: undefined
+  send: {
+    coinId: string
+  }
   // 🔥 Your screens go here
 }
 
