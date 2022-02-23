@@ -47,16 +47,18 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     // Pull in navigation via hook
     const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
     const goToSend = () => navigation.navigate("send", { coinId: route.params.coinId })
+    const goToReceive = () => navigation.navigate("receive", { coinId: route.params.coinId })
     return (
       <Screen style={ROOT} preset="scroll">
         {coinData && (
           <View>
             <Image style={COIN_IMAGE} source={{ uri: coinData.image?.small }}></Image>
             <Text preset="header" text={coinData.name} />
+            <Text>{asset.balance}</Text>
             <PriceChart data={coinData.market_data.sparkline_7d?.price}></PriceChart>
             <View style={BTNS_CONTAINER}>
               <Button text="Send" onPress={goToSend} />
-              <Button text="Receive" />
+              <Button text="Receive" onPress={goToReceive} />
             </View>
             <View>
               <Text preset="header" text="Transactions" />

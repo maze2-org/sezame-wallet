@@ -25,6 +25,8 @@ target 'walletApp' do
     :hermes_enabled => podfile_properties['expo.jsEngine'] == 'hermes'
   )
 
+  pod 'RNSmartCode', :path => '../node_modules/react-native-smart-code'
+
   target 'walletAppTests' do
     inherit! :complete
     # Pods for testing

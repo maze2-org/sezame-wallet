@@ -15,7 +15,7 @@ const getWallet = (asset) => {
 export const getBalance = async (asset: IWalletAsset) => {
   const cryptoWallet = getWallet(asset)
   const balance = await cryptoWallet.getBalance()
-
+  console.log("got balance ", balance)
   return balance.confirmedBalance
 }
 
@@ -24,8 +24,23 @@ export const getFees = async (asset: IWalletAsset, address: string, amount: numb
   const fees = await cryptoWallet.getTxSendProposals(address, amount)
   return fees
 }
-export const makeSendTransaction = async (asset: IWalletAsset, fees) => {
+export const getTransactionDriver = async (asset: IWalletAsset) => {
   const cryptoWallet = getWallet(asset)
-  const transaction = await cryptoWallet.postTxSend(fees)
+  const driver = cryptoWallet.TRANSACTION_DRIVER_NAMESPACE[asset.chain + "_Driver"]
+  return driver
+}
+export const makeSendTransaction = async (asset: IWalletAsset, proposal) => {
+  const cryptoWallet = getWallet(asset)
+  const transaction = await cryptoWallet.postTxSend(proposal)
   return transaction
+}
+export const makeRawTransaction = async (asset: IWalletAsset, data) => {
+  const driver = await getTransactionDriver(asset)
+  const rawTransaction = await driver.prepareSignedTransaction(data)
+  return rawTransaction
+}
+export const sendRawTransaction = async (asset: IWalletAsset, rawTransaction) => {
+  const driver = await getTransactionDriver(asset)
+  const hash = await driver.sendRaw(rawTransaction)
+  return hash
 }

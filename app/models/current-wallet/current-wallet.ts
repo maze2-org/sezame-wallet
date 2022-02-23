@@ -45,17 +45,17 @@ export const CurrentWalletModel = types
     },
     open: (wallet: StoredWallet) => {
       self.wallet = JSON.stringify(wallet.toJson())
+      console.log("set assets", wallet.toJson().assets)
       self.assets = wallet.toJson().assets as any
     },
     close: () => {
       self.wallet = null
     },
     setBalance: (asset, balance: number) => {
-      const storedAsset = self.assets.find((a) => a.symbol === asset.symbol)
-
-      if (storedAsset) {
-        storedAsset.balance = balance
-      }
+      const storedAsset = self.assets.find(
+        (a) => a.symbol === asset.symbol && a.chain === asset.chain,
+      )
+      storedAsset.balance = balance
     },
     getAssetById: (cid: string) => {
       return self.assets.find((a) => a.cid === cid)

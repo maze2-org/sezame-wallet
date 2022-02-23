@@ -45,17 +45,31 @@ const NETWORK_IMAGE: ImageStyle = {
   height: 50,
   margin: spacing[2],
 }
+const COIN_CARD_CONTENT: ViewStyle = {
+  display: "flex",
+  flexDirection: "column",
+}
 
+const COIN_CARD: ViewStyle = {
+  display: "flex",
+  flexDirection: "row",
+  width: "100%",
+}
 export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard">> = observer(
   function DashboardScreen() {
     const { currentWalletStore } = useStores()
-    const { assets } = currentWalletStore
+    const { assets, setBalance } = currentWalletStore
 
     const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
 
     useEffect(() => {
       const getBalances = async () => {
-        await Promise.all(assets.map((asset) => getBalance(asset)))
+        await Promise.all(
+          assets.map(async (asset) => {
+            const balance = await getBalance(asset)
+            setBalance(asset, balance)
+          }),
+        )
       }
 
       getBalances()
@@ -70,12 +84,17 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
           {assets.map((asset) => (
             <View style={NETWORK} key={asset.name}>
               <TouchableOpacity
+                style={COIN_CARD}
                 onPress={() => navigation.navigate("coinDetails", { coinId: asset.cid })}
               >
-                <Image style={NETWORK_IMAGE} source={{ uri: asset.image }}></Image>
+                <View style={COIN_CARD}>
+                  <Image style={NETWORK_IMAGE} source={{ uri: asset.image }}></Image>
+                  <View style={COIN_CARD_CONTENT}>
+                    <Text>{asset.name}</Text>
+                    <Text>{asset.balance}</Text>
+                  </View>
+                </View>
               </TouchableOpacity>
-              <Text>{asset.name}</Text>
-              <Text>{asset.balance}</Text>
             </View>
           ))}
         </View>

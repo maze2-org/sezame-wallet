@@ -27,6 +27,7 @@ import { NftsScreen } from "../screens/nfts/nfts-screen"
 import { CoinDetailsScreen } from "../screens/coin-details/coin-details-screen"
 import { ChooseWalletScreen } from "../screens/choose-wallet/choose-wallet-screen"
 import { getListOfWallets } from "../utils/storage"
+import { ReceiveScreen } from "screens/receive/receive-screen"
 
 const NAV_HEADER_BTN_CONTAINER: ViewStyle = {
   display: "flex",
@@ -78,6 +79,9 @@ export type NavigatorParamList = {
     coinId: string
   }
   send: {
+    coinId: string
+  }
+  receive: {
     coinId: string
   }
   // 🔥 Your screens go here
@@ -159,7 +163,15 @@ const AppStack = () => {
             name="send"
             component={SendScreen}
           />
-
+          <Stack.Screen
+            options={{
+              presentation: "modal",
+              headerShown: true,
+              title: "",
+            }}
+            name="receive"
+            component={ReceiveScreen}
+          />
           {/** 🔥 Your screens go here */}
         </Stack.Navigator>
       )}
