@@ -7603,6 +7603,11 @@ diffie-hellman@^5.0.0:
     miller-rabin "^4.0.0"
     randombytes "^2.0.0"
 
+dijkstrajs@^1.0.1:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/dijkstrajs/-/dijkstrajs-1.0.2.tgz#2e48c0d3b825462afe75ab4ad5e829c8ece36257"
+  integrity sha512-QV6PMaHTCNmKSeP6QoXhVTw9snc9VD8MulTT0Bd99Pacp4SS1cjcrYPgBPmibqKVtMJJfqC6XvOXgPMEEPH/fg==
+
 dir-glob@2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/dir-glob/-/dir-glob-2.0.0.tgz"
@@ -7904,6 +7909,11 @@ emotion-theming@^10.0.19:
     "@babel/runtime" "^7.5.5"
     "@emotion/weak-memoize" "0.2.5"
     hoist-non-react-statics "^3.3.0"
+
+encode-utf8@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/encode-utf8/-/encode-utf8-1.0.3.tgz#f30fdd31da07fb596f281beb2f6b027851994cda"
+  integrity sha512-ucAnuBEhUK4boH2HjVYG5Q2mQyPorvv0u/ocS+zhdw0S8AlHYY+GOFhP1Gio5z4icpP2ivFSvhtFjQi8+T9ppw==
 
 encodeurl@~1.0.2:
   version "1.0.2"
@@ -12051,11 +12061,6 @@ js-yaml@^4.0.0, js-yaml@^4.1.0:
   dependencies:
     argparse "^2.0.1"
 
-jsbarcode@^3.9.0:
-  version "3.11.5"
-  resolved "https://registry.yarnpkg.com/jsbarcode/-/jsbarcode-3.11.5.tgz#390b3efd0271f35b9d68c7b8af6e972445969014"
-  integrity sha512-zv3KsH51zD00I/LrFzFSM6dst7rDn0vIMzaiZFL7qusTjPZiPtxg3zxetp0RR7obmjTw4f6NyGgbdkBCgZUIrA==
-
 jsbn@~0.1.0:
   version "0.1.1"
   resolved "https://registry.npmjs.org/jsbn/-/jsbn-0.1.1.tgz"
@@ -14999,6 +15004,11 @@ pngjs@3.4.0, pngjs@^3.3.0:
   resolved "https://registry.npmjs.org/pngjs/-/pngjs-3.4.0.tgz"
   integrity sha512-NCrCHhWmnQklfH4MtJMRjZ2a8c80qXeMlQMv2uVp9ISJMTt562SbGd6n2oq0PaPgKm7Z6pL9E2UlLIhC+SHL3w==
 
+pngjs@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/pngjs/-/pngjs-5.0.0.tgz#e79dd2b215767fd9c04561c01236df960bce7fbb"
+  integrity sha512-40QW5YalBNfQo5yRYmiw7Yz6TKKVr3h6970B2YE+3fQpsWcrbj1PzJgxeJ19DRQjhMbKPIuMY8rFaXc8moolVw==
+
 pnp-webpack-plugin@1.5.0:
   version "1.5.0"
   resolved "https://registry.npmjs.org/pnp-webpack-plugin/-/pnp-webpack-plugin-1.5.0.tgz"
@@ -15938,6 +15948,16 @@ qrcode-terminal@0.11.0:
   resolved "https://registry.npmjs.org/qrcode-terminal/-/qrcode-terminal-0.11.0.tgz"
   integrity sha1-/8bCii/Av7RwUrR+I/T0RqX7254=
 
+qrcode@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/qrcode/-/qrcode-1.5.0.tgz#95abb8a91fdafd86f8190f2836abbfc500c72d1b"
+  integrity sha512-9MgRpgVc+/+47dFvQeD6U2s0Z92EsKzcHogtum4QB+UNd025WOJSHvn/hjk9xmzj7Stj95CyUAs31mrjxliEsQ==
+  dependencies:
+    dijkstrajs "^1.0.1"
+    encode-utf8 "^1.0.3"
+    pngjs "^5.0.0"
+    yargs "^15.3.1"
+
 qs@6.5.2:
   version "6.5.2"
   resolved "https://registry.npmjs.org/qs/-/qs-6.5.2.tgz"
@@ -16430,6 +16450,14 @@ react-native-pager-view@^5.4.11:
   resolved "https://registry.npmjs.org/react-native-pager-view/-/react-native-pager-view-5.4.11.tgz"
   integrity sha512-4QlBL5W8yVjeYwrw89oCdABI7sDxIGapFQvIbukfB5mAj1Zn1IQPkBqROLblNFtQ8PbAeexXRgDT1ENWygiJ7A==
 
+react-native-qrcode-svg@^6.1.2:
+  version "6.1.2"
+  resolved "https://registry.yarnpkg.com/react-native-qrcode-svg/-/react-native-qrcode-svg-6.1.2.tgz#a7cb6c10199ab01418a7f7700ce17a6a014f544e"
+  integrity sha512-lMbbxoPVybXCp9SYm73Aj/0iZ9OlSZl2u+zpdbjgC4DYHBm9m9tDQxISNg1OPeR7AAzmyx8IV4JTFmk8G5R22g==
+  dependencies:
+    prop-types "^15.7.2"
+    qrcode "^1.5.0"
+
 react-native-randombytes@^3.6.1:
   version "3.6.1"
   resolved "https://registry.npmjs.org/react-native-randombytes/-/react-native-randombytes-3.6.1.tgz"
@@ -16449,13 +16477,6 @@ react-native-screens@3.8.0:
   integrity sha512-lHrnB/elAoMJKv8O12U6BLgeup4lB6ZKJHEOVuG/D72nv/OE9wUusbou6YCB5tp3YbaSpHflPnkFmHA/vCejpw==
   dependencies:
     warn-once "^0.1.0"
-
-react-native-smart-code@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/react-native-smart-code/-/react-native-smart-code-1.1.0.tgz#01edae97e1bab051aa695ba711a637853b971107"
-  integrity sha512-8ANfZJ5UmqVLsxxCmMYKPEpPV0iYkhBQPsA6BQ7K+mLxkMTJqlcoB4zH4uIgWi6kwmd4YB0R1fTRTzIlznM9/w==
-  dependencies:
-    jsbarcode "^3.9.0"
 
 react-native-svg-transformer@^1.0.0:
   version "1.0.0"
