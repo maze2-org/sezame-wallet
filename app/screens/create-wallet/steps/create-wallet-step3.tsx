@@ -29,7 +29,7 @@ export function CreateWalletStep3(props: StepProps) {
     defaultValue: "",
   })
 
-  const isSeedPhraseCorrect = seedPhrase == pastedSeedPhrase
+  const isSeedPhraseCorrect = seedPhrase === pastedSeedPhrase
 
   const { onButtonBack, onButtonNext } = useContext(StepsContext)
 
