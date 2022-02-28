@@ -14,6 +14,10 @@
     "create": "New wallet",
     "restore": "Import existing wallet"
   },
+  "dashboardScreen": {
+    "network": "NETWORK",
+    "currency": "CURRENCIES"
+  },
   "demoScreen": {
     "howTo": "HOW TO",
     "title": "What’s In This Stack?",
