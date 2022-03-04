@@ -1,5 +1,5 @@
 import { useFocusEffect } from "@react-navigation/native"
-import React, { useEffect, useState } from "react"
+import React from "react"
 import { BackHandler } from "react-native"
 import { StepProps } from "./Step"
 // import { useHistory, useParams } from "react-router";

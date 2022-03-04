@@ -1,6 +1,5 @@
 import React, { Dispatch, FC, SetStateAction, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { Text, View } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import { NavigatorParamList } from "../../navigators"
 import { Screen } from "../../components"
@@ -11,7 +10,6 @@ import MultiStepsController from "../../utils/MultiStepController/MultiStepContr
 import { RootPageStyle } from "../../theme/elements"
 import { CreateWalletStep3 } from "./steps/create-wallet-step3"
 import { StoredWallet } from "../../utils/stored-wallet"
-import { loadString } from "../../utils/storage"
 import { defaultAssets } from "utils/consts"
 
 interface WalletCreateContext {

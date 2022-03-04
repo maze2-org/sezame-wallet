@@ -1,6 +1,5 @@
-import React, { useContext, useState } from "react"
+import React, { useContext } from "react"
 import { View } from "react-native"
-import { TextInput } from "react-native-gesture-handler"
 import { Button, Header } from "../../../components"
 import { btnDefault, btnDisabled, footBtn, textInput } from "../../../theme/elements"
 import { StepsContext } from "../../../utils/MultiStepController/MultiStepController"
@@ -79,7 +78,7 @@ export function CreateWalletStep1(props: StepProps) {
             name="walletPassword"
             style={textInput}
             errors={errors}
-            placeholder="Enter your wallet passord"
+            placeholder="Enter your wallet password"
             value={value}
             onBlur={onBlur}
             onChangeText={(value) => onChange(value)}

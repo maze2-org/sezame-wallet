@@ -1,6 +1,5 @@
 import { TextStyle, ViewStyle } from "react-native"
 import { color, spacing, typography } from "."
-import { palette } from "./palette"
 
 /**
  * Roles for colors.  Prefer using these over the palette.  It makes it easier
