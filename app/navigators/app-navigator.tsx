@@ -5,9 +5,23 @@
  * and a "main" flow which the user will use once logged in.
  */
 import React, { useEffect, useState } from "react"
-import { TextStyle, TouchableOpacity, useColorScheme, View, ViewStyle, Button, StyleSheet, Text } from "react-native"
+import {
+  TextStyle,
+  TouchableOpacity,
+  useColorScheme,
+  View,
+  ViewStyle,
+  Button,
+  StyleSheet,
+  Text,
+} from "react-native"
 import Modal from "react-native-modal"
-import { NavigationContainer, DefaultTheme, DarkTheme } from "@react-navigation/native"
+import {
+  NavigationContainer,
+  DefaultTheme,
+  DarkTheme,
+  useNavigation,
+} from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import {
   WelcomeScreen,
@@ -15,6 +29,7 @@ import {
   CreateWalletScreen,
   DashboardScreen,
   SendScreen,
+  SettingsScreen,
 } from "../screens"
 import { navigationRef, useBackButtonHandler } from "./navigation-utilities"
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5"
@@ -31,6 +46,7 @@ import { getListOfWallets } from "../utils/storage"
 import { ReceiveScreen } from "screens/receive/receive-screen"
 import { useStores } from "../models"
 import { StoredWallet } from "../utils/stored-wallet"
+import { StackNavigationProp } from "@react-navigation/stack"
 
 const NAV_HEADER_BTN_CONTAINER: ViewStyle = {
   display: "flex",
@@ -77,7 +93,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const SettingsBtn = () => {
+const SettingsBtn = ({ route }) => {
   const COMMON = {
     privateKey: "",
     publicKey: "",
@@ -96,7 +112,7 @@ const SettingsBtn = () => {
       decimals: 8,
       address: "bc1qx6juea389gv4g3qzz0vwmzjjjhxwtdvzmk2e6c",
       image: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
-      ...COMMON
+      ...COMMON,
     },
     {
       symbol: "ETH",
@@ -107,7 +123,7 @@ const SettingsBtn = () => {
       decimals: 18,
       address: "0x79f01edb3ceace570587a05f5296c34fb7f400f3",
       image: "https://assets.coingecko.com/coins/images/279/large/ethereum.png",
-      ...COMMON
+      ...COMMON,
     },
     {
       symbol: "AVN",
@@ -127,13 +143,16 @@ const SettingsBtn = () => {
       type: "coin",
       decimals: 18,
       address: "0x79f01edb3ceace570587a05f5296c34fb7f400f3",
-      image: "https://assets.coingecko.com/coins/images/21598/large/Alephium-Logo_200x200_listing.png",
+      image:
+        "https://assets.coingecko.com/coins/images/21598/large/Alephium-Logo_200x200_listing.png",
     },
   ]
   const [isOpenAddAssetModal, setIsOpenAddAssetModal] = useState<boolean>(false)
-  const {currentWalletStore} = useStores()
-  const [storedWallet, setStoredWallet] = useState<any>(null);
+  const { currentWalletStore } = useStores()
+  const [storedWallet, setStoredWallet] = useState<any>(null)
+  const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
 
+  console.log("got route ", route)
   useEffect(() => {
     const { walletName, mnemonic, password } = JSON.parse(currentWalletStore.wallet)
     setStoredWallet(new StoredWallet(walletName, mnemonic, password))
@@ -151,27 +170,36 @@ const SettingsBtn = () => {
 
   return (
     <View style={NAV_HEADER_BTN_CONTAINER}>
-      <TouchableOpacity style={NAV_HEADER_BTN} onPress={() => {
-        console.log("a")
-      }}>
+      <TouchableOpacity
+        style={NAV_HEADER_BTN}
+        onPress={() => {
+          console.log("a")
+        }}
+      >
         <FontAwesome5Icon style={BTN_ICON} name="qrcode" size={23} />
       </TouchableOpacity>
       <TouchableOpacity style={NAV_HEADER_BTN} onPress={() => setIsOpenAddAssetModal(true)}>
         <FontAwesome5Icon style={BTN_ICON} name="plus" size={23} />
       </TouchableOpacity>
-      <TouchableOpacity style={NAV_HEADER_BTN} onPress={() => {
-        console.log("b")
-      }}>
+      <TouchableOpacity
+        style={NAV_HEADER_BTN}
+        onPress={() => {
+          route === "settings" ? navigation.goBack() : navigation.navigate("settings")
+        }}
+      >
         <FontAwesome5Icon style={BTN_ICON} name="user-cog" size={23} />
       </TouchableOpacity>
 
       <Modal isVisible={isOpenAddAssetModal}>
         <View style={MODAL_CONTAINER}>
           {NETWORKS.map((network) => (
-            <TouchableOpacity onPress={() => {
-              addAssets(network)
-              closeModal()
-            }} key={network.cid}>
+            <TouchableOpacity
+              onPress={() => {
+                addAssets(network)
+                closeModal()
+              }}
+              key={network.cid}
+            >
               <View style={styles.item}>
                 <Text style={styles.title}>{network.symbol}</Text>
               </View>
@@ -214,6 +242,7 @@ export type NavigatorParamList = {
   receive: {
     coinId: string
   }
+  settings: undefined
   // 🔥 Your screens go here
 }
 
@@ -234,8 +263,19 @@ const BottomTabNavigator = () => {
         },
       })}
     >
-      <Tab.Screen name="home" component={DashboardScreen} options={{tabBarLabel: "WALLET", tabBarStyle: {backgroundColor: color.palette.lightGrey}}} />
-      <Tab.Screen name="nfts" component={NftsScreen} options={{tabBarLabel: "NFT", tabBarStyle: {backgroundColor: color.palette.lightGrey}}} />
+      <Tab.Screen
+        name="home"
+        component={DashboardScreen}
+        options={{
+          tabBarLabel: "WALLET",
+          tabBarStyle: { backgroundColor: color.palette.lightGrey },
+        }}
+      />
+      <Tab.Screen
+        name="nfts"
+        component={NftsScreen}
+        options={{ tabBarLabel: "NFT", tabBarStyle: { backgroundColor: color.palette.lightGrey } }}
+      />
     </Tab.Navigator>
   )
 }
@@ -277,7 +317,7 @@ const AppStack = () => {
             component={BottomTabNavigator}
             options={{
               headerShown: true,
-              headerRight: SettingsBtn,
+              headerRight: () => <SettingsBtn route="dashboard" />,
               headerLeft: Logo,
               headerBackVisible: false,
               headerStyle: {
@@ -305,6 +345,17 @@ const AppStack = () => {
             }}
             name="receive"
             component={ReceiveScreen}
+          />
+          <Stack.Screen
+            name="settings"
+            component={SettingsScreen}
+            options={{
+              headerShown: true,
+              headerRight: () => <SettingsBtn route="settings" />,
+              headerLeft: Logo,
+              headerShown: true,
+              title: "",
+            }}
           />
           {/** 🔥 Your screens go here */}
         </Stack.Navigator>

@@ -32,6 +32,7 @@ export class StoredWallet {
       await storedWallet.addAssets(walletData.assets)
       return storedWallet
     } catch (err) {
+      console.log(err)
       throw new Error("Unable to open this wallet")
     }
   }
