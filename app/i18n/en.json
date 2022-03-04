@@ -11,8 +11,8 @@
     "welcome": "Welcome",
     "readyForLaunch": "Ready for launch.",
     "continue": "continue",
-    "create": "New wallet",
-    "restore": "Import existing wallet"
+    "create": "Create wallet",
+    "restore": "Restore wallet"
   },
   "dashboardScreen": {
     "network": "NETWORK",
