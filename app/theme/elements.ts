@@ -15,7 +15,7 @@ import { palette } from "./palette"
 export const RootPageStyle: ViewStyle = {
   backgroundColor: color.palette.black,
   flex: 1,
-  padding: spacing[2],
+  padding: spacing[6],
 }
 
 export const textInput: TextStyle = {
