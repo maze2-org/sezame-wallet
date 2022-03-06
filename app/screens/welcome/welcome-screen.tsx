@@ -1,7 +1,9 @@
-import React, { FC } from "react"
+import React, { FC, useEffect } from "react"
 import { View, ViewStyle, TextStyle, ImageStyle, SafeAreaView, ImageBackground } from "react-native"
 import { StackScreenProps } from "@react-navigation/stack"
 import { observer } from "mobx-react-lite"
+import SplashScreen from "react-native-splash-screen"
+
 import {
   Button,
   Text,
@@ -79,6 +81,9 @@ const FOOTER_TEXT: TextStyle = {
 
 export const WelcomeScreen: FC<StackScreenProps<NavigatorParamList, "welcome">> = observer(
   ({ navigation }) => {
+    useEffect(() => {
+      SplashScreen.hide()
+    }, [])
     return (
       <View testID="WelcomeScreen" style={RootPageStyle}>
         <ImageBackground  source={MainBackground}  style={BackgroundStyle} >

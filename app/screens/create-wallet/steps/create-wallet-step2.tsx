@@ -10,7 +10,6 @@ import {
   checkboxContainer,
   conditionsCheckbox,
   copyBtn,
-  createBtn,
   demoText,
   footBtn,
   headerTitle,
@@ -38,7 +37,9 @@ export function CreateWalletStep2(props: StepProps) {
   const { onButtonBack, onButtonNext } = useContext(StepsContext)
 
   const copyToClipboard = () => {
-    Clipboard.setString(seedPhrase)
+    if (seedPhrase) {
+      Clipboard.setString(seedPhrase)
+    }
     showMessage({
       message: "mnemonic copied to clipboard",
       type: "success",

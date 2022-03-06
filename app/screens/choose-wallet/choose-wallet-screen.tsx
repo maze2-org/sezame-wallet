@@ -2,6 +2,7 @@ import React, { FC, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { View, ViewStyle } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
+import SplashScreen from "react-native-splash-screen"
 import { NavigatorParamList } from "../../navigators"
 import { Button, Header, Screen } from "../../components"
 // import { useNavigation } from "@react-navigation/native"
@@ -74,6 +75,11 @@ export const ChooseWalletScreen: FC<
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
 
   const [walletNames, setWalletNames] = useState<string[]>([])
+
+  useEffect(() => {
+    SplashScreen.hide()
+  }, [])
+
   useEffect(() => {
     getListOfWallets().then((walletNames) => {
       setWalletNames(walletNames)

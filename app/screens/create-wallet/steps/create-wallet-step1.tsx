@@ -126,7 +126,7 @@ export function CreateWalletStep1(props: StepProps) {
             name="walletPassword"
             style={textInput}
             errors={errors}
-            placeholder="Enter your wallet passord"
+            placeholder="Enter your wallet password"
             value={value}
             onBlur={onBlur}
             onChangeText={(value) => onChange(value)}

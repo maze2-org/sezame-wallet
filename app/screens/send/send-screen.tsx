@@ -14,7 +14,6 @@ import { useNavigation } from "@react-navigation/native"
 import { useStores } from "models"
 import { getFees, makeSendTransaction } from "services/api"
 import { showMessage } from "react-native-flash-message"
-import { boolean } from "mobx-state-tree/dist/internal"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
