@@ -1,4 +1,5 @@
-import { TextStyle, ViewStyle } from "react-native"
+import { withRootStore } from "models"
+import { ImageStyle, TextStyle, ViewStyle } from "react-native"
 import { color, spacing, typography } from "."
 import { palette } from "./palette"
 
@@ -11,11 +12,16 @@ import { palette } from "./palette"
  * If you have a specific use-case, like a spinner color.  It makes more sense to
  * put that in the <Spinner /> component.
  */
+export const BackgroundStyle: ImageStyle = {
+  flex: 1,
+  justifyContent: "space-between",
+}
 
 export const RootPageStyle: ViewStyle = {
   backgroundColor: color.palette.black,
   flex: 1,
-  padding: spacing[6],
+  padding: spacing[0],
+  display: "flex"
 }
 
 export const textInput: TextStyle = {
@@ -133,3 +139,41 @@ export const btnDefault: TextStyle = {
   letterSpacing: 2,
   backgroundColor: color.palette.deepPurple,
 }
+
+export const LogoStyle: ImageStyle = {
+  alignSelf: "center",
+  marginVertical: spacing[5],
+  maxWidth: "100%",
+  width: 247,
+  height: 51,
+}
+
+export const CONTAINER: ViewStyle = {
+  height: "100%",
+  display: "flex",
+  justifyContent: "space-between",
+  paddingVertical: spacing[5],
+  paddingHorizontal: spacing[7]
+}
+
+export const PRIMARY_BTN: ViewStyle = {
+  width: "100%",
+  borderRadius: 80,
+  height:47,
+  backgroundColor: color.palette.gold,
+  marginVertical: spacing[2]
+}
+
+export const PRIMARY_TEXT: TextStyle = {
+  color: color.palette.white,
+  fontSize: 13,
+  lineHeight: 18,
+  fontWeight: "600"
+}
+
+export const PRIMARY_OUTLINE_BTN: TextStyle = {
+  backgroundColor: color.transparent,
+  width: "100%"
+}
+export const SesameLogo = require("../../../assets/images/Logo.png");
+export const MainBackground = require("../../../assets/images/bg-noise.png");

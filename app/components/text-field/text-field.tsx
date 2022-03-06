@@ -1,5 +1,5 @@
 import React from "react"
-import { StyleProp, TextInput, TextInputProps, TextStyle, View, ViewStyle } from "react-native"
+import { StyleProp, TextInput, TextInputProps, TextStyle, View, ViewStyle, Image } from "react-native"
 import { color, spacing, typography } from "../../theme"
 import { translate, TxKeyPath } from "../../i18n"
 import { Text } from "../text/text"
@@ -14,8 +14,19 @@ const INPUT: TextStyle = {
   fontFamily: typography.primary,
   color: color.text,
   minHeight: 44,
-  fontSize: 18,
-  backgroundColor: color.palette.white,
+  fontSize: 15,
+  lineHeight: 20,
+  backgroundColor: color.transparent,
+  borderBottomWidth: 1,
+  borderColor: color.palette.white,
+  padding: spacing[0]
+}
+const LABEL: TextStyle = {
+  fontSize: 10,
+  lineHeight: 14,
+  color: color.palette.grey,
+  fontWeight: "600",
+  textTransform: "uppercase",
 }
 
 // currently we have no presets, but that changes quickly when you build your app.
@@ -23,6 +34,11 @@ const PRESETS: { [name: string]: ViewStyle } = {
   default: {},
 }
 
+const iconStyle: ViewStyle = {
+  position: "absolute",
+  right: 0,
+  top: 9
+}
 export interface TextFieldProps extends TextInputProps {
   /**
    * The placeholder i18n key.
@@ -59,7 +75,9 @@ export interface TextFieldProps extends TextInputProps {
    */
   preset?: keyof typeof PRESETS
 
-  forwardedRef?: any
+  forwardedRef?: any,
+
+  icon?: any
 }
 
 /**
@@ -75,24 +93,32 @@ export function TextField(props: TextFieldProps) {
     style: styleOverride,
     inputStyle: inputStyleOverride,
     forwardedRef,
+    icon,
     ...rest
   } = props
 
   const containerStyles = [CONTAINER, PRESETS[preset], styleOverride]
   const inputStyles = [INPUT, inputStyleOverride]
   const actualPlaceholder = placeholderTx ? translate(placeholderTx) : placeholder
+  const labelStyle = [LABEL];
 
   return (
     <View style={containerStyles}>
-      <Text preset="fieldLabel" tx={labelTx} text={label} />
-      <TextInput
-        placeholder={actualPlaceholder}
-        placeholderTextColor={color.palette.lighterGrey}
-        underlineColorAndroid={color.transparent}
-        {...rest}
-        style={inputStyles}
-        ref={forwardedRef}
-      />
+      <Text preset="fieldLabel" tx={labelTx} text={label} style={labelStyle}/>
+      <View>
+        <TextInput
+          placeholder={actualPlaceholder}
+          placeholderTextColor={color.palette.lighterGrey}
+          underlineColorAndroid={color.transparent}
+          {...rest}
+          style={inputStyles}
+          ref={forwardedRef}
+        />
+        <View style={iconStyle}>
+        <Image source={icon} />
+        </View>
+      </View>
+      
     </View>
   )
 }

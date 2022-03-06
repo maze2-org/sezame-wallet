@@ -1,29 +1,17 @@
 import React, { FC } from "react"
-import { View, ViewStyle, TextStyle, ImageStyle, SafeAreaView } from "react-native"
+import { View, ViewStyle, TextStyle, ImageStyle, SafeAreaView, ImageBackground } from "react-native"
 import { StackScreenProps } from "@react-navigation/stack"
 import { observer } from "mobx-react-lite"
 import {
   Button,
-  Header,
-  Screen,
   Text,
-  GradientBackground,
   AutoImage as Image,
 } from "../../components"
 import { color, spacing, typography } from "../../theme"
 import { NavigatorParamList } from "../../navigators"
-import { RootPageStyle } from "../../theme/elements"
+import { BackgroundStyle, CONTAINER, LogoStyle, MainBackground, RootPageStyle, SesameLogo } from "../../theme/elements"
 
-const sesameLogo = require("../../../assets/images/Logo.png");
 
-const CONTAINER: ViewStyle = {
-  backgroundColor: "#23282C",
-  paddingHorizontal: spacing[6],
-  paddingTop: spacing[5],
-  height: "100%",
-  display: "flex",
-  justifyContent: "space-between"
-}
 const TEXT: TextStyle = {
   color: color.palette.white,
   fontFamily: typography.primary,
@@ -31,13 +19,6 @@ const TEXT: TextStyle = {
 }
 const BOLD: TextStyle = { fontWeight: "bold" }
 
-const SESAMELOGO: ImageStyle = {
-  alignSelf: "center",
-  marginVertical: spacing[5],
-  maxWidth: "100%",
-  width: 247,
-  height: 51,
-}
 const PRIMARY_BTN: ViewStyle = {
   paddingVertical: spacing[4],
   paddingHorizontal: spacing[4],
@@ -91,7 +72,7 @@ const DIVIDER: ViewStyle = {
 const FOOTER_TEXT: TextStyle = {
   ...TEXT,
   lineHeight: 16.5,
-  width: 265,
+  width: "100%",
   display: "flex",
   textAlign: "center"
 }
@@ -100,47 +81,49 @@ export const WelcomeScreen: FC<StackScreenProps<NavigatorParamList, "welcome">> 
   ({ navigation }) => {
     return (
       <View testID="WelcomeScreen" style={RootPageStyle}>
-        <Screen style={CONTAINER}>
-          <Image source={sesameLogo} style={SESAMELOGO} />
-          <SafeAreaView style={FOOTER}>
-            <View style={FOOTER_CONTENT}>
-              <Button
-                testID="next-screen-button"
-                style={PRIMARY_BTN}
-                textStyle={BUTTON_TEXT}
-                tx="welcomeScreen.create"
-                onPress={() => {
-                  console.log("CREATE A WALLET")
-                  navigation.navigate("createWallet")
-                }}
-              />
-            </View>
-            <View style={DIVIDER_CONTENT}>
-              <View style={DIVIDER}>
-                
+        <ImageBackground  source={MainBackground}  style={BackgroundStyle} >
+          <View style={CONTAINER}>
+            <Image source={SesameLogo} style={LogoStyle} />
+            <SafeAreaView style={FOOTER}>
+              <View style={FOOTER_CONTENT}>
+                <Button
+                  testID="next-screen-button"
+                  style={PRIMARY_BTN}
+                  textStyle={BUTTON_TEXT}
+                  tx="welcomeScreen.create"
+                  onPress={() => {
+                    console.log("CREATE A WALLET")
+                    navigation.navigate("createWallet")
+                  }}
+                />
               </View>
-              <Text style={TEXT}> OR </Text>
-              <View style={DIVIDER}>
-                
+              <View style={DIVIDER_CONTENT}>
+                <View style={DIVIDER}>
+                  
+                </View>
+                <Text style={TEXT}> OR </Text>
+                <View style={DIVIDER}>
+                  
+                </View>
               </View>
-            </View>
+              <View style={FOOTER_CONTENT}>
+                <Button
+                  testID="next-screen-button"
+                  style={PRIMARY_OUTLINE_BTN}
+                  textStyle={BUTTON_OUTLINE_TEXT}
+                  tx="welcomeScreen.restore"
+                  onPress={() => navigation.navigate("importWallet")}
+                />
+              </View>
+            </SafeAreaView>
             <View style={FOOTER_CONTENT}>
-              <Button
-                testID="next-screen-button"
-                style={PRIMARY_OUTLINE_BTN}
-                textStyle={BUTTON_OUTLINE_TEXT}
-                tx="welcomeScreen.restore"
-                onPress={() => navigation.navigate("importWallet")}
-              />
+              <Text style={FOOTER_TEXT}>
+                Seems like this is the first time you use Sezame Wallet. You have to create or restore a wallet before you can use this application.
+              </Text>
             </View>
-          </SafeAreaView>
-          <View style={FOOTER_CONTENT}>
-            <Text style={FOOTER_TEXT}>
-            Seems like this is the first time you use Sezame Wallet. You have to create or restore a wallet before you can use this application.
-            </Text>
           </View>
-        </Screen>
-      </View>
+        </ImageBackground>    
+      </View> 
     )
   },
 )

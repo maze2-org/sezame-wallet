@@ -1,6 +1,6 @@
 import React, { Dispatch, FC, SetStateAction, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { Text, View } from "react-native"
+import { ImageBackground, Text, View } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import { NavigatorParamList } from "../../navigators"
 import { Screen } from "../../components"
@@ -8,10 +8,9 @@ import { useNavigation } from "@react-navigation/native"
 import { CreateWalletStep1 } from "./steps/create-wallet-step1"
 import { CreateWalletStep2 } from "./steps/create-wallet-step2"
 import MultiStepsController from "../../utils/MultiStepController/MultiStepController"
-import { RootPageStyle } from "../../theme/elements"
+import { BackgroundStyle, MainBackground, RootPageStyle, SesameLogo } from "../../theme/elements"
 import { CreateWalletStep3 } from "./steps/create-wallet-step3"
 import { StoredWallet } from "../../utils/stored-wallet"
-import { loadString } from "../../utils/storage"
 import { defaultAssets } from "utils/consts"
 
 interface WalletCreateContext {
@@ -82,12 +81,14 @@ export const CreateWalletScreen: FC<
       }}
     >
       <Screen preset="scroll" style={RootPageStyle}>
-        <MultiStepsController
-          stepElements={stepElements}
-          currentStep={currentStep}
-          next={next}
-          previous={previous}
-        />
+        <ImageBackground  source={MainBackground}  style={BackgroundStyle} >
+          <MultiStepsController
+            stepElements={stepElements}
+            currentStep={currentStep}
+            next={next}
+            previous={previous}
+          />
+        </ImageBackground>
       </Screen>
     </WalletCreateContext.Provider>
   )
