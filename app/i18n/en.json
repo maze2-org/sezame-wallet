@@ -45,7 +45,9 @@
   },
   "createWallet": {
     "newWallet": "New Wallet",
-    "create": "Create"
+    "create": "Create",
+    "next": "NEXT",
+    "cancel": "CANCEL"
   },
   "chooseWallet": {
     "title": "Choose a wallet",
