@@ -29,7 +29,6 @@ target 'walletApp' do
 
   pod 'react-native-mmkv', :path => '../node_modules/react-native-mmkv'
 
-  pod 'react-native-splash-screen', :path => '../node_modules/react-native-splash-screen'
 
   target 'walletAppTests' do
     inherit! :complete

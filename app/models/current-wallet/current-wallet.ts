@@ -26,6 +26,7 @@ export const CurrentWalletModel = types
   .model("CurrentWallet")
   .props({
     wallet: types.maybe(types.string),
+    name: types.maybe(types.string),
     assets: types.array(WalletAsset),
   })
   .views((self) => ({
@@ -47,9 +48,12 @@ export const CurrentWalletModel = types
       self.wallet = JSON.stringify(wallet.toJson())
       console.log("set assets", wallet.toJson().assets)
       self.assets = wallet.toJson().assets as any
+      self.name = wallet.toJson().walletName
     },
     close: () => {
-      self.wallet = null
+      self.wallet = undefined
+      self.assets = [] as any
+      self.name = ""
     },
     setBalance: (asset, balance: number) => {
       const storedAsset = self.assets.find(

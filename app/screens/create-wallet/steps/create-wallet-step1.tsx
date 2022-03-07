@@ -1,17 +1,19 @@
-import React, { useContext } from "react"
-import { View } from "react-native"
-import { Button, Header } from "../../../components"
-import { btnDefault, btnDisabled, footBtn, textInput } from "../../../theme/elements"
+import React, { useContext, useState } from "react"
+import { TextStyle, View, ImageStyle } from "react-native"
+import { Button, AutoImage as Image, Text, TextField, Checkbox} from "../../../components"
+import { CONTAINER, LogoStyle, PRIMARY_BTN, PRIMARY_OUTLINE_BTN, PRIMARY_TEXT, SesameLogo, textInput } from "../../../theme/elements"
 import { StepsContext } from "../../../utils/MultiStepController/MultiStepController"
 import { StepProps } from "../../../utils/MultiStepController/Step"
 import { useForm, Controller } from "react-hook-form"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { TextInputField } from "../../../components/text-input-field/text-input-field"
 import { WalletCreateContext } from "../create-wallet-screen"
 import { WalletGenerator } from "@maze2/sezame-sdk"
+import { spacing } from "theme/spacing"
 
 export function CreateWalletStep1(props: StepProps) {
   // Pull in navigation via hook
+
+  const nextIcon = require("../../../../assets/icons/next.png");
 
   const { onButtonBack, onButtonNext } = useContext(StepsContext)
 
@@ -42,9 +44,55 @@ export function CreateWalletStep1(props: StepProps) {
     seedPhrase,
   } = useContext(WalletCreateContext)
 
+  const [condition1, setCondition1] = useState(false)
+
+  const TEXT_STYLE: TextStyle = {
+    fontSize: 12,
+    lineHeight: 16.34,
+    paddingTop: spacing[5]
+  }
+
+  const buttonIconStyle:ImageStyle = {
+    position: "absolute",
+    right: 15
+  }
+
+  const eyeIcon = require("../../../assets/icons/eye.png")
   return (
     <SafeAreaView {...props}>
-      <Header headerTx="createWallet.newWallet" />
+      <View style={CONTAINER}>
+        <SafeAreaView>
+          <Image source={SesameLogo} style={LogoStyle} />
+          <Text style={TEXT_STYLE} text="Your wallet needs to be secured on this mobile phone. Choose a name and a password that will be used to encrypt your wallet information." />
+        </SafeAreaView>
+        
+        <SafeAreaView>
+          
+          <TextField label="Wallet Name"/>
+          <TextField label="Choose a password" secureTextEntry={true} icon={eyeIcon}/>
+          <TextField label="Confirm password" secureTextEntry={true} icon={eyeIcon}/>
+        </SafeAreaView>
+        <SafeAreaView>
+          <Checkbox text="By creating a wallet, I accept the terms and policies" value={condition1} multiline={true}
+            onToggle={()=>setCondition1(!condition1)} style={{paddingHorizontal: spacing[2], marginBottom: spacing[6]}}
+          />
+          <Button
+            testID="next-screen-button"
+            style={PRIMARY_BTN}
+            textStyle={PRIMARY_TEXT}
+          >
+            <Text tx="createWallet.next" />
+            <Image source={nextIcon} style={buttonIconStyle}/>
+          </Button>
+          <Button
+            testID="next-screen-button"
+            style={PRIMARY_OUTLINE_BTN}
+            textStyle={PRIMARY_TEXT}
+            tx="createWallet.cancel"
+          />       
+        </SafeAreaView>
+      </View>
+      {/* <Header headerTx="createWallet.newWallet" />
       <Controller
         control={control}
         defaultValue={walletName}
@@ -99,8 +147,8 @@ export function CreateWalletStep1(props: StepProps) {
           text="Continue"
           onPress={handleSubmit(onSubmit)}
         />
-      </View>
-    </SafeAreaView>
+      </View> */}
+    </SafeAreaView> 
   )
 
   // return (

@@ -10,3 +10,4 @@ export const initFonts = async () => {
   //   "Montserrat-Regular": require("./Montserrat-Regular.ttf"),
   // })
 }
+export const Fonts = [11, 15, 24, 48]
