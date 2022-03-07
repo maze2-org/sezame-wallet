@@ -4,6 +4,7 @@ import { TextStyle, View, ViewStyle, StyleSheet, Alert, Modal, Pressable } from 
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import FontAwesomeIcon from "react-native-vector-icons/FontAwesome"
 import FontAwesomeIcon5 from "react-native-vector-icons/FontAwesome5"
+import IonIcon from "react-native-vector-icons/Ionicons"
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
 import { useForm, Controller } from "react-hook-form"
 import Clipboard from "@react-native-clipboard/clipboard"
@@ -119,6 +120,20 @@ const styles = StyleSheet.create({
   mnemonicText: {
     color: color.palette.black,
   },
+  fabBtn: {
+    borderWidth: 1,
+    borderColor: color.palette.black,
+    alignItems: "center",
+    justifyContent: "center",
+    width: 70,
+    position: "absolute",
+    bottom: 10,
+    right: 10,
+    height: 70,
+    backgroundColor: color.red,
+    borderRadius: 100,
+    zIndex: 16,
+  },
 })
 export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">> = observer(
   function SettingsScreen() {
@@ -183,6 +198,8 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
         type: "success",
       })
     }
+
+    const goBack = () => navigation.goBack()
     return (
       <Screen style={ROOT} preset="scroll">
         <SafeAreaView>
@@ -260,77 +277,81 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
               </View>
             </TouchableOpacity>
           </View>
-        </SafeAreaView>
-        <Modal animationType="slide" transparent={true} visible={showPasswordModal}>
-          <View style={styles.centeredView}>
-            {!seedPhrase && (
-              <View style={styles.modalView}>
-                <Text style={styles.modalText}>Unlock wallet</Text>
-                <Controller
-                  control={control}
-                  defaultValue=""
-                  name="password"
-                  render={({ field: { onChange, value, onBlur } }) => (
-                    <TextInputField
-                      secureTextEntry={true}
-                      name="password"
-                      errors={errors}
-                      placeholder="Enter your wallet password"
-                      value={value}
-                      onBlur={onBlur}
-                      onChangeText={(value) => onChange(value)}
-                    />
+
+          <Modal animationType="slide" transparent={true} visible={showPasswordModal}>
+            <View style={styles.centeredView}>
+              {!seedPhrase && (
+                <View style={styles.modalView}>
+                  <Text style={styles.modalText}>Unlock wallet</Text>
+                  <Controller
+                    control={control}
+                    defaultValue=""
+                    name="password"
+                    render={({ field: { onChange, value, onBlur } }) => (
+                      <TextInputField
+                        secureTextEntry={true}
+                        name="password"
+                        errors={errors}
+                        placeholder="Enter your wallet password"
+                        value={value}
+                        onBlur={onBlur}
+                        onChangeText={(value) => onChange(value)}
+                      />
+                    )}
+                    rules={{
+                      required: {
+                        value: true,
+                        message: "Field is required!",
+                      },
+                    }}
+                  />
+                  {errorUnlockingWallet && (
+                    <Text style={styles.error} text="Couldn't unlock wallet" />
                   )}
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "Field is required!",
-                    },
-                  }}
-                />
-                {errorUnlockingWallet && (
-                  <Text style={styles.error} text="Couldn't unlock wallet" />
-                )}
-                <View style={styles.buttonContainer}>
+                  <View style={styles.buttonContainer}>
+                    <Button
+                      style={btnDefault}
+                      text="Cancel"
+                      onPress={() => {
+                        setErrorUnlockingWallet(false)
+                        setShowPasswordModal(!showPasswordModal)
+                      }}
+                    ></Button>
+                    <Button
+                      style={[btnDefault, !isValid && { ...btnDisabled }]}
+                      disabled={!isValid}
+                      text="Continue"
+                      onPress={handleSubmit(onPasswordSubmit)}
+                    />
+                  </View>
+                </View>
+              )}
+              {!!seedPhrase && (
+                <View style={styles.modalView}>
+                  <Text style={styles.modalText}>Unlock wallet</Text>
+                  <View style={mnemonicContainer}>
+                    <Text style={[mnemonicStyle, styles.mnemonicText]} text={seedPhrase} />
+                    <TouchableOpacity style={copyBtn} onPress={copyToClipboard}>
+                      <FontAwesomeIcon5 name="clipboard-check" size={23} />
+                    </TouchableOpacity>
+                  </View>
                   <Button
                     style={btnDefault}
-                    text="Cancel"
+                    text="Close"
                     onPress={() => {
                       setErrorUnlockingWallet(false)
+                      setSeedPhrase("")
                       setShowPasswordModal(!showPasswordModal)
                     }}
                   ></Button>
-                  <Button
-                    style={[btnDefault, !isValid && { ...btnDisabled }]}
-                    disabled={!isValid}
-                    text="Continue"
-                    onPress={handleSubmit(onPasswordSubmit)}
-                  />
                 </View>
-              </View>
-            )}
-            {!!seedPhrase && (
-              <View style={styles.modalView}>
-                <Text style={styles.modalText}>Unlock wallet</Text>
-                <View style={mnemonicContainer}>
-                  <Text style={[mnemonicStyle, styles.mnemonicText]} text={seedPhrase} />
-                  <TouchableOpacity style={copyBtn} onPress={copyToClipboard}>
-                    <FontAwesomeIcon5 name="clipboard-check" size={23} />
-                  </TouchableOpacity>
-                </View>
-                <Button
-                  style={btnDefault}
-                  text="Close"
-                  onPress={() => {
-                    setErrorUnlockingWallet(false)
-                    setSeedPhrase("")
-                    setShowPasswordModal(!showPasswordModal)
-                  }}
-                ></Button>
-              </View>
-            )}
-          </View>
-        </Modal>
+              )}
+            </View>
+          </Modal>
+          <TouchableOpacity style={styles.fabBtn} onPress={goBack}>
+            <IonIcon name="arrow-back" size={30} color="#01a699" />
+          </TouchableOpacity>
+        </SafeAreaView>
       </Screen>
     )
   },
