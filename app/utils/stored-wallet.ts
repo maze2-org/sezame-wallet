@@ -1,7 +1,7 @@
 import { Chains, WalletGenerator } from "@maze2/sezame-sdk"
 import { IWalletAsset } from "models/current-wallet/current-wallet"
 import { decrypt, encrypt } from "./encryption"
-import { loadString, saveString } from "./storage"
+import { loadString, remove, saveString } from "./storage"
 
 export interface WalletJson {
   walletName: string
@@ -80,6 +80,10 @@ export class StoredWallet {
       encrypt(this.password, JSON.stringify(this.toJson())),
       "wallets",
     )
+  }
+
+  async remove() {
+    await remove(this.walletName)
   }
 
   public async addAssets(assets) {

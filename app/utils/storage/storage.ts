@@ -1,11 +1,12 @@
 import { MMKV } from "react-native-mmkv"
 
+const WALLETS_STORE_ID = "wallets"
 /**
  * Loads a string from storage.
  *
  * @param key The key to fetch.
  */
-export async function loadString(key: string, id?: string): Promise<string | null> {
+export async function loadString(key: string, id = WALLETS_STORE_ID): Promise<string | null> {
   try {
     const storage = new MMKV({ id })
     return storage.getString(key)
@@ -17,9 +18,8 @@ export async function loadString(key: string, id?: string): Promise<string | nul
 
 export async function getListOfWallets(): Promise<string[]> {
   const storage = new MMKV({
-    id: "wallets",
+    id: WALLETS_STORE_ID,
   })
-
   return storage.getAllKeys()
 }
 
@@ -29,7 +29,11 @@ export async function getListOfWallets(): Promise<string[]> {
  * @param key The key to fetch.
  * @param value The value to store.
  */
-export async function saveString(key: string, value: string, id?: string): Promise<boolean> {
+export async function saveString(
+  key: string,
+  value: string,
+  id = WALLETS_STORE_ID,
+): Promise<boolean> {
   try {
     const storage = new MMKV({
       id,
@@ -47,7 +51,7 @@ export async function saveString(key: string, value: string, id?: string): Promi
  *
  * @param key The key to fetch.
  */
-export async function load(key: string, id?: string): Promise<any | null> {
+export async function load(key: string, id = WALLETS_STORE_ID): Promise<any | null> {
   try {
     const storage = new MMKV({
       id,
@@ -65,7 +69,7 @@ export async function load(key: string, id?: string): Promise<any | null> {
  * @param key The key to fetch.
  * @param value The value to store.
  */
-export async function save(key: string, value: any, id?: string): Promise<boolean> {
+export async function save(key: string, value: any, id = WALLETS_STORE_ID): Promise<boolean> {
   try {
     const storage = new MMKV({
       id,
@@ -82,14 +86,15 @@ export async function save(key: string, value: any, id?: string): Promise<boolea
  *
  * @param key The key to kill.
  */
-export async function remove(key: string, id?: string): Promise<boolean> {
+export async function remove(key: string, id = WALLETS_STORE_ID): Promise<boolean> {
   try {
     const storage = new MMKV({
       id,
     })
     storage.delete(key)
     return true
-  } catch {
+  } catch (error) {
+    console.log("Error removing key", error)
     return false
   }
 }
@@ -97,7 +102,7 @@ export async function remove(key: string, id?: string): Promise<boolean> {
 /**
  * Burn it all to the ground.
  */
-export async function clear(id?: string): Promise<boolean> {
+export async function clear(id = WALLETS_STORE_ID): Promise<boolean> {
   try {
     const storage = new MMKV({
       id,
