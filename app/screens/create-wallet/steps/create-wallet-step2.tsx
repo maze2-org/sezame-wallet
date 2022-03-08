@@ -21,7 +21,7 @@ import { StepsContext } from "utils/MultiStepController/MultiStepController"
 import { WalletCreateContext } from "../create-wallet-screen"
 import { TextInputField } from "components/text-input-field/text-input-field"
 import { spacing } from "theme"
-import { bip39Words } from "../../../utils/bip39words";
+import { bip39Words } from "../../../utils/bip39Words";
 export function CreateWalletStep2(props: StepProps) {
   const nextIcon = require("../../../../assets/icons/next.png");
   const { seedPhrase } = useContext(WalletCreateContext)
