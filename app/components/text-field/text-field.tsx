@@ -77,7 +77,9 @@ export interface TextFieldProps extends TextInputProps {
 
   forwardedRef?: any,
 
-  icon?: any
+  icon?: any,
+
+  multiline?: boolean | undefined
 }
 
 /**
@@ -94,6 +96,7 @@ export function TextField(props: TextFieldProps) {
     inputStyle: inputStyleOverride,
     forwardedRef,
     icon,
+    multiline,
     ...rest
   } = props
 
@@ -107,6 +110,7 @@ export function TextField(props: TextFieldProps) {
       <Text preset="fieldLabel" tx={labelTx} text={label} style={labelStyle}/>
       <View>
         <TextInput
+          multiline = {multiline}
           placeholder={actualPlaceholder}
           placeholderTextColor={color.palette.lighterGrey}
           underlineColorAndroid={color.transparent}
@@ -115,7 +119,7 @@ export function TextField(props: TextFieldProps) {
           ref={forwardedRef}
         />
         <View style={iconStyle}>
-        <Image source={icon} />
+          <Image source={icon} />
         </View>
       </View>
       
