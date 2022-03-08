@@ -80,6 +80,7 @@ export function CreateWalletStep1(props: StepProps) {
             testID="next-screen-button"
             style={PRIMARY_BTN}
             textStyle={PRIMARY_TEXT}
+            onPress={onButtonNext}
           >
             <Text tx="createWallet.next" />
             <Image source={nextIcon} style={buttonIconStyle}/>
@@ -89,6 +90,7 @@ export function CreateWalletStep1(props: StepProps) {
             style={PRIMARY_OUTLINE_BTN}
             textStyle={PRIMARY_TEXT}
             tx="createWallet.cancel"
+            onPress={onButtonBack}
           />       
         </SafeAreaView>
       </View>
