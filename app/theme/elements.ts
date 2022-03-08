@@ -56,10 +56,9 @@ export const text: TextStyle = {
 export const bold: TextStyle = { fontWeight: "bold" }
 export const headerTitle: TextStyle = {
   ...bold,
-  fontSize: 18,
+  fontSize: 22,
+  justifyContent: "center"
   // lineHeight: 15,
-  textAlign: "center",
-  letterSpacing: 1.5,
 }
 
 export const createBtn: ViewStyle = {
@@ -173,6 +172,12 @@ export const PRIMARY_TEXT: TextStyle = {
 export const PRIMARY_OUTLINE_BTN: TextStyle = {
   backgroundColor: color.transparent,
   width: "100%"
+}
+
+export const NORMAL_TEXT: TextStyle = {
+  fontSize: 12,
+  lineHeight: 16,
+  fontWeight: "400"
 }
 export const SesameLogo = require("../../../assets/images/Logo.png");
 export const MainBackground = require("../../../assets/images/bg-noise.png");
