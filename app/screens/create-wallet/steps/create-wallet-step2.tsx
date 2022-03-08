@@ -115,8 +115,8 @@ export function CreateWalletStep2(props: StepProps) {
         </View>
         <View>
           <TextField label="Seed phase" multiline={true} value={selectedWords.join(' ')} editable={false}/>
-          <TextField label="Next word" value={keyword} onChangeText={(value) => {
-            onKeyChange(value)
+          <TextField label="Next word" value={keyword} secureTextEntry={true} onChangeText={(value) => {
+            onKeyChange(value) 
           }}/>
           <View style={whitelistContainerStyle}>
             {renderRemainingWords()}
