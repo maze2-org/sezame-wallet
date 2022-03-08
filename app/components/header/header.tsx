@@ -4,20 +4,20 @@ import { HeaderProps } from "./header.props"
 import { Button } from "../button/button"
 import { Text } from "../text/text"
 import { Icon } from "../icon/icon"
-import { spacing } from "../../theme"
+import { spacing, typography } from "../../theme"
 import { translate } from "../../i18n/"
 
 // static styles
 const ROOT: ViewStyle = {
   flexDirection: "row",
-  paddingHorizontal: spacing[4],
   alignItems: "center",
+  paddingHorizontal: spacing[0],
   paddingTop: spacing[5],
   paddingBottom: spacing[5],
   justifyContent: "flex-start",
 }
-const TITLE: TextStyle = { textAlign: "center" }
-const TITLE_MIDDLE: ViewStyle = { flex: 1, justifyContent: "center" }
+const TITLE: TextStyle = { fontFamily: typography.primary, fontSize: 22, lineHeight: 30}
+const TITLE_MIDDLE: ViewStyle = { paddingHorizontal: spacing[0]}
 const LEFT: ViewStyle = { width: 32 }
 const RIGHT: ViewStyle = { width: 32 }
 
