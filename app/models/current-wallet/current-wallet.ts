@@ -1,4 +1,5 @@
 import { Instance, types } from "mobx-state-tree"
+import { remove } from "utils/storage"
 import { StoredWallet } from "../../utils/stored-wallet"
 
 const WalletAsset = types.model({
@@ -39,6 +40,9 @@ export const CurrentWalletModel = types
     getAssets: async () => {
       return self.assets
     },
+    getAssetById: (cid: string) => {
+      return self.assets.find((a) => a.cid === cid)
+    },
   })) // eslint-disable-line @typescript-eslint/no-unused-vars
   .actions((self) => ({
     setAssets(assets) {
@@ -61,8 +65,13 @@ export const CurrentWalletModel = types
       )
       storedAsset.balance = balance
     },
-    getAssetById: (cid: string) => {
-      return self.assets.find((a) => a.cid === cid)
+
+    removeWallet: async () => {
+      try {
+        const deleted = await remove(self.name)
+      } catch (error) {
+        console.log("Error removing wallet", error)
+      }
     },
   })) // eslint-disable-line @typescript-eslint/no-unused-vars
 
