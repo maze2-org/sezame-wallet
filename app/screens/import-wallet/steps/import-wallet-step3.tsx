@@ -18,16 +18,15 @@ import {
 } from "theme/elements"
 import { StepProps } from "utils/MultiStepController/Step"
 import { StepsContext } from "utils/MultiStepController/MultiStepController"
-import { WalletCreateContext } from "../create-wallet-screen"
+import { WalletImportContext } from "../import-wallet-screen"
 import { TextInputField } from "components/text-input-field/text-input-field"
 import { spacing } from "theme"
 import { bip39Words } from "../../../utils/bip39Words"
-export function CreateWalletStep3(props: StepProps) {
+export function ImportWalletStep3(props: StepProps) {
   const nextIcon = require("../../../../assets/icons/next.png")
-  const { seedPhrase } = useContext(WalletCreateContext)
+  const { seedPhrase } = useContext(WalletImportContext)
   const {
     control,
-    setValue,
     formState: { errors },
   } = useForm({ mode: "onChange" })
 
@@ -38,15 +37,30 @@ export function CreateWalletStep3(props: StepProps) {
   })
 
   const isSeedPhraseCorrect = seedPhrase === pastedSeedPhrase
-  console.log({ isSeedPhraseCorrect, seedPhrase, pastedSeedPhrase })
+
   const { onButtonBack, onButtonNext } = useContext(StepsContext)
-  const [words, setWords] = useState([])
-  const [usedWords, setUsedWords] = useState([])
+  const [keyword, setKeyword] = useState("")
+  const [whitelist, setWhitelist] = useState([])
+  const [selectedWords, setSelectedWords] = useState([])
   const [isValid, setIsValid] = useState(true)
   useEffect(() => {
-    const words = seedPhrase.split(" ")
-    setWords(words)
-  }, [seedPhrase])
+    const availableWords = []
+    allowedWords.current.forEach((word) => {
+      if (
+        word.substring(0, keyword.length) === keyword &&
+        keyword &&
+        selectedWords.indexOf(word) === -1
+      )
+        availableWords.push(word)
+    })
+    setWhitelist(availableWords.slice(0, 20))
+  }, [keyword])
+
+  useEffect(() => {
+    if (selectedWords.length < 12) setIsValid(true)
+    else if (selectedWords.length > 24) setIsValid(true)
+    else setIsValid(false)
+  }, [selectedWords])
 
   const headerStyle: ViewStyle = {
     justifyContent: "center",
@@ -73,27 +87,27 @@ export function CreateWalletStep3(props: StepProps) {
     paddingHorizontal: spacing[3],
     margin: spacing[1],
   }
+  const allowedWords = useRef(bip39Words.split(" "))
+
+  const onKeyChange = (val) => {
+    setKeyword(val)
+  }
 
   const renderRemainingWords = () => {
-    return words
-      .filter((w) => !usedWords.includes(w))
-      .map((w, index) => (
+    return whitelist.map((w, index) => (
+      <>
         <View
-          key={w}
           style={whitelistItemStyle}
           onStartShouldSetResponder={() => {
-            usedWords.push(w)
-            setUsedWords(usedWords)
-            let phrase = pastedSeedPhrase
-            phrase = phrase + " " + w
-            phrase = phrase.trim()
-            setValue("pastedSeedPhrase", phrase)
+            setSelectedWords([...selectedWords, w])
+            whitelist.splice(index, 1)
             return true
           }}
         >
           <Text text={w} style={NORMAL_TEXT} />
         </View>
-      ))
+      </>
+    ))
   }
   return (
     <SafeAreaView {...props}>
@@ -108,7 +122,7 @@ export function CreateWalletStep3(props: StepProps) {
             In order to recover your wallet, you must provide your seed phrase.
           </Text>
         </View>
-        {/* <View>
+        <View>
           <TextField
             label="Seed phase"
             multiline={true}
@@ -124,9 +138,9 @@ export function CreateWalletStep3(props: StepProps) {
             }}
           />
           <View style={whitelistContainerStyle}>{renderRemainingWords()}</View>
-        </View> */}
+        </View>
 
-        <Controller
+        {/* <Controller
           control={control}
           name="pastedSeedPhrase"
           render={({ field: { onChange, value, onBlur } }) => (
@@ -146,17 +160,15 @@ export function CreateWalletStep3(props: StepProps) {
               message: "Field is required!",
             },
           }}
-        />
-
-        <View style={whitelistContainerStyle}>{renderRemainingWords()}</View>
+        /> */}
 
         <SafeAreaView>
           <Button
             testID="next-screen-button"
-            style={[PRIMARY_BTN, !isSeedPhraseCorrect && { ...btnDisabled }]}
+            style={[PRIMARY_BTN, isValid && { ...btnDisabled }]}
             textStyle={PRIMARY_TEXT}
             onPress={onButtonNext}
-            disabled={!isSeedPhraseCorrect}
+            disabled={isValid}
           >
             <Text tx="createWallet.next" />
             <Image source={nextIcon} style={buttonIconStyle} />
