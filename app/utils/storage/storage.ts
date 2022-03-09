@@ -20,7 +20,7 @@ export async function getListOfWallets(): Promise<string[]> {
   const storage = new MMKV({
     id: WALLETS_STORE_ID,
   })
-  return storage.getAllKeys()
+  return storage.getAllKeys().filter((key) => key !== "NAVIGATION_STATE")
 }
 
 /**
