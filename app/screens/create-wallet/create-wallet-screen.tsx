@@ -81,7 +81,7 @@ export const CreateWalletScreen: FC<
       }}
     >
       <Screen preset="scroll" style={RootPageStyle}>
-        <ImageBackground  source={MainBackground}  style={BackgroundStyle} >
+        <ImageBackground source={MainBackground} style={BackgroundStyle}>
           <MultiStepsController
             stepElements={stepElements}
             currentStep={currentStep}
