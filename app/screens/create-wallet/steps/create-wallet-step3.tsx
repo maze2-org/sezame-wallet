@@ -1,11 +1,12 @@
 import React, { useContext, useEffect, useRef, useState } from "react"
 import { ImageStyle, SafeAreaView, View, ViewStyle } from "react-native"
-import { Button, Header, Text, AutoImage as Image, TextField } from "components"
+import { Button, Header, Text, AutoImage as Image, TextField, AppScreen } from "components"
 import { Controller, useForm, useWatch } from "react-hook-form"
 import {
   btnDefault,
   btnDisabled,
   CONTAINER,
+  containerGrowable,
   demoText,
   footBtn,
   headerTitle,
@@ -22,6 +23,7 @@ import { WalletCreateContext } from "../create-wallet-screen"
 import { TextInputField } from "components/text-input-field/text-input-field"
 import { spacing } from "theme"
 import { bip39Words } from "../../../utils/bip39Words"
+import { ScrollView } from "react-native-gesture-handler"
 export function CreateWalletStep3(props: StepProps) {
   const nextIcon = require("../../../../assets/icons/next.png")
   const { seedPhrase } = useContext(WalletCreateContext)
@@ -44,8 +46,25 @@ export function CreateWalletStep3(props: StepProps) {
   const [usedWords, setUsedWords] = useState([])
   const [isValid, setIsValid] = useState(true)
 
+  const shuffle = (array) => {
+    let currentIndex = array.length,
+      randomIndex
+
+    // While there remain elements to shuffle...
+    while (currentIndex != 0) {
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex)
+      currentIndex--
+
+      // And swap it with the current element.
+      ;[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]]
+    }
+
+    return array
+  }
+
   useEffect(() => {
-    const words = seedPhrase.split(" ")
+    const words = shuffle(seedPhrase.split(" "))
     setWords(words)
   }, [seedPhrase])
 
@@ -98,8 +117,8 @@ export function CreateWalletStep3(props: StepProps) {
       ))
   }
   return (
-    <SafeAreaView {...props}>
-      <View style={CONTAINER}>
+    <AppScreen>
+      <ScrollView contentContainerStyle={CONTAINER}>
         <View>
           <Header
             headerText="Provide your seed phrase"
@@ -110,7 +129,7 @@ export function CreateWalletStep3(props: StepProps) {
             In order to recover your wallet, you must provide your seed phrase.
           </Text>
         </View>
-        <View>
+        <View style={containerGrowable}>
           <Controller
             control={control}
             name="pastedSeedPhrase"
@@ -155,7 +174,7 @@ export function CreateWalletStep3(props: StepProps) {
             onPress={onButtonBack}
           />
         </SafeAreaView>
-      </View>
-    </SafeAreaView>
+      </ScrollView>
+    </AppScreen>
   )
 }

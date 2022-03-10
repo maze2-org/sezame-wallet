@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react"
 import { ImageStyle, SafeAreaView, TextStyle, View, ViewStyle } from "react-native"
-import { TouchableOpacity } from "react-native-gesture-handler"
-import { Button, Checkbox, Header, Text, AutoImage as Image } from "../../../components"
+import { ScrollView, TouchableOpacity } from "react-native-gesture-handler"
+import { Button, Checkbox, Header, Text, AutoImage as Image, AppScreen } from "../../../components"
 import {
   CONTAINER,
   copyBtn,
@@ -88,6 +88,7 @@ export function CreateWalletStep2(props: StepProps) {
   const [condition1, setCondition1] = useState(false)
   const [condition2, setCondition2] = useState(false)
   const [condition3, setCondition3] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
 
   // const isValid = condition1 && condition2 && condition3
 
@@ -110,14 +111,17 @@ export function CreateWalletStep2(props: StepProps) {
   } = useForm({ mode: "onChange" })
 
   const onSubmit = (data) => {
-    onButtonNext()
+    setSubmitted(true)
+    if (condition1 && condition2 && condition3) {
+      onButtonNext()
+    }
   }
 
   const nextIcon = require("../../../../assets/icons/next.png")
 
   return (
-    <SafeAreaView {...props}>
-      <View style={CONTAINER}>
+    <AppScreen {...props}>
+      <ScrollView contentContainerStyle={CONTAINER}>
         <View>
           <Header headerText="Save your seed phrase" style={headerStyle} titleStyle={headerTitle} />
           <Text style={TEXT_STYLE}>
@@ -150,6 +154,7 @@ export function CreateWalletStep2(props: StepProps) {
             multiline={true}
             onToggle={() => setCondition1(!condition1)}
             style={{ paddingRight: spacing[3] }}
+            errors={submitted && !condition1 && ["Required field"]}
           />
           <Checkbox
             text="I'm aware to never share my seed phrase to anybody."
@@ -157,6 +162,7 @@ export function CreateWalletStep2(props: StepProps) {
             multiline={true}
             onToggle={() => setCondition2(!condition2)}
             style={{ paddingRight: spacing[1] }}
+            errors={submitted && !condition2 && ["Required field"]}
           />
           <Checkbox
             text="I'm aware if I loose my seed, I may lose access to my funds."
@@ -164,6 +170,7 @@ export function CreateWalletStep2(props: StepProps) {
             multiline={true}
             onToggle={() => setCondition3(!condition3)}
             style={{ paddingRight: spacing[2], marginBottom: spacing[4] }}
+            errors={submitted && !condition3 && ["Required field"]}
           />
           <Button
             testID="next-screen-button"
@@ -182,7 +189,7 @@ export function CreateWalletStep2(props: StepProps) {
             onPress={onButtonBack}
           />
         </SafeAreaView>
-      </View>
-    </SafeAreaView>
+      </ScrollView>
+    </AppScreen>
   )
 }
