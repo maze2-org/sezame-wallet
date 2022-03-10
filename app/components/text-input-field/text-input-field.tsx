@@ -1,21 +1,43 @@
 import React from "react"
 import {
   StyleProp,
-  Text,
   TextInput,
   TextInputProps,
   TextStyle,
   View,
   ViewStyle,
 } from "react-native"
+import { color, spacing, typography } from "theme"
 import { translate, TxKeyPath } from "../../i18n"
 import { textInputError, textInputErrorMessage, textInputStyle } from "../../theme/elements"
-
+import { Text } from "../text/text"
 // currently we have no presets, but that changes quickly when you build your app.
 const PRESETS: { [name: string]: ViewStyle } = {
   default: {},
 }
+const CONTAINER: ViewStyle = {
+  paddingVertical: spacing[2],
+}
+const LABEL: TextStyle = {
+  fontSize: 10,
+  lineHeight: 14,
+  color: color.palette.grey,
+  fontWeight: "600",
+  textTransform: "uppercase",
+  fontFamily: typography.primary
+}
 
+const INPUT: TextStyle = {
+  fontFamily: typography.primary,
+  color: color.text,
+  minHeight: 44,
+  fontSize: 15,
+  lineHeight: 20,
+  backgroundColor: color.transparent,
+  borderBottomWidth: 1,
+  borderColor: color.palette.white,
+  padding: spacing[0]
+}
 export interface TextFieldProps extends TextInputProps {
   /**
    * The placeholder i18n key.
@@ -74,16 +96,17 @@ export function TextInputField(props: any) {
     ...rest
   } = props
 
-  // let containerStyles = [PRESETS[preset], styleOverride]
-  let inputStyles = [textInputStyle, inputStyleOverride]
-  let actualPlaceholder = placeholderTx ? translate(placeholderTx) : placeholder
-
+  const containerStyles = [CONTAINER]
+  const inputStyles = [INPUT, inputStyleOverride]
+  const actualPlaceholder = placeholderTx ? translate(placeholderTx) : placeholder
+  const labelStyle = [LABEL];
   if (errors[name] && errors[name].message) {
     inputStyles.push(textInputError)
   }
 
   return (
-    <View>
+    <View style={containerStyles}>
+      <Text preset="fieldLabel" tx={labelTx} text={label} style={labelStyle}/>
       <TextInput
         style={inputStyles}
         placeholder={actualPlaceholder}
