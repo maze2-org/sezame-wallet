@@ -183,59 +183,6 @@ export function CreateWalletStep2(props: StepProps) {
           />
         </SafeAreaView>
       </View>
-      {/*       
-      
-      <Text style={warning}>IF YOU LOSE THIS SEED YOU WILL LOSE THE ACCESS TO YOUR FUNDS</Text>
-      <View style={mnemonicContainer}>
-        <Text style={mnemonicStyle}>{seedPhrase}</Text>
-        <TouchableOpacity style={copyBtn} onPress={copyToClipboard}>
-          <IonicIcon name="clipboard-check" size={23} color={"#F9F7F1"} />
-        </TouchableOpacity>
-      </View>
-      <View style={conditionsCheckbox}>
-        <View style={checkboxContainer}>
-          <BouncyCheckbox
-            isChecked={condition1}
-            onPress={() => setCondition1(!condition1)}
-            style={checkbox}
-          />
-          <Text style={label}>I have written my seed in a safe location.</Text>
-        </View>
-        <View style={checkboxContainer}>
-          <BouncyCheckbox
-            isChecked={condition2}
-            onPress={() => setCondition2(!condition2)}
-            style={checkbox}
-          />
-          <Text style={label}>I'm aware to never share my seed phrase to anybody.</Text>
-        </View>
-        <View style={checkboxContainer}>
-          <BouncyCheckbox
-            isChecked={condition3}
-            onPress={() => setCondition3(!condition3)}
-            style={checkbox}
-          />
-          <Text style={label}>I'm aware if I loose my seed, I may lose access to my funds.</Text>
-        </View>
-      </View> */}
-
-      {/* <View style={footBtn}>
-        <Button
-          preset="header"
-          text="Cancel"
-          style={btnDefault}
-          textStyle={demoText}
-          onPress={onButtonBack}
-        />
-        <Button
-          preset="header"
-          text="Next"
-          textStyle={demoText}
-          onPress={onButtonNext}
-          style={[btnDefault, !isValid && { ...btnDisabled }]}
-          disabled={!isValid}
-        />
-      </View> */}
     </SafeAreaView>
   )
 }
