@@ -40,12 +40,13 @@ export const textInputStyle: TextStyle = {
 
 export const textInputErrorMessage: TextStyle = {
   color: color.palette.orange,
+  paddingTop: spacing[2]
 }
 
 export const textInputError: TextStyle = {
-  borderWidth: 1,
-  borderColor: color.palette.orange,
-  color: color.palette.orange,
+  borderBottomColor: color.palette.orange,
+  borderBottomWidth: 1,
+  color: color.palette.gold,
 }
 
 export const text: TextStyle = {
@@ -151,7 +152,8 @@ export const CONTAINER: ViewStyle = {
   display: "flex",
   justifyContent: "space-between",
   paddingVertical: spacing[5],
-  paddingHorizontal: spacing[7]
+  paddingHorizontal: spacing[7],
+  flexDirection: "column"
 }
 
 export const PRIMARY_BTN: ViewStyle = {
@@ -178,6 +180,13 @@ export const NORMAL_TEXT: TextStyle = {
   fontSize: 12,
   lineHeight: 16,
   fontWeight: "400"
+}
+
+export const SMALL_TEXT: TextStyle = {
+  fontSize: 10,
+  lineHeight: 14,
+  fontWeight: "400",
+  color: "#C9C9C9"
 }
 export const SesameLogo = require("../../../assets/images/Logo.png");
 export const MainBackground = require("../../../assets/images/bg-noise.png");
