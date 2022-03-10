@@ -2,32 +2,19 @@ import React, { useContext, useState } from "react"
 import { ImageStyle, SafeAreaView, TextStyle, View, ViewStyle } from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { Button, Checkbox, Header, Text, AutoImage as Image } from "../../../components"
-import IonicIcon from "react-native-vector-icons/FontAwesome5"
 import {
-  btnDefault,
-  btnDisabled,
-  checkbox,
-  checkboxContainer,
-  conditionsCheckbox,
   CONTAINER,
   copyBtn,
-  demoText,
-  footBtn,
   headerTitle,
-  label,
-  mnemonicContainer,
-  mnemonicStyle,
   NORMAL_TEXT,
   PRIMARY_BTN,
   PRIMARY_OUTLINE_BTN,
   PRIMARY_TEXT,
   SMALL_TEXT,
-  warning,
 } from "../../../theme/elements"
 import { StepProps } from "../../../utils/MultiStepController/Step"
 import Clipboard from "@react-native-clipboard/clipboard"
 import { showMessage } from "react-native-flash-message"
-import BouncyCheckbox from "react-native-bouncy-checkbox"
 import { StepsContext } from "../../../utils/MultiStepController/MultiStepController"
 import { WalletCreateContext } from "../create-wallet-screen"
 import { color, spacing } from "theme"
@@ -123,8 +110,9 @@ export function CreateWalletStep2(props: StepProps) {
   } = useForm({ mode: "onChange" })
 
   const onSubmit = (data) => {
-    console.log("ffff")
+    onButtonNext()
   }
+
   const nextIcon = require("../../../../assets/icons/next.png")
 
   return (
@@ -148,8 +136,9 @@ export function CreateWalletStep2(props: StepProps) {
             </View>
             <View style={phaseBorder}></View>
             <View style={phaseFooter}>
-              <SvgXml width="20" height="20" xml={copyIcon} />
-              {/* <Image source={copyIcon} /> */}
+              <TouchableOpacity style={copyBtn} onPress={copyToClipboard}>
+                <SvgXml width="20" height="20" xml={copyIcon} />
+              </TouchableOpacity>
               <Text style={footerText}>COPY PHRASE</Text>
             </View>
           </View>
