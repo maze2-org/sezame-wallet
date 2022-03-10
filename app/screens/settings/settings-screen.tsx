@@ -198,8 +198,8 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
     const onPasswordSubmit = async (data: any) => {
       try {
         const storeWallet = await StoredWallet.loadFromStorage(
-          data.password,
           currentWalletStore.name,
+          data.password,
         )
         setErrorUnlockingWallet(false)
         setSeedPhrase(storeWallet.mnemonic)

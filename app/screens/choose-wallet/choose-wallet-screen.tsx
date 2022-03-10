@@ -82,6 +82,7 @@ export const ChooseWalletScreen: FC<
 
   useEffect(() => {
     getListOfWallets().then((walletNames) => {
+      console.log({ walletNames })
       setWalletNames(walletNames)
       if (walletNames.length === 1) {
         setItemValue(walletNames[0])
