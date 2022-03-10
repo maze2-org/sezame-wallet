@@ -43,6 +43,7 @@ export function CreateWalletStep3(props: StepProps) {
   const [words, setWords] = useState([])
   const [usedWords, setUsedWords] = useState([])
   const [isValid, setIsValid] = useState(true)
+
   useEffect(() => {
     const words = seedPhrase.split(" ")
     setWords(words)
@@ -60,6 +61,7 @@ export function CreateWalletStep3(props: StepProps) {
   const whitelistContainerStyle: ViewStyle = {
     display: "flex",
     paddingVertical: spacing[2],
+    paddingHorizontal: spacing[0],
     flexDirection: "row",
     flexWrap: "wrap",
   }
@@ -108,47 +110,31 @@ export function CreateWalletStep3(props: StepProps) {
             In order to recover your wallet, you must provide your seed phrase.
           </Text>
         </View>
-        {/* <View>
-          <TextField
-            label="Seed phase"
-            multiline={true}
-            value={selectedWords.join(" ")}
-            editable={false}
-          />
-          <TextField
-            label="Next word"
-            value={keyword}
-            secureTextEntry={true}
-            onChangeText={(value) => {
-              onKeyChange(value)
+        <View>
+          <Controller
+            control={control}
+            name="pastedSeedPhrase"
+            render={({ field: { onChange, value, onBlur } }) => (
+              <TextInputField
+                name="pastedSeedPhrase"
+                style={textInput}
+                errors={errors}
+                label="SEED PHRASE"
+                value={value}
+                onBlur={onBlur}
+                multiline={true}
+                onChangeText={(value) => onChange(value)}
+              />
+            )}
+            rules={{
+              required: {
+                value: true,
+                message: "Field is required!",
+              },
             }}
           />
           <View style={whitelistContainerStyle}>{renderRemainingWords()}</View>
-        </View> */}
-
-        <Controller
-          control={control}
-          name="pastedSeedPhrase"
-          render={({ field: { onChange, value, onBlur } }) => (
-            <TextInputField
-              name="pastedSeedPhrase"
-              style={textInput}
-              errors={errors}
-              placeholder="Enter your wallet name"
-              value={value}
-              onBlur={onBlur}
-              onChangeText={(value) => onChange(value)}
-            />
-          )}
-          rules={{
-            required: {
-              value: true,
-              message: "Field is required!",
-            },
-          }}
-        />
-
-        <View style={whitelistContainerStyle}>{renderRemainingWords()}</View>
+        </View>
 
         <SafeAreaView>
           <Button
