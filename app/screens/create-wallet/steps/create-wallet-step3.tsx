@@ -3,26 +3,21 @@ import { ImageStyle, SafeAreaView, View, ViewStyle } from "react-native"
 import { Button, Header, Text, AutoImage as Image, TextField, AppScreen } from "components"
 import { Controller, useForm, useWatch } from "react-hook-form"
 import {
-  btnDefault,
   btnDisabled,
   CONTAINER,
   containerGrowable,
-  demoText,
-  footBtn,
   headerTitle,
   NORMAL_TEXT,
   PRIMARY_BTN,
   PRIMARY_OUTLINE_BTN,
   PRIMARY_TEXT,
   textInput,
-  warning,
 } from "theme/elements"
 import { StepProps } from "utils/MultiStepController/Step"
 import { StepsContext } from "utils/MultiStepController/MultiStepController"
 import { WalletCreateContext } from "../create-wallet-screen"
 import { TextInputField } from "components/text-input-field/text-input-field"
 import { spacing } from "theme"
-import { bip39Words } from "../../../utils/bip39Words"
 import { ScrollView } from "react-native-gesture-handler"
 export function CreateWalletStep3(props: StepProps) {
   const nextIcon = require("../../../../assets/icons/next.png")
@@ -44,14 +39,13 @@ export function CreateWalletStep3(props: StepProps) {
   const { onButtonBack, onButtonNext } = useContext(StepsContext)
   const [words, setWords] = useState([])
   const [usedWords, setUsedWords] = useState([])
-  const [isValid, setIsValid] = useState(true)
 
   const shuffle = (array) => {
-    let currentIndex = array.length,
-      randomIndex
+    let currentIndex = array.length;
+      let randomIndex
 
     // While there remain elements to shuffle...
-    while (currentIndex != 0) {
+    while (currentIndex !== 0) {
       // Pick a remaining element...
       randomIndex = Math.floor(Math.random() * currentIndex)
       currentIndex--

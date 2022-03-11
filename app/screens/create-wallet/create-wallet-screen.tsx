@@ -10,6 +10,7 @@ import { CreateWalletStep3 } from "./steps/create-wallet-step3"
 import MultiStepsController from "../../utils/MultiStepController/MultiStepController"
 import { BackgroundStyle, MainBackground, RootPageStyle, SesameLogo } from "../../theme/elements"
 import { CreateWalletStep2 } from "./steps/create-wallet-step2"
+import { CreateWalletStep4 } from "./steps/create-wallet-step4"
 import { StoredWallet } from "../../utils/stored-wallet"
 import { defaultAssets } from "utils/consts"
 
@@ -43,6 +44,7 @@ export const CreateWalletScreen: FC<
     { name: "Step1", component: CreateWalletStep1 },
     { name: "Step2", component: CreateWalletStep2 },
     { name: "Step3", component: CreateWalletStep3 },
+    { name: "Step4", component: CreateWalletStep4 },
   ]
 
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
@@ -55,13 +57,16 @@ export const CreateWalletScreen: FC<
     }
   }
   const next = async (stepName: string) => {
-    if (stepName === "Step3") {
+    if (stepName === "Step4") {
+      navigation.replace("chooseWallet")
+    } else if (stepName === "Step3") {
       // Process is complete
       const storedWallet = new StoredWallet(walletName, seedPhrase, walletPassword)
       await storedWallet.addAssets(defaultAssets)
 
       await storedWallet.save()
-      navigation.replace("chooseWallet")
+      setCurrentStep(currentStep + 1)
+      
     } else {
       setCurrentStep(currentStep + 1)
     }
