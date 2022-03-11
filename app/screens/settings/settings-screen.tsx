@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     bottom: 10,
     right: 10,
     height: 70,
-    backgroundColor: color.red,
+    backgroundColor: color.palette.angry,
     borderRadius: 100,
     zIndex: 16,
   },

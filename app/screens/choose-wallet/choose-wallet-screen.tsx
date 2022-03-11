@@ -4,7 +4,7 @@ import { ImageBackground, ImageStyle, ScrollView, TextStyle, View, ViewStyle } f
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import SplashScreen from "react-native-splash-screen"
 import { NavigatorParamList } from "../../navigators"
-import { AppScreen, Button, Header, Screen, Text } from "../../components"
+import { AppScreen, Button, Drawer, Header, Screen, Text } from "../../components"
 // import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
@@ -156,6 +156,7 @@ export const ChooseWalletScreen: FC<
     <Screen preset="scroll" style={RootPageStyle}>
       <ImageBackground source={MainBackground} style={BackgroundStyle}>
         <AppScreen>
+          <Drawer title="Choose something" />
           <ScrollView contentContainerStyle={CONTAINER}>
             <View>
               <Header

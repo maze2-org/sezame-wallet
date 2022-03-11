@@ -30,6 +30,8 @@ target 'walletApp' do
   pod 'react-native-mmkv', :path => '../node_modules/react-native-mmkv'
 
 
+  pod 'react-native-blur', :path => '../node_modules/@react-native-community/blur'
+
   target 'walletAppTests' do
     inherit! :complete
     # Pods for testing

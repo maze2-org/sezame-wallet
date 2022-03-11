@@ -263,8 +263,7 @@ export const DropdownListStyle: ViewStyle = {
   borderColor: color.palette.white,
   backgroundColor: color.transparent,
 }
-export const DropdownArrowStyle: TextStyle = {
-  color: color.palette.gold,
+export const DropdownArrowStyle: ViewStyle = {
 }
 
 export const SesameLogo = require("../../../assets/images/Logo.png")

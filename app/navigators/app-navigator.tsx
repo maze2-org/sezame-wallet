@@ -379,7 +379,6 @@ const AppStack = () => {
               headerShown: true,
               headerRight: () => <SettingsBtn route="settings" />,
               headerLeft: Logo,
-              headerShown: true,
               title: "",
             }}
           />
