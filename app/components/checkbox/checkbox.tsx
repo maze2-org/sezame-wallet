@@ -3,15 +3,18 @@ import { TextStyle, TouchableOpacity, View, ViewStyle, Image } from "react-nativ
 import { Text } from "../text/text"
 import { color, spacing } from "../../theme"
 import { CheckboxProps } from "./checkbox.props"
+import { checkboxLabelError, textInputErrorMessage } from "theme/elements"
+import { SvgXml } from "react-native-svg"
+import checkIcon from "../../../assets/icons/check.svg"
 
-const checkIcon = require("../../../assets/icons/check.png");
+// const checkIcon = require("../../../assets/icons/check.png")
 
 const ROOT: ViewStyle = {
   display: "flex",
   flexDirection: "row",
   paddingVertical: spacing[2],
   alignSelf: "flex-start",
-  alignItems: "center"
+  alignItems: "center",
 }
 
 const DIMENSIONS = { width: 26, height: 26 }
@@ -32,33 +35,58 @@ const FILL: ViewStyle = {
   backgroundColor: color.primary,
 }
 
-const LABEL: TextStyle = { paddingLeft: spacing[4], fontSize: 12, lineHeight: 16.34, fontWeight: "600",  }
+const LABEL: TextStyle = {
+  paddingLeft: spacing[4],
+  fontSize: 12,
+  lineHeight: 16.34,
+  fontWeight: "600",
+}
 
 const labelStyle: ViewStyle = {
   maxWidth: "100%",
-  justifyContent: "center"
+  justifyContent: "center",
 }
 export function Checkbox(props: CheckboxProps) {
   const numberOfLines = props.multiline ? 0 : 1
 
   const rootStyle = [ROOT, props.style]
   const outlineStyle = [OUTLINE, props.outlineStyle]
-  const fillStyle = [FILL, props.fillStyle]
+
+  let checkboxTextStyle = [LABEL]
+
+  if (props.errors && props.errors.length) {
+    checkboxTextStyle.push(checkboxLabelError)
+  }
 
   const onPress = props.onToggle ? () => props.onToggle && props.onToggle(!props.value) : null
 
   return (
-    <TouchableOpacity
-      activeOpacity={1}
-      disabled={!props.onToggle}
-      onPress={onPress}
-      style={rootStyle}
-    >
-      <View style={outlineStyle}>{props.value && <Image source={checkIcon} />}</View>
-      <View style={labelStyle}>
-        <Text text={props.text} tx={props.tx} numberOfLines={numberOfLines} style={LABEL} />
-      </View>
-      
-    </TouchableOpacity>
+    <>
+      <TouchableOpacity
+        activeOpacity={1}
+        disabled={!props.onToggle}
+        onPress={onPress}
+        style={rootStyle}
+      >
+        <View style={outlineStyle}>
+          {props.value && <SvgXml width="28" height="28" xml={checkIcon} />}
+        </View>
+        <View style={labelStyle}>
+          <Text
+            text={props.text}
+            tx={props.tx}
+            numberOfLines={numberOfLines}
+            style={checkboxTextStyle}
+          />
+        </View>
+      </TouchableOpacity>
+      {props.displayErrors && props.errors && props.errors.length > 0 && (
+        <View>
+          {props.errors.map((err) => (
+            <Text style={textInputErrorMessage} text={err} />
+          ))}
+        </View>
+      )}
+    </>
   )
 }

@@ -1,12 +1,6 @@
 import React from "react"
-import {
-  StyleProp,
-  TextInput,
-  TextInputProps,
-  TextStyle,
-  View,
-  ViewStyle,
-} from "react-native"
+import { StyleProp, TextInput, TextInputProps, TextStyle, View, ViewStyle } from "react-native"
+import { SvgXml } from "react-native-svg"
 import { color, spacing, typography } from "theme"
 import { translate, TxKeyPath } from "../../i18n"
 import { textInputError, textInputErrorMessage, textInputStyle } from "../../theme/elements"
@@ -24,7 +18,7 @@ const LABEL: TextStyle = {
   color: color.palette.grey,
   fontWeight: "600",
   textTransform: "uppercase",
-  fontFamily: typography.primary
+  fontFamily: typography.primary,
 }
 
 const INPUT: TextStyle = {
@@ -36,7 +30,13 @@ const INPUT: TextStyle = {
   backgroundColor: color.transparent,
   borderBottomWidth: 1,
   borderColor: color.palette.white,
-  padding: spacing[0]
+  padding: spacing[0],
+}
+
+const iconStyle: ViewStyle = {
+  position: "absolute",
+  right: 0,
+  top: 30
 }
 export interface TextFieldProps extends TextInputProps {
   /**
@@ -75,12 +75,20 @@ export interface TextFieldProps extends TextInputProps {
   preset?: keyof typeof PRESETS
 
   forwardedRef?: any
+
+  formFieldRef?: any
+
+  errors?: any
+
+  name?: string,
+
+  icon?: any
 }
 
 /**
  * A component which has a label and an input together.
  */
-export function TextInputField(props: any) {
+export function TextInputField(props: TextFieldProps) {
   const {
     placeholderTx,
     placeholder,
@@ -93,29 +101,36 @@ export function TextInputField(props: any) {
     onChangeText,
     errors,
     name,
+    formFieldRef,
+    icon,
     ...rest
   } = props
 
   const containerStyles = [CONTAINER]
-  const inputStyles = [INPUT, inputStyleOverride]
+  let inputStyles = [INPUT, inputStyleOverride]
   const actualPlaceholder = placeholderTx ? translate(placeholderTx) : placeholder
-  const labelStyle = [LABEL];
+  const labelStyle = [LABEL]
   if (errors[name] && errors[name].message) {
     inputStyles.push(textInputError)
   }
 
   return (
     <View style={containerStyles}>
-      <Text preset="fieldLabel" tx={labelTx} text={label} style={labelStyle}/>
+      <Text preset="fieldLabel" tx={labelTx} text={label} style={labelStyle} />
       <TextInput
         style={inputStyles}
         placeholder={actualPlaceholder}
         onChangeText={onChangeText}
+        ref={formFieldRef}
         {...rest}
       />
       {errors[name] && errors[name].message && (
         <Text style={textInputErrorMessage}>{errors[name].message}</Text>
       )}
+      <View style={iconStyle}>
+        <SvgXml width="24" height="24" xml={icon} />
+      </View>
+      
     </View>
   )
 }

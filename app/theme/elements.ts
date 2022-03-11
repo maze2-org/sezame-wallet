@@ -20,7 +20,7 @@ export const RootPageStyle: ViewStyle = {
   backgroundColor: color.palette.black,
   flex: 1,
   padding: spacing[0],
-  display: "flex"
+  display: "flex",
 }
 
 export const textInput: TextStyle = {
@@ -40,12 +40,16 @@ export const textInputStyle: TextStyle = {
 
 export const textInputErrorMessage: TextStyle = {
   color: color.palette.orange,
-  paddingTop: spacing[2]
+  paddingTop: spacing[2],
 }
 
 export const textInputError: TextStyle = {
   borderBottomColor: color.palette.orange,
   borderBottomWidth: 1,
+  color: color.palette.gold,
+}
+
+export const checkboxLabelError: TextStyle = {
   color: color.palette.gold,
 }
 
@@ -58,7 +62,7 @@ export const bold: TextStyle = { fontWeight: "bold" }
 export const headerTitle: TextStyle = {
   ...bold,
   fontSize: 22,
-  justifyContent: "center"
+  justifyContent: "center",
   // lineHeight: 15,
 }
 
@@ -148,45 +152,81 @@ export const LogoStyle: ImageStyle = {
 }
 
 export const CONTAINER: ViewStyle = {
-  height: "100%",
   display: "flex",
   justifyContent: "space-between",
   paddingVertical: spacing[5],
   paddingHorizontal: spacing[7],
-  flexDirection: "column"
+  flexDirection: "column",
+  flexGrow: 1,
+}
+
+export const containerGrowable: ViewStyle = {
+  flexGrow: 1,
 }
 
 export const PRIMARY_BTN: ViewStyle = {
   width: "100%",
   borderRadius: 80,
-  height:47,
+  height: 47,
   backgroundColor: color.palette.gold,
-  marginVertical: spacing[2]
+  marginVertical: spacing[2],
 }
 
 export const PRIMARY_TEXT: TextStyle = {
   color: color.palette.white,
   fontSize: 13,
   lineHeight: 18,
-  fontWeight: "600"
+  fontWeight: "600",
 }
 
 export const PRIMARY_OUTLINE_BTN: TextStyle = {
   backgroundColor: color.transparent,
-  width: "100%"
+  width: "100%",
+}
+
+export const TEXT_CENTTER: TextStyle = {
+  textAlign: "center"
 }
 
 export const NORMAL_TEXT: TextStyle = {
   fontSize: 12,
   lineHeight: 16,
-  fontWeight: "400"
+  fontWeight: "400",
 }
 
 export const SMALL_TEXT: TextStyle = {
   fontSize: 10,
   lineHeight: 14,
   fontWeight: "400",
-  color: "#C9C9C9"
+  color: "#C9C9C9",
 }
-export const SesameLogo = require("../../../assets/images/Logo.png");
-export const MainBackground = require("../../../assets/images/bg-noise.png");
+
+export const DropdownContainerStyle: ViewStyle = {
+  backgroundColor: color.transparent,
+  borderBottomColor: color.palette.white,
+  borderBottomWidth: 1,
+  borderTopWidth: 0,
+  borderRightWidth: 0,
+  borderLeftWidth: 0,
+  paddingHorizontal: 0,
+  marginBottom: spacing[3]
+}
+
+export const DropdownTextStyle: TextStyle = {
+  color: color.palette.white,
+  fontSize:15,
+  lineHeight: 20,
+  fontWeight: "400",
+  height: 40,
+  textAlignVertical: "center"
+}
+
+export const DropdownListStyle: ViewStyle = {
+  borderColor: color.palette.white,
+  backgroundColor: color.transparent
+}
+export const DropdownArrowStyle: TextStyle = {
+  color: color.palette.gold
+}
+export const SesameLogo = require("../../../assets/images/Logo.png")
+export const MainBackground = require("../../../assets/images/bg-noise.png")
