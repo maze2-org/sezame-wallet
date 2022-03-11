@@ -196,5 +196,44 @@ export const SMALL_TEXT: TextStyle = {
   fontWeight: "400",
   color: "#C9C9C9",
 }
+
+export const tabBarStyle: ViewStyle = {
+  borderRadius: 12,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  right: 0,
+}
+
+export const tabBarItemStyle: ViewStyle = {
+  backgroundColor: color.palette.black,
+  elevation: 0,
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  right: 0,
+  borderTopWidth: 0,
+  display: "flex",
+  flexGrow: 1,
+}
+
+export const tabBarFocused: ViewStyle = {
+  borderTopWidth: 6,
+  borderTopColor: color.palette.gold,
+}
+
+export const tabBarButton: ViewStyle = {
+  borderTopWidth: 6,
+  borderTopColor: color.palette.black,
+  width: "100%",
+  paddingTop: spacing[4],
+}
+
+export const tabBarItemBorderRightStyle: ViewStyle = {
+  borderRightColor: "red",
+  borderRightWidth: 1,
+}
+
 export const SesameLogo = require("../../../assets/images/Logo.png")
 export const MainBackground = require("../../../assets/images/bg-noise.png")

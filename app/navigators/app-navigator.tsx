@@ -47,6 +47,18 @@ import { ReceiveScreen } from "screens/receive/receive-screen"
 import { useStores } from "../models"
 import { StoredWallet } from "../utils/stored-wallet"
 import { StackNavigationProp } from "@react-navigation/stack"
+import {
+  tabBarButton,
+  tabBarFocused,
+  tabBarItemBorderRightStyle,
+  tabBarItemStyle,
+  tabBarStyle,
+} from "theme/elements"
+import { SvgXml } from "react-native-svg"
+
+import logo from "../../assets/svg/logo-sezame.svg"
+import tabWallet from "../../assets/svg/tab-wallet.svg"
+import tabNft from "../../assets/svg/tab-nft.svg"
 
 const NAV_HEADER_BTN_CONTAINER: ViewStyle = {
   display: "flex",
@@ -63,13 +75,7 @@ const BTN_ICON: TextStyle = {
 
 const Logo = () => (
   <View style={NAV_HEADER_BTN_CONTAINER}>
-    <TouchableOpacity style={NAV_HEADER_BTN}>
-      <FontAwesome5Icon style={BTN_ICON} name="qrcode" size={23} />
-    </TouchableOpacity>
-    <View style={NAV_HEADER_BTN_CONTAINER}>
-      <Text style={{ color: color.palette.black }}>SESAME</Text>
-      <Text style={{ color: color.palette.offWhite }}>WALLET</Text>
-    </View>
+    <SvgXml xml={logo} height={20} />
   </View>
 )
 
@@ -251,15 +257,34 @@ const BottomTabNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
+        tabBarStyle: tabBarStyle,
         headerShown: false,
         tabBarActiveTintColor: color.palette.white,
         // eslint-disable-next-line react/display-name
-        tabBarIcon: ({ focused, color, size }) => {
-          if (route.name === "home") {
-            return <FontAwesome5Icon name="wallet" size={23} color={color} />
-          } else if (route.name === "nfts") {
-            return <FontAwesomeIcon name="file-picture-o" size={size} color={color} />
-          }
+        tabBarIcon: ({ focused }) => {
+          return (
+            <View style={[tabBarButton, focused && { ...tabBarFocused }]}>
+              {route.name === "home" && (
+                <SvgXml
+                  stroke={focused ? color.palette.gold : color.palette.lighterGrey}
+                  xml={tabWallet}
+                  height={20}
+                />
+              )}
+              {route.name === "nfts" && (
+                <SvgXml
+                  stroke={focused ? color.palette.gold : color.palette.lightGrey}
+                  xml={tabNft}
+                  height={20}
+                />
+              )}
+            </View>
+          )
+          // if (route.name === "home") {
+          //   return <FontAwesome5Icon name="wallet" size={23} color={color} />
+          // } else if (route.name === "nfts") {
+          //   return <FontAwesomeIcon name="file-picture-o" size={size} color={color} />
+          // }
         },
       })}
     >
@@ -268,13 +293,14 @@ const BottomTabNavigator = () => {
         component={DashboardScreen}
         options={{
           tabBarLabel: "WALLET",
-          tabBarStyle: { backgroundColor: color.palette.lightGrey },
+          tabBarStyle: [tabBarItemStyle, tabBarItemBorderRightStyle],
+          tabBarActiveTintColor: color.palette.white,
         }}
       />
       <Tab.Screen
         name="nfts"
         component={NftsScreen}
-        options={{ tabBarLabel: "NFT", tabBarStyle: { backgroundColor: color.palette.lightGrey } }}
+        options={{ tabBarLabel: "NFT", tabBarStyle: tabBarItemStyle }}
       />
     </Tab.Navigator>
   )
@@ -321,7 +347,7 @@ const AppStack = () => {
               headerLeft: Logo,
               headerBackVisible: false,
               headerStyle: {
-                backgroundColor: color.palette.lightGrey,
+                backgroundColor: "transparent",
               },
               title: "",
             }}

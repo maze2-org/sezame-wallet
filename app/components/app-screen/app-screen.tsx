@@ -1,19 +1,10 @@
 import * as React from "react"
-import { StyleProp, TextStyle, View, ViewStyle } from "react-native"
+import { ImageBackground, StyleProp, TextStyle, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
-import { color, typography } from "../../theme"
-import { Text } from "../text/text"
 import { SafeAreaView } from "react-native-safe-area-context"
-
-const CONTAINER: ViewStyle = {
-  justifyContent: "center",
-}
-
-const TEXT: TextStyle = {
-  fontFamily: typography.primary,
-  fontSize: 14,
-  color: color.primary,
-}
+import { BackgroundStyle, MainBackground } from "theme/elements"
+import { color } from "../../theme"
+import { Text } from "components/text/text"
 
 export interface AppScreenProps {
   /**
@@ -28,11 +19,21 @@ export interface AppScreenProps {
  */
 export const AppScreen = observer(function AppScreen(props: AppScreenProps) {
   const { style } = props
-  const styles = Object.assign({}, CONTAINER, style)
 
   return (
-    <SafeAreaView {...props} style={{ height: "100%", display: "flex", flex: 1 }}>
-      {props.children}
+    <SafeAreaView
+      {...props}
+      style={{
+        height: "100%",
+        display: "flex",
+        flex: 1,
+        backgroundColor: color.palette.black,
+        flexGrow: 1,
+      }}
+    >
+      <ImageBackground source={MainBackground} style={{ flexGrow: 1 }}>
+        {props.children}
+      </ImageBackground>
     </SafeAreaView>
   )
 })

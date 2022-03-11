@@ -4,7 +4,7 @@ import { TextStyle, View, ViewStyle, Image, ImageStyle, StyleSheet } from "react
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import FontAwesomeIcon from "react-native-vector-icons/FontAwesome"
 import { NavigatorParamList } from "../../navigators"
-import { Header, Screen, Text, Button } from "../../components"
+import { Header, Screen, Text, Button, AppScreen } from "../../components"
 // import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
@@ -219,7 +219,7 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
     }
 
     return (
-      <Screen style={styles.ROOT} preset="scroll">
+      <AppScreen>
         <View style={styles.PORTFOLIO_CONTAINER}>
           <View style={styles.PORTFOLIO_VALUE}>
             <Text style={styles.ORANGE_COLOR}>~ </Text>
@@ -293,7 +293,7 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
             </View>
           ))}
         </View>
-      </Screen>
+      </AppScreen>
     )
   },
 )
