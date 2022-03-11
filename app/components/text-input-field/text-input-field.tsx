@@ -1,5 +1,6 @@
 import React from "react"
 import { StyleProp, TextInput, TextInputProps, TextStyle, View, ViewStyle } from "react-native"
+import { SvgXml } from "react-native-svg"
 import { color, spacing, typography } from "theme"
 import { translate, TxKeyPath } from "../../i18n"
 import { textInputError, textInputErrorMessage, textInputStyle } from "../../theme/elements"
@@ -30,6 +31,12 @@ const INPUT: TextStyle = {
   borderBottomWidth: 1,
   borderColor: color.palette.white,
   padding: spacing[0],
+}
+
+const iconStyle: ViewStyle = {
+  position: "absolute",
+  right: 0,
+  top: 30
 }
 export interface TextFieldProps extends TextInputProps {
   /**
@@ -73,7 +80,9 @@ export interface TextFieldProps extends TextInputProps {
 
   errors?: any
 
-  name?: string
+  name?: string,
+
+  icon?: any
 }
 
 /**
@@ -93,6 +102,7 @@ export function TextInputField(props: TextFieldProps) {
     errors,
     name,
     formFieldRef,
+    icon,
     ...rest
   } = props
 
@@ -117,6 +127,10 @@ export function TextInputField(props: TextFieldProps) {
       {errors[name] && errors[name].message && (
         <Text style={textInputErrorMessage}>{errors[name].message}</Text>
       )}
+      <View style={iconStyle}>
+        <SvgXml width="24" height="24" xml={icon} />
+      </View>
+      
     </View>
   )
 }
