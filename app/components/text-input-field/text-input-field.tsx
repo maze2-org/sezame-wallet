@@ -127,12 +127,9 @@ export function TextInputField(props: TextFieldProps) {
       {errors[name] && errors[name].message && (
         <Text style={textInputErrorMessage}>{errors[name].message}</Text>
       )}
-      {icon && (
-        <View style={iconStyle}>
-          <SvgXml width="24" height="24" xml={icon} />
-        </View>
-      )}
-      
+      <View style={iconStyle}>
+        {icon && <SvgXml width="24" height="24" xml={icon} />}
+      </View>
       
     </View>
   )
