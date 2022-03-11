@@ -1,6 +1,6 @@
-import React, { useContext, useRef, useState } from "react"
-import { TextStyle, View, ImageStyle } from "react-native"
-import { Button, AutoImage as Image, Text, TextField, Checkbox, AppScreen } from "../../../components"
+import React, { useContext, useState } from "react"
+import { TextStyle, ImageStyle } from "react-native"
+import { Button, AutoImage as Image, Text, Checkbox, AppScreen } from "../../../components"
 import {
   CONTAINER,
   LogoStyle,
@@ -75,7 +75,6 @@ export function CreateWalletStep1(props: StepProps) {
     right: 15,
   }
 
-  const eyeIcon = require("../../../assets/icons/eye.png")
   return (
     <AppScreen {...props}>
       <ScrollView contentContainerStyle={CONTAINER}>
