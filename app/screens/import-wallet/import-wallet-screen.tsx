@@ -11,6 +11,8 @@ import { useNavigation } from "@react-navigation/native"
 import { StoredWallet } from "utils/stored-wallet"
 import { ImportWalletStep1 } from "./steps/import-wallet-step1"
 import { ImportWalletStep2 } from "./steps/import-wallet-step2"
+import { ImportWalletStep3 } from "./steps/import-wallet-step3"
+import { ImportWalletStep4 } from "./steps/import-wallet-step4"
 import MultiStepsController from "utils/MultiStepController/MultiStepController"
 import { RootPageStyle } from "theme/elements"
 import { defaultAssets } from "utils/consts"
@@ -44,6 +46,8 @@ export const ImportWalletScreen: FC<
   const stepElements = [
     { name: "Step1", component: ImportWalletStep1 },
     { name: "Step2", component: ImportWalletStep2 },
+    { name: "Step3", component: ImportWalletStep3 },
+    { name: "Step4", component: ImportWalletStep4 },
   ]
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
 
