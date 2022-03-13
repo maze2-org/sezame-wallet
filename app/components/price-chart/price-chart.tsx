@@ -2,8 +2,9 @@ import * as React from "react"
 import { Dimensions, StyleProp, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import { LineChart } from "react-native-chart-kit"
-import { color } from "../../theme"
+import { Text } from "../../components"
 
+import { color } from "../../theme"
 const CONTAINER: ViewStyle = {
   justifyContent: "center",
 }
@@ -18,16 +19,15 @@ export interface PriceChartProps {
 }
 
 const chartStyle = {
-  marginVertical: 8,
-  borderRadius: 16,
+  margin: 0,
+  padding: 0,
 }
 /**
  * Describe your component here
  */
 export const PriceChart = observer(function PriceChart(props: PriceChartProps) {
   const { style } = props
-  const styles = Object.assign({}, CONTAINER, style)
-
+  const styles = Object.assign({ marginLeft: -65 }, CONTAINER, style)
   return (
     <View style={styles}>
       <LineChart
@@ -45,17 +45,19 @@ export const PriceChart = observer(function PriceChart(props: PriceChartProps) {
             },
           ],
         }}
-        width={Dimensions.get("window").width} // from react-native
-        height={220}
-        yAxisLabel="$"
-        yAxisSuffix="k"
+        width={Dimensions.get("window").width + 65} // from react-native
+        height={241}
         yAxisInterval={1} // optional, defaults to 1
         chartConfig={{
-          backgroundGradientFrom: color.primary,
-          backgroundGradientTo: color.palette.black,
-          decimalPlaces: 2, // optional, defaults to 2dp
-          color: (opacity = 1) => color.primary,
-
+          backgroundGradientFromOpacity: 0,
+          backgroundGradientToOpacity: 0,
+          color: (opacity = 1) => color.primaryDarker,
+          fillShadowGradientFrom: color.primaryDarker,
+          fillShadowGradientFromOpacity: 1,
+          fillShadowGradientTo: color.palette.noise,
+          fillShadowGradientToOpacity: 0,
+          fillShadowGradientFromOffset: 0,
+          fillShadowGradientToOffset: 0.8,
           propsForDots: {
             r: "2",
             strokeWidth: "2",

@@ -10,5 +10,6 @@ export const palette = {
   deepPurple: "#5D2555",
   gold: "#CDAA38",
   grey: "#C9C9C9",
-  darkBlack: "#000000"
+  darkBlack: "#000000",
+  noise: "#272C30",
 }
