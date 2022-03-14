@@ -58,7 +58,7 @@ export function CreateWalletStep4(props: StepProps) {
       <ScrollView contentContainerStyle={CONTAINER_STYLE}>
         <View style={CONTENT_STYLE}>
           <Header
-            headerText="Unlock your wallet"
+            headerText="Your wallet is ready"
             style={headerStyle}
             titleStyle={headerTitleSTYLE}
           />

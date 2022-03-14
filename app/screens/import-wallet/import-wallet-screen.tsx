@@ -1,21 +1,19 @@
 import React, { Dispatch, FC, SetStateAction, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { TextInput, TextStyle, View, ViewStyle } from "react-native"
+import { View } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import { NavigatorParamList } from "../../navigators"
-import { Button, Header, Screen, Text } from "../../components"
+import { Screen, Text } from "../../components"
 // import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
 import { useNavigation } from "@react-navigation/native"
-import { StoredWallet } from "utils/stored-wallet"
 import { ImportWalletStep1 } from "./steps/import-wallet-step1"
 import { ImportWalletStep2 } from "./steps/import-wallet-step2"
 import { ImportWalletStep3 } from "./steps/import-wallet-step3"
 import { ImportWalletStep4 } from "./steps/import-wallet-step4"
 import MultiStepsController from "utils/MultiStepController/MultiStepController"
 import { RootPageStyle } from "theme/elements"
-import { defaultAssets } from "utils/consts"
 
 interface _WalletImportContext {
   walletName: string
@@ -47,12 +45,15 @@ export const ImportWalletScreen: FC<
     { name: "Step1", component: ImportWalletStep1 },
     { name: "Step2", component: ImportWalletStep2 },
     { name: "Step3", component: ImportWalletStep3 },
-    { name: "Step4", component: ImportWalletStep4 },
   ]
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
 
   const next = async (stepName: string) => {
-    setCurrentStep(currentStep + 1)
+    if (stepName === "Step3") { 
+      navigation.replace("chooseWallet")  
+    } else {
+      setCurrentStep(currentStep + 1)
+    }
   }
 
   const previous = (stepName: string) => {
