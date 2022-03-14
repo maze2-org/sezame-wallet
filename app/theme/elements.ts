@@ -229,4 +229,6 @@ export const DropdownArrowStyle: TextStyle = {
   color: color.palette.gold
 }
 export const SesameLogo = require("../../../assets/images/Logo.png")
+export const SesameSmallLogo = require("../../../assets/images/Group.png")
+
 export const MainBackground = require("../../../assets/images/bg-noise.png")
