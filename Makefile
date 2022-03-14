@@ -26,10 +26,7 @@ all: android-prod ios-xcode
 	mkdir -p platforms/all
 	zip -r platforms/all/app-release-all.zip ios android/app/build/outputs/bundle/release/app-release.aab android/app/build/outputs/apk/release/app-release-unsigned.apk
 
-build:
-#	npx react-native upgrade
-
-android: node_modules build
+android: node_modules
 	mkdir -p ./android/app/src/main/assets/
 	npx react-native bundle --dev false --platform android --entry-file index.js --bundle-output ./android/app/src/main/assets/index.android.bundle --assets-dest ./android/app/src/main/res
 
@@ -41,7 +38,7 @@ android-prod: android
 
 
 android-dev: node_modules build android
-	cd android && ./gradlew assembleDebug
+	cd android && ./gradlew assembleDebug -x bundleReleaseJsAndAssets
 	@ echo Debug APK: ./android/app/build/outputs/apk/debug/app-debug.apk
 
 ios: node_modules build
