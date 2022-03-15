@@ -185,7 +185,7 @@ export const PRIMARY_OUTLINE_BTN: TextStyle = {
 }
 
 export const TEXT_CENTTER: TextStyle = {
-  textAlign: "center"
+  textAlign: "center",
 }
 
 export const NORMAL_TEXT: TextStyle = {
@@ -209,24 +209,29 @@ export const DropdownContainerStyle: ViewStyle = {
   borderRightWidth: 0,
   borderLeftWidth: 0,
   paddingHorizontal: 0,
-  marginBottom: spacing[3]
+  marginBottom: spacing[3],
 }
 
 export const DropdownTextStyle: TextStyle = {
   color: color.palette.white,
-  fontSize:15,
+  fontSize: 15,
   lineHeight: 20,
   fontWeight: "400",
   height: 40,
-  textAlignVertical: "center"
+  textAlignVertical: "center",
 }
 
 export const DropdownListStyle: ViewStyle = {
   borderColor: color.palette.white,
-  backgroundColor: color.transparent
+  backgroundColor: color.transparent,
 }
 export const DropdownArrowStyle: TextStyle = {
-  color: color.palette.gold
+  color: color.palette.gold,
 }
 export const SesameLogo = require("../../../assets/images/Logo.png")
 export const MainBackground = require("../../../assets/images/bg-noise.png")
+
+export const SEPARATOR: ViewStyle = {
+  borderBottomColor: color.palette.lightGrey,
+  borderBottomWidth: 0.5,
+}

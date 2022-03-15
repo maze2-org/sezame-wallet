@@ -8,25 +8,32 @@ const CONTAINER: ViewStyle = {
   justifyContent: "center",
   display: "flex",
   flexDirection: "row",
+  margin: 14,
 }
 
 const TEXT: TextStyle = {
   fontFamily: typography.primary,
-  fontSize: 14,
+  fontSize: 12,
   color: color.primary,
 }
 
 const COIN_IMAGE: ImageStyle = {
-  width: 50,
-  height: 50,
-  margin: spacing[2],
-  flex: 1,
+  margin: spacing[1],
+  resizeMode: "contain",
+  display: "flex",
+  width: 60,
 }
 
 const COIN_CARD_CONTENT: ViewStyle = {
   flex: 2,
 }
 
+const COIN_NAME: TextStyle = {
+  fontSize: 16,
+}
+const COIN_AMOUNT: TextStyle = {
+  fontSize: 16,
+}
 export interface CoinCardProps {
   /**
    * An optional style override useful for padding & margin.
@@ -51,8 +58,8 @@ export const CoinCard = observer(function CoinCard(props: CoinCardProps) {
       <Image style={COIN_IMAGE} source={{ uri: imageUrl }}></Image>
       <View style={COIN_CARD_CONTENT}>
         <Text text={chain} />
-        <Text preset="header" text={name} />
-        <Text preset="header" text={balance + " " + symbol} />
+        <Text style={COIN_NAME} preset="header" text={name} />
+        <Text style={COIN_AMOUNT} preset="header" text={balance + " " + symbol} />
       </View>
     </View>
   )

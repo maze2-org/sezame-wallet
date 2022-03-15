@@ -10,7 +10,27 @@ import { AppScreen, Button, Header, Screen, Text } from "../../components"
 import { color, spacing } from "../../theme"
 import { getListOfWallets } from "../../utils/storage"
 import { useForm, Controller } from "react-hook-form"
-import { BackgroundStyle, btnDefault, btnDisabled, CONTAINER, DropdownArrowStyle, DropdownContainerStyle, DropdownListStyle, DropdownTextStyle, footBtn, headerTitle, MainBackground, NORMAL_TEXT, PRIMARY_BTN, PRIMARY_OUTLINE_BTN, PRIMARY_TEXT, RootPageStyle, SMALL_TEXT, textInput, TEXT_CENTTER } from "../../theme/elements"
+import {
+  BackgroundStyle,
+  btnDefault,
+  btnDisabled,
+  CONTAINER,
+  DropdownArrowStyle,
+  DropdownContainerStyle,
+  DropdownListStyle,
+  DropdownTextStyle,
+  footBtn,
+  headerTitle,
+  MainBackground,
+  NORMAL_TEXT,
+  PRIMARY_BTN,
+  PRIMARY_OUTLINE_BTN,
+  PRIMARY_TEXT,
+  RootPageStyle,
+  SMALL_TEXT,
+  textInput,
+  TEXT_CENTTER,
+} from "../../theme/elements"
 import DropDownPicker from "react-native-dropdown-picker"
 import { TextInputField } from "../../components/text-input-field/text-input-field"
 import { StoredWallet } from "../../utils/stored-wallet"
@@ -33,10 +53,10 @@ const testWallet = {
         chain: "BTC",
         type: "coin",
         decimals: 8,
-        privateKey: "L39MEEJrM9SXb4WjSj7GGfz49FuwsvcPoCXCXnjQAEgxHTyUMTHb",
+        privateKey: "Kz2dytsQAKnxinuCgteAvWxFiXJuYxXPBzBbchrQJzy9SRe6F9wC",
         publicKey:
-          "xpub6EKA4LLy7XLcovpb2mJEfCrW9CzTx91s6H5x7qncz9Bmp2NQ439viJtf3gkNdyno2CgMXL9mSz2VPCo5u5xzvMYVCmuNxXfjHuU1T5vXTwa",
-        address: "bc1qx6juea389gv4g3qzz0vwmzjjjhxwtdvzmk2e6c",
+          "xpub6FMbMdGyYCZ3t4NfiAfRX1p8Kkxi3fb7UVmHc8NFcam5CAKSyneYqpXpWUpWEjsoMkU27f7dwdjuRkycuogLud13b1Tfz3Bqa4XP9eS86NG",
+        address: "bc1qgvw2n5fn4wmzjq3yqfgm8sqpcdgj32xglcpa69",
         balance: 0,
         value: 0,
         rate: 0,
@@ -50,10 +70,10 @@ const testWallet = {
         chain: "ETH",
         type: "coin",
         decimals: 18,
-        privateKey: "0x2480f77700e65da805193baa25aa1040ce681ba5ff375c9d9e74d37e4d71cff2",
+        privateKey: "0x76690514749e994dbc62aef74ac173b3550f8ec75b0c3ac921185549f96959c0",
         publicKey:
-          "xpub6FNC5Tk9QdSKa3c48WUmMZbo3Skmh77Q3ki12CKr8g5bX1SSqJRtnwB4GL8bUZ6CRoajx1HoA1uW95ELWva1pWp5AoPgqimUMsFVVBYWyEn",
-        address: "0x79f01edb3ceace570587a05f5296c34fb7f400f3",
+          "xpub6DkshFro1nZ6yQRupYRJWp4abAyxBMFVMACb2gTVb4KMJXzpvFTSXq98WQ4iZ98XfbcKbnuPm9TNk5ZN1j8ogL7H3bkuEV5K6j6TzmNQHiu",
+        address: "0x05dfad865a91aff2e184504bed940b4313fab4e4",
         balance: 0,
         value: 0,
         rate: 0,
@@ -61,14 +81,12 @@ const testWallet = {
         version: 1,
       },
     ],
-    walletName: "test8",
-    mnemonic:
-      "cliff luggage vintage quality viable sheriff round sweet forward ostrich liberty design",
-    creationDate: "2022-02-23T06:35:59.447Z",
-    password: "test",
+    walletName: "test",
+    mnemonic: "mechanic version taxi inch aisle hair name bubble mother enlist roast nasty",
+    creationDate: "2022-03-15T02:18:42.521Z",
+    password: "testtest",
   }),
 }
-
 
 export const ChooseWalletScreen: FC<
   StackScreenProps<NavigatorParamList, "chooseWallet">
@@ -78,10 +96,10 @@ export const ChooseWalletScreen: FC<
     paddingHorizontal: spacing[0],
     width: "100%",
   }
-  
+
   const CONTAINER_STYLE: ViewStyle = {
     ...CONTAINER,
-    justifyContent: "flex-start"
+    justifyContent: "flex-start",
   }
 
   const buttonIconStyle: ImageStyle = {
@@ -93,17 +111,17 @@ export const ChooseWalletScreen: FC<
     ...headerStyle,
     fontSize: 27,
     lineHeight: 37,
-    fontWeight: "700"
+    fontWeight: "700",
   }
   const footerStyle: TextStyle = {
     display: "flex",
     width: "100%",
-    alignItems:"center",
+    alignItems: "center",
   }
   const BUTTON_STYLE: ViewStyle = {
     ...PRIMARY_BTN,
     marginTop: spacing[6],
-    marginBottom: spacing[3]
+    marginBottom: spacing[3],
   }
   const { currentWalletStore } = useStores()
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
@@ -164,7 +182,8 @@ export const ChooseWalletScreen: FC<
                 titleStyle={headerTitleSTYLE}
               />
               <Text style={[NORMAL_TEXT, TEXT_CENTTER]}>
-                The restoration of your wallet is successful. You are now ready to manage your assets.
+                The restoration of your wallet is successful. You are now ready to manage your
+                assets.
               </Text>
             </View>
             <View>
@@ -175,22 +194,22 @@ export const ChooseWalletScreen: FC<
                   <>
                     <Text style={SMALL_TEXT}>CHOOSE YOUR WALLET</Text>
                     <DropDownPicker
-                        style={DropdownContainerStyle}
-                        textStyle={DropdownTextStyle}
-                        arrowIconStyle={DropdownArrowStyle}
-                        listItemContainerStyle={DropdownListStyle}
-                        theme={"DARK"}
-                        open={open}
-                        value={itemValue}
-                        items={walletNames.map((item) => ({ label: item, value: item }))}
-                        setOpen={setOpen}
-                        setValue={setItemValue}
-                        onChangeValue={(val) => {
-                          console.log(val)
-                          onChange(val)
-                          setValue("walletName", val)
-                        }}
-                      />
+                      style={DropdownContainerStyle}
+                      textStyle={DropdownTextStyle}
+                      arrowIconStyle={DropdownArrowStyle}
+                      listItemContainerStyle={DropdownListStyle}
+                      theme={"DARK"}
+                      open={open}
+                      value={itemValue}
+                      items={walletNames.map((item) => ({ label: item, value: item }))}
+                      setOpen={setOpen}
+                      setValue={setItemValue}
+                      onChangeValue={(val) => {
+                        console.log(val)
+                        onChange(val)
+                        setValue("walletName", val)
+                      }}
+                    />
                   </>
                 )}
                 rules={{
@@ -226,13 +245,17 @@ export const ChooseWalletScreen: FC<
               />
               <Button
                 textStyle={PRIMARY_TEXT}
-                style={[BUTTON_STYLE, !isValid && { ...btnDisabled }, loading && { ...btnDisabled }]}
+                style={[
+                  BUTTON_STYLE,
+                  !isValid && { ...btnDisabled },
+                  loading && { ...btnDisabled },
+                ]}
                 disabled={!isValid || loading}
                 text={loading ? "Loading ..." : "Continue"}
                 onPress={handleSubmit(onSubmit)}
               >
-                <Text text={loading ? "Loading ..." : "UNLOCK"}/>
-                <SvgXml width="24" height="24" xml={unlockIcon} style={buttonIconStyle}/>
+                <Text text={loading ? "Loading ..." : "UNLOCK"} />
+                <SvgXml width="24" height="24" xml={unlockIcon} style={buttonIconStyle} />
               </Button>
               <Button
                 testID="next-screen-button"
@@ -243,13 +266,11 @@ export const ChooseWalletScreen: FC<
               />
             </View>
             <View style={footerStyle}>
-              <SvgXml width={64} height={64} xml={fingerIcon}/>
+              <SvgXml width={64} height={64} xml={fingerIcon} />
             </View>
           </ScrollView>
         </AppScreen>
       </ImageBackground>
     </Screen>
-      
-    
   )
 })
