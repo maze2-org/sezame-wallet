@@ -399,6 +399,9 @@ const AppStack = () => {
             options={{
               presentation: "modal",
               headerShown: true,
+              headerRight: () => <SettingsBtn route="settings" />,
+              headerStyle: { backgroundColor: color.palette.black },
+              headerLeft: Logo,
               title: "",
             }}
             name="send"
