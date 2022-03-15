@@ -10,7 +10,27 @@ import { AppScreen, Button, Drawer, Header, Screen, Text } from "../../component
 import { color, spacing } from "../../theme"
 import { getListOfWallets } from "../../utils/storage"
 import { useForm, Controller } from "react-hook-form"
-import { BackgroundStyle, btnDefault, btnDisabled, CONTAINER, DropdownArrowStyle, DropdownContainerStyle, DropdownListStyle, DropdownTextStyle, footBtn, headerTitle, MainBackground, NORMAL_TEXT, PRIMARY_BTN, PRIMARY_OUTLINE_BTN, PRIMARY_TEXT, RootPageStyle, SMALL_TEXT, textInput, TEXT_CENTTER } from "../../theme/elements"
+import {
+  BackgroundStyle,
+  btnDefault,
+  btnDisabled,
+  CONTAINER,
+  DropdownArrowStyle,
+  DropdownContainerStyle,
+  DropdownListStyle,
+  DropdownTextStyle,
+  footBtn,
+  headerTitle,
+  MainBackground,
+  NORMAL_TEXT,
+  PRIMARY_BTN,
+  PRIMARY_OUTLINE_BTN,
+  PRIMARY_TEXT,
+  RootPageStyle,
+  SMALL_TEXT,
+  textInput,
+  TEXT_CENTTER,
+} from "../../theme/elements"
 import DropDownPicker from "react-native-dropdown-picker"
 import { TextInputField } from "../../components/text-input-field/text-input-field"
 import { StoredWallet } from "../../utils/stored-wallet"
@@ -69,7 +89,6 @@ const testWallet = {
   }),
 }
 
-
 export const ChooseWalletScreen: FC<
   StackScreenProps<NavigatorParamList, "chooseWallet">
 > = observer(function ChooseWalletScreen() {
@@ -78,10 +97,10 @@ export const ChooseWalletScreen: FC<
     paddingHorizontal: spacing[0],
     width: "100%",
   }
-  
+
   const CONTAINER_STYLE: ViewStyle = {
     ...CONTAINER,
-    justifyContent: "flex-start"
+    justifyContent: "flex-start",
   }
 
   const buttonIconStyle: ImageStyle = {
@@ -93,17 +112,17 @@ export const ChooseWalletScreen: FC<
     ...headerStyle,
     fontSize: 27,
     lineHeight: 37,
-    fontWeight: "700"
+    fontWeight: "700",
   }
   const footerStyle: TextStyle = {
     display: "flex",
     width: "100%",
-    alignItems:"center",
+    alignItems: "center",
   }
   const BUTTON_STYLE: ViewStyle = {
     ...PRIMARY_BTN,
     marginTop: spacing[6],
-    marginBottom: spacing[3]
+    marginBottom: spacing[3],
   }
   const { currentWalletStore } = useStores()
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
@@ -156,7 +175,41 @@ export const ChooseWalletScreen: FC<
     <Screen preset="scroll" style={RootPageStyle}>
       <ImageBackground source={MainBackground} style={BackgroundStyle}>
         <AppScreen>
-          <Drawer title="Choose something" />
+          <Drawer
+            title="Choose something"
+            actions={[
+              <Button
+                textStyle={PRIMARY_TEXT}
+                style={[
+                  BUTTON_STYLE,
+                  !isValid && { ...btnDisabled },
+                  loading && { ...btnDisabled },
+                ]}
+                disabled={!isValid || loading}
+                text={loading ? "Loading ..." : "Continue"}
+                onPress={handleSubmit(onSubmit)}
+              >
+                <Text text={loading ? "Loading ..." : "UNLOCK"} />
+                <SvgXml width="24" height="24" xml={unlockIcon} style={buttonIconStyle} />
+              </Button>,
+              <Button
+                textStyle={PRIMARY_TEXT}
+                style={[
+                  BUTTON_STYLE,
+                  !isValid && { ...btnDisabled },
+                  loading && { ...btnDisabled },
+                ]}
+                disabled={!isValid || loading}
+                text={loading ? "Loading ..." : "Continue"}
+                onPress={handleSubmit(onSubmit)}
+              >
+                <Text text={loading ? "Loading ..." : "UNLOCK"} />
+                <SvgXml width="24" height="24" xml={unlockIcon} style={buttonIconStyle} />
+              </Button>,
+            ]}
+          >
+            <Text>Ceci est le contenu du tirroir</Text>
+          </Drawer>
           <ScrollView contentContainerStyle={CONTAINER}>
             <View>
               <Header
@@ -165,7 +218,8 @@ export const ChooseWalletScreen: FC<
                 titleStyle={headerTitleSTYLE}
               />
               <Text style={[NORMAL_TEXT, TEXT_CENTTER]}>
-                The restoration of your wallet is successful. You are now ready to manage your assets.
+                The restoration of your wallet is successful. You are now ready to manage your
+                assets.
               </Text>
             </View>
             <View>
@@ -176,22 +230,22 @@ export const ChooseWalletScreen: FC<
                   <>
                     <Text style={SMALL_TEXT}>CHOOSE YOUR WALLET</Text>
                     <DropDownPicker
-                        style={DropdownContainerStyle}
-                        textStyle={DropdownTextStyle}
-                        arrowIconStyle={DropdownArrowStyle}
-                        listItemContainerStyle={DropdownListStyle}
-                        theme={"DARK"}
-                        open={open}
-                        value={itemValue}
-                        items={walletNames.map((item) => ({ label: item, value: item }))}
-                        setOpen={setOpen}
-                        setValue={setItemValue}
-                        onChangeValue={(val) => {
-                          console.log(val)
-                          onChange(val)
-                          setValue("walletName", val)
-                        }}
-                      />
+                      style={DropdownContainerStyle}
+                      textStyle={DropdownTextStyle}
+                      arrowIconStyle={DropdownArrowStyle}
+                      listItemContainerStyle={DropdownListStyle}
+                      theme={"DARK"}
+                      open={open}
+                      value={itemValue}
+                      items={walletNames.map((item) => ({ label: item, value: item }))}
+                      setOpen={setOpen}
+                      setValue={setItemValue}
+                      onChangeValue={(val) => {
+                        console.log(val)
+                        onChange(val)
+                        setValue("walletName", val)
+                      }}
+                    />
                   </>
                 )}
                 rules={{
@@ -227,13 +281,17 @@ export const ChooseWalletScreen: FC<
               />
               <Button
                 textStyle={PRIMARY_TEXT}
-                style={[BUTTON_STYLE, !isValid && { ...btnDisabled }, loading && { ...btnDisabled }]}
+                style={[
+                  BUTTON_STYLE,
+                  !isValid && { ...btnDisabled },
+                  loading && { ...btnDisabled },
+                ]}
                 disabled={!isValid || loading}
                 text={loading ? "Loading ..." : "Continue"}
                 onPress={handleSubmit(onSubmit)}
               >
-                <Text text={loading ? "Loading ..." : "UNLOCK"}/>
-                <SvgXml width="24" height="24" xml={unlockIcon} style={buttonIconStyle}/>
+                <Text text={loading ? "Loading ..." : "UNLOCK"} />
+                <SvgXml width="24" height="24" xml={unlockIcon} style={buttonIconStyle} />
               </Button>
               <Button
                 testID="next-screen-button"
@@ -244,13 +302,11 @@ export const ChooseWalletScreen: FC<
               />
             </View>
             <View style={footerStyle}>
-              <SvgXml width={64} height={64} xml={fingerIcon}/>
+              <SvgXml width={64} height={64} xml={fingerIcon} />
             </View>
           </ScrollView>
         </AppScreen>
       </ImageBackground>
     </Screen>
-      
-    
   )
 })

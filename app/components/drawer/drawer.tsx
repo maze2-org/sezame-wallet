@@ -5,8 +5,8 @@ import { color, typography } from "../../theme"
 import { Text } from "../text/text"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { SvgXml } from "react-native-svg"
-import { BlurView } from "@react-native-community/blur"
 import popupTopIcon from "../../../assets/svg/popup-top-icon.svg"
+import styles from "./styles"
 
 const CONTAINER: ViewStyle = {
   justifyContent: "center",
@@ -33,17 +33,31 @@ export interface DrawerProps {
  */
 export const Drawer = observer(function Drawer(props: DrawerProps) {
   const { style } = props
-  const styles = Object.assign({}, CONTAINER, style)
 
   return (
-    <View>
+    <View style={styles.overlay}>
       {/* Main fame (overlay) */}
-      <View style={styles}>
+      <View style={styles.popup}>
         {/* Main fame (window) */}
         <SvgXml xml={popupTopIcon} />
-        <Text>{props.title}</Text>
-        <View>{props.children}</View>
-        <View>{props.actions && props.actions.map((btn) => btn)}</View>
+        <Text style={styles.title}>{props.title}</Text>
+        <View style={styles.body}>{props.children}</View>
+        <View style={styles.actions}>
+          {props.actions &&
+            props.actions.map((btn, index) => (
+              <View
+                style={[
+                  styles.actionBtn,
+                  index === 0 && props.actions.length > 1 && styles.actionBtnMarginRight,
+                  index === props.actions.length - 1 &&
+                    props.actions.length > 1 &&
+                    styles.actionBtnMarginLeft,
+                ]}
+              >
+                {btn}
+              </View>
+            ))}
+        </View>
       </View>
     </View>
   )
