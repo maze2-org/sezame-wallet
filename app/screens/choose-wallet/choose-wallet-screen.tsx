@@ -4,7 +4,7 @@ import { ImageBackground, ImageStyle, ScrollView, TextStyle, View, ViewStyle } f
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import SplashScreen from "react-native-splash-screen"
 import { NavigatorParamList } from "../../navigators"
-import { AppScreen, Button, Drawer, Header, Screen, Text } from "../../components"
+import { AppScreen, Button, Header, Screen, Text } from "../../components"
 // import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
@@ -175,41 +175,6 @@ export const ChooseWalletScreen: FC<
     <Screen preset="scroll" style={RootPageStyle}>
       <ImageBackground source={MainBackground} style={BackgroundStyle}>
         <AppScreen>
-          <Drawer
-            title="Choose something"
-            actions={[
-              <Button
-                textStyle={PRIMARY_TEXT}
-                style={[
-                  BUTTON_STYLE,
-                  !isValid && { ...btnDisabled },
-                  loading && { ...btnDisabled },
-                ]}
-                disabled={!isValid || loading}
-                text={loading ? "Loading ..." : "Continue"}
-                onPress={handleSubmit(onSubmit)}
-              >
-                <Text text={loading ? "Loading ..." : "UNLOCK"} />
-                <SvgXml width="24" height="24" xml={unlockIcon} style={buttonIconStyle} />
-              </Button>,
-              <Button
-                textStyle={PRIMARY_TEXT}
-                style={[
-                  BUTTON_STYLE,
-                  !isValid && { ...btnDisabled },
-                  loading && { ...btnDisabled },
-                ]}
-                disabled={!isValid || loading}
-                text={loading ? "Loading ..." : "Continue"}
-                onPress={handleSubmit(onSubmit)}
-              >
-                <Text text={loading ? "Loading ..." : "UNLOCK"} />
-                <SvgXml width="24" height="24" xml={unlockIcon} style={buttonIconStyle} />
-              </Button>,
-            ]}
-          >
-            <Text>Ceci est le contenu du tirroir</Text>
-          </Drawer>
           <ScrollView contentContainerStyle={CONTAINER}>
             <View>
               <Header

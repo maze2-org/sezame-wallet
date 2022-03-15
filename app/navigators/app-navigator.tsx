@@ -14,6 +14,7 @@ import {
   Button,
   StyleSheet,
   Text,
+  ImageStyle,
 } from "react-native"
 import Modal from "react-native-modal"
 import {
@@ -47,16 +48,22 @@ import { ReceiveScreen } from "screens/receive/receive-screen"
 import { useStores } from "../models"
 import { StoredWallet } from "../utils/stored-wallet"
 import { StackNavigationProp } from "@react-navigation/stack"
+import { AutoImage as Image } from "../components"
 import {
+  LogoStyle,
+  SesameSmallLogo,
   tabBarButton,
   tabBarFocused,
   tabBarItemBorderRightStyle,
   tabBarItemStyle,
   tabBarStyle,
 } from "theme/elements"
+
+import QRCodeIcon from "../../assets/svg/qr_code.svg"
+import UserIcon from "../../assets/svg/user.svg"
+import PlusIcon from "../../assets/svg/plus.svg"
 import { SvgXml } from "react-native-svg"
 
-import logo from "../../assets/svg/logo-sezame.svg"
 import tabWallet from "../../assets/svg/tab-wallet.svg"
 import tabNft from "../../assets/svg/tab-nft.svg"
 
@@ -64,18 +71,52 @@ const NAV_HEADER_BTN_CONTAINER: ViewStyle = {
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
+  marginTop: spacing[6],
+  marginBottom: spacing[2],
+}
+const NAV_HEADER_TITLE_CONTAINER: TextStyle = {
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+}
+const LOGO_STYLE: ImageStyle = {
+  width: 32,
+  height: 32,
+  marginRight: spacing[2],
 }
 const NAV_HEADER_BTN: ViewStyle = {
   padding: spacing[2],
 }
 
 const BTN_ICON: TextStyle = {
-  color: color.palette.black,
+  color: color.palette.white,
+  width: 24,
+  height: 24,
 }
 
 const Logo = () => (
   <View style={NAV_HEADER_BTN_CONTAINER}>
-    <SvgXml xml={logo} height={20} />
+    {/* <TouchableOpacity style={NAV_HEADER_BTN}>
+      <FontAwesome5Icon style={BTN_ICON} name="qrcode" size={23} />
+    </TouchableOpacity>
+    <View style={NAV_HEADER_BTN_CONTAINER}>
+      <Text style={{ color: color.palette.black }}>SESAME</Text>
+      <Text style={{ color: color.palette.offWhite }}>WALLET</Text>
+    </View> */}
+    <Image source={SesameSmallLogo} style={LOGO_STYLE} />
+    <View style={NAV_HEADER_TITLE_CONTAINER}>
+      <Text
+        style={{
+          color: color.palette.white,
+          fontFamily: "Open Sans",
+          fontWeight: "700",
+          paddingRight: spacing[1],
+        }}
+      >
+        SESAME
+      </Text>
+      <Text style={{ color: color.palette.offWhite }}>WALLET</Text>
+    </View>
   </View>
 )
 
@@ -182,10 +223,10 @@ const SettingsBtn = ({ route }) => {
           console.log("a")
         }}
       >
-        <FontAwesome5Icon style={BTN_ICON} name="qrcode" size={23} />
+        <SvgXml style={BTN_ICON} xml={QRCodeIcon} />
       </TouchableOpacity>
       <TouchableOpacity style={NAV_HEADER_BTN} onPress={() => setIsOpenAddAssetModal(true)}>
-        <FontAwesome5Icon style={BTN_ICON} name="plus" size={23} />
+        <SvgXml style={BTN_ICON} xml={PlusIcon} />
       </TouchableOpacity>
       <TouchableOpacity
         style={NAV_HEADER_BTN}
@@ -193,7 +234,7 @@ const SettingsBtn = ({ route }) => {
           route === "settings" ? navigation.goBack() : navigation.navigate("settings")
         }}
       >
-        <FontAwesome5Icon style={BTN_ICON} name="user-cog" size={23} />
+        <SvgXml style={BTN_ICON} xml={UserIcon} />
       </TouchableOpacity>
 
       <Modal isVisible={isOpenAddAssetModal}>
@@ -378,6 +419,7 @@ const AppStack = () => {
             options={{
               headerShown: true,
               headerRight: () => <SettingsBtn route="settings" />,
+              headerStyle: { backgroundColor: color.palette.black },
               headerLeft: Logo,
               title: "",
             }}

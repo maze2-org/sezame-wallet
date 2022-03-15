@@ -266,4 +266,6 @@ export const DropdownListStyle: ViewStyle = {
 export const DropdownArrowStyle: ViewStyle = {}
 
 export const SesameLogo = require("../../../assets/images/Logo.png")
+export const SesameSmallLogo = require("../../../assets/images/Group.png")
+
 export const MainBackground = require("../../../assets/images/bg-noise.png")

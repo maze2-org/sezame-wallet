@@ -26,21 +26,19 @@ all: android-prod ios-xcode
 	mkdir -p platforms/all
 	zip -r platforms/all/app-release-all.zip ios android/app/build/outputs/bundle/release/app-release.aab android/app/build/outputs/apk/release/app-release-unsigned.apk
 
-build:
-#	npx react-native upgrade
-
-android: node_modules build
+android: node_modules
 	mkdir -p ./android/app/src/main/assets/
 	npx react-native bundle --dev false --platform android --entry-file index.js --bundle-output ./android/app/src/main/assets/index.android.bundle --assets-dest ./android/app/src/main/res
 
 android-prod: android
-	cd android && ./gradlew assembleRelease
-	cd android && ./gradlew bundle
-	@ echo Debug APK: ./android/app/build/outputs/apk/debug/app-debug.apk
+#	cd android &&  ./gradlew clean
+	cd android && ./gradlew assembleRelease -x bundleReleaseJsAndAssets
+	cd android && ./gradlew bundle -x bundleReleaseJsAndAssets
+	@ echo Prod APK: ./android/app/build/outputs/apk/release/app-release.apk
 
 
-android-dev: node_modules build android
-	cd android && ./gradlew assembleDebug
+android-dev: node_modules android
+	cd android && ./gradlew assembleDebug -x bundleReleaseJsAndAssets
 	@ echo Debug APK: ./android/app/build/outputs/apk/debug/app-debug.apk
 
 ios: node_modules build
@@ -49,8 +47,10 @@ ios: node_modules build
 ios-xcode: ios
 
 sign-android: android-prod
-	jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore ~/Documents/Iabsis/Passwords/Android.jks android/app/build/outputs/bundle/release/app-release.aab iabsis
-	jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore ~/Documents/Iabsis/Passwords/Android.jks android/app/build/outputs/apk/release/app-release-unsigned.apk iabsis
+#	jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore ~/Documents/Iabsis/Passwords/Android.jks android/app/build/outputs/bundle/release/app-release.aab iabsis
+#	jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore ~/Documents/Iabsis/Passwords/Android.jks android/app/build/outputs/apk/release/app-release-unsigned.apk iabsis
+	zipalign 4 android/app/build/outputs/apk/release/app-release.apk app-release.apk
+	apksigner sign --ks ~/Documents/Iabsis/Passwords/Android.jks android/app/build/outputs/apk/release/app-release.apk
 	@echo Bundle app: android/app/build/outputs/bundle/release/app-release.aab
 	@echo APK app: android/app/build/outputs/apk/release/app-release-unsigned.apk
 
