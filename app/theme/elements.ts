@@ -178,12 +178,12 @@ export const PRIMARY_TEXT: TextStyle = {
   fontSize: 13,
   lineHeight: 18,
   fontWeight: "600",
-  textTransform: "uppercase"
+  textTransform: "uppercase",
 }
 
 export const PRIMARY_OUTLINE_BTN: TextStyle = {
   backgroundColor: color.transparent,
-  width: "100%"
+  width: "100%",
 }
 
 export const TEXT_CENTTER: TextStyle = {
@@ -265,9 +265,16 @@ export const DropdownListStyle: ViewStyle = {
   borderColor: color.palette.white,
   backgroundColor: color.transparent,
 }
-export const DropdownArrowStyle: ViewStyle = {}
+export const DropdownArrowStyle: TextStyle = {
+  color: color.palette.gold,
+}
 
 export const SesameLogo = require("../../../assets/images/Logo.png")
 export const SesameSmallLogo = require("../../../assets/images/Group.png")
 
 export const MainBackground = require("../../../assets/images/bg-noise.png")
+
+export const SEPARATOR: ViewStyle = {
+  borderBottomColor: color.palette.lightGrey,
+  borderBottomWidth: 0.5,
+}

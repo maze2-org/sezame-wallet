@@ -53,10 +53,10 @@ const testWallet = {
         chain: "BTC",
         type: "coin",
         decimals: 8,
-        privateKey: "L39MEEJrM9SXb4WjSj7GGfz49FuwsvcPoCXCXnjQAEgxHTyUMTHb",
+        privateKey: "Kz2dytsQAKnxinuCgteAvWxFiXJuYxXPBzBbchrQJzy9SRe6F9wC",
         publicKey:
-          "xpub6EKA4LLy7XLcovpb2mJEfCrW9CzTx91s6H5x7qncz9Bmp2NQ439viJtf3gkNdyno2CgMXL9mSz2VPCo5u5xzvMYVCmuNxXfjHuU1T5vXTwa",
-        address: "bc1qx6juea389gv4g3qzz0vwmzjjjhxwtdvzmk2e6c",
+          "xpub6FMbMdGyYCZ3t4NfiAfRX1p8Kkxi3fb7UVmHc8NFcam5CAKSyneYqpXpWUpWEjsoMkU27f7dwdjuRkycuogLud13b1Tfz3Bqa4XP9eS86NG",
+        address: "bc1qgvw2n5fn4wmzjq3yqfgm8sqpcdgj32xglcpa69",
         balance: 0,
         value: 0,
         rate: 0,
@@ -70,10 +70,10 @@ const testWallet = {
         chain: "ETH",
         type: "coin",
         decimals: 18,
-        privateKey: "0x2480f77700e65da805193baa25aa1040ce681ba5ff375c9d9e74d37e4d71cff2",
+        privateKey: "0x76690514749e994dbc62aef74ac173b3550f8ec75b0c3ac921185549f96959c0",
         publicKey:
-          "xpub6FNC5Tk9QdSKa3c48WUmMZbo3Skmh77Q3ki12CKr8g5bX1SSqJRtnwB4GL8bUZ6CRoajx1HoA1uW95ELWva1pWp5AoPgqimUMsFVVBYWyEn",
-        address: "0x79f01edb3ceace570587a05f5296c34fb7f400f3",
+          "xpub6DkshFro1nZ6yQRupYRJWp4abAyxBMFVMACb2gTVb4KMJXzpvFTSXq98WQ4iZ98XfbcKbnuPm9TNk5ZN1j8ogL7H3bkuEV5K6j6TzmNQHiu",
+        address: "0x05dfad865a91aff2e184504bed940b4313fab4e4",
         balance: 0,
         value: 0,
         rate: 0,
@@ -81,11 +81,10 @@ const testWallet = {
         version: 1,
       },
     ],
-    walletName: "test8",
-    mnemonic:
-      "cliff luggage vintage quality viable sheriff round sweet forward ostrich liberty design",
-    creationDate: "2022-02-23T06:35:59.447Z",
-    password: "test",
+    walletName: "test",
+    mnemonic: "mechanic version taxi inch aisle hair name bubble mother enlist roast nasty",
+    creationDate: "2022-03-15T02:18:42.521Z",
+    password: "testtest",
   }),
 }
 
@@ -183,7 +182,8 @@ export const ChooseWalletScreen: FC<
                 titleStyle={headerTitleSTYLE}
               />
               <Text style={[NORMAL_TEXT, TEXT_CENTTER]}>
-                Your wallets are currently locked. Please choose a wallet and enter the password to continue.
+                The restoration of your wallet is successful. You are now ready to manage your
+                assets.
               </Text>
             </View>
             <View>
