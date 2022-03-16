@@ -1,5 +1,6 @@
 import { withRootStore } from "models"
 import { ImageStyle, TextStyle, ViewStyle } from "react-native"
+import { capitalize } from "validate.js"
 import { color, spacing, typography } from "."
 
 /**
@@ -177,11 +178,12 @@ export const PRIMARY_TEXT: TextStyle = {
   fontSize: 13,
   lineHeight: 18,
   fontWeight: "600",
+  textTransform: "uppercase"
 }
 
 export const PRIMARY_OUTLINE_BTN: TextStyle = {
   backgroundColor: color.transparent,
-  width: "100%",
+  width: "100%"
 }
 
 export const TEXT_CENTTER: TextStyle = {

@@ -150,7 +150,7 @@ export function ImportWalletStep2(props: StepProps) {
             testID="next-screen-button"
             style={PRIMARY_OUTLINE_BTN}
             textStyle={PRIMARY_TEXT}
-            tx="createWallet.cancel"
+            tx="common.back"
             onPress={onButtonBack}
           />
         </SafeAreaView>
