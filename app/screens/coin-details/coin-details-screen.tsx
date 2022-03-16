@@ -93,7 +93,7 @@ const BALANCE_STAKING_CARD_AMOUNT: TextStyle = {
 }
 const BALANCE_STAKING_CARD_NOTE: TextStyle = {
   color: color.palette.white,
-  fontSize: 12,
+  fontSize: 10,
 }
 const BALANCE_STAKING_CARD_BTN: ViewStyle = {
   backgroundColor: color.transparent,
@@ -105,7 +105,6 @@ const BALANCE_STAKING_CARD_BTN: ViewStyle = {
 }
 const BALANCE_STAKING_CARD_BTN_ICON: TextStyle = {
   color: color.palette.white,
-  flex: 1,
 }
 
 const BALANCE_STAKING_CARD_BTN_TEXT: TextStyle = {
