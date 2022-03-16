@@ -82,3 +82,6 @@ web-build/
 # Configurations
 app/config/env.*.js
 !env.js
+
+# Bundle 
+android/app/src/main/assets/index.android.bundle
