@@ -22,6 +22,7 @@ import {
   DefaultTheme,
   DarkTheme,
   useNavigation,
+  useRoute,
 } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import {
@@ -138,7 +139,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const SettingsBtn = ({ route }) => {
+function SettingsBtn() {
   const COMMON = {
     privateKey: "",
     publicKey: "",
@@ -196,8 +197,8 @@ const SettingsBtn = ({ route }) => {
   const { currentWalletStore } = useStores()
   const [storedWallet, setStoredWallet] = useState<any>(null)
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
-
-  console.log("got route ", route)
+  const route = navigationRef.current?.getCurrentRoute()
+  console.log("route ", route)
   useEffect(() => {
     const { walletName, mnemonic, password } = JSON.parse(currentWalletStore.wallet)
     setStoredWallet(new StoredWallet(walletName, mnemonic, password))
@@ -229,7 +230,7 @@ const SettingsBtn = ({ route }) => {
       <TouchableOpacity
         style={NAV_HEADER_BTN}
         onPress={() => {
-          route === "settings" ? navigation.goBack() : navigation.navigate("settings")
+          route.name === "settings" ? navigation.goBack() : navigation.navigate("settings")
         }}
       >
         <SvgXml style={BTN_ICON} xml={UserIcon} />
@@ -369,11 +370,6 @@ const AppStack = () => {
         >
           <Stack.Screen name="chooseWallet" component={ChooseWalletScreen} />
           <Stack.Screen name="welcome" component={WelcomeScreen} />
-          {/*<Stack.Screen*/}
-          {/*  name="home"*/}
-          {/*  component={BottomTabNavigator}*/}
-          {/*  options={{ headerShown: true, headerRight: SettingsBtn }}*/}
-          {/*/>*/}
           <Stack.Screen name="importWallet" component={ImportWalletScreen} />
           <Stack.Screen name="createWallet" component={CreateWalletScreen} />
 
@@ -382,7 +378,7 @@ const AppStack = () => {
             component={BottomTabNavigator}
             options={{
               headerShown: true,
-              headerRight: () => <SettingsBtn route="dashboard" />,
+              headerRight: SettingsBtn,
               headerLeft: Logo,
               headerBackVisible: false,
               headerStyle: {
@@ -397,7 +393,7 @@ const AppStack = () => {
             options={{
               presentation: "modal",
               headerShown: true,
-              headerRight: () => <SettingsBtn route="settings" />,
+              headerRight: SettingsBtn,
               headerStyle: { backgroundColor: color.palette.black },
               headerLeft: Logo,
               title: "",
@@ -419,7 +415,7 @@ const AppStack = () => {
             component={SettingsScreen}
             options={{
               headerShown: true,
-              headerRight: () => <SettingsBtn route="settings" />,
+              headerRight: SettingsBtn,
               headerStyle: { backgroundColor: color.palette.black },
               headerLeft: Logo,
               title: "",
