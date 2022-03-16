@@ -62,8 +62,8 @@ export function CreateWalletStep4(props: StepProps) {
             style={headerStyle}
             titleStyle={headerTitleSTYLE}
           />
-          <Text style={[NORMAL_TEXT]}>
-            The restoration of your wallet is successful. You are now ready to manage your assets.
+          <Text style={NORMAL_TEXT}>
+            Your wallet has been successfully created. You are now ready to manage your assets.
           </Text>
 
           <SvgXml width={85} height={85} xml={readyIcon} style={ICON_STYLE} />

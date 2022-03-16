@@ -115,12 +115,12 @@ export function CreateWalletStep3(props: StepProps) {
       <ScrollView contentContainerStyle={CONTAINER}>
         <View>
           <Header
-            headerText="Provide your seed phrase"
+            headerText="Confirm your seed phrase"
             style={headerStyle}
             titleStyle={headerTitle}
           />
           <Text style={NORMAL_TEXT}>
-            In order to recover your wallet, you must provide your seed phrase.
+            Please select the words in the right order to confirm that your seed phrase is safe.
           </Text>
         </View>
         <View style={containerGrowable}>
@@ -164,7 +164,7 @@ export function CreateWalletStep3(props: StepProps) {
             testID="next-screen-button"
             style={PRIMARY_OUTLINE_BTN}
             textStyle={PRIMARY_TEXT}
-            tx="createWallet.cancel"
+            tx="common.back"
             onPress={onButtonBack}
           />
         </SafeAreaView>

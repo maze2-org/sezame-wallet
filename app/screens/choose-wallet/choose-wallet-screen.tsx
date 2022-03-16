@@ -159,13 +159,13 @@ export const ChooseWalletScreen: FC<
     try {
       const loadedWallet = await StoredWallet.loadFromStorage(data.walletName, data.walletPassword)
 
-      showMessage({ message: "Wallet decrypted", type: "success" })
+      showMessage({ message: "Wallet unlocked", type: "success" })
       console.log("loaded wallet ", JSON.stringify(loadedWallet))
       currentWalletStore.open(loadedWallet as any)
       navigation.navigate("dashboard")
     } catch (err) {
       console.log(err)
-      showMessage({ message: "Unable to decrypt this wallet", type: "danger" })
+      showMessage({ message: "Unable to unlock this wallet", type: "danger" })
     } finally {
       setLoading(false)
     }
@@ -183,8 +183,7 @@ export const ChooseWalletScreen: FC<
                 titleStyle={headerTitleSTYLE}
               />
               <Text style={[NORMAL_TEXT, TEXT_CENTTER]}>
-                The restoration of your wallet is successful. You are now ready to manage your
-                assets.
+                Your wallets are currently locked. Please choose a wallet and enter the password to continue.
               </Text>
             </View>
             <View>
@@ -193,7 +192,7 @@ export const ChooseWalletScreen: FC<
                 name="walletName"
                 render={({ field: { onChange, value, onBlur } }) => (
                   <>
-                    <Text style={SMALL_TEXT}>CHOOSE YOUR WALLET</Text>
+                    <Text style={SMALL_TEXT}>WALLETS</Text>
                     <DropDownPicker
                       style={DropdownContainerStyle}
                       textStyle={DropdownTextStyle}
@@ -226,7 +225,7 @@ export const ChooseWalletScreen: FC<
                 name="walletPassword"
                 render={({ field: { onChange, value, onBlur } }) => (
                   <TextInputField
-                    label="Choose a password"
+                    label="Unlock password"
                     secureTextEntry={true}
                     name="walletPassword"
                     icon={eyeIcon}

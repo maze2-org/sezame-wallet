@@ -41,6 +41,11 @@ export function CreateWalletStep2(props: StepProps) {
     color: color.palette.gold,
   }
 
+  const IMPORTANT_STYLE: TextStyle = {
+    ...TEXT_STYLE,
+    color: color.palette.angry,
+  }
+
   const buttonIconStyle: ImageStyle = {
     position: "absolute",
     right: 15,
@@ -125,15 +130,14 @@ export function CreateWalletStep2(props: StepProps) {
         <View>
           <Header headerText="Save your seed phrase" style={headerStyle} titleStyle={headerTitle} />
           <Text style={TEXT_STYLE}>
-            We generated this unique seed phrase for you. Please copy this seed to multi safe
-            location.
+            A seed phrase is the only way for you to keep access on your assets even if your device is 
+            destroyed or stolen.
           </Text>
-          <Text style={WARNING_STYLE}>
-            IF YOU LOSE THIS, YOU WILL LOSE THE ACCESS TO YOUR FUNDS.
+          <Text style={IMPORTANT_STYLE}>
+            SAFE THE FOLLOWING SEED PHRASE IN SEVERAL AND SAFE LOCATIONS
           </Text>
         </View>
         <View>
-          <Text style={SMALL_TEXT}>SEED PHRASE</Text>
           <View style={phaseStyle}>
             <View style={cardBody}>
               <Text style={bodyText}>{seedPhrase}</Text>
@@ -147,6 +151,7 @@ export function CreateWalletStep2(props: StepProps) {
             </View>
           </View>
         </View>
+        <Text style={SMALL_TEXT}>Please accept the following conditions to continue.</Text>
         <SafeAreaView>
           <Checkbox
             text="I have written my seed in a safe location."
@@ -185,7 +190,7 @@ export function CreateWalletStep2(props: StepProps) {
             testID="next-screen-button"
             style={PRIMARY_OUTLINE_BTN}
             textStyle={PRIMARY_TEXT}
-            tx="createWallet.cancel"
+            tx="common.back"
             onPress={onButtonBack}
           />
         </SafeAreaView>
