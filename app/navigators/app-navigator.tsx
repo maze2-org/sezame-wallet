@@ -198,7 +198,7 @@ function SettingsBtn() {
   const [storedWallet, setStoredWallet] = useState<any>(null)
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
   const route = navigationRef.current?.getCurrentRoute()
-  console.log("route ", route)
+
   useEffect(() => {
     const { walletName, mnemonic, password } = JSON.parse(currentWalletStore.wallet)
     setStoredWallet(new StoredWallet(walletName, mnemonic, password))
