@@ -94,6 +94,13 @@ const BTN_ICON: TextStyle = {
   height: 24,
 }
 
+const LOGO: TextStyle = {
+  color: color.palette.white,
+  fontFamily: "Open Sans",
+  fontWeight: "700",
+  paddingRight: spacing[1],
+}
+
 const Logo = () => (
   <View style={NAV_HEADER_BTN_CONTAINER}>
     {/* <TouchableOpacity style={NAV_HEADER_BTN}>
@@ -105,16 +112,7 @@ const Logo = () => (
     </View> */}
     <Image source={SesameSmallLogo} style={LOGO_STYLE} />
     <View style={NAV_HEADER_TITLE_CONTAINER}>
-      <Text
-        style={{
-          color: color.palette.white,
-          fontFamily: "Open Sans",
-          fontWeight: "700",
-          paddingRight: spacing[1],
-        }}
-      >
-        SESAME
-      </Text>
+      <Text style={LOGO}>SESAME</Text>
       <Text style={{ color: color.palette.offWhite }}>WALLET</Text>
     </View>
   </View>

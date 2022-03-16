@@ -4,7 +4,8 @@
  */
 import { LogBox } from "react-native"
 
+LogBox.ignoreAllLogs();
 // prettier-ignore
-LogBox.ignoreLogs([
-  "Require cycle:",
-])
+// LogBox.ignoreLogs([
+//   "Require cycle:",
+// ])
