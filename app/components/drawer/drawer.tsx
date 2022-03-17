@@ -37,7 +37,7 @@ export const Drawer = observer(function Drawer(props: DrawerProps) {
   return (
     <View style={styles.overlay}>
       {/* Main fame (overlay) */}
-      <View style={styles.popup}>
+      <View style={[styles.popup, style]}>
         {/* Main fame (window) */}
         <SvgXml xml={popupTopIcon} />
         <Text style={styles.title}>{props.title}</Text>
