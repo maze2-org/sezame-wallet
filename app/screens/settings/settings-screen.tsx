@@ -223,6 +223,7 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
     }
 
     const goBack = () => navigation.goBack()
+    const goToChangePassword = () => navigation.navigate("changePassword")
     return (
       <Screen style={DashboardStyle} preset="scroll">
         <View style={BackgroundStyle}>
@@ -270,7 +271,7 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
                 </TouchableOpacity>
                 <View style={styles.SEPARATOR} />
 
-                <TouchableOpacity style={SETTING_ITEM_CONTAINER}>
+                <TouchableOpacity style={SETTING_ITEM_CONTAINER} onPress={goToChangePassword}>
                   <View style={SETTING_ICON_CONTAINER}>
                     <MaterialCommunityIcons
                       style={SETTING_ICON}
