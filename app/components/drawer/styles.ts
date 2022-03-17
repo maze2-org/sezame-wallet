@@ -1,4 +1,5 @@
 import { StyleSheet, TextStyle, ViewStyle } from "react-native"
+import { spacing } from "theme"
 
 const overlay: ViewStyle = {
   position: "absolute",
@@ -17,7 +18,6 @@ const popup: ViewStyle = {
   left: -1,
   bottom: 0,
   right: -1,
-  top: 80,
   backgroundColor: "#111111",
   alignItems: "center",
   paddingTop: 10,
@@ -39,10 +39,13 @@ const title: TextStyle = {
   fontSize: 18,
   fontWeight: "bold",
   marginVertical: 10,
+  lineHeight: 25
 }
 
 const body: ViewStyle = {
   flexGrow: 1,
+  width: "100%",
+  marginVertical: spacing[2]
 }
 
 const actions: ViewStyle = {
@@ -55,6 +58,7 @@ const actions: ViewStyle = {
 
 const actionBtn: ViewStyle = {
   flexGrow: 1,
+  width: "50%"
 }
 
 const actionBtnMarginRight: ViewStyle = {
