@@ -88,4 +88,15 @@ export class StoredWallet {
   public async addAssets(assets) {
     await Promise.all(assets.map(async (asset) => this.addAutoAsset(asset)))
   }
+
+  public async changePassword(oldPassword, newPassword) {
+    try {
+      const encryptedData = await loadEncryptedWallet(`${this.walletName}`)
+      JSON.parse(decrypt(oldPassword, encryptedData))
+      this.password = newPassword
+      this.save()
+    } catch (error) {
+      throw new Error("Unable to change password")
+    }
+  }
 }
