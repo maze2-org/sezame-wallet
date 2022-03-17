@@ -147,10 +147,13 @@ const TRANSACTIONS_SORT_BTN: ViewStyle = {
   display: "flex",
   flexDirection: "row",
   paddingHorizontal: spacing[2],
+  paddingVertical: spacing[1]
 }
 const TRANSACTIONS_SORT_BTN_TEXT: TextStyle = {
   color: color.palette.white,
-  marginLeft: spacing[2],
+  marginLeft: spacing[1],
+  fontSize: 12,
+  lineHeight: 16.34
 }
 const TRANSACTIONS_CONTAINER: ViewStyle = {
   display: "flex",
@@ -173,6 +176,7 @@ const TRANSACTION_ITEM_HASH: TextStyle = {
   color: color.palette.white,
   fontWeight: "bold",
   fontSize: 15,
+  textAlign: "right"
 }
 const TRANSACTION_ITEM_DATE: TextStyle = {
   color: color.palette.lightGrey,
@@ -337,11 +341,6 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                   <View>
                     <View style={TRANSACTIONS_HEADER}>
                       <Text preset="header" text="Transactions" />
-                      <Button style={TRANSACTIONS_SORT_BTN}>
-                        <FontAwesome5Icon name="arrow-down" size={15} color={color.palette.white} />
-
-                        <Text style={TRANSACTIONS_SORT_BTN_TEXT}>FROM</Text>
-                      </Button>
                     </View>
                     <View style={TRANSACTIONS_CONTAINER}>
                       <View style={TRANSACTION_ITEM}>
@@ -352,6 +351,11 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                           <Text style={TRANSACTION_ITEM_DATE}>11/11/2019 18:59:00 </Text>
                         </View>
                         <View>
+                          <Button style={TRANSACTIONS_SORT_BTN}>
+                            <FontAwesome5Icon name="arrow-down" size={10} color={color.palette.white} />
+
+                            <Text style={TRANSACTIONS_SORT_BTN_TEXT}>FROM</Text>
+                          </Button>
                           <Text style={TRANSACTION_ITEM_HASH}>+0.225</Text>
                         </View>
                       </View>
@@ -363,6 +367,11 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                           <Text style={TRANSACTION_ITEM_DATE}>11/11/2019 18:59:00 </Text>
                         </View>
                         <View>
+                          <Button style={TRANSACTIONS_SORT_BTN}>
+                            <FontAwesome5Icon name="arrow-down" size={10} color={color.palette.white} />
+
+                            <Text style={TRANSACTIONS_SORT_BTN_TEXT}>FROM</Text>
+                          </Button>
                           <Text style={TRANSACTION_ITEM_HASH}>+0.225</Text>
                         </View>
                       </View>
@@ -374,6 +383,11 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                           <Text style={TRANSACTION_ITEM_DATE}>11/11/2019 18:59:00 </Text>
                         </View>
                         <View>
+                          <Button style={TRANSACTIONS_SORT_BTN}>
+                            <FontAwesome5Icon name="arrow-down" size={10} color={color.palette.white} />
+
+                            <Text style={TRANSACTIONS_SORT_BTN_TEXT}>FROM</Text>
+                          </Button>
                           <Text style={TRANSACTION_ITEM_HASH}>+0.225</Text>
                         </View>
                       </View>
