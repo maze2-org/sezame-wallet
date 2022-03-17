@@ -32,6 +32,7 @@ import {
   DashboardScreen,
   SendScreen,
   SettingsScreen,
+  ChangePasswordScreen,
 } from "../screens"
 import { navigationRef, useBackButtonHandler } from "./navigation-utilities"
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5"
@@ -289,6 +290,7 @@ export type NavigatorParamList = {
     coinId: string
   }
   settings: undefined
+  changePassword: undefined
   // 🔥 Your screens go here
 }
 
@@ -418,6 +420,14 @@ const AppStack = () => {
               headerRight: SettingsBtn,
               headerStyle: { backgroundColor: color.palette.black },
               headerLeft: Logo,
+              title: "",
+            }}
+          />
+          <Stack.Screen
+            name="changePassword"
+            component={ChangePasswordScreen}
+            options={{
+              headerShown: true,
               title: "",
             }}
           />
