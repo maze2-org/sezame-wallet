@@ -15,7 +15,22 @@ const CONTAINER: ViewStyle = {
   display: "flex",
   flexDirection: "row",
 }
-
+const FOOTER_BUTTON: ViewStyle = {
+  flex: 1,
+  justifyContent: "center",
+  display: "flex",
+  flexDirection: "row",
+}
+const FOOTER_BUTTON_RIGHT: ViewStyle = {
+  ...FOOTER_BUTTON,
+  alignItems: "center",
+  borderLeftColor: color.palette.lightGrey,
+  borderLeftWidth: 1,
+}
+const FOOTER_BUTTON_TEXT: TextStyle = {
+  color: color.palette.white,
+  marginRight: spacing[2],
+}
 const TEXT: TextStyle = {
   fontFamily: typography.primary,
   fontSize: 14,
@@ -23,26 +38,46 @@ const TEXT: TextStyle = {
 }
 
 const IconStyle: ViewStyle = {
-  marginRight: spacing[2]
+  marginRight: spacing[2],
 }
 export interface FooterProps {
   /**
    * An optional style override useful for padding & margin.
    */
   style?: StyleProp<ViewStyle>
+  onLefButtonPress?: () => void
+  onRightButtonPress?: () => void
+  showRightButton?: boolean
+  RightButtonIcon?: any
+  rightButtonText?: string
 }
 
 /**
  * Describe your component here
  */
 export const Footer = observer(function Footer(props: FooterProps) {
-  const { style } = props
+  const {
+    style,
+    onLefButtonPress,
+    showRightButton,
+    RightButtonIcon,
+    onRightButtonPress,
+    rightButtonText,
+  } = props
   const styles = Object.assign({}, CONTAINER, style)
 
   return (
-    <TouchableOpacity style={styles}>
-      <SvgXml width={24} height={24} xml={backIcon} style={IconStyle}/>
-      <Text>Back</Text>
-    </TouchableOpacity>
+    <View style={styles}>
+      <TouchableOpacity onPress={onLefButtonPress} style={FOOTER_BUTTON}>
+        <SvgXml width={24} height={24} xml={backIcon} style={IconStyle} />
+        <Text>Back</Text>
+      </TouchableOpacity>
+      {showRightButton && (
+        <TouchableOpacity onPress={onRightButtonPress} style={FOOTER_BUTTON_RIGHT}>
+          {RightButtonIcon && <RightButtonIcon style={FOOTER_BUTTON_TEXT} />}
+          {rightButtonText && <Text>{rightButtonText}</Text>}
+        </TouchableOpacity>
+      )}
+    </View>
   )
 })

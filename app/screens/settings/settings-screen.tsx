@@ -1,6 +1,15 @@
 import React, { FC } from "react"
 import { observer } from "mobx-react-lite"
-import { TextStyle, View, ViewStyle, StyleSheet, Alert, Modal, ImageBackground } from "react-native"
+import {
+  TextStyle,
+  View,
+  ViewStyle,
+  StyleSheet,
+  Alert,
+  Modal,
+  ImageBackground,
+  ScrollView,
+} from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import FontAwesomeIcon from "react-native-vector-icons/FontAwesome"
 import FontAwesomeIcon5 from "react-native-vector-icons/FontAwesome5"
@@ -10,7 +19,7 @@ import { useForm, Controller } from "react-hook-form"
 import Clipboard from "@react-native-clipboard/clipboard"
 
 import { NavigatorParamList } from "../../navigators"
-import { Button, Screen, Text } from "../../components"
+import { Button, Footer, Screen, Text } from "../../components"
 // import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
@@ -226,171 +235,181 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
     const goToChangePassword = () => navigation.navigate("changePassword")
     return (
       <Screen style={DashboardStyle} preset="scroll">
-        <View style={BackgroundStyle}>
-          <View style={MAIN_CONTAINER}>
-            <View>
-              <View style={SETTING_HEADER_CONTAINER}>
-                <Text style={SETTING_HEADER} text="Wallet settings" />
-                <Text style={WALLET_NAME} text={currentWalletStore.name} />
-              </View>
-              <View style={SETTING_ITEM_WRAP}>
-                <TouchableOpacity style={SETTING_ITEM_CONTAINER} onPress={lockWallet}>
-                  <View style={SETTING_ICON_CONTAINER}>
-                    <FontAwesomeIcon style={SETTING_ICON} name="lock" color={color.palette.white} />
-                  </View>
-                  <View style={SETTING_ITEM_BODY}>
-                    <Text style={SETTING_ITEM_TITLE} text="Lock this wallet" />
-                    <Text
-                      style={SETTING_ITEM_SUBTITLE}
-                      text="Lock this wallet and go back to home"
-                    />
-                  </View>
-                  <View style={SETTING_ICON_CONTAINER}>
-                    <FontAwesomeIcon name="chevron-right" color={color.palette.white} />
-                  </View>
-                </TouchableOpacity>
-                <View style={styles.SEPARATOR} />
+        <ScrollView>
+          <View style={BackgroundStyle}>
+            <View style={MAIN_CONTAINER}>
+              <View>
+                <View style={SETTING_HEADER_CONTAINER}>
+                  <Text style={SETTING_HEADER} text="Wallet settings" />
+                  <Text style={WALLET_NAME} text={currentWalletStore.name} />
+                </View>
+                <View style={SETTING_ITEM_WRAP}>
+                  <TouchableOpacity style={SETTING_ITEM_CONTAINER} onPress={lockWallet}>
+                    <View style={SETTING_ICON_CONTAINER}>
+                      <FontAwesomeIcon
+                        style={SETTING_ICON}
+                        name="lock"
+                        color={color.palette.white}
+                      />
+                    </View>
+                    <View style={SETTING_ITEM_BODY}>
+                      <Text style={SETTING_ITEM_TITLE} text="Lock this wallet" />
+                      <Text
+                        style={SETTING_ITEM_SUBTITLE}
+                        text="Lock this wallet and go back to home"
+                      />
+                    </View>
+                    <View style={SETTING_ICON_CONTAINER}>
+                      <FontAwesomeIcon name="chevron-right" color={color.palette.white} />
+                    </View>
+                  </TouchableOpacity>
+                  <View style={styles.SEPARATOR} />
 
-                <TouchableOpacity
-                  style={SETTING_ITEM_CONTAINER}
-                  onPress={() => setShowPasswordModal(true)}
-                >
-                  <View style={SETTING_ICON_CONTAINER}>
-                    <FontAwesomeIcon5 style={SETTING_ICON} name="eye" color={color.palette.white} />
-                  </View>
-                  <View style={SETTING_ITEM_BODY}>
-                    <Text style={SETTING_ITEM_TITLE} text="Reveal my seed phrase" />
-                    <Text
-                      style={SETTING_ITEM_SUBTITLE}
-                      text="Reveal the seed phrase of the current wallet"
-                    />
-                  </View>
-                  <View style={SETTING_ICON_CONTAINER}>
-                    <FontAwesomeIcon name="chevron-right" color={color.palette.white} />
-                  </View>
-                </TouchableOpacity>
-                <View style={styles.SEPARATOR} />
+                  <TouchableOpacity
+                    style={SETTING_ITEM_CONTAINER}
+                    onPress={() => setShowPasswordModal(true)}
+                  >
+                    <View style={SETTING_ICON_CONTAINER}>
+                      <FontAwesomeIcon5
+                        style={SETTING_ICON}
+                        name="eye"
+                        color={color.palette.white}
+                      />
+                    </View>
+                    <View style={SETTING_ITEM_BODY}>
+                      <Text style={SETTING_ITEM_TITLE} text="Reveal my seed phrase" />
+                      <Text
+                        style={SETTING_ITEM_SUBTITLE}
+                        text="Reveal the seed phrase of the current wallet"
+                      />
+                    </View>
+                    <View style={SETTING_ICON_CONTAINER}>
+                      <FontAwesomeIcon name="chevron-right" color={color.palette.white} />
+                    </View>
+                  </TouchableOpacity>
+                  <View style={styles.SEPARATOR} />
 
-                <TouchableOpacity style={SETTING_ITEM_CONTAINER} onPress={goToChangePassword}>
-                  <View style={SETTING_ICON_CONTAINER}>
-                    <MaterialCommunityIcons
-                      style={SETTING_ICON}
-                      name="account-key"
-                      color={color.palette.white}
-                    />
-                  </View>
-                  <View style={SETTING_ITEM_BODY}>
-                    <Text style={SETTING_ITEM_TITLE} text="Change my password" />
-                    <Text
-                      style={SETTING_ITEM_SUBTITLE}
-                      text="Change the unlock password of the current wallet"
-                    />
-                  </View>
-                  <View style={SETTING_ICON_CONTAINER}>
-                    <FontAwesomeIcon name="chevron-right" color={color.palette.white} />
-                  </View>
-                </TouchableOpacity>
+                  <TouchableOpacity style={SETTING_ITEM_CONTAINER} onPress={goToChangePassword}>
+                    <View style={SETTING_ICON_CONTAINER}>
+                      <MaterialCommunityIcons
+                        style={SETTING_ICON}
+                        name="account-key"
+                        color={color.palette.white}
+                      />
+                    </View>
+                    <View style={SETTING_ITEM_BODY}>
+                      <Text style={SETTING_ITEM_TITLE} text="Change my password" />
+                      <Text
+                        style={SETTING_ITEM_SUBTITLE}
+                        text="Change the unlock password of the current wallet"
+                      />
+                    </View>
+                    <View style={SETTING_ICON_CONTAINER}>
+                      <FontAwesomeIcon name="chevron-right" color={color.palette.white} />
+                    </View>
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.DANGER_ZONE} text="DANGER ZONE"></Text>
+                <View style={SETTING_ITEM_WRAP}>
+                  <TouchableOpacity
+                    style={SETTING_ITEM_CONTAINER}
+                    onPress={deleteWalletConfirmation}
+                  >
+                    <View style={SETTING_ICON_CONTAINER}>
+                      <FontAwesomeIcon
+                        style={SETTING_ICON}
+                        name="trash-o"
+                        color={color.palette.white}
+                      />
+                    </View>
+                    <View style={SETTING_ITEM_BODY}>
+                      <Text style={SETTING_ITEM_TITLE} text="Delete this wallet" />
+                      <Text
+                        style={SETTING_ITEM_SUBTITLE}
+                        text="Delete the saved wallet form this app"
+                      />
+                    </View>
+                    <View style={SETTING_ICON_CONTAINER}>
+                      <FontAwesomeIcon name="chevron-right" color={color.palette.white} />
+                    </View>
+                  </TouchableOpacity>
+                </View>
               </View>
-              <Text style={styles.DANGER_ZONE} text="DANGER ZONE"></Text>
-              <View style={SETTING_ITEM_WRAP}>
-                <TouchableOpacity style={SETTING_ITEM_CONTAINER} onPress={deleteWalletConfirmation}>
-                  <View style={SETTING_ICON_CONTAINER}>
-                    <FontAwesomeIcon
-                      style={SETTING_ICON}
-                      name="trash-o"
-                      color={color.palette.white}
-                    />
-                  </View>
-                  <View style={SETTING_ITEM_BODY}>
-                    <Text style={SETTING_ITEM_TITLE} text="Delete this wallet" />
-                    <Text
-                      style={SETTING_ITEM_SUBTITLE}
-                      text="Delete the saved wallet form this app"
-                    />
-                  </View>
-                  <View style={SETTING_ICON_CONTAINER}>
-                    <FontAwesomeIcon name="chevron-right" color={color.palette.white} />
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </View>
 
-            <Modal animationType="slide" transparent={true} visible={showPasswordModal}>
-              <View style={styles.centeredView}>
-                {!seedPhrase && (
-                  <View style={styles.modalView}>
-                    <Text style={styles.modalText}>Unlock wallet</Text>
-                    <Controller
-                      control={control}
-                      defaultValue=""
-                      name="password"
-                      render={({ field: { onChange, value, onBlur } }) => (
-                        <TextInputField
-                          secureTextEntry={true}
-                          name="password"
-                          errors={errors}
-                          placeholder="Enter your wallet password"
-                          value={value}
-                          onBlur={onBlur}
-                          onChangeText={(value) => onChange(value)}
-                        />
+              <Modal animationType="slide" transparent={true} visible={showPasswordModal}>
+                <View style={styles.centeredView}>
+                  {!seedPhrase && (
+                    <View style={styles.modalView}>
+                      <Text style={styles.modalText}>Unlock wallet</Text>
+                      <Controller
+                        control={control}
+                        defaultValue=""
+                        name="password"
+                        render={({ field: { onChange, value, onBlur } }) => (
+                          <TextInputField
+                            secureTextEntry={true}
+                            name="password"
+                            errors={errors}
+                            placeholder="Enter your wallet password"
+                            value={value}
+                            onBlur={onBlur}
+                            onChangeText={(value) => onChange(value)}
+                          />
+                        )}
+                        rules={{
+                          required: {
+                            value: true,
+                            message: "Field is required!",
+                          },
+                        }}
+                      />
+                      {errorUnlockingWallet && (
+                        <Text style={styles.error} text="Couldn't unlock wallet" />
                       )}
-                      rules={{
-                        required: {
-                          value: true,
-                          message: "Field is required!",
-                        },
-                      }}
-                    />
-                    {errorUnlockingWallet && (
-                      <Text style={styles.error} text="Couldn't unlock wallet" />
-                    )}
-                    <View style={styles.buttonContainer}>
+                      <View style={styles.buttonContainer}>
+                        <Button
+                          style={btnDefault}
+                          text="Cancel"
+                          onPress={() => {
+                            setErrorUnlockingWallet(false)
+                            setShowPasswordModal(!showPasswordModal)
+                          }}
+                        ></Button>
+                        <Button
+                          style={[btnDefault, !isValid && { ...btnDisabled }]}
+                          disabled={!isValid}
+                          text="Continue"
+                          onPress={handleSubmit(onPasswordSubmit)}
+                        />
+                      </View>
+                    </View>
+                  )}
+                  {!!seedPhrase && (
+                    <View style={styles.modalView}>
+                      <Text style={styles.modalText}>Unlock wallet</Text>
+                      <View style={mnemonicContainer}>
+                        <Text style={[mnemonicStyle, styles.mnemonicText]} text={seedPhrase} />
+                        <TouchableOpacity style={copyBtn} onPress={copyToClipboard}>
+                          <FontAwesomeIcon5 name="clipboard-check" size={23} />
+                        </TouchableOpacity>
+                      </View>
                       <Button
                         style={btnDefault}
-                        text="Cancel"
+                        text="Close"
                         onPress={() => {
                           setErrorUnlockingWallet(false)
+                          setSeedPhrase("")
                           setShowPasswordModal(!showPasswordModal)
                         }}
                       ></Button>
-                      <Button
-                        style={[btnDefault, !isValid && { ...btnDisabled }]}
-                        disabled={!isValid}
-                        text="Continue"
-                        onPress={handleSubmit(onPasswordSubmit)}
-                      />
                     </View>
-                  </View>
-                )}
-                {!!seedPhrase && (
-                  <View style={styles.modalView}>
-                    <Text style={styles.modalText}>Unlock wallet</Text>
-                    <View style={mnemonicContainer}>
-                      <Text style={[mnemonicStyle, styles.mnemonicText]} text={seedPhrase} />
-                      <TouchableOpacity style={copyBtn} onPress={copyToClipboard}>
-                        <FontAwesomeIcon5 name="clipboard-check" size={23} />
-                      </TouchableOpacity>
-                    </View>
-                    <Button
-                      style={btnDefault}
-                      text="Close"
-                      onPress={() => {
-                        setErrorUnlockingWallet(false)
-                        setSeedPhrase("")
-                        setShowPasswordModal(!showPasswordModal)
-                      }}
-                    ></Button>
-                  </View>
-                )}
-              </View>
-            </Modal>
-            <TouchableOpacity style={styles.fabBtn} onPress={goBack}>
-              <SvgXml width={24} height={24} xml={backIcon} />
-              <Text>Back</Text>
-            </TouchableOpacity>
+                  )}
+                </View>
+              </Modal>
+            </View>
           </View>
-        </View>
+        </ScrollView>
+        <Footer onLefButtonPress={goBack}></Footer>
       </Screen>
     )
   },

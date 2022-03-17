@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite"
 import { ImageBackground, ScrollView, ViewStyle } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import { NavigatorParamList } from "../../navigators"
-import { Button, Screen, Text } from "../../components"
+import { Button, Footer, Screen, Text } from "../../components"
 // import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "../../models"
 import { color } from "../../theme"
@@ -49,6 +49,7 @@ export const ChangePasswordScreen: FC<
     name: "newPassword",
     defaultValue: "",
   })
+  const goBack = () => navigation.goBack()
   const onSubmit = async (data) => {
     // console.log(data)
     try {
@@ -154,6 +155,7 @@ export const ChangePasswordScreen: FC<
           </Button>
         </ScrollView>
       </ImageBackground>
+      <Footer onLefButtonPress={goBack}></Footer>
     </Screen>
   )
 })

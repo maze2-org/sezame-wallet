@@ -428,6 +428,9 @@ const AppStack = () => {
             component={ChangePasswordScreen}
             options={{
               headerShown: true,
+              headerRight: SettingsBtn,
+              headerStyle: { backgroundColor: color.palette.black },
+              headerLeft: Logo,
               title: "",
             }}
           />
