@@ -36,7 +36,7 @@ const INPUT: TextStyle = {
 const iconStyle: ViewStyle = {
   position: "absolute",
   right: 0,
-  top: 30
+  top: 30,
 }
 export interface TextFieldProps extends TextInputProps {
   /**
@@ -80,7 +80,7 @@ export interface TextFieldProps extends TextInputProps {
 
   errors?: any
 
-  name?: string,
+  name?: string
 
   icon?: any
 }
@@ -127,10 +127,12 @@ export function TextInputField(props: TextFieldProps) {
       {errors[name] && errors[name].message && (
         <Text style={textInputErrorMessage}>{errors[name].message}</Text>
       )}
-      <View style={iconStyle}>
-        {icon && <SvgXml width="24" height="24" xml={icon} />}
-      </View>
-      
+      <View style={iconStyle}>{icon && <SvgXml width="24" height="24" xml={icon} />}</View>
     </View>
   )
 }
+
+// eslint-disable-next-line react/display-name
+export const ForwardedTextInputField = React.forwardRef((props: TextFieldProps, ref) => {
+  return <TextInputField {...props} forwardedRef={ref} />
+})
