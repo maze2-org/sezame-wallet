@@ -382,10 +382,7 @@ const AppStack = () => {
               headerShown: true,
               headerRight: SettingsBtn,
               headerLeft: Logo,
-              headerBackVisible: false,
-              headerStyle: {
-                backgroundColor: "transparent",
-              },
+              headerStyle: { backgroundColor: color.palette.black },
               title: "",
             }}
           />
