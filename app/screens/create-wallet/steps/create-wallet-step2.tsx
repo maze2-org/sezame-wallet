@@ -128,7 +128,7 @@ export function CreateWalletStep2(props: StepProps) {
     <AppScreen {...props}>
       <ScrollView contentContainerStyle={CONTAINER}>
         <View>
-          <Header headerText="Save your seed phrase" style={headerStyle} titleStyle={headerTitle} />
+          <Header headerText="Keep your seed phrase safe" style={headerStyle} titleStyle={headerTitle} />
           <Text style={TEXT_STYLE}>
             A seed phrase is the only way for you to keep access on your assets even if your device is 
             destroyed or stolen. You will be the only owner of this need and nobody else will keep it for you.
@@ -154,7 +154,7 @@ export function CreateWalletStep2(props: StepProps) {
         <Text style={SMALL_TEXT}>Please accept the following conditions to continue.</Text>
         <SafeAreaView>
           <Checkbox
-            text="I have written my seed in a safe location."
+            text="I have written my seed phrase in a safe location."
             value={condition1}
             multiline={true}
             onToggle={() => setCondition1(!condition1)}
@@ -162,7 +162,7 @@ export function CreateWalletStep2(props: StepProps) {
             errors={submitted && !condition1 && ["Required field"]}
           />
           <Checkbox
-            text="I'm aware to never share my seed phrase to anybody."
+            text="I will never share my seed phrase to anybody."
             value={condition2}
             multiline={true}
             onToggle={() => setCondition2(!condition2)}
@@ -170,7 +170,7 @@ export function CreateWalletStep2(props: StepProps) {
             errors={submitted && !condition2 && ["Required field"]}
           />
           <Checkbox
-            text="I'm aware if I loose my seed, I may lose access to my funds."
+            text="If I loose my seed, I will lose access to my assets."
             value={condition3}
             multiline={true}
             onToggle={() => setCondition3(!condition3)}
