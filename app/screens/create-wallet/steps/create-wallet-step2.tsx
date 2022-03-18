@@ -3,6 +3,7 @@ import { ImageStyle, SafeAreaView, TextStyle, View, ViewStyle } from "react-nati
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler"
 import { Button, Checkbox, Header, Text, AutoImage as Image, AppScreen } from "../../../components"
 import {
+  btnDisabled,
   CONTAINER,
   copyBtn,
   headerTitle,
@@ -179,9 +180,10 @@ export function CreateWalletStep2(props: StepProps) {
           />
           <Button
             testID="next-screen-button"
-            style={PRIMARY_BTN}
+            style={[PRIMARY_BTN, (!condition1 || !condition2 || !condition3) && {...btnDisabled}]}
             textStyle={PRIMARY_TEXT}
             onPress={handleSubmit(onSubmit)}
+            disabled={!condition1 || !condition2 || !condition3}
           >
             <Text tx="createWallet.next" />
             <Image source={nextIcon} style={buttonIconStyle} />
