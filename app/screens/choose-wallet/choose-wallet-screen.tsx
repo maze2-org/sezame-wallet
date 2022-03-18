@@ -204,6 +204,7 @@ export const ChooseWalletScreen: FC<
                       items={walletNames.map((item) => ({ label: item, value: item }))}
                       setOpen={setOpen}
                       setValue={setItemValue}
+                      placeholder="Select a wallet"
                       onChangeValue={(val) => {
                         console.log(val)
                         onChange(val)
