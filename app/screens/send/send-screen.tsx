@@ -129,7 +129,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                       name="address"
                       style={textInput}
                       errors={errors}
-                      label="Wallet name"
+                      label="Recipient's address"
                       value={value}
                       onBlur={onBlur}
                       onChangeText={(value) => onChange(value)}
@@ -212,13 +212,6 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                 <View style={styles.CARD_ITEM_DESCRIPTION}>
                   <Text style={styles.AMOUNT_STYLE}>0.0021ETH</Text>
                   <Text style={styles.AMOUNT_SUB_STYLE}>0.23 available</Text>
-                </View>
-            </View>
-            <View style={styles.CARD_ITEM_DIVIDER}></View>
-            <View style={styles.DRAWER_CARD_ITEM}>
-                <Text style={styles.CARD_ITEM_TITLE}>VALIDATOR DEPOSIT</Text>
-                <View style={styles.CARD_ITEM_DESCRIPTION}>
-                  <Text style={styles.AMOUNT_SUB_STYLE}>Validator 1</Text>
                 </View>
             </View>
           </View>

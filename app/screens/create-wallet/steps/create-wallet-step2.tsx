@@ -131,10 +131,10 @@ export function CreateWalletStep2(props: StepProps) {
           <Header headerText="Save your seed phrase" style={headerStyle} titleStyle={headerTitle} />
           <Text style={TEXT_STYLE}>
             A seed phrase is the only way for you to keep access on your assets even if your device is 
-            destroyed or stolen.
+            destroyed or stolen. You will be the only owner of this need and nobody else will keep it for you.
           </Text>
           <Text style={IMPORTANT_STYLE}>
-            SAFE THE FOLLOWING SEED PHRASE IN SEVERAL AND SAFE LOCATIONS
+            SAVE THE FOLLOWING SEED PHRASE IN SEVERAL AND SAFE LOCATIONS
           </Text>
         </View>
         <View>
