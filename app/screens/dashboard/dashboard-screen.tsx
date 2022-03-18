@@ -50,8 +50,8 @@ const styles = StyleSheet.create({
     ...MY_STYLE.common,
   },
   COIN_STAKE: {
-    borderRadius: 10,
     backgroundColor: color.palette.lightGrey,
+    borderRadius: 10,
     height: 20,
     width: 80,
     marginLeft: spacing[4],
@@ -60,15 +60,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   SORT_NETWORK: {
-    width: 110,
+    backgroundColor: color.palette.black,
     height: 30,
     marginRight: 4,
-    backgroundColor: color.palette.orange,
+    width: 110,
+    
   },
   SORT_CURRENCY: {
-    width: 110,
-    height: 30,
     backgroundColor: color.palette.black,
+    height: 30,
+    width: 110,
+  },
+  SORT_ACTIVE: {
+    backgroundColor: color.palette.gold
   },
   SORT_TEXT: {
     fontSize: Fonts[0],
@@ -150,6 +154,7 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
     const { currentWalletStore } = useStores()
     const { wallet, assets, setBalance } = currentWalletStore
     const [totalPrice, setTotalPrice] = useState<string>("0")
+    const [sortStatus, setSortStatus] = useState<string>("network");
     const [prices, setPrices] = useState<Array<any>>([])
     const [expandFlags, setExpandFlags] = useState<Array<boolean>>([])
 
@@ -161,6 +166,7 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
         await Promise.all(
           assets.map(async (asset) => {
             const balance = await getBalance(asset)
+            console.log("balance", balance, asset);
             setBalance(asset, balance)
           }),
         )
@@ -218,6 +224,9 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
       return 0
     }
 
+    const handleSortStatus = (status) => {
+      setSortStatus(status);
+    }
     return (
       <AppScreen>
         <View style={styles.PORTFOLIO_CONTAINER}>
@@ -232,67 +241,111 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
           <Text>SORT BY</Text>
           <View style={styles.SORT_BTN_CONTAINER}>
             <Button
-              style={styles.SORT_NETWORK}
+              style={[styles.SORT_NETWORK, sortStatus === 'network' && {...styles.SORT_ACTIVE}]}
               textStyle={styles.SORT_TEXT}
               tx="dashboardScreen.network"
-              onPress={() => {
-                console.log("Sort by network")
-              }}
+              onPress={() => handleSortStatus('network')}
             />
             <Button
-              style={styles.SORT_CURRENCY}
+              style={[styles.SORT_CURRENCY, sortStatus === 'currency' && {...styles.SORT_ACTIVE}]}
               textStyle={styles.SORT_TEXT}
               tx="dashboardScreen.currency"
-              onPress={() => {
-                console.log("Sort by currency")
-              }}
+              onPress={() =>  handleSortStatus('currency')}
             />
           </View>
         </View>
-        <View style={styles.NETWORK_CONTAINER}>
-          {assets.map((asset, id) => (
-            <View style={styles.COIN_BOX} key={asset.cid}>
-              <TouchableOpacity
-                style={styles.COIN_EXPAND_CONTAINER}
-                onPress={() => onExpandEvent(id)}
-              >
-                <Text>{`${asset.name} Network`}</Text>
-                {expandFlags[id] ? (
-                  <FontAwesomeIcon name="chevron-up" color={color.palette.white} />
-                ) : (
-                  <FontAwesomeIcon name="chevron-down" color={color.palette.white} />
-                )}
-              </TouchableOpacity>
-              <View style={styles.SEPARATOR} />
-              <View style={styles.COIN_BOX_BODY}>
+        {sortStatus === 'network' && 
+          <View style={styles.NETWORK_CONTAINER}>
+            {assets.map((asset, id) => (
+              <View style={styles.COIN_BOX} key={asset.cid}>
                 <TouchableOpacity
-                  style={styles.COIN_CARD}
-                  onPress={() => navigation.navigate("coinDetails", { coinId: asset.cid })}
+                  style={styles.COIN_EXPAND_CONTAINER}
+                  onPress={() => onExpandEvent(id)}
                 >
-                  <Image style={styles.NETWORK_IMAGE} source={{ uri: asset.image }}></Image>
-                  <View style={styles.COIN_CARD_CONTENT}>
-                    <View style={styles.COIN_CARD_CONTENT_LEFT}>
-                      <View style={styles.SORT_BTN_CONTAINER}>
-                        <Text style={styles.BOLD_FONT}>{asset.name}</Text>
-                        <View style={styles.COIN_STAKE}>
-                          <Text style={styles.LIGHT_FONT}>{`Staked ${"0"}%`}</Text>
-                        </View>
-                      </View>
-                      <Text style={styles.LIGHT_FONT}>{"Base currency"}</Text>
-                    </View>
-                    <View style={styles.COIN_CARD_CONTENT_RIGHT}>
-                      <Text style={styles.BOLD_FONT}>{asset.balance}</Text>
-                      <Text style={styles.LIGHT_FONT}>{`~${getAssetPrice(
-                        asset.cid,
-                        asset.balance,
-                      )}$`}</Text>
-                    </View>
-                  </View>
+                  <Text>{`${asset.name} Network`}</Text>
+                  {expandFlags[id] ? (
+                    <FontAwesomeIcon name="chevron-up" color={color.palette.white} />
+                  ) : (
+                    <FontAwesomeIcon name="chevron-down" color={color.palette.white} />
+                  )}
                 </TouchableOpacity>
+                <View style={styles.SEPARATOR} />
+                <View style={styles.COIN_BOX_BODY}>
+                  <TouchableOpacity
+                    style={styles.COIN_CARD}
+                    onPress={() => navigation.navigate("coinDetails", { coinId: asset.cid })}
+                  >
+                    <Image style={styles.NETWORK_IMAGE} source={{ uri: asset.image }}></Image>
+                    <View style={styles.COIN_CARD_CONTENT}>
+                      <View style={styles.COIN_CARD_CONTENT_LEFT}>
+                        <View style={styles.SORT_BTN_CONTAINER}>
+                          <Text style={styles.BOLD_FONT}>{asset.name}</Text>
+                          <View style={styles.COIN_STAKE}>
+                            <Text style={styles.LIGHT_FONT}>{`Staked ${"0"}%`}</Text>
+                          </View>
+                        </View>
+                        <Text style={styles.LIGHT_FONT}>{"Base currency"}</Text>
+                      </View>
+                      <View style={styles.COIN_CARD_CONTENT_RIGHT}>
+                        <Text style={styles.BOLD_FONT}>{asset.balance}</Text>
+                        <Text style={styles.LIGHT_FONT}>{`~${getAssetPrice(
+                          asset.cid,
+                          asset.balance,
+                        )}$`}</Text>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          ))}
-        </View>
+            ))}
+          </View>
+        }
+        {sortStatus === 'currency' && 
+          <View style={styles.NETWORK_CONTAINER}>
+            {assets.map((asset, id) => (
+              <View style={styles.COIN_BOX} key={asset.cid}>
+                <TouchableOpacity
+                  style={styles.COIN_EXPAND_CONTAINER}
+                  onPress={() => onExpandEvent(id)}
+                >
+                  <Text>{`${asset.symbol}`}</Text>
+                  {expandFlags[id] ? (
+                    <FontAwesomeIcon name="chevron-up" color={color.palette.white} />
+                  ) : (
+                    <FontAwesomeIcon name="chevron-down" color={color.palette.white} />
+                  )}
+                </TouchableOpacity>
+                <View style={styles.SEPARATOR} />
+                <View style={styles.COIN_BOX_BODY}>
+                  <TouchableOpacity
+                    style={styles.COIN_CARD}
+                    onPress={() => navigation.navigate("coinDetails", { coinId: asset.cid })}
+                  >
+                    <Image style={styles.NETWORK_IMAGE} source={{ uri: asset.image }}></Image>
+                    <View style={styles.COIN_CARD_CONTENT}>
+                      <View style={styles.COIN_CARD_CONTENT_LEFT}>
+                        <View style={styles.SORT_BTN_CONTAINER}>
+                          <Text style={styles.BOLD_FONT}>{asset.name} network</Text>
+                          <View style={styles.COIN_STAKE}>
+                            <Text style={styles.LIGHT_FONT}>{`Staked ${"0"}%`}</Text>
+                          </View>
+                        </View>
+                        <Text style={styles.LIGHT_FONT}>{"Base currency"}</Text>
+                      </View>
+                      <View style={styles.COIN_CARD_CONTENT_RIGHT}>
+                        <Text style={styles.BOLD_FONT}>{asset.balance}</Text>
+                        <Text style={styles.LIGHT_FONT}>{`~${getAssetPrice(
+                          asset.cid,
+                          asset.balance,
+                        )}$`}</Text>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+          </View>
+        }
       </AppScreen>
     )
   },
