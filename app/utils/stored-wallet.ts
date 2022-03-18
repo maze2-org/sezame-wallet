@@ -26,10 +26,14 @@ export class StoredWallet {
 
   static async loadFromStorage(walletName: string, password: string) {
     try {
+      console.log("step1")
       const encryptedData = await loadEncryptedWallet(`${walletName}`)
+      console.log("step2")
       const walletData: WalletJson = JSON.parse(decrypt(password, encryptedData))
+      console.log("step3")
       const storedWallet = new StoredWallet(walletData.walletName, walletData.mnemonic, password)
-      await storedWallet.addAssets(walletData.assets)
+      // await storedWallet.addAssets(walletData.assets)
+      console.log({storedWallet});
       return storedWallet
     } catch (err) {
       console.log(err)
