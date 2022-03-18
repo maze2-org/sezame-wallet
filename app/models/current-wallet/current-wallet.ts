@@ -1,3 +1,4 @@
+import { NetworkType } from "config/networks"
 import { Instance, types } from "mobx-state-tree"
 import { remove } from "utils/storage"
 import { StoredWallet } from "../../utils/stored-wallet"
@@ -48,9 +49,16 @@ export const CurrentWalletModel = types
     setAssets(assets) {
       self.assets = assets
     },
+    hasAsset: (network: NetworkType): boolean => {
+      return (
+        self.assets.filter((asset) => {
+          return asset.name === network.name && asset.chain === asset.chain
+        }).length > 0
+      )
+      return true
+    },
     open: (wallet: StoredWallet) => {
       self.wallet = JSON.stringify(wallet.toJson())
-      console.log("set assets", wallet.toJson().assets)
       self.assets = wallet.toJson().assets as any
       self.name = wallet.toJson().walletName
     },
