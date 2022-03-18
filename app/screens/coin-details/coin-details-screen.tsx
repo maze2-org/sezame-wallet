@@ -251,7 +251,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
       <Screen style={ROOT} preset="scroll">
         <ImageBackground source={MainBackground} style={BackgroundStyle}>
           <ScrollView>
-            {coinData && (
+            {!!coinData && (
               <View>
                 <View style={COIN_CARD_CONTAINER}>
                   <CoinCard
@@ -273,7 +273,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                     </Button>
                   </View>
                 </View>
-                {chartData && chartData.length && (
+                {!!chartData && !!chartData.length && (
                   <PriceChart data={chartData.map((p) => p[1])}></PriceChart>
                 )}
                 <View style={COIN_DETAILS_CONTAINER}>

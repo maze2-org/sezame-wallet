@@ -224,21 +224,42 @@ export const tabBarItemStyle: ViewStyle = {
   flexGrow: 1,
 }
 
-export const tabBarFocused: ViewStyle = {
+export const tabBarItem: ViewStyle = {
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+  flexDirection: "row",
+  borderTopWidth: 6,
+  borderTopColor: color.palette.black,
+}
+
+export const tabBarItemFocused: ViewStyle = {
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+  flexDirection: "row",
   borderTopWidth: 6,
   borderTopColor: color.palette.gold,
 }
 
+export const tabBarLabel: TextStyle = {
+  color: color.palette.lightGrey,
+  marginLeft: spacing[1]
+}
+
+export const tabBarLabelFocused: TextStyle = {
+  color: color.palette.white,
+  marginLeft: spacing[1]
+}
+
 export const tabBarButton: ViewStyle = {
-  borderTopWidth: 6,
-  borderTopColor: color.palette.black,
+  flexGrow:1,
   width: "100%",
-  paddingTop: spacing[4],
 }
 
 export const tabBarItemBorderRightStyle: ViewStyle = {
-  borderRightColor: "red",
-  borderRightWidth: 1,
+  borderRightColor: color.palette.lineColor,
+  borderRightWidth: 0.3,
 }
 
 export const DropdownContainerStyle: ViewStyle = {

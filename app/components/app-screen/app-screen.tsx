@@ -1,10 +1,41 @@
-import * as React from "react"
-import { ImageBackground, StyleProp, TextStyle, View, ViewStyle } from "react-native"
-import { observer } from "mobx-react-lite"
-import { SafeAreaView } from "react-native-safe-area-context"
-import { BackgroundStyle, MainBackground } from "theme/elements"
-import { color } from "../../theme"
-import { Text } from "components/text/text"
+import React, {
+  useMemo,
+} from "react"
+import {
+  ImageBackground,
+  StyleProp,
+  TextStyle,
+  View,
+  ViewStyle,
+} from "react-native"
+
+import {
+  color,
+} from "../../theme"
+import {
+  observer,
+} from "mobx-react-lite"
+import {
+  SafeAreaView,
+} from "react-native-safe-area-context"
+import {
+  MainBackground,
+} from "theme/elements"
+
+const SAFE_AREA_VIEW: TextStyle = {
+  flex: 1,
+  display: "flex",
+  height: "100%",
+}
+const IMAGE_BACKGROUND: TextStyle = {
+  flex: 1,
+  display: "flex",
+  height: "100%",
+  backgroundColor: color.palette.black,
+}
+const BOTTOM_SAFE_AREA: TextStyle = {
+  height: 100,
+}
 
 export interface AppScreenProps {
   /**
@@ -12,28 +43,31 @@ export interface AppScreenProps {
    */
   style?: StyleProp<ViewStyle>
   children?: any
+  unsafe?: boolean,
 }
 
 /**
  * Describe your component here
  */
 export const AppScreen = observer(function AppScreen(props: AppScreenProps) {
-  const { style } = props
+  const { unsafe } = props
+  const WrapperComponent = useMemo(() => unsafe ? View : SafeAreaView, [unsafe])
 
   return (
-    <SafeAreaView
-      {...props}
-      style={{
-        height: "100%",
-        display: "flex",
-        flex: 1,
-        backgroundColor: color.palette.black,
-        flexGrow: 1,
-      }}
+    <ImageBackground
+      source={MainBackground}
+      style={IMAGE_BACKGROUND}
     >
-      <ImageBackground source={MainBackground} style={{ flexGrow: 1 }}>
+      <WrapperComponent
+        {...props}
+        style={SAFE_AREA_VIEW}
+      >
         {props.children}
-      </ImageBackground>
-    </SafeAreaView>
+
+        {!!unsafe &&
+          <View
+            style={BOTTOM_SAFE_AREA} />}
+      </WrapperComponent>
+    </ImageBackground>
   )
 })

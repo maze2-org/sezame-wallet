@@ -171,7 +171,7 @@ export const ChooseWalletScreen: FC<
   }
 
   return (
-    <Screen preset="scroll" style={RootPageStyle}>
+    <Screen preset="scroll" style={RootPageStyle} backgroundColor={color.palette.black}>
       <ImageBackground source={MainBackground} style={BackgroundStyle}>
         <AppScreen>
           <ScrollView contentContainerStyle={CONTAINER}>
