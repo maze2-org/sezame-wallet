@@ -18,6 +18,7 @@ import { spacing } from "theme"
 import { bip39Words } from "../../../utils/bip39Words"
 import { StoredWallet } from "utils/stored-wallet"
 import { TextInputField } from "components/text-input-field/text-input-field"
+import { defaultAssets } from "utils/consts"
 
 export function ImportWalletStep2(props: StepProps) {
   const nextIcon = require("../../../../assets/icons/next.png")
@@ -38,7 +39,9 @@ export function ImportWalletStep2(props: StepProps) {
   const { walletName, walletPassword } = useContext(WalletImportContext)
 
   const onSubmit = async (data) => {
-    const storedWallet = new StoredWallet(walletName, data.seedPhrase, walletPassword)
+    const storedWallet = new StoredWallet(walletName, selectedWords.join(" "), walletPassword)
+    await storedWallet.addAssets(defaultAssets)
+
     await storedWallet.save()
 
     onButtonNext()

@@ -43,6 +43,7 @@ import unlockIcon from "../../../assets/svg/unlock.svg"
 import fingerIcon from "../../../assets/svg/finger.svg"
 
 import { SvgXml } from "react-native-svg"
+import { defaultAssets } from "utils/consts"
 
 export const ChooseWalletScreen: FC<
   StackScreenProps<NavigatorParamList, "chooseWallet">
@@ -113,10 +114,9 @@ export const ChooseWalletScreen: FC<
     setLoading(true)
     try {
       const loadedWallet = await StoredWallet.loadFromStorage(data.walletName, data.walletPassword)
-
       showMessage({ message: "Wallet unlocked", type: "success" })
-      console.log("loaded wallet ", JSON.stringify(loadedWallet))
       currentWalletStore.open(loadedWallet as any)
+
       navigation.navigate("dashboard")
     } catch (err) {
       console.log(err)
@@ -201,11 +201,7 @@ export const ChooseWalletScreen: FC<
               />
               <Button
                 textStyle={PRIMARY_TEXT}
-                style={[
-                  BUTTON_STYLE,
-                  !isValid && { ...btnDisabled },
-                  loading && { ...btnDisabled },
-                ]}
+                style={[BUTTON_STYLE]}
                 disabled={!isValid || loading}
                 text={loading ? "Loading ..." : "Continue"}
                 onPress={handleSubmit(onSubmit)}
