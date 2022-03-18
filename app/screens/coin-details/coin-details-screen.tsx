@@ -247,7 +247,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
       <Screen style={ROOT} preset="scroll">
         <ImageBackground source={MainBackground} style={BackgroundStyle}>
           <ScrollView>
-            {coinData && (
+            {!!coinData && (
               <View>
                 <View style={COIN_CARD_CONTAINER}>
                   <CoinCard

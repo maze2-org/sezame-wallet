@@ -1,10 +1,16 @@
 import * as React from "react"
-import { ImageStyle, StyleProp, TextStyle, View, ViewStyle } from "react-native"
+import {
+  ImageSourcePropType,
+  ImageStyle,
+  ImageURISource,
+  StyleProp,
+  TextStyle,
+  View,
+  ViewStyle,
+} from "react-native"
 import { observer } from "mobx-react-lite"
 import { color, typography } from "../../theme"
 import {
-  Button,
-  Text,
   AutoImage as Image,
 } from "../../components"
 import { SvgXml } from "react-native-svg"
@@ -49,7 +55,7 @@ export interface CurrencyDescriptionBlockProps {
    */
   style?: StyleProp<ViewStyle>,
 
-  logo?: string,
+  logo?: ImageSourcePropType & ImageURISource,
 
   icon?: string
 }

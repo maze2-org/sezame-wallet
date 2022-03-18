@@ -14,4 +14,5 @@ export const palette = {
   darkBlack: "#000000",
   noise: "#272C30",
   darkBrown: "#111110",
+  lineColor: "rgba(190,195,225,0.25)",
 }

@@ -52,12 +52,14 @@ import { StoredWallet } from "../utils/stored-wallet"
 import { StackNavigationProp } from "@react-navigation/stack"
 import { AutoImage as Image } from "../components"
 import {
-  LogoStyle,
   SesameSmallLogo,
   tabBarButton,
-  tabBarFocused,
+  tabBarItem,
   tabBarItemBorderRightStyle,
+  tabBarItemFocused,
   tabBarItemStyle,
+  tabBarLabel,
+  tabBarLabelFocused,
   tabBarStyle,
 } from "theme/elements"
 
@@ -67,17 +69,28 @@ import PlusIcon from "../../assets/svg/plus.svg"
 import { SvgXml } from "react-native-svg"
 
 import tabWallet from "../../assets/svg/tab-wallet.svg"
+import ready from "../../assets/svg/ready.svg"
 import tabNft from "../../assets/svg/tab-nft.svg"
 
+const NAV_HEADER_CONTAINER: ViewStyle = {
+  flexDirection: "row",
+  justifyContent:'space-between' ,
+  paddingTop: spacing[7],
+  paddingBottom: spacing[2],
+  paddingHorizontal: spacing[4],
+  borderColor: color.palette.lineColor,
+  borderStyle:'dashed',
+  borderWidth:1,
+  marginHorizontal:-1,
+  marginTop:-1,
+  backgroundColor:  color.palette.black,
+}
+
 const NAV_HEADER_BTN_CONTAINER: ViewStyle = {
-  display: "flex",
   flexDirection: "row",
   alignItems: "center",
-  marginTop: spacing[6],
-  marginBottom: spacing[2],
 }
 const NAV_HEADER_TITLE_CONTAINER: TextStyle = {
-  display: "flex",
   flexDirection: "row",
   alignItems: "center",
 }
@@ -89,13 +102,11 @@ const LOGO_STYLE: ImageStyle = {
 const NAV_HEADER_BTN: ViewStyle = {
   padding: spacing[2],
 }
-
 const BTN_ICON: TextStyle = {
   color: color.palette.white,
   width: 24,
   height: 24,
 }
-
 const LOGO: TextStyle = {
   color: color.palette.white,
   fontFamily: "Open Sans",
@@ -132,7 +143,6 @@ const MODAL_CONTAINER: TextStyle = {
 // Just some styles
 const styles = StyleSheet.create({
   item: {
-    // backgroundColor: '#f9c2ff',
     padding: 24,
   },
   title: {
@@ -299,56 +309,63 @@ const BottomTabNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarStyle: tabBarStyle,
         headerShown: false,
+        tabBarStyle: tabBarStyle,
         tabBarActiveTintColor: color.palette.white,
         // eslint-disable-next-line react/display-name
         tabBarIcon: ({ focused }) => {
           return (
-            <View style={[tabBarButton, focused && { ...tabBarFocused }]}>
+            <View style={tabBarButton}>
               {route.name === "home" && (
-                <SvgXml
-                  stroke={focused ? color.palette.gold : color.palette.lighterGrey}
-                  xml={tabWallet}
-                  height={20}
-                />
+                <View style={[tabBarItem, tabBarItemBorderRightStyle, focused && {...tabBarItemFocused}]}>
+                  <SvgXml
+                    stroke={focused ? color.palette.gold : color.palette.lightGrey}
+                    xml={ready}
+                    height={20}
+                  />
+                  <Text style={focused ? tabBarLabelFocused : tabBarLabel}>WALLET</Text>
+                </View>
               )}
               {route.name === "nfts" && (
-                <SvgXml
-                  stroke={focused ? color.palette.gold : color.palette.lightGrey}
-                  xml={tabNft}
-                  height={20}
-                />
+                <View style={[tabBarItem, focused && {...tabBarItemFocused}]}>
+                  <SvgXml
+                    stroke={focused ? color.palette.gold : color.palette.lightGrey}
+                    xml={tabNft}
+                    height={20}
+                  />
+                  <Text style={focused ? tabBarLabelFocused : tabBarLabel}>NFT</Text>
+                </View>
               )}
             </View>
           )
-          // if (route.name === "home") {
-          //   return <FontAwesome5Icon name="wallet" size={23} color={color} />
-          // } else if (route.name === "nfts") {
-          //   return <FontAwesomeIcon name="file-picture-o" size={size} color={color} />
-          // }
         },
       })}
     >
       <Tab.Screen
         name="home"
         component={DashboardScreen}
-        options={{
-          tabBarLabel: "WALLET",
-          tabBarStyle: [tabBarItemStyle, tabBarItemBorderRightStyle],
-          tabBarActiveTintColor: color.palette.white,
-        }}
+        options={{ tabBarShowLabel: false, tabBarStyle: tabBarItemStyle }}
       />
       <Tab.Screen
         name="nfts"
         component={NftsScreen}
-        options={{ tabBarLabel: "NFT", tabBarStyle: tabBarItemStyle }}
+        options={{ tabBarShowLabel: false, tabBarStyle: tabBarItemStyle }}
       />
     </Tab.Navigator>
   )
 }
+
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createNativeStackNavigator<NavigatorParamList>()
+
+const AppStackHeader = () => {
+  return (
+    <View
+      style={NAV_HEADER_CONTAINER}>
+      <Logo />
+      <SettingsBtn />
+    </View>)
+}
 
 const AppStack = () => {
   const [initialRouteName, setInitialRouteName] = useState<any>(null)
@@ -370,23 +387,21 @@ const AppStack = () => {
           }}
           initialRouteName={initialRouteName}
         >
-          <Stack.Screen name="chooseWallet" component={ChooseWalletScreen} />
+          <Stack.Screen
+            name="chooseWallet"
+            component={ChooseWalletScreen}
+          />
           <Stack.Screen name="welcome" component={WelcomeScreen} />
           <Stack.Screen name="importWallet" component={ImportWalletScreen} />
           <Stack.Screen name="createWallet" component={CreateWalletScreen} />
-
           <Stack.Screen
             name="dashboard"
             component={BottomTabNavigator}
             options={{
+              title: null,
               headerShown: true,
-              headerRight: SettingsBtn,
-              headerLeft: Logo,
-              headerBackVisible: false,
-              headerStyle: {
-                backgroundColor: "transparent",
-              },
-              title: "",
+              header: AppStackHeader,
+              headerStyle: { backgroundColor: color.palette.black, },
             }}
           />
           <Stack.Screen name="walletReady" component={WalletReadyScreen} />
