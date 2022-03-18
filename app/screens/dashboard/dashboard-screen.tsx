@@ -227,6 +227,7 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
     const { currentWalletStore } = useStores()
     const { wallet, assets, setBalance } = currentWalletStore
     const [totalPrice, setTotalPrice] = useState<string>("0")
+    const [sortStatus, setSortStatus] = useState<string>("network");
     const [prices, setPrices] = useState<Array<any>>([])
     const [sortBy, setSortBy] = useState<SortTypeValues>(SORT_TYPES.NETWORK)
     const [expandFlags, setExpandFlags] = useState<Array<boolean>>([])
@@ -239,6 +240,7 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
         await Promise.all(
           assets.map(async (asset) => {
             const balance = await getBalance(asset)
+            console.log("balance", balance, asset);
             setBalance(asset, balance)
           }),
         )
