@@ -7,8 +7,12 @@ import { CurrentWalletModel } from "models/current-wallet/current-wallet"
 // prettier-ignore
 export const RootStoreModel = types.model("RootStore").props({
   currentWalletStore: types.optional(CurrentWalletModel, {} as any),
-
-})
+  TESTNET: types.optional(types.boolean, false),
+}).actions(self => ({
+  setTestnet(value: boolean) {
+    self.TESTNET = value
+  } 
+}))
 
 /**
  * The RootStore instance.
