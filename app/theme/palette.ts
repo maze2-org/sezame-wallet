@@ -15,4 +15,5 @@ export const palette = {
   noise: "#272C30",
   darkBrown: "#111110",
   lineColor: "rgba(190,195,225,0.25)",
+  green: "#00A852",
 }

@@ -122,7 +122,7 @@ export function ImportWalletStep2(props: StepProps) {
             label="Seed phase"
             multiline={true}
             value={selectedWords.join(" ")}
-            editable={false}
+            onChangeText={(val) => setSelectedWords(val.split(" "))}
           />
           <TextField
             label="Next word"

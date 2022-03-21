@@ -14,6 +14,8 @@ import { ImportWalletStep3 } from "./steps/import-wallet-step3"
 import { ImportWalletStep4 } from "./steps/import-wallet-step4"
 import MultiStepsController from "utils/MultiStepController/MultiStepController"
 import { RootPageStyle } from "theme/elements"
+import { StoredWallet } from "utils/stored-wallet"
+import { defaultAssets } from "utils/consts"
 
 interface _WalletImportContext {
   walletName: string
@@ -49,8 +51,12 @@ export const ImportWalletScreen: FC<
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
 
   const next = async (stepName: string) => {
-    if (stepName === "Step3") { 
-      navigation.replace("chooseWallet")  
+    if (stepName === "Step3") {
+      const storedWallet = new StoredWallet(walletName, seedPhrase, walletPassword)
+      await storedWallet.addAssets(defaultAssets)
+
+      await storedWallet.save()
+      navigation.replace("chooseWallet")
     } else {
       setCurrentStep(currentStep + 1)
     }

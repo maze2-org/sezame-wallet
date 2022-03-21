@@ -1,3 +1,4 @@
+import { CONFIG } from "@maze2/sezame-sdk"
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { CurrentWalletModel } from "models/current-wallet/current-wallet"
 
@@ -7,8 +8,14 @@ import { CurrentWalletModel } from "models/current-wallet/current-wallet"
 // prettier-ignore
 export const RootStoreModel = types.model("RootStore").props({
   currentWalletStore: types.optional(CurrentWalletModel, {} as any),
-
-})
+  TESTNET: types.optional(types.boolean, CONFIG.TESTNET),
+}).actions(self => ({
+  setTestnet(value: boolean) {
+    self.TESTNET = value;
+    CONFIG.setTESTNET(value);
+  
+  } 
+}))
 
 /**
  * The RootStore instance.
