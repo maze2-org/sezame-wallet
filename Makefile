@@ -17,7 +17,7 @@ else
 SEDARG += -i
 endif
 
-.PHONY: android-version
+.PHONY: android-version android
 
 node_modules:
 	npx yarn
