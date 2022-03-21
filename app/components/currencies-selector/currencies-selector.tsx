@@ -25,6 +25,7 @@ export const CurrenciesSelector = observer(function CurrenciesSelector(
   const [loading, setLoading] = React.useState({})
   const addAsset = React.useCallback((network: any) => {
     setLoading((loading) => ({ ...loading, [network.cid]: true }))
+    console.log({currentWalletStore})
     currentWalletStore.getWallet().then((wallet) => {
       wallet
         .addAutoAsset(network)

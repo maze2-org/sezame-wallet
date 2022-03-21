@@ -40,6 +40,7 @@ export function ImportWalletStep2(props: StepProps) {
 
   const onSubmit = async (data) => {
     const storedWallet = new StoredWallet(walletName, selectedWords.join(" "), walletPassword)
+    console.log("SEEEEEEEEEEEEEEEED",selectedWords.join(" "))
     await storedWallet.addAssets(defaultAssets)
 
     await storedWallet.save()

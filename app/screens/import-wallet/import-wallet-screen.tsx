@@ -51,15 +51,7 @@ export const ImportWalletScreen: FC<
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
 
   const next = async (stepName: string) => {
-    if (stepName === "Step3") {
-      const storedWallet = new StoredWallet(walletName, seedPhrase, walletPassword)
-      await storedWallet.addAssets(defaultAssets)
-
-      await storedWallet.save()
-      navigation.replace("chooseWallet")
-    } else {
-      setCurrentStep(currentStep + 1)
-    }
+    setCurrentStep(currentStep + 1)
   }
 
   const previous = (stepName: string) => {

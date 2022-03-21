@@ -9,12 +9,14 @@ import { ScrollView } from "react-native-gesture-handler"
 import readyIcon from "../../../../assets/svg/ready.svg"
 import { SvgXml } from "react-native-svg"
 import Confetti from "react-native-confetti"
+import { useNavigation } from "@react-navigation/native"
+import { StackNavigationProp } from "@react-navigation/stack"
+import { NavigatorParamList } from "navigators"
 
 export function ImportWalletStep3(props: StepProps) {
   // Pull in navigation via hook
 
-  const { onButtonBack, onButtonNext } = useContext(StepsContext)
-
+  const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
   const CONTAINER_STYLE: ViewStyle = {
     ...CONTAINER,
     justifyContent: "center",
@@ -72,7 +74,7 @@ export function ImportWalletStep3(props: StepProps) {
             testID="next-screen-button"
             style={BUTTON_STYLE}
             textStyle={PRIMARY_TEXT}
-            onPress={onButtonNext}
+            onPress={() => navigation.replace("chooseWallet")}
             text="LET'S GO!"
           />
         </View>
