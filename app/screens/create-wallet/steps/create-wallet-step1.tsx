@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react"
 import { TextStyle, ImageStyle } from "react-native"
 import { Button, AutoImage as Image, Text, Checkbox, AppScreen } from "../../../components"
 import {
+  btnDisabled,
   CONTAINER,
   LogoStyle,
   PRIMARY_BTN,
@@ -170,9 +171,10 @@ export function CreateWalletStep1(props: StepProps) {
           />
           <Button
             testID="next-screen-button"
-            style={PRIMARY_BTN}
+            style={[PRIMARY_BTN, !condition1 && {...btnDisabled}, !isValid && { ...btnDisabled }]}
             textStyle={PRIMARY_TEXT}
             onPress={handleSubmit(onSubmit)}
+            disabled={!condition1}
           >
             <Text tx="createWallet.next" />
             <Image source={nextIcon} style={buttonIconStyle} />

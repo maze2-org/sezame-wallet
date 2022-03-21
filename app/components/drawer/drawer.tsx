@@ -26,14 +26,17 @@ export interface DrawerProps {
   children?: any
   actions?: any[]
   title: string
+  hidden?: boolean
 }
 
 /**
  * Describe your component here
  */
 export const Drawer = observer(function Drawer(props: DrawerProps) {
-  const { style } = props
-
+  const { style, hidden } = props
+  if (hidden) {
+    return <></>
+  }
   return (
     <View style={styles.overlay}>
       {/* Main fame (overlay) */}

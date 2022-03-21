@@ -46,7 +46,6 @@ import { getCoinDetails, getMarketChart } from "utils/apis"
 import { CoingeckoCoin } from "types/coingeckoCoin"
 import { useStores } from "models"
 import { BackgroundStyle, CONTAINER, MainBackground, SEPARATOR } from "theme/elements"
-
 import styles
   from "../send/styles"
 import QRCode
@@ -59,6 +58,7 @@ import ready
 import {
   SvgFromXml
 } from "react-native-svg/lib/typescript"
+import { getBalance } from "services/api"
 // import InAppBrowser from "react-native-inappbrowser-reborn"
 const {height} = Dimensions.get("screen")
 
@@ -290,17 +290,29 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const [chartData, setChartData] = useState<any[]>([])
     const [chartDays, setChartDays] = useState<number | "max">(1)
     const { currentWalletStore } = useStores()
-    const { getAssetById } = currentWalletStore
+    const { getAssetById, setBalance } = currentWalletStore
 
     const asset = getAssetById(route.params.coinId)
     useEffect(() => {
+      console.log("asset", asset.address)
       getCoinData(route?.params?.coinId)
       getChartData(chartDays)
+      const getBalances = async () => {
+        const balance = await getBalance(asset)
+        console.log("balance", balance)
+        setBalance(asset, balance)
+      }
+
+      getBalances()
     }, [])
 
     const getCoinData = async (coin) => {
-      const data = await getCoinDetails(coin)
-      setCoinData(data)
+      try {
+        const data = await getCoinDetails(coin)
+        setCoinData(data)
+      } catch (error) {
+        console.log("error Getting coin data", error)
+      }
     }
 
     const getChartData = async (days) => {
@@ -427,7 +439,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                     <View style={BALANCE_STAKING_CARD}>
                       <View style={BALANCE_STAKING_CARD_BODY}>
                         <Text style={BALANCE_STAKING_CARD_HEADER}> Available balance</Text>
-                        <Text style={BALANCE_STAKING_CARD_AMOUNT}> 0.459</Text>
+                        <Text style={BALANCE_STAKING_CARD_AMOUNT}>{asset.balance}</Text>
                         <Text style={BALANCE_STAKING_CARD_NOTE}> (~1$)</Text>
                       </View>
 
