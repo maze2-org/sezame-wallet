@@ -32,8 +32,8 @@ export async function setupRootStore() {
   const env = await createEnvironment()
   try {
     // load data from storage
-    data = (await storage.load(ROOT_STATE_STORAGE_KEY)) || {}
-    rootStore = RootStoreModel.create(data, env)
+    // data = (await storage.load(ROOT_STATE_STORAGE_KEY)) || {}
+    rootStore = RootStoreModel.create({}, env)
   } catch (e) {
     // if there's any problems loading, then let's at least fallback to an empty state
     // instead of crashing.
@@ -49,7 +49,7 @@ export async function setupRootStore() {
   }
 
   // track changes & save to storage
-  onSnapshot(rootStore, (snapshot) => storage.save(ROOT_STATE_STORAGE_KEY, snapshot))
+  // onSnapshot(rootStore, (snapshot) => storage.save(ROOT_STATE_STORAGE_KEY, snapshot))
 
   return rootStore
 }

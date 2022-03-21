@@ -43,50 +43,7 @@ import unlockIcon from "../../../assets/svg/unlock.svg"
 import fingerIcon from "../../../assets/svg/finger.svg"
 
 import { SvgXml } from "react-native-svg"
-const testWallet = {
-  toJson: () => ({
-    assets: [
-      {
-        symbol: "BTC",
-        name: "Bitcoin",
-        cid: "bitcoin",
-        chain: "BTC",
-        type: "coin",
-        decimals: 8,
-        privateKey: "Kz2dytsQAKnxinuCgteAvWxFiXJuYxXPBzBbchrQJzy9SRe6F9wC",
-        publicKey:
-          "xpub6FMbMdGyYCZ3t4NfiAfRX1p8Kkxi3fb7UVmHc8NFcam5CAKSyneYqpXpWUpWEjsoMkU27f7dwdjuRkycuogLud13b1Tfz3Bqa4XP9eS86NG",
-        address: "bc1qgvw2n5fn4wmzjq3yqfgm8sqpcdgj32xglcpa69",
-        balance: 0,
-        value: 0,
-        rate: 0,
-        image: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
-        version: 1,
-      },
-      {
-        symbol: "ETH",
-        name: "Ethereum",
-        cid: "ethereum",
-        chain: "ETH",
-        type: "coin",
-        decimals: 18,
-        privateKey: "0x76690514749e994dbc62aef74ac173b3550f8ec75b0c3ac921185549f96959c0",
-        publicKey:
-          "xpub6DkshFro1nZ6yQRupYRJWp4abAyxBMFVMACb2gTVb4KMJXzpvFTSXq98WQ4iZ98XfbcKbnuPm9TNk5ZN1j8ogL7H3bkuEV5K6j6TzmNQHiu",
-        address: "0x05dfad865a91aff2e184504bed940b4313fab4e4",
-        balance: 0,
-        value: 0,
-        rate: 0,
-        image: "https://assets.coingecko.com/coins/images/279/large/ethereum.png",
-        version: 1,
-      },
-    ],
-    walletName: "test",
-    mnemonic: "mechanic version taxi inch aisle hair name bubble mother enlist roast nasty",
-    creationDate: "2022-03-15T02:18:42.521Z",
-    password: "testtest",
-  }),
-}
+import { defaultAssets } from "utils/consts"
 
 export const ChooseWalletScreen: FC<
   StackScreenProps<NavigatorParamList, "chooseWallet">
@@ -157,10 +114,9 @@ export const ChooseWalletScreen: FC<
     setLoading(true)
     try {
       const loadedWallet = await StoredWallet.loadFromStorage(data.walletName, data.walletPassword)
-
       showMessage({ message: "Wallet unlocked", type: "success" })
-      console.log("loaded wallet ", JSON.stringify(loadedWallet))
       currentWalletStore.open(loadedWallet as any)
+
       navigation.navigate("dashboard")
     } catch (err) {
       console.log(err)
@@ -246,11 +202,7 @@ export const ChooseWalletScreen: FC<
               />
               <Button
                 textStyle={PRIMARY_TEXT}
-                style={[
-                  BUTTON_STYLE,
-                  !isValid && { ...btnDisabled },
-                  loading && { ...btnDisabled },
-                ]}
+                style={[BUTTON_STYLE]}
                 disabled={!isValid || loading}
                 text={loading ? "Loading ..." : "Continue"}
                 onPress={handleSubmit(onSubmit)}

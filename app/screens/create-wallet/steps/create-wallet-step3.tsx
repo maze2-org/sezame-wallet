@@ -41,8 +41,8 @@ export function CreateWalletStep3(props: StepProps) {
   const [usedWords, setUsedWords] = useState([])
 
   const shuffle = (array) => {
-    let currentIndex = array.length;
-      let randomIndex
+    let currentIndex = array.length
+    let randomIndex
 
     // While there remain elements to shuffle...
     while (currentIndex !== 0) {

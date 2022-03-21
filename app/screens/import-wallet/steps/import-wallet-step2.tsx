@@ -16,25 +16,39 @@ import { StepsContext } from "utils/MultiStepController/MultiStepController"
 import { WalletImportContext } from "../import-wallet-screen"
 import { spacing } from "theme"
 import { bip39Words } from "../../../utils/bip39Words"
+import { StoredWallet } from "utils/stored-wallet"
+import { TextInputField } from "components/text-input-field/text-input-field"
+import { defaultAssets } from "utils/consts"
 
 export function ImportWalletStep2(props: StepProps) {
   const nextIcon = require("../../../../assets/icons/next.png")
-  const { seedPhrase } = useContext(WalletImportContext)
   const {
     control,
+    handleSubmit,
+    setValue,
+    resetField,
     formState: { errors },
-  } = useForm({ mode: "onChange" })
+  } = useForm({ mode: "all", defaultValues: { keyword: "" } })
 
-  const pastedSeedPhrase = useWatch({
+  const keyword = useWatch({
     control,
-    name: "pastedSeedPhrase",
+    name: "keyword",
     defaultValue: "",
   })
 
-  const isSeedPhraseCorrect = seedPhrase === pastedSeedPhrase
+  const { walletName, walletPassword } = useContext(WalletImportContext)
+
+  const onSubmit = async (data) => {
+    const storedWallet = new StoredWallet(walletName, selectedWords.join(" "), walletPassword)
+    await storedWallet.addAssets(defaultAssets)
+
+    await storedWallet.save()
+
+    onButtonNext()
+  }
 
   const { onButtonBack, onButtonNext } = useContext(StepsContext)
-  const [keyword, setKeyword] = useState("")
+  // const [keyword, setKeyword] = useState("")
   const [whitelist, setWhitelist] = useState([])
   const [selectedWords, setSelectedWords] = useState([])
   const [isValid, setIsValid] = useState(true)
@@ -84,17 +98,15 @@ export function ImportWalletStep2(props: StepProps) {
   }
   const allowedWords = useRef(bip39Words.split(" "))
 
-  const onKeyChange = (val) => {
-    setKeyword(val)
-  }
-
   const renderRemainingWords = () => {
     return whitelist.map((w, index) => (
       <>
         <View
           style={whitelistItemStyle}
+          key={index}
           onStartShouldSetResponder={() => {
             setSelectedWords([...selectedWords, w])
+            resetField("keyword")
             whitelist.splice(index, 1)
             return true
           }}
@@ -124,14 +136,19 @@ export function ImportWalletStep2(props: StepProps) {
             value={selectedWords.join(" ")}
             onChangeText={(val) => setSelectedWords(val.split(" "))}
           />
-          <TextField
-            label="Next word"
-            value={keyword}
-            secureTextEntry={true}
-            onChangeText={(value) => {
-              onKeyChange(value)
-            }}
+          <Controller
+            control={control}
+            name="keyword"
+            render={({ field: { onChange, value, onBlur } }) => (
+              <TextInputField
+                value={value}
+                label="Next word"
+                errors={errors}
+                onChangeText={(value) => onChange(value)}
+              />
+            )}
           />
+
           <View style={whitelistContainerStyle}>{renderRemainingWords()}</View>
         </View>
 
@@ -140,7 +157,7 @@ export function ImportWalletStep2(props: StepProps) {
             testID="next-screen-button"
             style={[PRIMARY_BTN, isValid && { ...btnDisabled }]}
             textStyle={PRIMARY_TEXT}
-            onPress={onButtonNext}
+            onPress={handleSubmit(onSubmit)}
             disabled={isValid}
           >
             <Text tx="createWallet.next" />

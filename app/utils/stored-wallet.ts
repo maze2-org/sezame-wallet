@@ -17,19 +17,31 @@ export class StoredWallet {
   assets: Array<IWalletAsset> = []
   creationDate: Date
 
-  constructor(walletName: string, mnemonic: string, password: string) {
+  constructor(
+    walletName: string,
+    mnemonic: string,
+    password: string,
+    assets?: Array<IWalletAsset>,
+  ) {
     this.walletName = walletName
     this.mnemonic = mnemonic
     this.creationDate = new Date()
     this.password = password
+    this.assets = assets ? assets : []
   }
 
   static async loadFromStorage(walletName: string, password: string) {
     try {
       const encryptedData = await loadEncryptedWallet(`${walletName}`)
       const walletData: WalletJson = JSON.parse(decrypt(password, encryptedData))
-      const storedWallet = new StoredWallet(walletData.walletName, walletData.mnemonic, password)
-      await storedWallet.addAssets(walletData.assets)
+      const storedWallet = new StoredWallet(
+        walletData.walletName,
+        walletData.mnemonic,
+        password,
+        walletData.assets,
+      )
+      // await storedWallet.addAssets(walletData.assets)
+      console.log({ storedWallet })
       return storedWallet
     } catch (err) {
       console.log(err)
@@ -38,8 +50,7 @@ export class StoredWallet {
   }
 
   static async loadFromJson(json: WalletJson) {
-    const wallet = new StoredWallet(json.walletName, json.mnemonic, json.password)
-    await wallet.addAssets(json.assets)
+    const wallet = new StoredWallet(json.walletName, json.mnemonic, json.password, json.assets)
     return wallet
   }
 
@@ -47,22 +58,32 @@ export class StoredWallet {
     this.assets.push(asset)
   }
 
-  async addAutoAsset(asset: IWalletAsset) {
-    try {
-      const wallet = await WalletGenerator.generateKeyPairFromMnemonic(
-        this.mnemonic,
-        asset.chain as Chains,
-        0,
-      )
-      this.addAsset({
-        ...asset,
-        publicKey: wallet.publicKey,
-        privateKey: wallet.privateKey,
-        address: wallet.address,
-      })
-    } catch (e) {
-      throw new Error(`${asset.chain} block chain is not supported yet: ` + e)
-    }
+  longProcess() {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve("ok")
+      }, 5000)
+    })
+  }
+
+  addAutoAsset(asset: IWalletAsset) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        WalletGenerator.generateKeyPairFromMnemonic(this.mnemonic, asset.chain as Chains, 0)
+          .then((wallet) => {
+            this.addAsset({
+              ...asset,
+              publicKey: wallet.publicKey,
+              privateKey: wallet.privateKey,
+              address: wallet.address,
+            })
+            resolve(true)
+          })
+          .catch((err) => {
+            reject(err)
+          })
+      }, 100)
+    })
   }
 
   toJson(): WalletJson {
@@ -75,6 +96,7 @@ export class StoredWallet {
   }
 
   async save() {
+    console.log("WILL SAVE", JSON.stringify(this.toJson()))
     return await saveWallet(
       `${this.walletName}`,
       encrypt(this.password, JSON.stringify(this.toJson())),

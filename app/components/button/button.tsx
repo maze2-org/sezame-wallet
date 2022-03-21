@@ -1,5 +1,6 @@
 import * as React from "react"
-import { TouchableOpacity } from "react-native"
+import { TouchableOpacity, View } from "react-native"
+import { btnDisabled } from "theme/elements"
 import { Text } from "../text/text"
 import { viewPresets, textPresets } from "./button.presets"
 import { ButtonProps } from "./button.props"
@@ -14,6 +15,7 @@ export function Button(props: ButtonProps) {
   const {
     preset = "primary",
     tx,
+    disabled,
     text,
     style: styleOverride,
     textStyle: textStyleOverride,
@@ -25,11 +27,17 @@ export function Button(props: ButtonProps) {
   const viewStyles = [viewStyle, styleOverride]
   const textStyle = textPresets[preset] || textPresets.primary
   const textStyles = [textStyle, textStyleOverride]
-
+  console.log({
+    disabled,
+    btnDisabled,
+  })
   const content = children || <Text tx={tx} text={text} style={textStyles} />
 
+  if (disabled) {
+    return <View style={[viewStyles, disabled && btnDisabled]}>{content}</View>
+  }
   return (
-    <TouchableOpacity style={viewStyles} {...rest}>
+    <TouchableOpacity style={[viewStyles, disabled && btnDisabled]} {...rest}>
       {content}
     </TouchableOpacity>
   )
