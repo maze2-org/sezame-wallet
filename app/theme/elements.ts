@@ -299,3 +299,20 @@ export const SEPARATOR: ViewStyle = {
   borderBottomColor: color.palette.lightGrey,
   borderBottomWidth: 0.5,
 }
+
+export const buttons = {
+  DRAWER_BTN_CANCEL: {
+    backgroundColor: color.transparent,
+  },
+  DRAWER_BTN_OK: {
+    backgroundColor: color.palette.gold,
+    borderRadius: 80,
+  },
+  DRAWER_BTN_TEXT: {
+    fontSize: 13,
+    lineHeight: 17.7,
+    fontFamily: typography.primary,
+    paddingVertical: spacing[2],
+    fontWeight: "600" as any,
+  },
+}

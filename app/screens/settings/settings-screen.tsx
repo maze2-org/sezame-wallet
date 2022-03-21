@@ -94,6 +94,16 @@ const SETTING_ITEM_TITLE: TextStyle = {
   fontSize: Fonts[1],
   fontWeight: "bold",
 }
+
+const NETWORK_TO_TESTNET: TextStyle = {
+  padding: spacing[2],
+  backgroundColor: color.success,
+}
+
+const NETWORK_TO_MAINNET: TextStyle = {
+  padding: spacing[2],
+  backgroundColor: color.error,
+}
 const SETTING_ITEM_SUBTITLE: TextStyle = {
   fontSize: Fonts[0],
 }
@@ -162,7 +172,8 @@ const styles = StyleSheet.create({
 export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">> = observer(
   function SettingsScreen() {
     // Pull in one of our MST stores
-    const { currentWalletStore } = useStores()
+    const rootStore = useStores()
+    const { currentWalletStore } = rootStore
 
     // Pull in navigation via hook
     const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
@@ -233,6 +244,14 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
 
     const goBack = () => navigation.goBack()
     const goToChangePassword = () => navigation.navigate("changePassword")
+
+    const toggleTestnet = () => {
+      rootStore.setTestnet(!rootStore.TESTNET)
+      showMessage({
+        message: "You're now using " + (rootStore.TESTNET ? "Testnet" : "Mainnet"),
+        type: "success",
+      })
+    }
     return (
       <Screen style={DashboardStyle} preset="scroll">
         <ScrollView>
@@ -303,6 +322,29 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
                         style={SETTING_ITEM_SUBTITLE}
                         text="Change the unlock password of the current wallet"
                       />
+                    </View>
+                    <View style={SETTING_ICON_CONTAINER}>
+                      <FontAwesomeIcon name="chevron-right" color={color.palette.white} />
+                    </View>
+                  </TouchableOpacity>
+                  <View style={styles.SEPARATOR} />
+                  <TouchableOpacity style={SETTING_ITEM_CONTAINER} onPress={toggleTestnet}>
+                    <View style={SETTING_ICON_CONTAINER}>
+                      <IonIcon
+                        style={SETTING_ICON}
+                        name="git-network-sharp"
+                        color={color.palette.white}
+                      />
+                    </View>
+                    <View style={SETTING_ITEM_BODY}>
+                      <Text style={SETTING_ITEM_TITLE}>
+                        <Text text="Switch to " />
+                        <Text
+                          style={rootStore.TESTNET ? NETWORK_TO_MAINNET : NETWORK_TO_TESTNET}
+                          text={rootStore.TESTNET ? "Mainnet" : "Testnet"}
+                        />
+                      </Text>
+                      <Text style={SETTING_ITEM_SUBTITLE} text="Switch to Mainnet or Testnet" />
                     </View>
                     <View style={SETTING_ICON_CONTAINER}>
                       <FontAwesomeIcon name="chevron-right" color={color.palette.white} />

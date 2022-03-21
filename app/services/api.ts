@@ -1,4 +1,4 @@
-import { WalletFactory } from "@maze2/sezame-sdk"
+import { WalletFactory, CONFIG } from "@maze2/sezame-sdk"
 
 import { IWalletAsset } from "models"
 const getWallet = (asset) => {
@@ -15,7 +15,6 @@ const getWallet = (asset) => {
 export const getBalance = async (asset: IWalletAsset) => {
   const cryptoWallet = getWallet(asset)
   const balance = await cryptoWallet.getBalance()
-  console.log("got balance ", balance)
   return balance.confirmedBalance
 }
 

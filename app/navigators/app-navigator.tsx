@@ -50,7 +50,7 @@ import { ReceiveScreen } from "screens/receive/receive-screen"
 import { useStores } from "../models"
 import { StoredWallet } from "../utils/stored-wallet"
 import { StackNavigationProp } from "@react-navigation/stack"
-import { AutoImage as Image } from "../components"
+import { AutoImage as Image, CurrenciesSelector, Drawer } from "../components"
 import {
   SesameSmallLogo,
   tabBarButton,
@@ -151,59 +151,7 @@ const styles = StyleSheet.create({
 })
 
 function SettingsBtn() {
-  const COMMON = {
-    privateKey: "",
-    publicKey: "",
-    balance: 0,
-    value: 0,
-    rate: 0,
-    version: 1,
-  }
-  const NETWORKS = [
-    {
-      symbol: "BTC",
-      name: "Bitcoin",
-      cid: "bitcoin",
-      chain: "BTC",
-      type: "coin",
-      decimals: 8,
-      address: "bc1qx6juea389gv4g3qzz0vwmzjjjhxwtdvzmk2e6c",
-      image: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
-      ...COMMON,
-    },
-    {
-      symbol: "ETH",
-      name: "Ethereum",
-      cid: "ethereum",
-      chain: "ETH",
-      type: "coin",
-      decimals: 18,
-      address: "0x79f01edb3ceace570587a05f5296c34fb7f400f3",
-      image: "https://assets.coingecko.com/coins/images/279/large/ethereum.png",
-      ...COMMON,
-    },
-    {
-      symbol: "AVN",
-      name: "AVNRich",
-      cid: "avnrich",
-      chain: "BSC",
-      type: "coin",
-      decimals: 18,
-      address: "0xbf151f63d8d1287db5fc7a3bc104a9c38124cdeb",
-      image: "https://assets.coingecko.com/coins/images/14819/large/avn.png",
-    },
-    {
-      symbol: "ALPH",
-      name: "Alephium",
-      cid: "alephium",
-      chain: "ALPH",
-      type: "coin",
-      decimals: 18,
-      address: "0x79f01edb3ceace570587a05f5296c34fb7f400f3",
-      image:
-        "https://assets.coingecko.com/coins/images/21598/large/Alephium-Logo_200x200_listing.png",
-    },
-  ]
+  const { currencySelectorStore } = useStores()
   const [isOpenAddAssetModal, setIsOpenAddAssetModal] = useState<boolean>(false)
   const { currentWalletStore } = useStores()
   const [storedWallet, setStoredWallet] = useState<any>(null)
@@ -215,15 +163,15 @@ function SettingsBtn() {
     setStoredWallet(new StoredWallet(walletName, mnemonic, password))
   }, [])
 
-  const addAssets = async (network: any) => {
-    await storedWallet.addAutoAsset(network)
-    await storedWallet.save()
-    currentWalletStore.open(storedWallet)
-  }
+  // const addAssets = async (network: any) => {
+  //   await storedWallet.addAutoAsset(network)
+  //   await storedWallet.save()
+  //   currentWalletStore.open(storedWallet)
+  // }
 
-  const closeModal = () => {
-    setIsOpenAddAssetModal(false)
-  }
+  // const closeModal = () => {
+  //   setIsOpenAddAssetModal(false)
+  // }
 
   return (
     <View style={NAV_HEADER_BTN_CONTAINER}>
@@ -235,7 +183,13 @@ function SettingsBtn() {
       >
         <SvgXml style={BTN_ICON} xml={QRCodeIcon} />
       </TouchableOpacity>
-      <TouchableOpacity style={NAV_HEADER_BTN} onPress={() => setIsOpenAddAssetModal(true)}>
+      <TouchableOpacity
+        style={NAV_HEADER_BTN}
+        onPress={() => {
+          currencySelectorStore.toggle()
+          setIsOpenAddAssetModal(true)
+        }}
+      >
         <SvgXml style={BTN_ICON} xml={PlusIcon} />
       </TouchableOpacity>
       <TouchableOpacity
@@ -246,25 +200,6 @@ function SettingsBtn() {
       >
         <SvgXml style={BTN_ICON} xml={UserIcon} />
       </TouchableOpacity>
-
-      <Modal isVisible={isOpenAddAssetModal}>
-        <View style={MODAL_CONTAINER}>
-          {NETWORKS.map((network) => (
-            <TouchableOpacity
-              onPress={() => {
-                addAssets(network)
-                closeModal()
-              }}
-              key={network.cid}
-            >
-              <View style={styles.item}>
-                <Text style={styles.title}>{network.symbol}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-          <Button title="Cancel" onPress={closeModal} />
-        </View>
-      </Modal>
     </View>
   )
 }
@@ -467,6 +402,7 @@ export const AppNavigator = (props: NavigationProps) => {
       theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
       {...props}
     >
+      <CurrenciesSelector></CurrenciesSelector>
       <AppStack />
     </NavigationContainer>
   )
