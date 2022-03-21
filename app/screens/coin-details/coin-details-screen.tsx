@@ -572,7 +572,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
               <View style={RECEIVE_MODAL_COPY_WRAPPER}>
                 <View style={RECEIVE_MODAL_ADDRESS}>
                   <TextRn style={RECEIVE_MODAL_ADDRESS_TEXT}>
-                    {(asset.address.match(/.{4,5}/g)).map(e => {
+                    {(asset.address.match(/.{1,5}/g)).map(e => {
                       return <Text
                         key={e}>{e} </Text>
                     })}
