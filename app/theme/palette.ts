@@ -14,4 +14,5 @@ export const palette = {
   darkBlack: "#000000",
   noise: "#272C30",
   darkBrown: "#111110",
+  green: "#00A852",
 }
