@@ -202,7 +202,7 @@ export const ChooseWalletScreen: FC<
               />
               <Button
                 textStyle={PRIMARY_TEXT}
-                style={[BUTTON_STYLE]}
+                style={BUTTON_STYLE}
                 disabled={!isValid || loading}
                 text={loading ? "Loading ..." : "Continue"}
                 onPress={handleSubmit(onSubmit)}
