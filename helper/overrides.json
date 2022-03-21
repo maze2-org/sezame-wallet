@@ -1,0 +1,23 @@
+{
+    "bitcoin": {
+        "platforms": [
+            "bitcoin"
+        ]
+    },
+    "ethereum": {
+        "platforms": [
+            "ethereum"
+        ]
+    },
+    "alephium": {
+        "platforms": [
+            "alephium"
+        ]
+    },
+    "aventus": {
+        "platforms": [
+            "alephium"
+        ]
+    }
+
+}
