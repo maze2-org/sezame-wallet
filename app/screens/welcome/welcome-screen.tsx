@@ -11,7 +11,7 @@ import {
 } from "../../components"
 import { color, spacing, typography } from "../../theme"
 import { NavigatorParamList } from "../../navigators"
-import { BackgroundStyle, CONTAINER, LogoStyle, MainBackground, RootPageStyle, SesameLogo } from "../../theme/elements"
+import { BackgroundStyle, CONTAINER, LogoStyle, MainBackground, PRIMARY_OUTLINE_BTN, PRIMARY_TEXT, RootPageStyle, SesameLogo } from "../../theme/elements"
 
 
 const TEXT: TextStyle = {
@@ -29,7 +29,7 @@ const PRIMARY_BTN: ViewStyle = {
   height: 74,
   borderRadius: 80
 }
-const PRIMARY_OUTLINE_BTN: ViewStyle = {
+const PRIMARY_OUTLINE_BORDER_BTN: ViewStyle = {
   ...PRIMARY_BTN,
   backgroundColor: color.transparent,
   borderWidth: 1,
@@ -76,7 +76,13 @@ const FOOTER_TEXT: TextStyle = {
   lineHeight: 16.5,
   width: "100%",
   display: "flex",
-  textAlign: "center"
+  textAlign: "center",
+  borderColor: color.palette.white,
+  borderStyle: "dashed",
+  borderWidth: 1,
+  borderRadius: 30,
+  paddingVertical: spacing[3],
+  paddingHorizontal: spacing[2]
 }
 
 export const WelcomeScreen: FC<StackScreenProps<NavigatorParamList, "welcome">> = observer(
@@ -114,11 +120,20 @@ export const WelcomeScreen: FC<StackScreenProps<NavigatorParamList, "welcome">> 
               <View style={FOOTER_CONTENT}>
                 <Button
                   testID="next-screen-button"
-                  style={PRIMARY_OUTLINE_BTN}
+                  style={PRIMARY_OUTLINE_BORDER_BTN}
                   textStyle={BUTTON_OUTLINE_TEXT}
                   tx="welcomeScreen.restore"
                   onPress={() => navigation.navigate("importWallet")}
                 />
+              </View>
+              <View style={FOOTER_CONTENT}>
+              <Button
+                testID="next-screen-button"
+                style={PRIMARY_OUTLINE_BTN}
+                textStyle={PRIMARY_TEXT}
+                tx="createWallet.cancel"
+                onPress={() => navigation.navigate("chooseWallet")}
+              />
               </View>
             </SafeAreaView>
             <View style={FOOTER_CONTENT}>
