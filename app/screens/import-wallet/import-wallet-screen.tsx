@@ -11,7 +11,7 @@ import { useNavigation } from "@react-navigation/native"
 import { ImportWalletStep1 } from "./steps/import-wallet-step1"
 import { ImportWalletStep2 } from "./steps/import-wallet-step2"
 import { ImportWalletStep3 } from "./steps/import-wallet-step3"
-import { ImportWalletStep4 } from "./steps/import-wallet-step4"
+// import { ImportWalletStep4 } from "./steps/import-wallet-step4"
 import MultiStepsController from "utils/MultiStepController/MultiStepController"
 import { RootPageStyle } from "theme/elements"
 import { StoredWallet } from "utils/stored-wallet"
@@ -74,7 +74,10 @@ export const ImportWalletScreen: FC<
         setWalletName,
       }}
     >
-      <Screen preset="scroll" style={RootPageStyle}>
+      <Screen unsafe
+              preset="scroll"
+              style={RootPageStyle}
+              backgroundColor={color.palette.black}>
         <View>
           <Text>{seedPhrase}</Text>
         </View>
