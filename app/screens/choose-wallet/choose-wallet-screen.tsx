@@ -89,16 +89,6 @@ export const ChooseWalletScreen: FC<
     SplashScreen.hide()
   }, [])
 
-  useEffect(() => {
-    getListOfWallets().then((walletNames) => {
-      console.log({ walletNames })
-      setWalletNames(walletNames)
-      if (walletNames.length === 1) {
-        setItemValue(walletNames[0])
-      }
-    })
-  }, [])
-
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [itemValue, setItemValue] = useState(null)
@@ -125,6 +115,17 @@ export const ChooseWalletScreen: FC<
       setLoading(false)
     }
   }
+
+  // useEffect(() => {
+  //   getListOfWallets().then((walletNames) => {
+  //     console.log({ walletNames })
+  //     setWalletNames(walletNames)
+  //     if (walletNames.length === 1) {
+  //       setItemValue(walletNames[0])
+  //     }
+  //     onSubmit({ walletName: "test", walletPassword: "testtest" })
+  //   })
+  // }, [])
 
   return (
     <Screen preset="scroll" style={RootPageStyle} backgroundColor={color.palette.black}>

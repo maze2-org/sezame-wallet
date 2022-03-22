@@ -33,6 +33,7 @@ import {
   SendScreen,
   SettingsScreen,
   ChangePasswordScreen,
+  AddCurrencyScreen,
 } from "../screens"
 import { navigationRef, useBackButtonHandler } from "./navigation-utilities"
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5"
@@ -74,16 +75,16 @@ import tabNft from "../../assets/svg/tab-nft.svg"
 
 const NAV_HEADER_CONTAINER: ViewStyle = {
   flexDirection: "row",
-  justifyContent:'space-between' ,
+  justifyContent: "space-between",
   paddingTop: spacing[7],
   paddingBottom: spacing[2],
   paddingHorizontal: spacing[4],
   borderColor: color.palette.lineColor,
-  borderStyle:'dashed',
-  borderWidth:1,
-  marginHorizontal:-1,
-  marginTop:-1,
-  backgroundColor:  color.palette.black,
+  borderStyle: "dashed",
+  borderWidth: 1,
+  marginHorizontal: -1,
+  marginTop: -1,
+  backgroundColor: color.palette.black,
 }
 
 const NAV_HEADER_BTN_CONTAINER: ViewStyle = {
@@ -151,8 +152,6 @@ const styles = StyleSheet.create({
 })
 
 function SettingsBtn() {
-  const { currencySelectorStore } = useStores()
-  const [isOpenAddAssetModal, setIsOpenAddAssetModal] = useState<boolean>(false)
   const { currentWalletStore } = useStores()
   const [storedWallet, setStoredWallet] = useState<any>(null)
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
@@ -186,8 +185,7 @@ function SettingsBtn() {
       <TouchableOpacity
         style={NAV_HEADER_BTN}
         onPress={() => {
-          currencySelectorStore.toggle()
-          setIsOpenAddAssetModal(true)
+          navigation.navigate("addCurrency")
         }}
       >
         <SvgXml style={BTN_ICON} xml={PlusIcon} />
@@ -236,6 +234,7 @@ export type NavigatorParamList = {
   }
   settings: undefined
   changePassword: undefined
+  addCurrency: undefined
   // 🔥 Your screens go here
 }
 
@@ -252,7 +251,13 @@ const BottomTabNavigator = () => {
           return (
             <View style={tabBarButton}>
               {route.name === "home" && (
-                <View style={[tabBarItem, tabBarItemBorderRightStyle, focused && {...tabBarItemFocused}]}>
+                <View
+                  style={[
+                    tabBarItem,
+                    tabBarItemBorderRightStyle,
+                    focused && { ...tabBarItemFocused },
+                  ]}
+                >
                   <SvgXml
                     stroke={focused ? color.palette.gold : color.palette.lightGrey}
                     xml={ready}
@@ -262,7 +267,7 @@ const BottomTabNavigator = () => {
                 </View>
               )}
               {route.name === "nfts" && (
-                <View style={[tabBarItem, focused && {...tabBarItemFocused}]}>
+                <View style={[tabBarItem, focused && { ...tabBarItemFocused }]}>
                   <SvgXml
                     stroke={focused ? color.palette.gold : color.palette.lightGrey}
                     xml={tabNft}
@@ -295,11 +300,11 @@ const Stack = createNativeStackNavigator<NavigatorParamList>()
 
 const AppStackHeader = () => {
   return (
-    <View
-      style={NAV_HEADER_CONTAINER}>
+    <View style={NAV_HEADER_CONTAINER}>
       <Logo />
       <SettingsBtn />
-    </View>)
+    </View>
+  )
 }
 
 const AppStack = () => {
@@ -322,10 +327,7 @@ const AppStack = () => {
           }}
           initialRouteName={initialRouteName}
         >
-          <Stack.Screen
-            name="chooseWallet"
-            component={ChooseWalletScreen}
-          />
+          <Stack.Screen name="chooseWallet" component={ChooseWalletScreen} />
           <Stack.Screen name="welcome" component={WelcomeScreen} />
           <Stack.Screen name="importWallet" component={ImportWalletScreen} />
           <Stack.Screen name="createWallet" component={CreateWalletScreen} />
@@ -336,7 +338,7 @@ const AppStack = () => {
               title: null,
               headerShown: true,
               header: AppStackHeader,
-              headerStyle: { backgroundColor: color.palette.black, },
+              headerStyle: { backgroundColor: color.palette.black },
             }}
           />
           <Stack.Screen name="walletReady" component={WalletReadyScreen} />
@@ -384,6 +386,17 @@ const AppStack = () => {
               title: "",
             }}
           />
+          <Stack.Screen
+            name="addCurrency"
+            component={AddCurrencyScreen}
+            options={{
+              headerShown: true,
+              headerRight: SettingsBtn,
+              headerStyle: { backgroundColor: color.palette.black },
+              headerLeft: Logo,
+              title: "",
+            }}
+          />
           {/** 🔥 Your screens go here */}
         </Stack.Navigator>
       )}
@@ -402,7 +415,6 @@ export const AppNavigator = (props: NavigationProps) => {
       theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
       {...props}
     >
-      <CurrenciesSelector></CurrenciesSelector>
       <AppStack />
     </NavigationContainer>
   )

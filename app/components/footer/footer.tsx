@@ -72,10 +72,10 @@ export const Footer = observer(function Footer(props: FooterProps) {
         <SvgXml width={24} height={24} xml={backIcon} style={IconStyle} />
         <Text>Back</Text>
       </TouchableOpacity>
-      {showRightButton && (
+      {!!showRightButton && (
         <TouchableOpacity onPress={onRightButtonPress} style={FOOTER_BUTTON_RIGHT}>
-          {RightButtonIcon && <RightButtonIcon style={FOOTER_BUTTON_TEXT} />}
-          {rightButtonText && <Text>{rightButtonText}</Text>}
+          {!!RightButtonIcon && <RightButtonIcon style={FOOTER_BUTTON_TEXT} />}
+          {!!rightButtonText && <Text>{rightButtonText}</Text>}
         </TouchableOpacity>
       )}
     </View>
