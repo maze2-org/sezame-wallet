@@ -108,7 +108,7 @@ export const ChooseWalletScreen: FC<
     handleSubmit,
     setValue,
     formState: { errors, isValid },
-  } = useForm({ mode: "onChange" })
+  } = useForm({ mode: "onChange" });
 
   const onSubmit = async (data) => {
     setLoading(true)
@@ -124,6 +124,7 @@ export const ChooseWalletScreen: FC<
     } finally {
       setLoading(false)
     }
+    setValue('walletPassword', '')
   }
 
   return (
