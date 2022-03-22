@@ -36,6 +36,7 @@ export function CreateWalletStep3(props: StepProps) {
 
   const isSeedPhraseCorrect = seedPhrase === pastedSeedPhrase
   const { onButtonBack, onButtonNext } = useContext(StepsContext)
+  const [loading, setLoading] = useState(false)
   const [words, setWords] = useState([])
   const [usedWords, setUsedWords] = useState([])
 
@@ -149,14 +150,20 @@ export function CreateWalletStep3(props: StepProps) {
         </View>
 
         <SafeAreaView>
+
           <Button
             testID="next-screen-button"
             style={[PRIMARY_BTN, !isSeedPhraseCorrect && { ...btnDisabled }]}
             textStyle={PRIMARY_TEXT}
-            onPress={onButtonNext}
-            disabled={!isSeedPhraseCorrect}
+            onPress={()=>{
+              setLoading(true)
+              onButtonNext(()=>{
+                setLoading(false)
+              })
+            }}
+            disabled={!isSeedPhraseCorrect || loading}
           >
-            <Text tx="createWallet.next" />
+            <Text text={loading ? "Loading ..." : 'NEXT'}/>
             <Image source={nextIcon} style={buttonIconStyle} />
           </Button>
           <Button

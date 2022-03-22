@@ -1,11 +1,13 @@
-import { useFocusEffect } from "@react-navigation/native"
-import React from "react"
+import  { useFocusEffect } from "@react-navigation/native"
+import React, {
+  useState,
+} from "react"
 import { BackHandler } from "react-native"
 import { StepProps } from "./Step"
 // import { useHistory, useParams } from "react-router";
 
 interface StepsContext {
-  onButtonNext: () => void
+  onButtonNext: (callback?:()=>void) => void
   onButtonBack: () => void
 }
 const initialContext: StepsContext = {
@@ -28,11 +30,11 @@ const MultiStepsController = ({
 }: {
   stepElements: Array<StepElement>
   currentStep: number
-  next: (stepName: string) => void
+  next: (stepName: string, callback: () => void) => void
   previous: (stepName: string) => void
 }) => {
-  const onButtonNext = () => {
-    next(stepElements[currentStep].name)
+  const onButtonNext = (callback:()=>void) => {
+    next(stepElements[currentStep].name, callback)
   }
   const onButtonBack = () => {
     previous(stepElements[currentStep].name)
