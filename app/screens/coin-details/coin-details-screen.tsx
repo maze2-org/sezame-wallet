@@ -16,7 +16,7 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 import IonIcons from "react-native-vector-icons/Ionicons"
 import copyImg from "../../../assets/svg/copy.svg"
 import { NavigatorParamList } from "../../navigators"
-import FlashMessage from "react-native-flash-message"
+import FlashMessage, { showMessage } from "react-native-flash-message"
 import { Button, CoinCard, Drawer, Footer, PriceChart, Screen, Text } from "../../components"
 
 import { color } from "../../theme"
@@ -70,11 +70,14 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
             symbol: tokenInfo.symbol,
             cid: tokenInfo.id,
           } as any)
-          .then(() => {
-            return currentWalletStore.setAssets(wallet.assets)
-          })
-          .then(() => {
-            return wallet.save()
+          .then(async () => {
+            await currentWalletStore.setAssets(wallet.assets)
+
+            await wallet.save()
+            showMessage({
+              message: "Coin added to wallet",
+              type: "success",
+            })
           })
           .catch((e) => {
             console.log(e)
