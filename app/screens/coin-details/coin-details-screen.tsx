@@ -28,7 +28,7 @@ import { BackgroundStyle, MainBackground, SEPARATOR } from "theme/elements"
 import styles from "./styles"
 import QRCode from "react-native-qrcode-svg"
 import { SvgXml } from "react-native-svg"
-import { getBalance } from "services/api"
+import { CryptoTransaction, getBalance, getTransactions, getTransactionsUrl } from "services/api"
 // import InAppBrowser from "react-native-inappbrowser-reborn"
 const tokens = require("../../config/tokens.json")
 
@@ -38,24 +38,33 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const [receiveIsVisible, setReceiveIsVisible] = useState<boolean>(false)
     const [coinData, setCoinData] = useState<CoingeckoCoin | null>(null)
     const [chartData, setChartData] = useState<any[]>([])
+    const [transactions, setTransactions] = useState<CryptoTransaction[]>([])
     const [chartDays, setChartDays] = useState<number | "max">(1)
     const { currentWalletStore } = useStores()
     const { getAssetById, setBalance } = currentWalletStore
     const [loading, setLoading] = React.useState({})
 
     const asset = getAssetById(route.params.coinId)
+    const [explorerUrl, setExplorerUrl] = useState<string>("")
     const tokenInfo = tokens.find((token) => token.id === route.params.coinId)
     useEffect(() => {
       getCoinData(route?.params?.coinId)
       getChartData(chartDays)
       if (asset) {
-        const getBalances = async () => {
+        const _getBalances = async () => {
           const balance = await getBalance(asset)
           console.log("balance", balance)
           setBalance(asset, balance)
         }
 
-        getBalances()
+        const _getTransactions = async () => {
+          const tsx = await getTransactions(asset)
+          setTransactions(tsx)
+        }
+
+        _getTransactions()
+        _getBalances()
+        setExplorerUrl(getTransactionsUrl(asset))
       }
     }, [])
 
@@ -276,66 +285,9 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                           <Text preset="header" text="Transactions" />
                         </View>
                         <View style={styles.TRANSACTIONS_CONTAINER}>
-                          <View style={styles.TRANSACTION_ITEM}>
-                            <View style={styles.TRANSACTION_ITEM_BODY}>
-                              <Text style={styles.TRANSACTION_ITEM_HASH}>
-                                {truncateHash("bc1qzl0yv9xqkm36me3xu94qj9ejjn49ez677ukd5e")}
-                              </Text>
-                              <Text style={styles.TRANSACTION_ITEM_DATE}>11/11/2019 18:59:00 </Text>
-                            </View>
-                            <View>
-                              <Button style={styles.TRANSACTIONS_SORT_BTN}>
-                                <FontAwesome5Icon
-                                  name="arrow-down"
-                                  size={10}
-                                  color={color.palette.white}
-                                />
-
-                                <Text style={styles.TRANSACTIONS_SORT_BTN_TEXT}>FROM</Text>
-                              </Button>
-                              <Text style={styles.TRANSACTION_ITEM_HASH}>+0.225</Text>
-                            </View>
-                          </View>
-                          <View style={styles.TRANSACTION_ITEM}>
-                            <View style={styles.TRANSACTION_ITEM_BODY}>
-                              <Text style={styles.TRANSACTION_ITEM_HASH}>
-                                {truncateHash("bc1qzl0yv9xqkm36me3xu94qj9ejjn49ez677ukd5e")}
-                              </Text>
-                              <Text style={styles.TRANSACTION_ITEM_DATE}>11/11/2019 18:59:00 </Text>
-                            </View>
-                            <View>
-                              <Button style={styles.TRANSACTIONS_SORT_BTN}>
-                                <FontAwesome5Icon
-                                  name="arrow-down"
-                                  size={10}
-                                  color={color.palette.white}
-                                />
-
-                                <Text style={styles.TRANSACTIONS_SORT_BTN_TEXT}>FROM</Text>
-                              </Button>
-                              <Text style={styles.TRANSACTION_ITEM_HASH}>+0.225</Text>
-                            </View>
-                          </View>
-                          <View style={styles.TRANSACTION_ITEM}>
-                            <View style={styles.TRANSACTION_ITEM_BODY}>
-                              <Text style={styles.TRANSACTION_ITEM_HASH}>
-                                {truncateHash("bc1qzl0yv9xqkm36me3xu94qj9ejjn49ez677ukd5e")}
-                              </Text>
-                              <Text style={styles.TRANSACTION_ITEM_DATE}>11/11/2019 18:59:00 </Text>
-                            </View>
-                            <View>
-                              <Button style={styles.TRANSACTIONS_SORT_BTN}>
-                                <FontAwesome5Icon
-                                  name="arrow-down"
-                                  size={10}
-                                  color={color.palette.white}
-                                />
-
-                                <Text style={styles.TRANSACTIONS_SORT_BTN_TEXT}>FROM</Text>
-                              </Button>
-                              <Text style={styles.TRANSACTION_ITEM_HASH}>+0.225</Text>
-                            </View>
-                          </View>
+                          {transactions.map((tx) => (
+                            <TransactionRow asset={asset} transaction={tx} />
+                          ))}
                         </View>
                       </View>
                     </View>
@@ -362,8 +314,8 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
           showRightButton={!!asset}
           rightButtonText="Explore"
           RightButtonIcon={(props) => <IonIcons {...props} name="globe-outline" size={23} />}
-          onRightButtonPress={() => openLink("https://www.blockchain.com/explorer")}
-          onLefButtonPress={goBack}
+          onRightButtonPress={() => explorerUrl && openLink(explorerUrl)}
+          onLeftButtonPress={goBack}
         />
 
         <Modal
@@ -399,7 +351,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                 {!asset && (
                   <View style={styles.RECEIVE_MODAL_ADDRESS}>
                     <TextRn style={styles.RECEIVE_MODAL_ADDRESS_TEXT}>
-                      {asset?.address.match(/.{1,5}/g).map((e) => {
+                      {asset.address.match(/.{1,5}/g).map((e) => {
                         return <Text key={e}>{e} </Text>
                       })}
                     </TextRn>
