@@ -107,7 +107,7 @@ export const ChooseWalletScreen: FC<
     handleSubmit,
     setValue,
     formState: { errors, isValid },
-  } = useForm({ mode: "onChange" })
+  } = useForm({ mode: "onChange" });
 
   const onSubmit = async (data) => {
     setLoading(true)
@@ -123,6 +123,7 @@ export const ChooseWalletScreen: FC<
     } finally {
       setLoading(false)
     }
+    setValue('walletPassword', '')
   }
 
   return (
@@ -181,8 +182,8 @@ export const ChooseWalletScreen: FC<
                 render={({ field: { onChange, value, onBlur } }) => (
                   <TextInputField
                     label="Unlock password"
-                    secureTextEntry={true}
                     name="walletPassword"
+                    showEye={true}
                     icon={eyeIcon}
                     style={textInput}
                     errors={errors}
