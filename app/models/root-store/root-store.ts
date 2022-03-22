@@ -4,14 +4,17 @@ import {
   createCurrencySelectorDefaultModel,
   CurrencySelectorModel,
 } from "models/currency-selector/currency-selector"
-import { CurrentWalletModel } from "models/current-wallet/current-wallet"
+import {
+  createCurrentWalletDefaultModel,
+  CurrentWalletModel,
+} from "models/current-wallet/current-wallet"
 
 /**
  * A RootStore model.
  */
 // prettier-ignore
 export const RootStoreModel = types.model("RootStore").props({
-  currentWalletStore: types.optional(CurrentWalletModel, {} as any),
+  currentWalletStore: createCurrentWalletDefaultModel(),
   currencySelectorStore: createCurrencySelectorDefaultModel(),
   TESTNET: types.optional(types.boolean, CONFIG.TESTNET),
 }).actions(self => ({

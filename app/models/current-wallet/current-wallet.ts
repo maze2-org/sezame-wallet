@@ -1,7 +1,8 @@
 import { NetworkType } from "config/networks"
-import { Instance, types } from "mobx-state-tree"
+import { flow, Instance, SnapshotOut, types } from "mobx-state-tree"
 import { remove } from "utils/storage"
 import { StoredWallet } from "../../utils/stored-wallet"
+import { getBalance } from "services/api"
 
 const WalletAsset = types.model({
   name: types.string,
@@ -30,6 +31,7 @@ export const CurrentWalletModel = types
     wallet: types.maybe(types.string),
     name: types.maybe(types.string),
     assets: types.array(WalletAsset),
+    loadingBalance: types.boolean,
   })
   .views((self) => ({
     getWallet: () => {
@@ -73,6 +75,24 @@ export const CurrentWalletModel = types
       )
       storedAsset.balance = balance
     },
+    stopLoading: () => {
+      self.loadingBalance = false
+    },
+    refreshBalances: flow(function* refreshBalances() {
+      self.loadingBalance = true
+
+      for (let asset of self.assets) {
+        try {
+          const balance = yield getBalance(asset)
+          console.log("GOT BALANCEEEEEEEEE", balance)
+          asset.balance = balance
+        } catch (error) {
+          console.error({ error })
+        }
+      }
+      self.loadingBalance = false
+      // ... including try/catch error handling
+    }),
 
     removeWallet: async () => {
       try {
@@ -85,4 +105,15 @@ export const CurrentWalletModel = types
 
 export const currentWalletStore = CurrentWalletModel.create({
   wallet: undefined, // the type here is different from the type in the actual model
+  loadingBalance: false,
 })
+
+type CurrentWalletType = Instance<typeof CurrentWalletModel>
+export interface CurrentWallet extends CurrentWalletType {}
+type CurrentWalletSnapshotType = SnapshotOut<typeof CurrentWalletModel>
+export interface CurrentWalletSnapshot extends CurrentWalletSnapshotType {}
+export const createCurrentWalletDefaultModel = () =>
+  types.optional(CurrentWalletModel, {
+    wallet: undefined,
+    loadingBalance: false,
+  })

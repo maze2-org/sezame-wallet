@@ -1,23 +1,14 @@
-import React, {
-  createRef,
-  FC,
-  useEffect,
-  useRef,
-  useState,
-} from "react"
+import React, { createRef, FC, useEffect, useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
 import {
   View,
   Text as TextRn,
   ViewStyle,
-  Image,
-  ImageStyle,
   ImageBackground,
   TextStyle,
   ScrollView,
   Linking,
   Modal,
-  SafeAreaView,
   TouchableOpacity,
   Dimensions,
   Clipboard,
@@ -32,35 +23,23 @@ import FlashMessage, { showMessage } from "react-native-flash-message"
 import {
   Button,
   CoinCard,
-  Drawer,
   Footer,
   PriceChart,
   Screen,
   Text,
+  TransactionRow,
 } from "../../components"
-// import { useNavigation } from "@react-navigation/native"
-// import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
 import { useNavigation } from "@react-navigation/native"
 import { getCoinDetails, getMarketChart } from "utils/apis"
 import { CoingeckoCoin } from "types/coingeckoCoin"
 import { useStores } from "models"
 import { BackgroundStyle, CONTAINER, MainBackground, SEPARATOR } from "theme/elements"
-import styles
-  from "../send/styles"
-import QRCode
-  from "react-native-qrcode-svg"
-import {
-  SvgXml
-} from "react-native-svg"
-import ready
-  from "../../../assets/svg/ready.svg"
-import {
-  SvgFromXml
-} from "react-native-svg/lib/typescript"
-import { getBalance } from "services/api"
+import QRCode from "react-native-qrcode-svg"
+import { SvgXml } from "react-native-svg"
+import { CryptoTransaction, getBalance, getTransactions } from "services/api"
 // import InAppBrowser from "react-native-inappbrowser-reborn"
-const {height} = Dimensions.get("screen")
+const { height } = Dimensions.get("screen")
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
@@ -178,132 +157,102 @@ const TRANSACTIONS_HEADER: ViewStyle = {
   justifyContent: "space-between",
   marginTop: spacing[4],
 }
-const TRANSACTIONS_SORT_BTN: ViewStyle = {
-  backgroundColor: color.primary,
-  display: "flex",
-  flexDirection: "row",
-  paddingHorizontal: spacing[2],
-  paddingVertical: spacing[1]
-}
-const TRANSACTIONS_SORT_BTN_TEXT: TextStyle = {
-  color: color.palette.white,
-  marginLeft: spacing[1],
-  fontSize: 12,
-  lineHeight: 16.34
-}
+
 const TRANSACTIONS_CONTAINER: ViewStyle = {
   display: "flex",
   flexDirection: "column",
   marginTop: spacing[3],
 }
-const TRANSACTION_ITEM: ViewStyle = {
-  display: "flex",
-  flexDirection: "row",
-  justifyContent: "space-between",
-  marginVertical: spacing[2],
-}
 
-const TRANSACTION_ITEM_BODY: ViewStyle = {
-  display: "flex",
-  flexDirection: "column",
+const RECEIVE_MODAL_WRAPPER: ViewStyle = {
+  alignItems: "center",
+  justifyContent: "center",
+  height: height,
+  backgroundColor: "rgba(0,0,0,0.3)",
 }
-
-const TRANSACTION_ITEM_HASH: TextStyle = {
-  color: color.palette.white,
-  fontWeight: "bold",
-  fontSize: 15,
-  textAlign: "right"
-}
-const TRANSACTION_ITEM_DATE: TextStyle = {
-  color: color.palette.lightGrey,
-  fontSize: 13,
-  marginVertical: spacing[1],
-}
-const RECEIVE_MODAL_WRAPPER: ViewStyle  = {
-  alignItems:"center",
-  justifyContent:"center",
-  height:height,
-  backgroundColor: 'rgba(0,0,0,0.3)',
-
-}
-const RECEIVE_MODAL_CONTAINER: ViewStyle  = {
-  width:317,
-  alignItems:"center",
-  borderRadius:8,
-  backgroundColor:color.palette.noise,
-  paddingHorizontal:10
+const RECEIVE_MODAL_CONTAINER: ViewStyle = {
+  width: 317,
+  alignItems: "center",
+  borderRadius: 8,
+  backgroundColor: color.palette.noise,
+  paddingHorizontal: 10,
 }
 const QR_CONTAINER: ViewStyle = {
   display: "flex",
   alignItems: "center",
   alignContent: "center",
-  backgroundColor:color.palette.white,
-  padding:20,
-  borderRadius:8,
-  marginBottom:40,
-  marginVertical:20
+  backgroundColor: color.palette.white,
+  padding: 20,
+  borderRadius: 8,
+  marginBottom: 40,
+  marginVertical: 20,
 }
 const RECEIVE_MODAL_CLOSE_WRAPPER: ViewStyle = {
-  width:"100%",
-  alignItems:"flex-end",
+  width: "100%",
+  alignItems: "flex-end",
 }
 const RECEIVE_MODAL_CLOSE: ViewStyle = {
-  marginTop:10,
+  marginTop: 10,
 }
 const RECEIVE_MODAL_COPY_WRAPPER: ViewStyle = {
-  backgroundColor:color.palette.darkblack,
-  width:280,
-  borderRadius:8,
-  alignItems:"center",
-  marginBottom:25,
-
-
+  backgroundColor: color.palette.darkblack,
+  width: 280,
+  borderRadius: 8,
+  alignItems: "center",
+  marginBottom: 25,
 }
-const  RECEIVE_MODAL_ADDRESS: ViewStyle = {
-  padding:20
+const RECEIVE_MODAL_ADDRESS: ViewStyle = {
+  padding: 20,
 }
-const  RECEIVE_MODAL_ADDRESS_TEXT: TextStyle = {
-  textAlign:"center"
+const RECEIVE_MODAL_ADDRESS_TEXT: TextStyle = {
+  textAlign: "center",
 }
 const RECEIVE_MODAL_COPY_BUTTON: ViewStyle = {
-  width:"100%",
-  justifyContent:"center",
-  alignItems:"center",
-  flexDirection:"row",
-  height:40,
-  borderTopColor:color.palette.lineColor,
-  borderTopWidth:1,
+  width: "100%",
+  justifyContent: "center",
+  alignItems: "center",
+  flexDirection: "row",
+  height: 40,
+  borderTopColor: color.palette.lineColor,
+  borderTopWidth: 1,
 }
 const RECEIVE_MODAL_COPY_TEXT: TextStyle = {
-  fontSize:11,
+  fontSize: 11,
 }
 const COPY_ICON: ViewStyle = {
-  position:'absolute',
-  left:-40
+  position: "absolute",
+  left: -40,
 }
 
 export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDetails">> = observer(
   function CoinDetailsScreen({ route }) {
-    const modalFlashRef = useRef<FlashMessage>();
+    const modalFlashRef = useRef<FlashMessage>()
     const [receiveIsVisible, setReceiveIsVisible] = useState<boolean>(false)
     const [coinData, setCoinData] = useState<CoingeckoCoin | null>(null)
     const [chartData, setChartData] = useState<any[]>([])
+    const [transactions, setTransactions] = useState<CryptoTransaction[]>([])
     const [chartDays, setChartDays] = useState<number | "max">(1)
     const { currentWalletStore } = useStores()
     const { getAssetById, setBalance } = currentWalletStore
 
     const asset = getAssetById(route.params.coinId)
+
     useEffect(() => {
-      console.log("asset", asset.address)
       getCoinData(route?.params?.coinId)
       getChartData(chartDays)
-      const getBalances = async () => {
+      const _getBalances = async () => {
         const balance = await getBalance(asset)
         console.log("balance", balance)
         setBalance(asset, balance)
       }
 
-      getBalances()
+      const _getTransactions = async () => {
+        const tsx = await getTransactions(asset)
+        setTransactions(tsx)
+      }
+
+      _getTransactions()
+      _getBalances()
     }, [])
 
     const getCoinData = async (coin) => {
@@ -329,55 +278,27 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
     const goToSend = () => navigation.navigate("send", { coinId: route.params.coinId })
     const toggleReceiveModal = (value: boolean) => {
-      // navigation.navigate("receive", { coinId: route.params.coinId })
       setReceiveIsVisible(value)
-    }
-
-    const truncateHash = (hash: string) => {
-      return hash.substring(0, 15) + "..." + hash.substring(hash.length - 15, hash.length)
     }
     const goBack = () => navigation.goBack()
     const openLink = async (url) => {
-      // try {
-      //   if (await InAppBrowser.isAvailable()) {
-      //     await InAppBrowser.open(url, {
-      //       // iOS Properties
-      //       dismissButtonStyle: "cancel",
-      //       readerMode: false,
-      //       animated: true,
-      //       modalPresentationStyle: "automatic",
-      //       modalTransitionStyle: "coverVertical",
-      //       modalEnabled: true,
-      //       enableBarCollapsing: false,
-      //       // Android Properties
-      //       showTitle: true,
-      //       enableUrlBarHiding: true,
-      //       enableDefaultShare: true,
-      //       forceCloseOnRedirection: false,
-      //     })
-      //   } else {
       Linking.openURL(url)
-      //   }
-      // } catch (error) {
-      //   console.log(error)
-      // }
     }
 
     const copyAddress = () => {
       Clipboard.setString(asset.address)
       Clipboard.getString()
-        .then((link)=>{
-          modalFlashRef.current && modalFlashRef.current.showMessage({
-            message: "Copied to clipboard",
-            type: "success",
-          })
+        .then((link) => {
+          modalFlashRef.current &&
+            modalFlashRef.current.showMessage({
+              message: "Copied to clipboard",
+              type: "success",
+            })
         })
-        .catch((e)=>{
+        .catch((e) => {
           console.log(e)
         })
-
     }
-
 
     return (
       <Screen style={ROOT} preset="scroll">
@@ -399,14 +320,14 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                       <FontAwesome5Icon name="arrow-up" size={18} color={color.palette.white} />
                       <Text style={VERTICAL_ICON_BTN_TEXT}>Send</Text>
                     </Button>
-                    <Button style={VERTICAL_ICON_BTN} onPress={()=>toggleReceiveModal(true)}>
+                    <Button style={VERTICAL_ICON_BTN} onPress={() => toggleReceiveModal(true)}>
                       <FontAwesome5Icon name="arrow-down" size={18} color={color.palette.white} />
                       <Text style={VERTICAL_ICON_BTN_TEXT}>Receive</Text>
                     </Button>
                   </View>
                 </View>
                 {!!chartData && !!chartData.length && (
-                  <PriceChart data={chartData.map((p) => p[1])}/>
+                  <PriceChart data={chartData.map((p) => p[1])} />
                 )}
                 <View style={COIN_DETAILS_CONTAINER}>
                   <View style={TIMEFRAME_BTNS}>
@@ -443,7 +364,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                         <Text style={BALANCE_STAKING_CARD_NOTE}> (~1$)</Text>
                       </View>
 
-                      <View style={SEPARATOR}/>
+                      <View style={SEPARATOR} />
                       <Button style={BALANCE_STAKING_CARD_BTN}>
                         <MaterialCommunityIcons
                           style={BALANCE_STAKING_CARD_BTN_ICON}
@@ -459,7 +380,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                         <Text style={BALANCE_STAKING_CARD_AMOUNT}> 0.459</Text>
                         <Text style={BALANCE_STAKING_CARD_NOTE}>Available rewards 0.02 (~1$)</Text>
                       </View>
-                      <View style={SEPARATOR}/>
+                      <View style={SEPARATOR} />
                       <Button style={BALANCE_STAKING_CARD_BTN}>
                         <FontAwesome5Icon
                           size={18}
@@ -475,54 +396,9 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                       <Text preset="header" text="Transactions" />
                     </View>
                     <View style={TRANSACTIONS_CONTAINER}>
-                      <View style={TRANSACTION_ITEM}>
-                        <View style={TRANSACTION_ITEM_BODY}>
-                          <Text style={TRANSACTION_ITEM_HASH}>
-                            {truncateHash("bc1qzl0yv9xqkm36me3xu94qj9ejjn49ez677ukd5e")}
-                          </Text>
-                          <Text style={TRANSACTION_ITEM_DATE}>11/11/2019 18:59:00 </Text>
-                        </View>
-                        <View>
-                          <Button style={TRANSACTIONS_SORT_BTN}>
-                            <FontAwesome5Icon name="arrow-down" size={10} color={color.palette.white} />
-
-                            <Text style={TRANSACTIONS_SORT_BTN_TEXT}>FROM</Text>
-                          </Button>
-                          <Text style={TRANSACTION_ITEM_HASH}>+0.225</Text>
-                        </View>
-                      </View>
-                      <View style={TRANSACTION_ITEM}>
-                        <View style={TRANSACTION_ITEM_BODY}>
-                          <Text style={TRANSACTION_ITEM_HASH}>
-                            {truncateHash("bc1qzl0yv9xqkm36me3xu94qj9ejjn49ez677ukd5e")}
-                          </Text>
-                          <Text style={TRANSACTION_ITEM_DATE}>11/11/2019 18:59:00 </Text>
-                        </View>
-                        <View>
-                          <Button style={TRANSACTIONS_SORT_BTN}>
-                            <FontAwesome5Icon name="arrow-down" size={10} color={color.palette.white} />
-
-                            <Text style={TRANSACTIONS_SORT_BTN_TEXT}>FROM</Text>
-                          </Button>
-                          <Text style={TRANSACTION_ITEM_HASH}>+0.225</Text>
-                        </View>
-                      </View>
-                      <View style={TRANSACTION_ITEM}>
-                        <View style={TRANSACTION_ITEM_BODY}>
-                          <Text style={TRANSACTION_ITEM_HASH}>
-                            {truncateHash("bc1qzl0yv9xqkm36me3xu94qj9ejjn49ez677ukd5e")}
-                          </Text>
-                          <Text style={TRANSACTION_ITEM_DATE}>11/11/2019 18:59:00 </Text>
-                        </View>
-                        <View>
-                          <Button style={TRANSACTIONS_SORT_BTN}>
-                            <FontAwesome5Icon name="arrow-down" size={10} color={color.palette.white} />
-
-                            <Text style={TRANSACTIONS_SORT_BTN_TEXT}>FROM</Text>
-                          </Button>
-                          <Text style={TRANSACTION_ITEM_HASH}>+0.225</Text>
-                        </View>
-                      </View>
+                      {transactions.map((tx) => (
+                        <TransactionRow asset={asset} transaction={tx} />
+                      ))}
                     </View>
                   </View>
                 </View>
@@ -533,11 +409,9 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
         <Footer
           showRightButton
           rightButtonText="Explore"
-          RightButtonIcon={(props) => (
-            <IonIcons {...props} name="globe-outline" size={23} />
-          )}
+          RightButtonIcon={(props) => <IonIcons {...props} name="globe-outline" size={23} />}
           onRightButtonPress={() => openLink("https://www.blockchain.com/explorer")}
-          onLefButtonPress={goBack}
+          onLeftButtonPress={goBack}
         />
 
         <Modal
@@ -546,22 +420,20 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
           onRequestClose={() => toggleReceiveModal(false)}
           transparent
         >
-            <TouchableOpacity style={RECEIVE_MODAL_WRAPPER}
-                              activeOpacity={0}
-                              onPress={()=>toggleReceiveModal(false)}
-            >
-            <View   style={RECEIVE_MODAL_CONTAINER}>
+          <TouchableOpacity
+            style={RECEIVE_MODAL_WRAPPER}
+            activeOpacity={0}
+            onPress={() => toggleReceiveModal(false)}
+          >
+            <View style={RECEIVE_MODAL_CONTAINER}>
               <View style={RECEIVE_MODAL_CLOSE_WRAPPER}>
                 <TouchableOpacity
                   style={RECEIVE_MODAL_CLOSE}
                   activeOpacity={0.8}
-                  hitSlop={{top:10,left:10,right:10,bottom:10}}
-                  onPress={() => toggleReceiveModal(false)}>
-                  <IonIcons
-                    name={"close-outline"}
-                    size={30}
-                    color={color.palette.white}
-                  />
+                  hitSlop={{ top: 10, left: 10, right: 10, bottom: 10 }}
+                  onPress={() => toggleReceiveModal(false)}
+                >
+                  <IonIcons name={"close-outline"} size={30} color={color.palette.white} />
                 </TouchableOpacity>
               </View>
 
@@ -572,29 +444,26 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
               <View style={RECEIVE_MODAL_COPY_WRAPPER}>
                 <View style={RECEIVE_MODAL_ADDRESS}>
                   <TextRn style={RECEIVE_MODAL_ADDRESS_TEXT}>
-                    {(asset.address.match(/.{1,5}/g)).map(e => {
-                      return <Text
-                        key={e}>{e} </Text>
+                    {asset.address.match(/.{1,5}/g).map((e) => {
+                      return <Text key={e}>{e} </Text>
                     })}
                   </TextRn>
                 </View>
 
-                <TouchableOpacity style={RECEIVE_MODAL_COPY_BUTTON}
-                                  onPress={copyAddress}
-                >
+                <TouchableOpacity style={RECEIVE_MODAL_COPY_BUTTON} onPress={copyAddress}>
                   <View>
-                  <SvgXml
-                    stroke={color.palette.gold}
-                    xml={copyImg}
-                    height={20}
-                    style={COPY_ICON}
-                  />
-                  <Text style={RECEIVE_MODAL_COPY_TEXT}>COPY</Text>
+                    <SvgXml
+                      stroke={color.palette.gold}
+                      xml={copyImg}
+                      height={20}
+                      style={COPY_ICON}
+                    />
+                    <Text style={RECEIVE_MODAL_COPY_TEXT}>COPY</Text>
                   </View>
                 </TouchableOpacity>
               </View>
             </View>
-            </TouchableOpacity>
+          </TouchableOpacity>
           <FlashMessage ref={modalFlashRef} position="bottom" />
         </Modal>
       </Screen>
