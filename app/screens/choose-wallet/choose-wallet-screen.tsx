@@ -116,16 +116,16 @@ export const ChooseWalletScreen: FC<
     }
   }
 
-  // useEffect(() => {
-  //   getListOfWallets().then((walletNames) => {
-  //     console.log({ walletNames })
-  //     setWalletNames(walletNames)
-  //     if (walletNames.length === 1) {
-  //       setItemValue(walletNames[0])
-  //     }
-  //     onSubmit({ walletName: "test", walletPassword: "testtest" })
-  //   })
-  // }, [])
+  useEffect(() => {
+    getListOfWallets().then((walletNames) => {
+      console.log({ walletNames })
+      setWalletNames(walletNames)
+      if (walletNames.length === 1) {
+        setItemValue(walletNames[0])
+      }
+      // onSubmit({ walletName: "test", walletPassword: "testtest" })
+    })
+  }, [])
 
   return (
     <Screen preset="scroll" style={RootPageStyle} backgroundColor={color.palette.black}>
