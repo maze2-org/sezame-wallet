@@ -98,12 +98,15 @@ export function ImportWalletStep2(props: StepProps) {
   const [whitelist, setWhitelist] = useState<string[]>([]);
   const [selectedWords, setSelectedWords] = useState<string[]>([]);
   const [isValid, setIsValid] = useState<boolean>(true);
+  const [loading, setLoading] = useState(false)
 
   const onSubmit = async () => {
+    setLoading(true)
     const storedWallet = new StoredWallet(walletName, selectedWords.join(" "), walletPassword)
     await storedWallet.addAssets(defaultAssets)
     await storedWallet.save()
-    onButtonNext()
+    setLoading(false)
+    onButtonNext();
   }
 
   useEffect(() => {
@@ -217,9 +220,9 @@ export function ImportWalletStep2(props: StepProps) {
             style={[PRIMARY_BTN, isValid && { ...btnDisabled }]}
             textStyle={PRIMARY_TEXT}
             onPress={onSubmit}
-            disabled={isValid}
+            disabled={isValid || !!loading}
           >
-            <Text tx="createWallet.next" />
+            <Text text={loading ? "Loading ..." : 'NEXT'}/>
             <Image source={nextIcon} style={buttonIconStyle} />
           </Button>
 
