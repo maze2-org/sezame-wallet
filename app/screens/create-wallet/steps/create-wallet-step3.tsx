@@ -35,7 +35,6 @@ export function CreateWalletStep3(props: StepProps) {
   })
 
   const isSeedPhraseCorrect = seedPhrase === pastedSeedPhrase
-  console.log({ isSeedPhraseCorrect, seedPhrase, pastedSeedPhrase })
   const { onButtonBack, onButtonNext } = useContext(StepsContext)
   const [loading, setLoading] = useState(false)
   const [words, setWords] = useState([])

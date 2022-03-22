@@ -25,7 +25,6 @@ export const CurrenciesSelector = observer(function CurrenciesSelector(
   const [loading, setLoading] = React.useState({})
   const addAsset = React.useCallback((network: any) => {
     setLoading((loading) => ({ ...loading, [network.cid]: true }))
-    console.log({currentWalletStore})
     currentWalletStore.getWallet().then((wallet) => {
       wallet
         .addAutoAsset(network)
@@ -36,14 +35,12 @@ export const CurrenciesSelector = observer(function CurrenciesSelector(
           return wallet.save()
         })
         .finally(() => {
-          console.log(JSON.stringify(wallet, null, 2))
           setLoading((loading) => ({ ...loading, [network.cid]: false }))
         })
     })
   }, [])
 
   const { currencySelectorStore, currentWalletStore } = useStores()
-  console.log({ NETWORKS })
   return (
     <Drawer
       title="Choose your currencies"

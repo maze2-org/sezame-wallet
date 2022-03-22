@@ -84,7 +84,6 @@ export const CurrentWalletModel = types
       for (let asset of self.assets) {
         try {
           const balance = yield getBalance(asset)
-          console.log("GOT BALANCEEEEEEEEE", balance)
           asset.balance = balance
         } catch (error) {
           console.error({ error })

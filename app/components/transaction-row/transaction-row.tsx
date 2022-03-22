@@ -75,7 +75,9 @@ export const TransactionRow = observer(function TransactionRow(props: Transactio
   return (
     <View style={TRANSACTION_ITEM}>
       <View style={TRANSACTION_ITEM_BODY}>
-        <Text style={TRANSACTION_ITEM_HASH}>{truncateHash(transaction.hash)}</Text>
+        <Text style={TRANSACTION_ITEM_HASH}>
+          {truncateHash(receive ? transaction.from : transaction.to)}
+        </Text>
         <Text style={TRANSACTION_ITEM_DATE}>
           {dayjs(transaction.date).format("MM/DD/YYYY HH:mm:ss")}
         </Text>
