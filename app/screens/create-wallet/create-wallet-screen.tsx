@@ -56,7 +56,7 @@ export const CreateWalletScreen: FC<
       navigation.navigate("welcome")
     }
   }
-  const next = async (stepName: string) => {
+  const next = async (stepName: string, callback?: ()=>void) => {
     if (stepName === "Step4") {
       navigation.replace("chooseWallet")
     } else if (stepName === "Step3") {
@@ -66,7 +66,7 @@ export const CreateWalletScreen: FC<
 
       await storedWallet.save()
       setCurrentStep(currentStep + 1)
-      
+      if(typeof callback === 'function') callback();
     } else {
       setCurrentStep(currentStep + 1)
     }
