@@ -182,8 +182,8 @@ export const ChooseWalletScreen: FC<
                 render={({ field: { onChange, value, onBlur } }) => (
                   <TextInputField
                     label="Unlock password"
-                    secureTextEntry={true}
                     name="walletPassword"
+                    showEye={true}
                     icon={eyeIcon}
                     style={textInput}
                     errors={errors}
