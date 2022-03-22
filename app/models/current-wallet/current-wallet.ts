@@ -18,7 +18,7 @@ const WalletAsset = types.model({
   rate: types.optional(types.number, 0),
   version: types.optional(types.number, 0),
   image: types.optional(types.string, ""),
-  decimals: types.number,
+  decimals: types.optional(types.number, 8),
 })
 export type IWalletAsset = Instance<typeof WalletAsset>
 

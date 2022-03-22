@@ -94,6 +94,10 @@ export class StoredWallet {
   }
 
   async save() {
+    console.log(
+      "save wallet ",
+      this.assets.map((a) => a.name),
+    )
     return await saveWallet(
       `${this.walletName}`,
       encrypt(this.password, JSON.stringify(this.toJson())),
