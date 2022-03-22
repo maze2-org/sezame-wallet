@@ -63,6 +63,7 @@ import {
   tabBarStyle,
 } from "theme/elements"
 
+import reloadIcon from "../../assets/svg/reload.svg"
 import QRCodeIcon from "../../assets/svg/qr_code.svg"
 import UserIcon from "../../assets/svg/user.svg"
 import PlusIcon from "../../assets/svg/plus.svg"
@@ -74,16 +75,16 @@ import tabNft from "../../assets/svg/tab-nft.svg"
 
 const NAV_HEADER_CONTAINER: ViewStyle = {
   flexDirection: "row",
-  justifyContent:'space-between' ,
+  justifyContent: "space-between",
   paddingTop: spacing[7],
   paddingBottom: spacing[2],
   paddingHorizontal: spacing[4],
   borderColor: color.palette.lineColor,
-  borderStyle:'dashed',
-  borderWidth:1,
-  marginHorizontal:-1,
-  marginTop:-1,
-  backgroundColor:  color.palette.black,
+  borderStyle: "dashed",
+  borderWidth: 1,
+  marginHorizontal: -1,
+  marginTop: -1,
+  backgroundColor: color.palette.black,
 }
 
 const NAV_HEADER_BTN_CONTAINER: ViewStyle = {
@@ -116,13 +117,6 @@ const LOGO: TextStyle = {
 
 const Logo = () => (
   <View style={NAV_HEADER_BTN_CONTAINER}>
-    {/* <TouchableOpacity style={NAV_HEADER_BTN}>
-      <FontAwesome5Icon style={BTN_ICON} name="qrcode" size={23} />
-    </TouchableOpacity>
-    <View style={NAV_HEADER_BTN_CONTAINER}>
-      <Text style={{ color: color.palette.black }}>SESAME</Text>
-      <Text style={{ color: color.palette.offWhite }}>WALLET</Text>
-    </View> */}
     <Image source={SesameSmallLogo} style={LOGO_STYLE} />
     <View style={NAV_HEADER_TITLE_CONTAINER}>
       <Text style={LOGO}>SESAME</Text>
@@ -152,47 +146,44 @@ const styles = StyleSheet.create({
 
 function SettingsBtn() {
   const { currencySelectorStore } = useStores()
-  const [isOpenAddAssetModal, setIsOpenAddAssetModal] = useState<boolean>(false)
   const { currentWalletStore } = useStores()
+  const { loadingBalance } = currentWalletStore
   const [storedWallet, setStoredWallet] = useState<any>(null)
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
   const route = navigationRef.current?.getCurrentRoute()
 
-  useEffect(() => {
-    const { walletName, mnemonic, password } = JSON.parse(currentWalletStore.wallet)
-    setStoredWallet(new StoredWallet(walletName, mnemonic, password))
-  }, [])
-
-  // const addAssets = async (network: any) => {
-  //   await storedWallet.addAutoAsset(network)
-  //   await storedWallet.save()
-  //   currentWalletStore.open(storedWallet)
-  // }
-
-  // const closeModal = () => {
-  //   setIsOpenAddAssetModal(false)
-  // }
-
   return (
     <View style={NAV_HEADER_BTN_CONTAINER}>
       <TouchableOpacity
+        key="btn_reload"
+        style={NAV_HEADER_BTN}
+        onPress={() => {
+          currentWalletStore.refreshBalances()
+        }}
+      >
+        <SvgXml style={BTN_ICON} xml={reloadIcon} width={30} height={30} />
+      </TouchableOpacity>
+      <TouchableOpacity
+        key="btn_scan"
         style={NAV_HEADER_BTN}
         onPress={() => {
           console.log("a")
+          currentWalletStore.stopLoading()
         }}
       >
         <SvgXml style={BTN_ICON} xml={QRCodeIcon} />
       </TouchableOpacity>
       <TouchableOpacity
+        key="btn_plus"
         style={NAV_HEADER_BTN}
         onPress={() => {
           currencySelectorStore.toggle()
-          setIsOpenAddAssetModal(true)
         }}
       >
         <SvgXml style={BTN_ICON} xml={PlusIcon} />
       </TouchableOpacity>
       <TouchableOpacity
+        key="btn_settings"
         style={NAV_HEADER_BTN}
         onPress={() => {
           route.name === "settings" ? navigation.goBack() : navigation.navigate("settings")
@@ -252,7 +243,13 @@ const BottomTabNavigator = () => {
           return (
             <View style={tabBarButton}>
               {route.name === "home" && (
-                <View style={[tabBarItem, tabBarItemBorderRightStyle, focused && {...tabBarItemFocused}]}>
+                <View
+                  style={[
+                    tabBarItem,
+                    tabBarItemBorderRightStyle,
+                    focused && { ...tabBarItemFocused },
+                  ]}
+                >
                   <SvgXml
                     stroke={focused ? color.palette.gold : color.palette.lightGrey}
                     xml={ready}
@@ -262,7 +259,7 @@ const BottomTabNavigator = () => {
                 </View>
               )}
               {route.name === "nfts" && (
-                <View style={[tabBarItem, focused && {...tabBarItemFocused}]}>
+                <View style={[tabBarItem, focused && { ...tabBarItemFocused }]}>
                   <SvgXml
                     stroke={focused ? color.palette.gold : color.palette.lightGrey}
                     xml={tabNft}
@@ -295,11 +292,11 @@ const Stack = createNativeStackNavigator<NavigatorParamList>()
 
 const AppStackHeader = () => {
   return (
-    <View
-      style={NAV_HEADER_CONTAINER}>
+    <View style={NAV_HEADER_CONTAINER}>
       <Logo />
       <SettingsBtn />
-    </View>)
+    </View>
+  )
 }
 
 const AppStack = () => {
@@ -322,10 +319,7 @@ const AppStack = () => {
           }}
           initialRouteName={initialRouteName}
         >
-          <Stack.Screen
-            name="chooseWallet"
-            component={ChooseWalletScreen}
-          />
+          <Stack.Screen name="chooseWallet" component={ChooseWalletScreen} />
           <Stack.Screen name="welcome" component={WelcomeScreen} />
           <Stack.Screen name="importWallet" component={ImportWalletScreen} />
           <Stack.Screen name="createWallet" component={CreateWalletScreen} />
@@ -336,7 +330,7 @@ const AppStack = () => {
               title: null,
               headerShown: true,
               header: AppStackHeader,
-              headerStyle: { backgroundColor: color.palette.black, },
+              headerStyle: { backgroundColor: color.palette.black },
             }}
           />
           <Stack.Screen name="walletReady" component={WalletReadyScreen} />

@@ -247,6 +247,8 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
 
     const toggleTestnet = () => {
       rootStore.setTestnet(!rootStore.TESTNET)
+      // Reload the balance
+      currentWalletStore.refreshBalances()
       showMessage({
         message: "You're now using " + (rootStore.TESTNET ? "Testnet" : "Mainnet"),
         type: "success",
@@ -451,7 +453,7 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
             </View>
           </View>
         </ScrollView>
-        <Footer onLefButtonPress={goBack}></Footer>
+        <Footer onLeftButtonPress={goBack}></Footer>
       </Screen>
     )
   },

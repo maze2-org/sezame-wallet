@@ -45,7 +45,7 @@ export interface FooterProps {
    * An optional style override useful for padding & margin.
    */
   style?: StyleProp<ViewStyle>
-  onLefButtonPress?: () => void
+  onLeftButtonPress?: () => void
   onRightButtonPress?: () => void
   showRightButton?: boolean
   RightButtonIcon?: any
@@ -58,7 +58,7 @@ export interface FooterProps {
 export const Footer = observer(function Footer(props: FooterProps) {
   const {
     style,
-    onLefButtonPress,
+    onLeftButtonPress,
     showRightButton,
     RightButtonIcon,
     onRightButtonPress,
@@ -68,7 +68,7 @@ export const Footer = observer(function Footer(props: FooterProps) {
 
   return (
     <View style={styles}>
-      <TouchableOpacity onPress={onLefButtonPress} style={FOOTER_BUTTON}>
+      <TouchableOpacity onPress={onLeftButtonPress} style={FOOTER_BUTTON}>
         <SvgXml width={24} height={24} xml={backIcon} style={IconStyle} />
         <Text>Back</Text>
       </TouchableOpacity>

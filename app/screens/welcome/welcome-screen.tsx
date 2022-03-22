@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from "react"
+import React, { FC, useEffect, useState } from "react"
 import { View, ViewStyle, TextStyle, ImageStyle, SafeAreaView, ImageBackground } from "react-native"
 import { StackScreenProps } from "@react-navigation/stack"
 import { observer } from "mobx-react-lite"
@@ -12,6 +12,7 @@ import {
 import { color, spacing, typography } from "../../theme"
 import { NavigatorParamList } from "../../navigators"
 import { BackgroundStyle, CONTAINER, LogoStyle, MainBackground, PRIMARY_OUTLINE_BTN, PRIMARY_TEXT, RootPageStyle, SesameLogo } from "../../theme/elements"
+import { getListOfWallets } from "utils/storage"
 
 
 const TEXT: TextStyle = {
@@ -78,17 +79,27 @@ const FOOTER_TEXT: TextStyle = {
   display: "flex",
   textAlign: "center",
   borderColor: color.palette.white,
-  borderStyle: "dashed",
-  borderWidth: 1,
-  borderRadius: 30,
-  paddingVertical: spacing[3],
-  paddingHorizontal: spacing[2]
+  // borderStyle: "dashed",
+  // borderWidth: 1,
+  // borderRadius: 30,
+  // paddingVertical: spacing[3],
+  // paddingHorizontal: spacing[2]
 }
 
 export const WelcomeScreen: FC<StackScreenProps<NavigatorParamList, "welcome">> = observer(
   ({ navigation }) => {
     useEffect(() => {
       SplashScreen.hide()
+    }, [])
+    const [isFirst, setIsFirst] = useState<boolean>(true)
+    useEffect(() => {
+      getListOfWallets().then((walletNames) => {
+        if (walletNames.length) {
+          setIsFirst(false)
+        } else {
+          setIsFirst(true)
+        }
+      })
     }, [])
     return (
       <View testID="WelcomeScreen" style={RootPageStyle}>
@@ -137,9 +148,9 @@ export const WelcomeScreen: FC<StackScreenProps<NavigatorParamList, "welcome">> 
               </View>
             </SafeAreaView>
             <View style={FOOTER_CONTENT}>
-              <Text style={FOOTER_TEXT}>
+              {isFirst && <Text style={FOOTER_TEXT}>
                 Seems like this is the first time you use Sezame Wallet. You have to create or restore a wallet before you can use this application.
-              </Text>
+              </Text>}              
             </View>
           </View>
         </ImageBackground>    

@@ -1,31 +1,14 @@
-import React, {
-  FC,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react"
+import React, { FC, useCallback, useEffect, useRef, useState } from "react"
 import FontAwesomeIcon from "react-native-vector-icons/FontAwesome"
 import { observer } from "mobx-react-lite"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
-import {
-  View,
-  Image,
-  ScrollView,
-  Animated,
-  StyleSheet,
-  Dimensions,
-} from "react-native"
+import { View, Image, ScrollView, Animated, StyleSheet, Dimensions } from "react-native"
 
 import { useStores } from "../../models"
 import { getBalance } from "services/api"
 import { getCoinPrices } from "utils/apis"
 import { useNavigation } from "@react-navigation/native"
-import {
-  color,
-  spacing,
-  typography,
-} from "../../theme"
+import { color, spacing, typography } from "../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { NavigatorParamList } from "../../navigators"
 import { Text, Button, AppScreen } from "../../components"
@@ -85,7 +68,7 @@ const styles = StyleSheet.create({
     marginLeft: spacing[4],
     width: 80,
   },
-  COIN_STAKE_FULL:{
+  COIN_STAKE_FULL: {
     backgroundColor: color.palette.gold,
   },
   LIGHT_FONT: {
@@ -105,14 +88,13 @@ const styles = StyleSheet.create({
   NETWORK_IMAGE: {
     height: 50,
     width: 50,
-
   },
-  NETWORK_IMAGE_BORDER:{
-    alignItems:"center",
-    backgroundColor:color.palette.lineColor,
-    borderRadius:50,
-    justifyContent:"center",
-    marginRight:spacing[3]
+  NETWORK_IMAGE_BORDER: {
+    alignItems: "center",
+    backgroundColor: color.palette.lineColor,
+    borderRadius: 50,
+    justifyContent: "center",
+    marginRight: spacing[3],
   },
   ORANGE_COLOR: {
     color: color.palette.gold,
@@ -129,19 +111,19 @@ const styles = StyleSheet.create({
     maxWidth: 300,
   },
   PORTFOLIO_CONTAINER: {
-    elevation:2,
+    elevation: 2,
     marginTop: spacing[5],
     paddingVertical: spacing[6],
     zIndex: 2,
   },
   PORTFOLIO_DOLLAR: {
-    alignSelf:'flex-start',
+    alignSelf: "flex-start",
     color: color.palette.gold,
     fontFamily: typography.primary,
     fontSize: Fonts[2],
     marginTop: spacing[3],
   },
-  PORTFOLIO_OVERLAY:{
+  PORTFOLIO_OVERLAY: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: color.palette.black,
   },
@@ -152,14 +134,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   PORTFOLIO_WRAPPER: {
-    paddingHorizontal:spacing[2]
+    paddingHorizontal: spacing[2],
   },
   ROOT: {
     backgroundColor: color.palette.lightGrey,
     flex: 1,
     padding: spacing[3],
   },
-  SCROLL_VIEW:{
+  SCROLL_VIEW: {
     backgroundColor: color.palette.black,
   },
   SEPARATOR: {
@@ -169,27 +151,27 @@ const styles = StyleSheet.create({
   SORT_BTN_CONTAINER: {
     ...MY_STYLE.common,
   },
-  SORT_BY:{
-    color:color.palette.grey,
+  SORT_BY: {
+    color: color.palette.grey,
     fontSize: Fonts[0],
     fontWeight: "600",
   },
   SORT_CONTAINER: {
-    elevation:3,
+    elevation: 3,
     ...MY_STYLE.common,
     alignItems: "center",
     justifyContent: "space-between",
     paddingBottom: spacing[3],
     paddingTop: spacing[3],
-    zIndex:3,
+    zIndex: 3,
   },
-  SORT_OVERLAY:{
+  SORT_OVERLAY: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: color.palette.black,
     borderBottomColor: color.palette.lineColor,
-    borderBottomWidth:1,
+    borderBottomWidth: 1,
     borderTopColor: color.palette.lineColor,
-    borderTopWidth:1
+    borderTopWidth: 1,
   },
   SORT_SWITCH: {
     backgroundColor: color.palette.darkBlack,
@@ -199,7 +181,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.palette.gold,
   },
   SORT_TEXT: {
-    color:color.palette.white,
+    color: color.palette.white,
     fontFamily: typography.primary,
     fontSize: Fonts[0],
     fontWeight: "600",
@@ -213,40 +195,38 @@ const styles = StyleSheet.create({
 })
 
 const SORT_TYPES = {
-  NETWORK: 'NETWORK',
-  CURRENCIES: 'CURRENCIES'
+  NETWORK: "NETWORK",
+  CURRENCIES: "CURRENCIES",
 }
 
-type SortTypeKeys = keyof typeof SORT_TYPES;
-type SortTypeValues = typeof SORT_TYPES[SortTypeKeys];
-const {width} = Dimensions.get("screen")
+type SortTypeKeys = keyof typeof SORT_TYPES
+type SortTypeValues = typeof SORT_TYPES[SortTypeKeys]
+const { width } = Dimensions.get("screen")
 
 export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard">> = observer(
   function DashboardScreen() {
-    const scrollY = useRef(new Animated.Value(0)).current;
+    const scrollY = useRef(new Animated.Value(0)).current
     const { currentWalletStore } = useStores()
-    const { wallet, assets, setBalance } = currentWalletStore
+    const { wallet, assets, setBalance, refreshBalances, loadingBalance } = currentWalletStore
     const [totalPrice, setTotalPrice] = useState<string>("0")
-    const [sortStatus, setSortStatus] = useState<string>("network");
+    const [sortStatus, setSortStatus] = useState<string>("network")
     const [prices, setPrices] = useState<Array<any>>([])
     const [sortBy, setSortBy] = useState<SortTypeValues>(SORT_TYPES.NETWORK)
     const [expandFlags, setExpandFlags] = useState<Array<boolean>>([])
-
     const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
 
     useEffect(() => {
-      setExpandFlags(Array(assets.length).fill(false))
-      const getBalances = async () => {
-        await Promise.all(
-          assets.map(async (asset) => {
-            const balance = await getBalance(asset)
-            console.log("balance", balance, asset);
-            setBalance(asset, balance)
-          }),
-        )
-      }
-
-      getBalances()
+      // setExpandFlags(Array(assets.length).fill(false))
+      // const getBalances = async () => {
+      //   await Promise.all(
+      //     assets.map(async (asset) => {
+      //       const balance = await getBalance(asset)
+      //       setBalance(asset, balance)
+      //     }),
+      //   )
+      // }
+      // getBalances()
+      refreshBalances()
     }, [])
 
     useEffect(() => {
@@ -298,90 +278,94 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
       return 0
     }
 
-    const changeSortType = useCallback((sortType: SortTypeValues)=>{
-        setSortBy(sortType)
-    },[])
+    const changeSortType = useCallback((sortType: SortTypeValues) => {
+      setSortBy(sortType)
+    }, [])
 
     const scale = scrollY.interpolate({
-      inputRange:[50,85],
-      outputRange:[1,0.4],
-      extrapolate:"clamp"
+      inputRange: [50, 85],
+      outputRange: [1, 0.4],
+      extrapolate: "clamp",
     })
     const top = scrollY.interpolate({
-      inputRange:[50,85],
-      outputRange:[0,-20],
-      extrapolate:"clamp"
+      inputRange: [50, 85],
+      outputRange: [0, -20],
+      extrapolate: "clamp",
     })
     const opacity = scrollY.interpolate({
-      inputRange:[50,85],
-      outputRange:[0,1],
-      extrapolate:"clamp"
+      inputRange: [50, 85],
+      outputRange: [0, 1],
+      extrapolate: "clamp",
     })
 
-    const point = 60;
+    const point = 60
     const translateY = scrollY.interpolate({
-      inputRange:[0, point, point+1],
-      outputRange:[0,0, 1],
+      inputRange: [0, point, point + 1],
+      outputRange: [0, 0, 1],
     })
     const translateY2 = scrollY.interpolate({
-      inputRange:[0, point+30, point+31],
-      outputRange:[0,0, 1],
+      inputRange: [0, point + 30, point + 31],
+      outputRange: [0, 0, 1],
     })
 
     return (
-      <Animated.ScrollView style={styles.SCROLL_VIEW}
-                  onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY }}}],{useNativeDriver: true,})}
-                  scrollEventThrottle={16}
+      <Animated.ScrollView
+        style={styles.SCROLL_VIEW}
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+          useNativeDriver: true,
+        })}
+        scrollEventThrottle={16}
       >
         <AppScreen unsafe>
-            <View style={styles.PORTFOLIO_WRAPPER}>
-              <Animated.View style={[styles.PORTFOLIO_CONTAINER, {transform:[{translateY}]}]}>
-                <Animated.View style={[styles.PORTFOLIO_OVERLAY, {opacity}]}/>
-                <Animated.View style={[styles.PORTFOLIO_VALUE,{transform:[{scale}]}]}>
-                  <Text style={styles.ORANGE_COLOR}>~ </Text>
-                  <Text
-                    style={styles.PORTFOLIO}
-                    adjustsFontSizeToFit
-                    numberOfLines={1}
-                  >
-                    {totalPrice}
-                  </Text>
-                  <Text style={styles.PORTFOLIO_DOLLAR}> $</Text>
-                </Animated.View>
-                <Animated.Text style={[styles.WALLET_NAME, {transform:[{translateY: top}]}]}>{JSON.parse(wallet).walletName.toUpperCase()} </Animated.Text>
+          {loadingBalance && <Text>Loading</Text>}
+          <View style={styles.PORTFOLIO_WRAPPER}>
+            <Animated.View style={[styles.PORTFOLIO_CONTAINER, { transform: [{ translateY }] }]}>
+              <Animated.View style={[styles.PORTFOLIO_OVERLAY, { opacity }]} />
+              <Animated.View style={[styles.PORTFOLIO_VALUE, { transform: [{ scale }] }]}>
+                <Text style={styles.ORANGE_COLOR}>~ </Text>
+                <Text style={styles.PORTFOLIO} adjustsFontSizeToFit numberOfLines={1}>
+                  {totalPrice}
+                </Text>
+                <Text style={styles.PORTFOLIO_DOLLAR}> $</Text>
               </Animated.View>
-              <Animated.View style={[styles.SORT_CONTAINER,{transform:[{translateY: translateY2}]}]}>
-                <Animated.View style={[styles.SORT_OVERLAY, {opacity}]}/>
-                <Text style={styles.SORT_BY}>SORT BY</Text>
-                <View style={styles.SORT_BTN_CONTAINER}>
-                  <Button
-                    style={[
-                      styles.SORT_SWITCH,
-                      sortBy === SORT_TYPES.NETWORK && styles.SORT_SWITCH_ACTIVE
-                    ]}
-                    textStyle={styles.SORT_TEXT}
-                    tx="dashboardScreen.network"
-                    onPress={() => {
-                      changeSortType(SORT_TYPES.NETWORK)
-                    }}
-                  />
-                  <Button
-                    style={[
-                      styles.SORT_SWITCH,
-                      sortBy === SORT_TYPES.CURRENCIES && styles.SORT_SWITCH_ACTIVE
-                    ]}
-                    textStyle={styles.SORT_TEXT}
-                    tx="dashboardScreen.currency"
-                    onPress={() => {
-                      changeSortType(SORT_TYPES.CURRENCIES)
-                    }}
-                  />
-                </View>
-              </Animated.View>
-              <View style={styles.NETWORK_CONTAINER}>
-                {[...assets]
-                  .sort((a,b)=> a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
-                  .map((asset, id) => (
+              <Animated.Text style={[styles.WALLET_NAME, { transform: [{ translateY: top }] }]}>
+                {JSON.parse(wallet).walletName.toUpperCase()}{" "}
+              </Animated.Text>
+            </Animated.View>
+            <Animated.View
+              style={[styles.SORT_CONTAINER, { transform: [{ translateY: translateY2 }] }]}
+            >
+              <Animated.View style={[styles.SORT_OVERLAY, { opacity }]} />
+              <Text style={styles.SORT_BY}>SORT BY</Text>
+              <View style={styles.SORT_BTN_CONTAINER}>
+                <Button
+                  style={[
+                    styles.SORT_SWITCH,
+                    sortBy === SORT_TYPES.NETWORK && styles.SORT_SWITCH_ACTIVE,
+                  ]}
+                  textStyle={styles.SORT_TEXT}
+                  tx="dashboardScreen.network"
+                  onPress={() => {
+                    changeSortType(SORT_TYPES.NETWORK)
+                  }}
+                />
+                <Button
+                  style={[
+                    styles.SORT_SWITCH,
+                    sortBy === SORT_TYPES.CURRENCIES && styles.SORT_SWITCH_ACTIVE,
+                  ]}
+                  textStyle={styles.SORT_TEXT}
+                  tx="dashboardScreen.currency"
+                  onPress={() => {
+                    changeSortType(SORT_TYPES.CURRENCIES)
+                  }}
+                />
+              </View>
+            </Animated.View>
+            <View style={styles.NETWORK_CONTAINER}>
+              {[...assets]
+                .sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1))
+                .map((asset, id) => (
                   <View style={styles.COIN_BOX} key={asset.cid}>
                     <TouchableOpacity
                       style={styles.COIN_EXPAND_CONTAINER}
@@ -410,19 +394,17 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
                               <View
                                 style={[
                                   styles.COIN_STAKE,
-                                  asset.value === 100 && styles.COIN_STAKE_FULL
+                                  asset.value === 100 && styles.COIN_STAKE_FULL,
                                 ]}
                               >
                                 <Text
                                   style={[
                                     styles.LIGHT_FONT,
-                                    asset.value === 100 && styles.LIGHT_FONT_FULL
+                                    asset.value === 100 && styles.LIGHT_FONT_FULL,
                                   ]}
                                 >
-                                  {`Staked ${asset.value === 0 ?
-                                             asset.value
-                                             :
-                                             asset.value.toFixed(2)
+                                  {`Staked ${
+                                    asset.value === 0 ? asset.value : asset.value.toFixed(2)
                                   }%`}
                                 </Text>
                               </View>
@@ -441,8 +423,8 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
                     </View>
                   </View>
                 ))}
-              </View>
             </View>
+          </View>
         </AppScreen>
       </Animated.ScrollView>
     )

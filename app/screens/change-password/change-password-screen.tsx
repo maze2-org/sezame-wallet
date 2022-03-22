@@ -155,7 +155,7 @@ export const ChangePasswordScreen: FC<
           </Button>
         </ScrollView>
       </ImageBackground>
-      <Footer onLefButtonPress={goBack}></Footer>
+      <Footer onLeftButtonPress={goBack}></Footer>
     </Screen>
   )
 })
