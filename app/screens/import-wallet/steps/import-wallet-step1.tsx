@@ -75,7 +75,6 @@ export function ImportWalletStep1(props: StepProps) {
           />
         </SafeAreaView>
 
-        <SafeAreaView>
           <Controller
             control={control}
             defaultValue={walletName}
@@ -148,8 +147,6 @@ export function ImportWalletStep1(props: StepProps) {
               },
             }}
           />
-        </SafeAreaView>
-        <SafeAreaView>
           <Checkbox
             text="By creating a wallet, I accept the terms and policies"
             value={condition1}
@@ -173,7 +170,6 @@ export function ImportWalletStep1(props: StepProps) {
             tx="createWallet.cancel"
             onPress={onButtonBack}
           />
-        </SafeAreaView>
       </ScrollView>
     </AppScreen>
   )
