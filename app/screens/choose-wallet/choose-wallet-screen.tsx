@@ -45,41 +45,41 @@ import fingerIcon from "../../../assets/svg/finger.svg"
 import { SvgXml } from "react-native-svg"
 import { defaultAssets } from "utils/consts"
 
+const headerStyle: ViewStyle = {
+  justifyContent: "center",
+  paddingHorizontal: spacing[0],
+  width: "100%",
+}
+
+const CONTAINER_STYLE: ViewStyle = {
+  ...CONTAINER,
+  justifyContent: "flex-start",
+}
+
+const buttonIconStyle: ImageStyle = {
+  position: "absolute",
+  left: 15,
+}
+
+const headerTitleSTYLE: TextStyle = {
+  ...headerStyle,
+  fontSize: 27,
+  lineHeight: 37,
+  fontWeight: "700",
+}
+const footerStyle: TextStyle = {
+  display: "flex",
+  width: "100%",
+  alignItems: "center",
+}
+const BUTTON_STYLE: ViewStyle = {
+  ...PRIMARY_BTN,
+  marginTop: spacing[6],
+  marginBottom: spacing[3],
+}
 export const ChooseWalletScreen: FC<
   StackScreenProps<NavigatorParamList, "chooseWallet">
 > = observer(function ChooseWalletScreen() {
-  const headerStyle: ViewStyle = {
-    justifyContent: "center",
-    paddingHorizontal: spacing[0],
-    width: "100%",
-  }
-
-  const CONTAINER_STYLE: ViewStyle = {
-    ...CONTAINER,
-    justifyContent: "flex-start",
-  }
-
-  const buttonIconStyle: ImageStyle = {
-    position: "absolute",
-    left: 15,
-  }
-
-  const headerTitleSTYLE: TextStyle = {
-    ...headerStyle,
-    fontSize: 27,
-    lineHeight: 37,
-    fontWeight: "700",
-  }
-  const footerStyle: TextStyle = {
-    display: "flex",
-    width: "100%",
-    alignItems: "center",
-  }
-  const BUTTON_STYLE: ViewStyle = {
-    ...PRIMARY_BTN,
-    marginTop: spacing[6],
-    marginBottom: spacing[3],
-  }
   const { currentWalletStore } = useStores()
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
 
@@ -107,7 +107,7 @@ export const ChooseWalletScreen: FC<
     handleSubmit,
     setValue,
     formState: { errors, isValid },
-  } = useForm({ mode: "onChange" });
+  } = useForm({ mode: "onChange" })
 
   const onSubmit = async (data) => {
     setLoading(true)
@@ -123,9 +123,32 @@ export const ChooseWalletScreen: FC<
     } finally {
       setLoading(false)
     }
-    setValue('walletPassword', '')
+    setValue("walletPassword", "")
   }
 
+  useEffect(() => {
+    getListOfWallets().then((walletNames) => {
+      console.log({ walletNames })
+      setWalletNames(walletNames)
+      if (walletNames.length === 1) {
+        setItemValue(walletNames[0])
+      }
+      // onSubmit({ walletName: "test", walletPassword: "testtest" })
+    })
+  }, [])
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      console.log("choose wallet focused")
+      getListOfWallets().then((walletNames) => {
+        console.log({ walletNames })
+        setWalletNames(walletNames)
+        if (walletNames.length === 1) {
+          setItemValue(walletNames[0])
+        }
+      })
+    })
+    return unsubscribe
+  }, [navigation])
   return (
     <Screen preset="scroll" style={RootPageStyle} backgroundColor={color.palette.black}>
       <ImageBackground source={MainBackground} style={BackgroundStyle}>

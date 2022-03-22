@@ -3,14 +3,15 @@ import { observer } from "mobx-react-lite"
 import {
   View,
   Text as TextRn,
+<<<<<<< HEAD
   ViewStyle,
+=======
+>>>>>>> muhammed-dev
   ImageBackground,
-  TextStyle,
   ScrollView,
   Linking,
   Modal,
   TouchableOpacity,
-  Dimensions,
   Clipboard,
 } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
@@ -20,6 +21,7 @@ import IonIcons from "react-native-vector-icons/Ionicons"
 import copyImg from "../../../assets/svg/copy.svg"
 import { NavigatorParamList } from "../../navigators"
 import FlashMessage, { showMessage } from "react-native-flash-message"
+<<<<<<< HEAD
 import {
   Button,
   CoinCard,
@@ -30,15 +32,26 @@ import {
   TransactionRow,
 } from "../../components"
 import { color, spacing } from "../../theme"
+=======
+import { Button, CoinCard, Drawer, Footer, PriceChart, Screen, Text } from "../../components"
+
+import { color } from "../../theme"
+>>>>>>> muhammed-dev
 import { useNavigation } from "@react-navigation/native"
 import { getCoinDetails, getMarketChart } from "utils/apis"
 import { CoingeckoCoin } from "types/coingeckoCoin"
 import { useStores } from "models"
+<<<<<<< HEAD
 import { BackgroundStyle, CONTAINER, MainBackground, SEPARATOR } from "theme/elements"
+=======
+import { BackgroundStyle, MainBackground, SEPARATOR } from "theme/elements"
+import styles from "./styles"
+>>>>>>> muhammed-dev
 import QRCode from "react-native-qrcode-svg"
 import { SvgXml } from "react-native-svg"
 import { CryptoTransaction, getBalance, getTransactions, getTransactionsUrl } from "services/api"
 // import InAppBrowser from "react-native-inappbrowser-reborn"
+<<<<<<< HEAD
 const { height } = Dimensions.get("screen")
 
 const ROOT: ViewStyle = {
@@ -223,6 +236,9 @@ const COPY_ICON: ViewStyle = {
   position: "absolute",
   left: -40,
 }
+=======
+const tokens = require("../../config/tokens.json")
+>>>>>>> muhammed-dev
 
 export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDetails">> = observer(
   function CoinDetailsScreen({ route }) {
@@ -234,10 +250,12 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const [chartDays, setChartDays] = useState<number | "max">(1)
     const { currentWalletStore } = useStores()
     const { getAssetById, setBalance } = currentWalletStore
+    const [loading, setLoading] = React.useState({})
 
     const [explorerUrl, setExplorerUrl] = useState<string>("")
 
     const asset = getAssetById(route.params.coinId)
+<<<<<<< HEAD
 
     useEffect(() => {
       getCoinData(route?.params?.coinId)
@@ -245,8 +263,46 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
       const _getBalances = async () => {
         const balance = await getBalance(asset)
         setBalance(asset, balance)
-      }
+=======
+    const [explorerUrl, setExplorerUrl] = useState<string>("")
+    const tokenInfo = tokens.find((token) => token.id === route.params.coinId)
+    useEffect(() => {
+      getCoinData(route?.params?.coinId)
+      getChartData(chartDays)
+      if (asset) {
+        const _getBalances = async () => {
+          const balance = await getBalance(asset)
+          console.log("balance", balance)
+          setBalance(asset, balance)
+        }
 
+        const _getTransactions = async () => {
+          const tsx = await getTransactions(asset)
+          setTransactions(tsx)
+        }
+
+        _getTransactions()
+        _getBalances()
+        setExplorerUrl(getTransactionsUrl(asset))
+>>>>>>> muhammed-dev
+      }
+    }, [])
+
+    const addAsset = React.useCallback((chain: any) => {
+      setLoading((loading) => ({ ...loading, [chain.id]: true }))
+      console.log({ currentWalletStore })
+      currentWalletStore.getWallet().then((wallet) => {
+        wallet
+          .addAutoAsset({
+            name: tokenInfo.name,
+            chain: chain.id,
+            symbol: tokenInfo.symbol,
+            cid: tokenInfo.id,
+          } as any)
+          .then(async () => {
+            await currentWalletStore.setAssets(wallet.assets)
+
+<<<<<<< HEAD
       const _getTransactions = async () => {
         const tsx = await getTransactions(asset)
         setTransactions(tsx)
@@ -255,6 +311,22 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
       _getTransactions()
       _getBalances()
       setExplorerUrl(getTransactionsUrl(asset))
+=======
+            await wallet.save()
+            showMessage({
+              message: "Coin added to wallet",
+              type: "success",
+            })
+          })
+          .catch((e) => {
+            console.log(e)
+          })
+          .finally(() => {
+            console.log(JSON.stringify(wallet, null, 2))
+            setLoading((loading) => ({ ...loading, [chain.id]: false }))
+          })
+      })
+>>>>>>> muhammed-dev
     }, [])
 
     const getCoinData = async (coin) => {
@@ -288,6 +360,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     }
 
     const copyAddress = () => {
+<<<<<<< HEAD
       Clipboard.setString(asset.address)
       Clipboard.getString()
         .then((link) => {
@@ -300,23 +373,40 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
         .catch((e) => {
           console.log(e)
         })
+=======
+      if (asset) {
+        Clipboard.setString(asset.address)
+        Clipboard.getString()
+          .then((link) => {
+            modalFlashRef.current &&
+              modalFlashRef.current.showMessage({
+                message: "Copied to clipboard",
+                type: "success",
+              })
+          })
+          .catch((e) => {
+            console.log(e)
+          })
+      }
+>>>>>>> muhammed-dev
     }
 
     return (
-      <Screen style={ROOT} preset="scroll">
+      <Screen style={styles.ROOT} preset="scroll">
         <ImageBackground source={MainBackground} style={BackgroundStyle}>
           <ScrollView>
             {!!coinData && (
               <View>
-                <View style={COIN_CARD_CONTAINER}>
+                <View style={styles.COIN_CARD_CONTAINER}>
                   <CoinCard
-                    style={COIN_CARD}
+                    style={styles.COIN_CARD}
                     name={coinData.name}
-                    balance={asset.balance}
+                    balance={asset?.balance}
                     imageUrl={coinData.image?.large}
                     symbol={coinData.symbol}
-                    chain={asset.chain}
+                    chain={asset?.chain}
                   />
+<<<<<<< HEAD
                   <View style={BTNS_CONTAINER}>
                     <Button style={VERTICAL_ICON_BTN} onPress={goToSend}>
                       <FontAwesome5Icon name="arrow-up" size={18} color={color.palette.white} />
@@ -327,32 +417,47 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                       <Text style={VERTICAL_ICON_BTN_TEXT}>Receive</Text>
                     </Button>
                   </View>
+=======
+                  {!!asset && (
+                    <View style={styles.BTNS_CONTAINER}>
+                      <Button style={styles.VERTICAL_ICON_BTN} onPress={goToSend}>
+                        <FontAwesome5Icon name="arrow-up" size={18} color={color.palette.white} />
+                        <Text style={styles.VERTICAL_ICON_BTN_TEXT}>Send</Text>
+                      </Button>
+                      <Button
+                        style={styles.VERTICAL_ICON_BTN}
+                        onPress={() => toggleReceiveModal(true)}
+                      >
+                        <FontAwesome5Icon name="arrow-down" size={18} color={color.palette.white} />
+                        <Text style={styles.VERTICAL_ICON_BTN_TEXT}>Receive</Text>
+                      </Button>
+                    </View>
+                  )}
+>>>>>>> muhammed-dev
                 </View>
                 {!!chartData && !!chartData.length && (
                   <PriceChart data={chartData.map((p) => p[1])} />
                 )}
-                <View style={COIN_DETAILS_CONTAINER}>
-                  <View style={TIMEFRAME_BTNS}>
-                    {[
-                      { value: 1, label: "24H" },
-                      { value: 7, label: "7D" },
-                      { value: 30, label: "1M" },
-                      { value: 90, label: "3M" },
-                      { value: 180, label: "6M" },
-                      { value: "max", label: "max" },
-                    ].map((frame) => (
-                      <Button
-                        key={frame.value}
-                        style={chartDays === frame.value ? TIMEFRAME_BTN_ACTIVE : TIMEFRAME_BTN}
-                      >
-                        <Text
+                <View style={styles.COIN_DETAILS_CONTAINER}>
+                  {!!chartData && !!chartData.length && (
+                    <View style={styles.TIMEFRAME_BTNS}>
+                      {[
+                        { value: 1, label: "24H" },
+                        { value: 7, label: "7D" },
+                        { value: 30, label: "1M" },
+                        { value: 90, label: "3M" },
+                        { value: 180, label: "6M" },
+                        { value: "max", label: "max" },
+                      ].map((frame) => (
+                        <Button
+                          key={frame.value}
                           style={
                             chartDays === frame.value
-                              ? TIMEFRAME_BTN_TEXT_ACTIVE
-                              : TIMEFRAME_BTN_TEXT
+                              ? styles.TIMEFRAME_BTN_ACTIVE
+                              : styles.TIMEFRAME_BTN
                           }
-                          onPress={() => getChartData(frame.value)}
                         >
+<<<<<<< HEAD
                           {frame.label}
                         </Text>
                       </Button>
@@ -400,18 +505,100 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                     <View style={TRANSACTIONS_CONTAINER}>
                       {transactions.map((tx) => (
                         <TransactionRow asset={asset} transaction={tx} />
+=======
+                          <Text
+                            style={
+                              chartDays === frame.value
+                                ? styles.TIMEFRAME_BTN_TEXT_ACTIVE
+                                : styles.TIMEFRAME_BTN_TEXT
+                            }
+                            onPress={() => getChartData(frame.value)}
+                          >
+                            {frame.label}
+                          </Text>
+                        </Button>
                       ))}
                     </View>
-                  </View>
+                  )}
+                  {asset && (
+                    <View>
+                      <View style={styles.BALANCE_STAKING_CONTAINER}>
+                        <View style={styles.BALANCE_STAKING_CARD}>
+                          <View style={styles.BALANCE_STAKING_CARD_BODY}>
+                            <Text style={styles.BALANCE_STAKING_CARD_HEADER}>
+                              Available balance
+                            </Text>
+                            <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>{asset.balance}</Text>
+                            <Text style={styles.BALANCE_STAKING_CARD_NOTE}> (~1$)</Text>
+                          </View>
+
+                          <View style={SEPARATOR} />
+                          <Button style={styles.BALANCE_STAKING_CARD_BTN}>
+                            <MaterialCommunityIcons
+                              style={styles.BALANCE_STAKING_CARD_BTN_ICON}
+                              size={18}
+                              name="swap-vertical-circle-outline"
+                            />
+                            <Text style={styles.BALANCE_STAKING_CARD_BTN_TEXT}>SWAP</Text>
+                          </Button>
+                        </View>
+                        <View style={styles.BALANCE_STAKING_CARD}>
+                          <View style={styles.BALANCE_STAKING_CARD_BODY}>
+                            <Text style={styles.BALANCE_STAKING_CARD_HEADER}> Staking balance</Text>
+                            <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}> 0.459</Text>
+                            <Text style={styles.BALANCE_STAKING_CARD_NOTE}>
+                              Available rewards 0.02 (~1$)
+                            </Text>
+                          </View>
+                          <View style={SEPARATOR} />
+                          <Button style={styles.BALANCE_STAKING_CARD_BTN}>
+                            <FontAwesome5Icon
+                              size={18}
+                              style={styles.BALANCE_STAKING_CARD_BTN_ICON}
+                              name="database"
+                            />
+                            <Text style={styles.BALANCE_STAKING_CARD_BTN_TEXT}>MANAGE STAKING</Text>
+                          </Button>
+                        </View>
+                      </View>
+                      <View>
+                        <View style={styles.TRANSACTIONS_HEADER}>
+                          <Text preset="header" text="Transactions" />
+                        </View>
+                        <View style={styles.TRANSACTIONS_CONTAINER}>
+                          {transactions.map((tx) => (
+                            <TransactionRow asset={asset} transaction={tx} />
+                          ))}
+                        </View>
+                      </View>
+                    </View>
+                  )}
+
+                  {!asset && !!tokenInfo && (
+                    <View style={styles.TOKEN_CHAINS_CONTAINER}>
+                      {tokenInfo.chains.map((chain) => (
+                        <View style={styles.TOKEN_CHAIN_ROW} key={chain.id}>
+                          <Text>{chain.name}</Text>
+                          <Button onPress={() => addAsset(chain)}>
+                            <Text style={styles.ADD_TO_PORTFOLIO_BTN}>Add to portfolio</Text>
+                          </Button>
+                        </View>
+>>>>>>> muhammed-dev
+                      ))}
+                    </View>
+                  )}
                 </View>
               </View>
             )}
           </ScrollView>
         </ImageBackground>
         <Footer
-          showRightButton
+          showRightButton={!!asset}
           rightButtonText="Explore"
+<<<<<<< HEAD
           rightButtonDisabled={!!!explorerUrl}
+=======
+>>>>>>> muhammed-dev
           RightButtonIcon={(props) => <IonIcons {...props} name="globe-outline" size={23} />}
           onRightButtonPress={() => explorerUrl && openLink(explorerUrl)}
           onLeftButtonPress={goBack}
@@ -424,14 +611,23 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
           transparent
         >
           <TouchableOpacity
+<<<<<<< HEAD
             style={RECEIVE_MODAL_WRAPPER}
             activeOpacity={0}
             onPress={() => toggleReceiveModal(false)}
           >
             <View style={RECEIVE_MODAL_CONTAINER}>
               <View style={RECEIVE_MODAL_CLOSE_WRAPPER}>
+=======
+            style={styles.RECEIVE_MODAL_WRAPPER}
+            activeOpacity={0}
+            onPress={() => toggleReceiveModal(false)}
+          >
+            <View style={styles.RECEIVE_MODAL_CONTAINER}>
+              <View style={styles.RECEIVE_MODAL_CLOSE_WRAPPER}>
+>>>>>>> muhammed-dev
                 <TouchableOpacity
-                  style={RECEIVE_MODAL_CLOSE}
+                  style={styles.RECEIVE_MODAL_CLOSE}
                   activeOpacity={0.8}
                   hitSlop={{ top: 10, left: 10, right: 10, bottom: 10 }}
                   onPress={() => toggleReceiveModal(false)}
@@ -440,6 +636,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                 </TouchableOpacity>
               </View>
 
+<<<<<<< HEAD
               <View style={QR_CONTAINER}>
                 <QRCode value={asset.address} size={185} />
               </View>
@@ -451,17 +648,44 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                       return <Text key={e}>{e} </Text>
                     })}
                   </TextRn>
+=======
+              {!!asset && (
+                <View style={styles.QR_CONTAINER}>
+                  <QRCode value={asset?.address} size={185} />
+>>>>>>> muhammed-dev
                 </View>
+              )}
 
+<<<<<<< HEAD
                 <TouchableOpacity style={RECEIVE_MODAL_COPY_BUTTON} onPress={copyAddress}>
+=======
+              <View style={styles.RECEIVE_MODAL_COPY_WRAPPER}>
+                {!asset && (
+                  <View style={styles.RECEIVE_MODAL_ADDRESS}>
+                    <TextRn style={styles.RECEIVE_MODAL_ADDRESS_TEXT}>
+                      {asset.address.match(/.{1,5}/g).map((e) => {
+                        return <Text key={e}>{e} </Text>
+                      })}
+                    </TextRn>
+                  </View>
+                )}
+
+                <TouchableOpacity style={styles.RECEIVE_MODAL_COPY_BUTTON} onPress={copyAddress}>
+>>>>>>> muhammed-dev
                   <View>
                     <SvgXml
                       stroke={color.palette.gold}
                       xml={copyImg}
                       height={20}
+<<<<<<< HEAD
                       style={COPY_ICON}
                     />
                     <Text style={RECEIVE_MODAL_COPY_TEXT}>COPY</Text>
+=======
+                      style={styles.COPY_ICON}
+                    />
+                    <Text style={styles.RECEIVE_MODAL_COPY_TEXT}>COPY</Text>
+>>>>>>> muhammed-dev
                   </View>
                 </TouchableOpacity>
               </View>

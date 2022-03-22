@@ -33,6 +33,7 @@ import {
   SendScreen,
   SettingsScreen,
   ChangePasswordScreen,
+  AddCurrencyScreen,
 } from "../screens"
 import { navigationRef, useBackButtonHandler } from "./navigation-utilities"
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5"
@@ -145,7 +146,6 @@ const styles = StyleSheet.create({
 })
 
 function SettingsBtn() {
-  const { currencySelectorStore } = useStores()
   const { currentWalletStore } = useStores()
   const { loadingBalance } = currentWalletStore
   const [storedWallet, setStoredWallet] = useState<any>(null)
@@ -177,7 +177,7 @@ function SettingsBtn() {
         key="btn_plus"
         style={NAV_HEADER_BTN}
         onPress={() => {
-          currencySelectorStore.toggle()
+          navigation.navigate("addCurrency")
         }}
       >
         <SvgXml style={BTN_ICON} xml={PlusIcon} />
@@ -227,6 +227,7 @@ export type NavigatorParamList = {
   }
   settings: undefined
   changePassword: undefined
+  addCurrency: undefined
   // 🔥 Your screens go here
 }
 
@@ -378,6 +379,17 @@ const AppStack = () => {
               title: "",
             }}
           />
+          <Stack.Screen
+            name="addCurrency"
+            component={AddCurrencyScreen}
+            options={{
+              headerShown: true,
+              headerRight: SettingsBtn,
+              headerStyle: { backgroundColor: color.palette.black },
+              headerLeft: Logo,
+              title: "",
+            }}
+          />
           {/** 🔥 Your screens go here */}
         </Stack.Navigator>
       )}
@@ -396,7 +408,6 @@ export const AppNavigator = (props: NavigationProps) => {
       theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
       {...props}
     >
-      <CurrenciesSelector></CurrenciesSelector>
       <AppStack />
     </NavigationContainer>
   )

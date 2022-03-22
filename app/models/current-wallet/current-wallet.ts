@@ -96,6 +96,7 @@ export const CurrentWalletModel = types
     removeWallet: async () => {
       try {
         const deleted = await remove(self.name)
+        console.log("removeWallet", deleted, self.name)
       } catch (error) {
         console.log("Error removing wallet", error)
       }

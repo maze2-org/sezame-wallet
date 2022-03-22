@@ -216,6 +216,7 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
     const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
 
     useEffect(() => {
+<<<<<<< HEAD
       // setExpandFlags(Array(assets.length).fill(false))
       // const getBalances = async () => {
       //   await Promise.all(
@@ -227,6 +228,20 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
       // }
       // getBalances()
       refreshBalances()
+=======
+      setExpandFlags(Array(assets.length).fill(false))
+      const getBalances = async () => {
+        await Promise.all(
+          assets.map(async (asset) => {
+            const balance = await getBalance(asset)
+            console.log("balance", balance, asset)
+            setBalance(asset, balance)
+          }),
+        )
+      }
+
+      getBalances()
+>>>>>>> muhammed-dev
     }, [])
 
     useEffect(() => {
@@ -317,7 +332,10 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
         scrollEventThrottle={16}
       >
         <AppScreen unsafe>
+<<<<<<< HEAD
           {loadingBalance && <Text>Loading</Text>}
+=======
+>>>>>>> muhammed-dev
           <View style={styles.PORTFOLIO_WRAPPER}>
             <Animated.View style={[styles.PORTFOLIO_CONTAINER, { transform: [{ translateY }] }]}>
               <Animated.View style={[styles.PORTFOLIO_OVERLAY, { opacity }]} />
@@ -328,9 +346,17 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
                 </Text>
                 <Text style={styles.PORTFOLIO_DOLLAR}> $</Text>
               </Animated.View>
+<<<<<<< HEAD
               <Animated.Text style={[styles.WALLET_NAME, { transform: [{ translateY: top }] }]}>
                 {JSON.parse(wallet).walletName.toUpperCase()}{" "}
               </Animated.Text>
+=======
+              {!!wallet && (
+                <Animated.Text style={[styles.WALLET_NAME, { transform: [{ translateY: top }] }]}>
+                  {JSON.parse(wallet).walletName.toUpperCase()}{" "}
+                </Animated.Text>
+              )}
+>>>>>>> muhammed-dev
             </Animated.View>
             <Animated.View
               style={[styles.SORT_CONTAINER, { transform: [{ translateY: translateY2 }] }]}
