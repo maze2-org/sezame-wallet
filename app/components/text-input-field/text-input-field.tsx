@@ -1,5 +1,15 @@
-import React from "react"
-import { StyleProp, TextInput, TextInputProps, TextStyle, View, ViewStyle } from "react-native"
+import React, {
+  useState,
+} from "react"
+import {
+  StyleProp,
+  TextInput,
+  TextInputProps,
+  TextStyle,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from "react-native"
 import { SvgXml } from "react-native-svg"
 import { color, spacing, typography } from "theme"
 import { translate, TxKeyPath } from "../../i18n"
@@ -83,6 +93,8 @@ export interface TextFieldProps extends TextInputProps {
   name?: string
 
   icon?: any
+
+  showEye?:boolean
 }
 
 /**
@@ -103,6 +115,7 @@ export function TextInputField(props: TextFieldProps) {
     name,
     formFieldRef,
     icon,
+    showEye,
     ...rest
   } = props
 
@@ -113,6 +126,7 @@ export function TextInputField(props: TextFieldProps) {
   if (errors[name] && errors[name].message) {
     inputStyles.push(textInputError)
   }
+  const [eye, setEye] = useState(!!showEye);
 
   return (
     <View style={containerStyles}>
@@ -121,13 +135,23 @@ export function TextInputField(props: TextFieldProps) {
         style={inputStyles}
         placeholder={actualPlaceholder}
         onChangeText={onChangeText}
+        secureTextEntry={eye}
         ref={formFieldRef}
         {...rest}
       />
       {errors[name] && errors[name].message && (
         <Text style={textInputErrorMessage}>{errors[name].message}</Text>
       )}
-      <View style={iconStyle}>{icon && <SvgXml width="24" height="24" xml={icon} />}</View>
+      {!!showEye &&
+        <TouchableOpacity style={iconStyle}
+                          onPress={()=>setEye((prev)=>!prev)}
+                          hitSlop={{top:10,left:10,right:10,bottom:10}}
+                          activeOpacity={0.8}
+        >
+          {icon && <SvgXml width="24" height="24" xml={icon} />}
+        </TouchableOpacity>
+      }
+
     </View>
   )
 }
