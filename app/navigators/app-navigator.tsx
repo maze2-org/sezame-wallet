@@ -63,7 +63,7 @@ import {
   tabBarStyle,
 } from "theme/elements"
 
-import reloadIcon from "../../assets/svg/reload.svg"
+import ReloadIcon from "../../assets/svg/reload.svg"
 import QRCodeIcon from "../../assets/svg/qr_code.svg"
 import UserIcon from "../../assets/svg/user.svg"
 import PlusIcon from "../../assets/svg/plus.svg"
@@ -161,7 +161,7 @@ function SettingsBtn() {
           currentWalletStore.refreshBalances()
         }}
       >
-        <SvgXml style={BTN_ICON} xml={reloadIcon} width={30} height={30} />
+        <SvgXml style={BTN_ICON} xml={ReloadIcon} />
       </TouchableOpacity>
       <TouchableOpacity
         key="btn_scan"
