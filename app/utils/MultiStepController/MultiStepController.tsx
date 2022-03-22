@@ -35,14 +35,12 @@ const MultiStepsController = ({
     next(stepElements[currentStep].name)
   }
   const onButtonBack = () => {
-    console.log("Go to previous step")
     previous(stepElements[currentStep].name)
   }
 
   useFocusEffect(
     React.useCallback(() => {
       const onBackPress = () => {
-        console.log("Intercept back button", currentStep)
         onButtonBack()
         return true
       }

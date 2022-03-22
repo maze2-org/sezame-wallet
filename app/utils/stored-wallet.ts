@@ -41,10 +41,8 @@ export class StoredWallet {
         walletData.assets,
       )
       // await storedWallet.addAssets(walletData.assets)
-      console.log({ storedWallet })
       return storedWallet
     } catch (err) {
-      console.log(err)
       throw new Error("Unable to open this wallet")
     }
   }
@@ -96,7 +94,6 @@ export class StoredWallet {
   }
 
   async save() {
-    console.log("WILL SAVE", JSON.stringify(this.toJson()))
     return await saveWallet(
       `${this.walletName}`,
       encrypt(this.password, JSON.stringify(this.toJson())),

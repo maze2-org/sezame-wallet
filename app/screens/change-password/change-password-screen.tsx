@@ -51,7 +51,6 @@ export const ChangePasswordScreen: FC<
   })
   const goBack = () => navigation.goBack()
   const onSubmit = async (data) => {
-    // console.log(data)
     try {
       setIsLoading(true)
       const wallet = await currentWalletStore.getWallet()

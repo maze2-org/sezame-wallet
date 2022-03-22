@@ -37,7 +37,7 @@ import { useStores } from "models"
 import { BackgroundStyle, CONTAINER, MainBackground, SEPARATOR } from "theme/elements"
 import QRCode from "react-native-qrcode-svg"
 import { SvgXml } from "react-native-svg"
-import { CryptoTransaction, getBalance, getTransactions } from "services/api"
+import { CryptoTransaction, getBalance, getTransactions, getTransactionsUrl } from "services/api"
 // import InAppBrowser from "react-native-inappbrowser-reborn"
 const { height } = Dimensions.get("screen")
 
@@ -235,6 +235,8 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const { currentWalletStore } = useStores()
     const { getAssetById, setBalance } = currentWalletStore
 
+    const [explorerUrl, setExplorerUrl] = useState<string>("")
+
     const asset = getAssetById(route.params.coinId)
 
     useEffect(() => {
@@ -242,7 +244,6 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
       getChartData(chartDays)
       const _getBalances = async () => {
         const balance = await getBalance(asset)
-        console.log("balance", balance)
         setBalance(asset, balance)
       }
 
@@ -253,6 +254,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
 
       _getTransactions()
       _getBalances()
+      setExplorerUrl(getTransactionsUrl(asset))
     }, [])
 
     const getCoinData = async (coin) => {
@@ -409,8 +411,9 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
         <Footer
           showRightButton
           rightButtonText="Explore"
+          rightButtonDisabled={!!!explorerUrl}
           RightButtonIcon={(props) => <IonIcons {...props} name="globe-outline" size={23} />}
-          onRightButtonPress={() => openLink("https://www.blockchain.com/explorer")}
+          onRightButtonPress={() => explorerUrl && openLink(explorerUrl)}
           onLeftButtonPress={goBack}
         />
 

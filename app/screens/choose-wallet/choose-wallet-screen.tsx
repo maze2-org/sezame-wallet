@@ -91,7 +91,6 @@ export const ChooseWalletScreen: FC<
 
   useEffect(() => {
     getListOfWallets().then((walletNames) => {
-      console.log({ walletNames })
       setWalletNames(walletNames)
       if (walletNames.length === 1) {
         setItemValue(walletNames[0])
@@ -162,7 +161,6 @@ export const ChooseWalletScreen: FC<
                       setValue={setItemValue}
                       placeholder="Select a wallet"
                       onChangeValue={(val) => {
-                        console.log(val)
                         onChange(val)
                         setValue("walletName", val)
                       }}

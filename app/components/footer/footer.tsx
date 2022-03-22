@@ -5,6 +5,7 @@ import { color, spacing, typography } from "../../theme"
 import { Text } from "../text/text"
 import { SvgXml } from "react-native-svg"
 import backIcon from "../../../assets/svg/back.svg"
+import { btnDisabled } from "theme/elements"
 
 const CONTAINER: ViewStyle = {
   justifyContent: "center",
@@ -27,14 +28,20 @@ const FOOTER_BUTTON_RIGHT: ViewStyle = {
   borderLeftColor: color.palette.lightGrey,
   borderLeftWidth: 1,
 }
+
+const FOOTER_BUTTON_DISABLED: ViewStyle = {
+  borderLeftColor: color.palette.grey,
+  borderLeftWidth: 1,
+}
+
 const FOOTER_BUTTON_TEXT: TextStyle = {
   color: color.palette.white,
   marginRight: spacing[2],
 }
-const TEXT: TextStyle = {
-  fontFamily: typography.primary,
-  fontSize: 14,
-  color: color.primary,
+
+const FOOTER_BUTTON_TEXT_DISABLED: TextStyle = {
+  color: color.palette.grey,
+  opacity: 0.2,
 }
 
 const IconStyle: ViewStyle = {
@@ -50,6 +57,7 @@ export interface FooterProps {
   showRightButton?: boolean
   RightButtonIcon?: any
   rightButtonText?: string
+  rightButtonDisabled?: boolean
 }
 
 /**
@@ -63,6 +71,7 @@ export const Footer = observer(function Footer(props: FooterProps) {
     RightButtonIcon,
     onRightButtonPress,
     rightButtonText,
+    rightButtonDisabled,
   } = props
   const styles = Object.assign({}, CONTAINER, style)
 
@@ -72,11 +81,20 @@ export const Footer = observer(function Footer(props: FooterProps) {
         <SvgXml width={24} height={24} xml={backIcon} style={IconStyle} />
         <Text>Back</Text>
       </TouchableOpacity>
-      {showRightButton && (
+      {showRightButton && !rightButtonDisabled && (
         <TouchableOpacity onPress={onRightButtonPress} style={FOOTER_BUTTON_RIGHT}>
           {RightButtonIcon && <RightButtonIcon style={FOOTER_BUTTON_TEXT} />}
           {rightButtonText && <Text>{rightButtonText}</Text>}
         </TouchableOpacity>
+      )}
+
+      {rightButtonDisabled && (
+        <View style={[FOOTER_BUTTON_RIGHT]}>
+          {RightButtonIcon && (
+            <RightButtonIcon style={[FOOTER_BUTTON_TEXT, FOOTER_BUTTON_TEXT_DISABLED]} />
+          )}
+          {rightButtonText && <Text style={FOOTER_BUTTON_TEXT_DISABLED}>{rightButtonText}</Text>}
+        </View>
       )}
     </View>
   )

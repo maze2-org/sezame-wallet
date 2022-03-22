@@ -27,10 +27,7 @@ export function Button(props: ButtonProps) {
   const viewStyles = [viewStyle, styleOverride]
   const textStyle = textPresets[preset] || textPresets.primary
   const textStyles = [textStyle, textStyleOverride]
-  console.log({
-    disabled,
-    btnDisabled,
-  })
+
   const content = children || <Text tx={tx} text={text} style={textStyles} />
 
   if (disabled) {

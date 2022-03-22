@@ -8,7 +8,7 @@ import { Screen, Text } from "../../components"
 // import { useStores } from "../../models"
 import { color } from "../../theme"
 import { useNavigation } from "@react-navigation/native"
-import IonicIcon from 'react-native-vector-icons/Ionicons';
+import IonicIcon from "react-native-vector-icons/Ionicons"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
@@ -20,25 +20,15 @@ const TITLE: TextStyle = {
   alignItems: "center",
 }
 
+export const HomeScreen: FC<StackScreenProps<NavigatorParamList, "home">> = observer(
+  function HomeScreen() {
+    // Pull in navigation via hook
+    const navigation = useNavigation()
 
-export const HomeScreen: FC<StackScreenProps<NavigatorParamList, "home">> = observer(function HomeScreen() {
-  // Pull in one of our MST stores
-  // const { someStore, anotherStore } = useStores()
-
-  // Pull in navigation via hook
-  const navigation = useNavigation()
-
-  // useEffect(() => {
-  //   console.log('header options set')
-  //   navigation.setOptions({   
-  //     headerShown: true,
-  //     headerRight: SettingsBtn
-  //   })
-  // })
-  return (
-    <Screen style={ROOT} preset="scroll">
-      <Text preset="header" style={TITLE} text="Home" />
-      
-    </Screen>
-  )
-})
+    return (
+      <Screen style={ROOT} preset="scroll">
+        <Text preset="header" style={TITLE} text="Home" />
+      </Screen>
+    )
+  },
+)
