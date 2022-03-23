@@ -373,7 +373,7 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
                       style={styles.COIN_EXPAND_CONTAINER}
                       onPress={() => onExpandEvent(id)}
                     >
-                      <Text>{`${asset.name} Network`}</Text>
+                      <Text>{`${asset.chain} Network`}</Text>
                       {expandFlags[id] ? (
                         <FontAwesomeIcon name="chevron-up" color={color.palette.white} />
                       ) : (
