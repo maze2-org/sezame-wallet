@@ -41,7 +41,7 @@ android-dev: node_modules android
 	cd android && ./gradlew assembleDebug -x bundleReleaseJsAndAssets
 	@ echo Debug APK: ./android/app/build/outputs/apk/debug/app-debug.apk
 
-ios: node_modules build
+ios: node_modules
 	npx react-native run-ios --configuration Release
 
 ios-xcode: ios
