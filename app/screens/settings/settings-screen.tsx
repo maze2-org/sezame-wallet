@@ -44,6 +44,7 @@ import { StoredWallet } from "utils/stored-wallet"
 import { showMessage } from "react-native-flash-message"
 import { SvgXml } from "react-native-svg"
 import backIcon from "../../../assets/svg/back.svg"
+import { reset } from "../../utils/keychain"
 
 const ROOT: ViewStyle = {
   ...RootPageStyle,
@@ -135,6 +136,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 22,
   },
+  error: {
+    color: color.error,
+  },
+  mnemonicText: {
+    color: color.palette.black,
+  },
   modalText: {
     color: color.palette.black,
     marginBottom: 15,
@@ -155,18 +162,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
   },
-  error: {
-    color: color.error,
-  },
-  mnemonicText: {
-    color: color.palette.black,
-  },
-  fabBtn: {
-    alignItems: "center",
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
-  },
 })
 
 export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">> = observer(
@@ -182,6 +177,7 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
     const [seedPhrase, setSeedPhrase] = React.useState("")
     const lockWallet = () => {
       currentWalletStore.close()
+      reset().catch(null);
       navigation.navigate("chooseWallet")
     }
 
@@ -190,7 +186,7 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
       if (wallet) {
         await currentWalletStore.removeWallet()
         currentWalletStore.close()
-
+        reset().catch(null);
         navigation.navigate("chooseWallet")
       }
     }

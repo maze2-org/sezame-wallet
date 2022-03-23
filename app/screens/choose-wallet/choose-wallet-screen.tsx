@@ -145,7 +145,7 @@ export const ChooseWalletScreen: FC<
                     <DropDownPicker
                       style={DropdownContainerStyle}
                       textStyle={DropdownTextStyle}
-                      arrowIconStyle={DropdownArrowStyle}
+                      // arrowIconStyle={DropdownArrowStyle}
                       listItemContainerStyle={DropdownListStyle}
                       theme={"DARK"}
                       open={open}

@@ -8,10 +8,13 @@ import {
   Platform,
   TouchableOpacity,
 } from "react-native"
+import PasscodeAuth from '@el173/react-native-passcode-auth';
 import ReactNativeBiometrics from 'react-native-biometrics'
-import PasscodeAuth from 'react-native-passcode-auth';
+import { useNavigation } from "@react-navigation/native";
 
 import fingerIcon from "../../../assets/svg/finger.svg"
+import faceIdIcon from "../../../assets/svg/faceid.svg"
+import { showMessage } from "react-native-flash-message";
 import { load, IKeychainData } from "../../utils/keychain"
 
 interface IBiometrics {
@@ -22,103 +25,112 @@ interface IBiometrics {
  * An Biometrics component for handling user TouchID, FaceID or Biometrics.
  */
 export function Biometrics({ onLoad }: IBiometrics) {
-  const [keyChainData, setKeyChainData] = useState(null);
+  const navigation = useNavigation();
+  const [biometricType, setBiometricType] = useState<string>('');
+  const [keyChainData, setKeyChainData] = useState<IKeychainData | null>(null);
 
-  const getKCData = () => {
-    console.log('getKCData')
-    load().then(savedData => {
-      console.log('after load [savedData]', savedData)
-
-      if (savedData && !!savedData.username && !!savedData.password && savedData.username !== '_pfo') {
-        setKeyChainData(savedData);
-        ReactNativeBiometrics.isSensorAvailable().then(resultObject => {
-          const {available, biometryType} = resultObject;
-          console.log(biometryType)
-          // if (available && biometryType === ReactNativeBiometrics.TouchID) {
-          //   promptBiometric(savedData);
-          // }else{
-            promptPassCode(savedData)
-          // }
-        })
-          .catch(error=>{
-            promptPassCode(savedData)
-            console.log('ReactNativeBiometrics[isSensorAvailable]: ', error)
-          });
-      }
-    })
-      .catch(error=>{
-        console.log('Keychain[Load]: ', error)
-      });
+  const showError = (error)=>{
+    showMessage({ message: error, type: "danger", })
   }
 
-  useEffect(() => {
+  const pressHandler = async () => {
     getKCData()
-  }, []);
+      .then(savedData => {
+        if(savedData) {
+          authenticate(savedData)
+        }
+      })
+      .catch(error=>{
+        console.log('error', error)
+      })
+  }
 
-  const promptBiometric = savedData => {
-    ReactNativeBiometrics.simplePrompt({
-      promptMessage: 'Confirm Fingerprint',
+  const getKCData = () => {
+    return load().then(savedData => {
+      if (savedData && !!savedData.username && !!savedData.password && savedData.username !== '_pfo') {
+        setKeyChainData(savedData);
+        return  savedData;
+      }else{
+        setKeyChainData(null);
+        return null;
+      }
     })
-      .then(resultObject => {
-        const {success} = resultObject;
-        if (success) {
+  }
+
+  const authenticate = (savedData: IKeychainData | null) => {
+    ReactNativeBiometrics.isSensorAvailable().then(resultObject => {
+      setBiometricType(resultObject.biometryType || ReactNativeBiometrics.TouchID)
+    })
+      .catch(error=>{
+        setBiometricType(ReactNativeBiometrics.TouchID)
+        console.log('ReactNativeBiometrics[isSensorAvailable]: ', error)
+      })
+      .finally(()=>{
+        const prompt = Platform.select({
+          ios: promptPassCodeIOS,
+          android: promptPassCodeAndroid
+        })
+
+        if (savedData) prompt(savedData);
+      })
+  }
+
+  const promptPassCodeIOS = (savedData) => {
+    PasscodeAuth.isSupported()
+      .then(supported => {
+        if(supported) {
+          PasscodeAuth.authenticate('Please Authenticate')
+            .then(() => {
+              onLoad(keyChainData || savedData)
+            })
+            .catch(error => {
+              showError(error.message)
+            });
+        }
+      })
+      .catch(error => {
+        showError(error.message)
+      });
+
+  }
+
+  const promptPassCodeAndroid = (savedData) => {
+    ReactNativeBiometrics.simplePrompt({
+      promptMessage: 'Please Authenticate'
+    })
+      .then(({success})=>{
+        if(success) {
           onLoad(keyChainData || savedData)
         }
       })
-      .catch(error => {
-        if (error.message.includes('No identities are enrolled')) {
-          openAlertForBiometrics();
-        }
-      });
-  };
-
-  const promptPassCode = (savedData) => {
-    console.log('promptPassCode',savedData)
-    PasscodeAuth.isSupported()
-      .then(supported => {
-        // Success code
-        console.log('Passcode Auth is supported.');
-
-        PasscodeAuth.authenticate('to demo this react-native component')
-          .then(success => {
-            console.log('success',success)
-            onLoad(keyChainData || savedData)
-          })
-          .catch(error => {
-            console.log('error',error)
-          });
+      .catch(error=>{
+        showError(error.message)
       })
-      .catch(error => {
-        // Failure code
-        console.log(error);
-      });
-
   }
 
-  const openAlertForBiometrics = () => {
-    Alert.alert("Touch ID", 'Please Activate Touch ID', [
-      {
-        text: 'Cancel',
-        onPress: () => {
-          // @todo on close
-        },
-        style: 'cancel',
-      },
-      {
-        text: "Open Settings",
-        onPress: () => {
-          Linking.openURL('app-settings:').catch(null);
-        },
-      },
-    ]);
-  };
+  const focusHandler = () => {
+    getKCData().then(()=>{
+      authenticate(null)
+    })
+  }
 
+  useEffect(()=>{
+    navigation.addListener('focus', focusHandler);
+
+    return ()=>{
+      navigation.removeListener('focus', focusHandler);
+    }
+  },[])
 
   return (
     <View>
       {!!keyChainData &&
-        <TouchableOpacity onPress={()=>keyChainData && getKCData()}>
-          <SvgXml width={64} height={64} xml={fingerIcon} />
+        <TouchableOpacity onPress={()=>keyChainData && pressHandler()}>
+          {
+            biometricType === ReactNativeBiometrics.FaceID ?
+            <SvgXml width={64} height={64} xml={faceIdIcon} /> :
+            (!!biometricType && <SvgXml width={64} height={64} xml={fingerIcon} />)
+          }
         </TouchableOpacity>
       }
     </View>

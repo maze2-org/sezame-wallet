@@ -328,9 +328,12 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
                 </Text>
                 <Text style={styles.PORTFOLIO_DOLLAR}> $</Text>
               </Animated.View>
-              <Animated.Text style={[styles.WALLET_NAME, { transform: [{ translateY: top }] }]}>
-                {JSON.parse(wallet).walletName.toUpperCase()}{" "}
-              </Animated.Text>
+              {wallet &&
+                <Animated.Text
+                  style={[styles.WALLET_NAME, { transform: [{ translateY: top }] }]}>
+                  {JSON.parse(wallet).walletName.toUpperCase()}{" "}
+                </Animated.Text>
+              }
             </Animated.View>
             <Animated.View
               style={[styles.SORT_CONTAINER, { transform: [{ translateY: translateY2 }] }]}
