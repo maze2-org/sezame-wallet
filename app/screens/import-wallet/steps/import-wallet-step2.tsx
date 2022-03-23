@@ -225,10 +225,7 @@ export function ImportWalletStep2(props: StepProps) {
               {renderSelectedWords()}
               <TextInput
                 value={value}
-                secureTextEntry={Platform.select({
-                  ios: false,
-                  android: true
-                })}
+                secureTextEntry={true}
                 keyboardType={Platform.select({
                   ios: 'default',
                   android: 'visible-password'
