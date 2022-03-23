@@ -49,6 +49,7 @@ export const Drawer = observer(function Drawer(props: DrawerProps) {
           {props.actions &&
             props.actions.map((btn, index) => (
               <View
+                key={`btn_${index}`}
                 style={[
                   styles.actionBtn,
                   index === 0 && props.actions.length > 1 && styles.actionBtnMarginRight,

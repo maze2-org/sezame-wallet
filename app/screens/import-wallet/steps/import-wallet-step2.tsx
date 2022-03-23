@@ -5,7 +5,9 @@ import {
   TextStyle,
   ViewStyle,
   ImageStyle,
+  ScrollView,
   SafeAreaView,
+  Platform,
 } from "react-native"
 import { StepProps } from "utils/MultiStepController/Step"
 import { bip39Words } from "../../../utils/bip39Words"
@@ -14,7 +16,13 @@ import { StoredWallet } from "utils/stored-wallet"
 import { defaultAssets } from "utils/consts"
 import { WalletImportContext } from "../import-wallet-screen"
 import { color, spacing, typography } from "theme"
-import { Button, Header, Text, AutoImage as Image } from "components"
+import {
+  Button,
+  Header,
+  Text,
+  AppScreen,
+  AutoImage as Image,
+} from "components"
 import {
   CONTAINER,
   NORMAL_TEXT,
@@ -91,10 +99,12 @@ const nextIcon = require("../../../../assets/icons/next.png")
 
 export function ImportWalletStep2(props: StepProps) {
   const allowedWords = useRef(bip39Words.split(" "));
+  const scrollViewRef = useRef(null);
   const { walletName, walletPassword } = useContext(WalletImportContext);
   const { onButtonBack, onButtonNext } = useContext(StepsContext);
 
   const [value, setValue] = useState<string>('');
+  const [contentHeight, setContentHeight] = useState<number>(0);
   const [whitelist, setWhitelist] = useState<string[]>([]);
   const [selectedWords, setSelectedWords] = useState<string[]>([]);
   const [isValid, setIsValid] = useState<boolean>(true);
@@ -120,12 +130,18 @@ export function ImportWalletStep2(props: StepProps) {
         availableWords.push(word)
     })
     setWhitelist(availableWords.slice(0, 20))
+    setTimeout(()=>{
+      if(contentHeight){
+        scrollViewRef?.current && scrollViewRef.current.scrollTo(contentHeight);
+      }else {
+        scrollViewRef?.current && scrollViewRef.current.scrollToEnd();
+      }
+    },0)
   }, [value])
 
   useEffect(() => {
-    if (selectedWords.length < 12) setIsValid(true)
-    else if (selectedWords.length > 24) setIsValid(true)
-    else setIsValid(false)
+    if (selectedWords.length === 12 || selectedWords.length === 24) setIsValid(false)
+    else setIsValid(true)
   }, [selectedWords])
 
   const changeTextHandler = (value: string, checkWithoutSpace?: boolean)=>{
@@ -181,60 +197,73 @@ export function ImportWalletStep2(props: StepProps) {
   }
 
   return (
-    <SafeAreaView {...props}>
-      <View style={CONTAINER}>
-        <View>
-          <Header
-            headerText="Provide your seed phrase"
-            style={headerStyle}
-            titleStyle={headerTitle}
-          />
-          <Text style={NORMAL_TEXT}>
-            In order to recover your wallet, you must provide your seed phrase.
-          </Text>
-        </View>
-        <View>
-          <View style={SEARCH_WRAPPER}>
-          <Text preset="fieldLabel" text={'SEED PHRASE'} style={LABEL}/>
-
-          <View style={SEARCH_CONTAINER}>
-            {renderSelectedWords()}
-            <TextInput
-              value={value}
-              autoCorrect={false}
-              autoCapitalize={'none'}
-              placeholderTextColor={color.palette.lighterGrey}
-              underlineColorAndroid={color.transparent}
-              style={INPUT}
-              onChangeText={changeTextHandler}
-              onBlur={() => changeTextHandler(value,true)}
+    <AppScreen {...props}>
+      <ScrollView
+        ref={scrollViewRef}
+        contentContainerStyle={CONTAINER}
+        keyboardDismissMode={'none'}
+        keyboardShouldPersistTaps={'handled'}
+        onContentSizeChange={(height) => {setContentHeight(height)}}
+      >
+        <SafeAreaView {...props}>
+          <View>
+            <Header
+              headerText="Provide your seed phrase"
+              style={headerStyle}
+              titleStyle={headerTitle}
             />
+            <Text style={NORMAL_TEXT}>
+              In order to recover your wallet, you must provide your seed phrase.
+            </Text>
           </View>
-        </View>
-          <View style={whitelistContainerStyle}>{renderRemainingWords()}</View>
-        </View>
+          <View>
+            <View style={SEARCH_WRAPPER}>
+            <Text preset="fieldLabel" text={'SEED PHRASE'} style={LABEL}/>
 
-        <SafeAreaView>
-          <Button
-            testID="next-screen-button"
-            style={[PRIMARY_BTN, isValid && { ...btnDisabled }]}
-            textStyle={PRIMARY_TEXT}
-            onPress={onSubmit}
-            disabled={isValid || !!loading}
-          >
-            <Text text={loading ? "Loading ..." : 'NEXT'}/>
-            <Image source={nextIcon} style={buttonIconStyle} />
-          </Button>
+            <View style={SEARCH_CONTAINER}>
+              {renderSelectedWords()}
+              <TextInput
+                value={value}
+                secureTextEntry={true}
+                keyboardType={Platform.select({
+                  ios: 'default',
+                  android: 'visible-password'
+                })}
+                autoCorrect={false}
+                autoCapitalize={'none'}
+                placeholderTextColor={color.palette.lighterGrey}
+                underlineColorAndroid={color.transparent}
+                style={INPUT}
+                onChangeText={changeTextHandler}
+                // onBlur={() => changeTextHandler(value,true)}
+              />
+            </View>
+          </View>
+            <View style={whitelistContainerStyle}>{renderRemainingWords()}</View>
+          </View>
 
-          <Button
-            testID="next-screen-button"
-            style={PRIMARY_OUTLINE_BTN}
-            textStyle={PRIMARY_TEXT}
-            tx="common.back"
-            onPress={onButtonBack}
-          />
-        </SafeAreaView>
-      </View>
-    </SafeAreaView>
+          <SafeAreaView>
+            <Button
+              testID="next-screen-button"
+              style={[PRIMARY_BTN, isValid && { ...btnDisabled }]}
+              textStyle={PRIMARY_TEXT}
+              onPress={onSubmit}
+              disabled={isValid || !!loading}
+            >
+              <Text text={loading ? "Loading ..." : 'NEXT'}/>
+              <Image source={nextIcon} style={buttonIconStyle} />
+            </Button>
+
+            <Button
+              testID="next-screen-button"
+              style={PRIMARY_OUTLINE_BTN}
+              textStyle={PRIMARY_TEXT}
+              tx="common.back"
+              onPress={onButtonBack}
+            />
+          </SafeAreaView>
+      </SafeAreaView>
+      </ScrollView>
+    </AppScreen>
   )
 }
