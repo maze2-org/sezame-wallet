@@ -9,6 +9,7 @@ const CONTAINER: ViewStyle = {
   display: "flex",
   flexDirection: "row",
   margin: 14,
+  minHeight: 60,
 }
 
 const TEXT: TextStyle = {
@@ -26,6 +27,10 @@ const COIN_IMAGE: ImageStyle = {
 
 const COIN_CARD_CONTENT: ViewStyle = {
   flex: 2,
+  minHeight: 60,
+  flexDirection: "column",
+  display: "flex",
+  justifyContent: "center",
 }
 
 const COIN_NAME: TextStyle = {
@@ -57,9 +62,11 @@ export const CoinCard = observer(function CoinCard(props: CoinCardProps) {
     <View style={styles}>
       <Image style={COIN_IMAGE} source={{ uri: imageUrl }}></Image>
       <View style={COIN_CARD_CONTENT}>
-        <Text text={chain} />
+        {!!chain && <Text text={chain} />}
         <Text style={COIN_NAME} preset="header" text={name} />
-        <Text style={COIN_AMOUNT} preset="header" text={balance + " " + symbol} />
+        {balance !== undefined && (
+          <Text style={COIN_AMOUNT} preset="header" text={balance + " " + symbol} />
+        )}
       </View>
     </View>
   )

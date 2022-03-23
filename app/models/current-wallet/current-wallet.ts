@@ -18,7 +18,7 @@ const WalletAsset = types.model({
   rate: types.optional(types.number, 0),
   version: types.optional(types.number, 0),
   image: types.optional(types.string, ""),
-  decimals: types.number,
+  decimals: types.optional(types.number, 8),
 })
 export type IWalletAsset = Instance<typeof WalletAsset>
 
@@ -96,6 +96,7 @@ export const CurrentWalletModel = types
     removeWallet: async () => {
       try {
         const deleted = await remove(self.name)
+        console.log("removeWallet", deleted, self.name)
       } catch (error) {
         console.log("Error removing wallet", error)
       }

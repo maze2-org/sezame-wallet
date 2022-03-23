@@ -33,6 +33,7 @@ import {
   SendScreen,
   SettingsScreen,
   ChangePasswordScreen,
+  AddCurrencyScreen,
 } from "../screens"
 import { navigationRef, useBackButtonHandler } from "./navigation-utilities"
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5"
@@ -63,7 +64,7 @@ import {
   tabBarStyle,
 } from "theme/elements"
 
-import reloadIcon from "../../assets/svg/reload.svg"
+import ReloadIcon from "../../assets/svg/reload.svg"
 import QRCodeIcon from "../../assets/svg/qr_code.svg"
 import UserIcon from "../../assets/svg/user.svg"
 import PlusIcon from "../../assets/svg/plus.svg"
@@ -145,7 +146,6 @@ const styles = StyleSheet.create({
 })
 
 function SettingsBtn() {
-  const { currencySelectorStore } = useStores()
   const { currentWalletStore } = useStores()
   const { loadingBalance } = currentWalletStore
   const [storedWallet, setStoredWallet] = useState<any>(null)
@@ -161,7 +161,7 @@ function SettingsBtn() {
           currentWalletStore.refreshBalances()
         }}
       >
-        <SvgXml style={BTN_ICON} xml={reloadIcon} width={30} height={30} />
+        <SvgXml style={BTN_ICON} xml={ReloadIcon} />
       </TouchableOpacity>
       <TouchableOpacity
         key="btn_scan"
@@ -177,7 +177,7 @@ function SettingsBtn() {
         key="btn_plus"
         style={NAV_HEADER_BTN}
         onPress={() => {
-          currencySelectorStore.toggle()
+          navigation.navigate("addCurrency")
         }}
       >
         <SvgXml style={BTN_ICON} xml={PlusIcon} />
@@ -227,6 +227,7 @@ export type NavigatorParamList = {
   }
   settings: undefined
   changePassword: undefined
+  addCurrency: undefined
   // 🔥 Your screens go here
 }
 
@@ -378,6 +379,17 @@ const AppStack = () => {
               title: "",
             }}
           />
+          <Stack.Screen
+            name="addCurrency"
+            component={AddCurrencyScreen}
+            options={{
+              headerShown: true,
+              headerRight: SettingsBtn,
+              headerStyle: { backgroundColor: color.palette.black },
+              headerLeft: Logo,
+              title: "",
+            }}
+          />
           {/** 🔥 Your screens go here */}
         </Stack.Navigator>
       )}
@@ -396,7 +408,6 @@ export const AppNavigator = (props: NavigationProps) => {
       theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
       {...props}
     >
-      <CurrenciesSelector></CurrenciesSelector>
       <AppStack />
     </NavigationContainer>
   )
