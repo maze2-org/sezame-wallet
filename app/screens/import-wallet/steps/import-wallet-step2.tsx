@@ -140,9 +140,8 @@ export function ImportWalletStep2(props: StepProps) {
   }, [value])
 
   useEffect(() => {
-    if (selectedWords.length < 12) setIsValid(true)
-    else if (selectedWords.length > 24) setIsValid(true)
-    else setIsValid(false)
+    if (selectedWords.length === 12 || selectedWords.length === 24) setIsValid(false)
+    else setIsValid(true)
   }, [selectedWords])
 
   const changeTextHandler = (value: string, checkWithoutSpace?: boolean)=>{
