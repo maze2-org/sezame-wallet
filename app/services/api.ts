@@ -74,10 +74,9 @@ export const getTransactionDriver = async (asset: IWalletAsset) => {
   const driver = cryptoWallet.TRANSACTION_DRIVER_NAMESPACE[asset.chain + "_Driver"]
   return driver
 }
-export const makeSendTransaction = async (asset: IWalletAsset, proposal) => {
+export const makeSendTransaction = (asset: IWalletAsset, proposal) => {
   const cryptoWallet = getWallet(asset)
-  const transaction = await cryptoWallet.postTxSend(proposal)
-  return transaction
+  return cryptoWallet.postTxSend(proposal)
 }
 export const makeRawTransaction = async (asset: IWalletAsset, data) => {
   const driver = await getTransactionDriver(asset)
