@@ -38,3 +38,11 @@ export const defaultAssets: IWalletAsset[] = [
     version: 1,
   },
 ]
+export const chainSymbolsToNames = {
+  BTC: "Bitcoin",
+  ETH: "Ethereum network",
+  POLYGON: "POLYGON network",
+  BSC: "Binance Smart Chain",
+  AVN: "Aventus network",
+  ALPH: "ALPH",
+}
