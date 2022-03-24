@@ -8,6 +8,7 @@ import {
   createCurrentWalletDefaultModel,
   CurrentWalletModel,
 } from "models/current-wallet/current-wallet"
+import { createPendingTransactionsDefaultModel } from "models/pending-transactions/pending-transactions"
 
 /**
  * A RootStore model.
@@ -16,12 +17,12 @@ import {
 export const RootStoreModel = types.model("RootStore").props({
   currentWalletStore: createCurrentWalletDefaultModel(),
   currencySelectorStore: createCurrencySelectorDefaultModel(),
+  pendingTransactions: createPendingTransactionsDefaultModel(),
   TESTNET: types.optional(types.boolean, CONFIG.TESTNET),
 }).actions(self => ({
   setTestnet(value: boolean) {
     self.TESTNET = value;
     CONFIG.setTESTNET(value);
-  
   } 
 }))
 

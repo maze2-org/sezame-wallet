@@ -79,7 +79,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
     }
     const walletLogo = require("../../../assets/images/avt.png")
     // Pull in one of our MST stores
-    const { currentWalletStore } = useStores()
+    const { currentWalletStore, pendingTransactions } = useStores()
     const { getAssetById } = currentWalletStore
     const {
       control,
@@ -107,6 +107,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
     const asset = getAssetById(route.params.coinId)
     const [fees, setFees] = useState<any>(null)
     const [isPreview, setIsPreview] = useState<boolean>(false)
+    const [sending, setSending] = useState<boolean>(false)
     const { setBalance } = currentWalletStore
 
     useEffect(() => {
@@ -125,14 +126,20 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
     }
 
     const processTransaction = async () => {
-      console.log("Process transaction", { recipientAddress, amount, fees })
+      setSending(true)
       try {
-        const transaction = await makeSendTransaction(asset, fees.regular)
-        console.log("TRANSACTION", transaction)
-        if (!transaction) {
+        const txId = await makeSendTransaction(asset, fees.regular)
+        if (!txId) {
           showMessage({ message: "Unable to Send", type: "danger" })
         } else {
           showMessage({ message: "Transaction sent", type: "success" })
+          pendingTransactions.add(asset, {
+            amount: `-${amount}`,
+            from: asset.address,
+            to: recipientAddress,
+            timestamp: new Date().getTime(),
+            txId,
+          })
           setFees(null)
           setIsPreview(false)
           goBack()
@@ -140,6 +147,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
       } catch (err) {
         showMessage({ message: err.message, type: "danger" })
       } finally {
+        setSending(false)
       }
     }
 
@@ -220,12 +228,14 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                 text="CANCEL"
                 style={styles.DRAWER_BTN_CANCEL}
                 textStyle={styles.DRAWER_BTN_TEXT}
+                disabled={sending}
                 onPress={() => {
                   setIsPreview(false)
                 }}
               ></Button>,
               <Button
-                text="SIGN AND SUBMIT"
+                text={sending ? "SENDING..." : "SIGN AND SUBMIT"}
+                disabled={sending}
                 style={styles.DRAWER_BTN_OK}
                 textStyle={styles.DRAWER_BTN_TEXT}
                 onPress={processTransaction}

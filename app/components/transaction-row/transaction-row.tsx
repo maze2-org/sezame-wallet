@@ -34,7 +34,7 @@ const TRANSACTION_ITEM_HASH: TextStyle = {
   color: color.palette.white,
   fontWeight: "bold",
   fontSize: 15,
-  textAlign: "right",
+  textAlign: "left",
 }
 const TRANSACTION_ITEM_DATE: TextStyle = {
   color: color.palette.lightGrey,
@@ -66,35 +66,38 @@ const TRANSACTIONS_SORT_BTN_TEXT: TextStyle = {
  */
 export const TransactionRow = observer(function TransactionRow(props: TransactionRowProps) {
   const { transaction, asset } = props
-  const truncateHash = (hash: string) => {
-    return hash.substring(0, 15) + "..." + hash.substring(hash.length - 15, hash.length)
+  const truncateText = (text: string) => {
+    return text.substring(0, 8) + "..." + text.substring(text.length - 8, text.length)
   }
 
-  const receive = asset.address !== transaction.from
+  const txs = transaction.out ? transaction.from : transaction.to
 
   return (
     <View style={TRANSACTION_ITEM}>
       <View style={TRANSACTION_ITEM_BODY}>
         <Text style={TRANSACTION_ITEM_HASH}>
-          {truncateHash(receive ? transaction.from : transaction.to)}
+          {typeof txs === "string" ? (
+            <Text>{truncateText(txs)}</Text>
+          ) : (
+            txs.map((tx) => <Text>{truncateText(tx)}</Text>)
+          )}
+          {txs.length < 1 && <Text>None</Text>}
         </Text>
         <Text style={TRANSACTION_ITEM_DATE}>
-          {dayjs(transaction.date).format("MM/DD/YYYY HH:mm:ss")}
+          {dayjs(transaction.timestamp).format("DD/MM/YYYY HH:mm:ss")}
         </Text>
       </View>
       <View>
-        <Button style={[TRANSACTIONS_SORT_BTN, !receive && TRANSACTIONS_SORT_BTN_RED]}>
+        <Button style={[TRANSACTIONS_SORT_BTN, transaction.out && TRANSACTIONS_SORT_BTN_RED]}>
           <FontAwesome5Icon
-            name={receive ? "arrow-down" : "arrow-up"}
+            name={transaction.out ? "arrow-up" : "arrow-down"}
             size={10}
             color={color.palette.white}
           />
 
-          <Text style={TRANSACTIONS_SORT_BTN_TEXT}>{receive ? "FROM" : "TO"}</Text>
+          <Text style={TRANSACTIONS_SORT_BTN_TEXT}>{transaction.out ? "TO" : "FROM"}</Text>
         </Button>
-        <Text style={TRANSACTION_ITEM_HASH}>
-          {receive ? "+" : "-"} {transaction.amount}
-        </Text>
+        <Text style={TRANSACTION_ITEM_HASH}>{parseFloat(transaction.amount).toFixed(4)}</Text>
       </View>
     </View>
   )
