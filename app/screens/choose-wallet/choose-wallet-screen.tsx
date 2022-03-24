@@ -112,13 +112,27 @@ export const ChooseWalletScreen: FC<
     SplashScreen.hide()
 
     getListOfWallets().then((walletNames) => {
+      console.log({ walletNames })
       setWalletNames(walletNames)
       if (walletNames.length === 1) {
         setItemValue(walletNames[0])
       }
+      // onSubmit({ walletName: "test", walletPassword: "testtest" })
     })
   }, [])
-
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      console.log("choose wallet focused")
+      getListOfWallets().then((walletNames) => {
+        console.log({ walletNames })
+        setWalletNames(walletNames)
+        if (walletNames.length === 1) {
+          setItemValue(walletNames[0])
+        }
+      })
+    })
+    return unsubscribe
+  }, [navigation])
   return (
     <Screen preset="fixed" style={RootPageStyle} backgroundColor={color.palette.black}>
       <ImageBackground source={MainBackground} style={BackgroundStyle}>

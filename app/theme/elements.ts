@@ -244,16 +244,16 @@ export const tabBarItemFocused: ViewStyle = {
 
 export const tabBarLabel: TextStyle = {
   color: color.palette.lightGrey,
-  marginLeft: spacing[1]
+  marginLeft: spacing[1],
 }
 
 export const tabBarLabelFocused: TextStyle = {
   color: color.palette.white,
-  marginLeft: spacing[1]
+  marginLeft: spacing[1],
 }
 
 export const tabBarButton: ViewStyle = {
-  flexGrow:1,
+  flexGrow: 1,
   width: "100%",
 }
 

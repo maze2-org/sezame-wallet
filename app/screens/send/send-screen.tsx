@@ -1,20 +1,38 @@
-import React, { FC, useState } from "react"
+import React, { FC, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { ImageBackground, TextStyle, View, ViewStyle } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import { NavigatorParamList } from "../../navigators"
-import { Button, CurrencyDescriptionBlock, Drawer, Footer, Screen, Text } from "../../components"
+import {
+  Button,
+  CurrencyDescriptionBlock,
+  Drawer,
+  Footer,
+  Screen,
+  Text,
+  WalletButton,
+} from "../../components"
 // import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
-import { Controller, useForm } from "react-hook-form"
+import { Controller, useForm, useWatch } from "react-hook-form"
 import { TextInputField } from "components/text-input-field/text-input-field"
-import { BackgroundStyle, btnDefault, btnDisabled, CONTAINER, demoText, footBtn, MainBackground, PRIMARY_BTN, textInput } from "theme/elements"
+import {
+  BackgroundStyle,
+  btnDefault,
+  btnDisabled,
+  CONTAINER,
+  demoText,
+  footBtn,
+  MainBackground,
+  PRIMARY_BTN,
+  PRIMARY_TEXT,
+  textInput,
+} from "theme/elements"
 import { useNavigation } from "@react-navigation/native"
 import { useStores } from "models"
-import { getFees, makeSendTransaction } from "services/api"
+import { getBalance, getFees, makeSendTransaction } from "services/api"
 import { showMessage } from "react-native-flash-message"
-import walletIcon from "../../../assets/svg/avt.svg"
 import styles from "./styles"
 import { boolean } from "mobx-state-tree/dist/internal"
 
@@ -37,37 +55,25 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
       width: "100%",
       alignItems: "center",
       display: "flex",
-      flexDirection: "column"
+      flexDirection: "column",
     }
 
     const rewardsStyle: TextStyle = {
       color: color.palette.gold,
       fontSize: 10,
       lineHeight: 14,
-      paddingVertical: spacing[2]
+      paddingVertical: spacing[2],
     }
     const amountStyle: TextStyle = {
       color: color.palette.white,
       fontSize: 27,
-      lineHeight:37
+      lineHeight: 37,
     }
-    const BUTTON_STYLE: ViewStyle = {
-      ...PRIMARY_BTN,
-      backgroundColor: color.transparent,
-      width: "80%",
-      borderColor: color.palette.white,
-      borderWidth: 1,
-      borderRadius: 80,
-      opacity: 0.7
-    }
-    const BUTTON_TEXT_STYLE: TextStyle = {
-      color: color.palette.white,
-      fontSize: 13,
-      lineHeight: 17.7
-    }
+
     const ALIGN_CENTER: ViewStyle = {
-      alignItems: "center"
+      alignItems: "center",
     }
+
     const DrawerStyle: ViewStyle = {
       display: "flex",
     }
@@ -80,144 +86,181 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
       handleSubmit,
       formState: { errors, isValid },
     } = useForm({ mode: "onChange" })
+
+    const amount = useWatch({
+      control,
+      name: "amount",
+      defaultValue: "",
+    })
+    const recipientAddress = useWatch({
+      control,
+      name: "recipientAddress",
+      defaultValue: "",
+    })
+
+    const truncateRecipient = (hash: string) => {
+      return hash.substring(0, 8) + "..." + hash.substring(hash.length - 8, hash.length)
+    }
+
     // Pull in navigation via hook
     const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
     const asset = getAssetById(route.params.coinId)
-    const [fees, setFees] = useState<number>(null)
-    const [isPreview, setIsPreview] = useState<boolean>(false);
+    const [fees, setFees] = useState<any>(null)
+    const [isPreview, setIsPreview] = useState<boolean>(false)
+    const { setBalance } = currentWalletStore
 
-    const onCancel = () => {
-      navigation.goBack()
+    useEffect(() => {
+      // setBalance(asset, currentWalletStore.getBalance(asset))
+      const _getBalances = async () => {
+        const balance = await getBalance(asset)
+        setBalance(asset, balance)
+      }
+      _getBalances()
+    }, [])
+
+    const onSubmit = async () => {
+      const response = await getFees(asset, recipientAddress, amount)
+      setFees(response)
+      setIsPreview(true)
     }
 
-    const handlePreview = (status) => {
-      setIsPreview(status);
-    }
-    const onSubmit = async (data) => {
+    const processTransaction = async () => {
+      console.log("Process transaction", { recipientAddress, amount, fees })
       try {
-        const response = await getFees(asset, data.address, data.amount)
-        setFees(response)
-
-        const transaction = await makeSendTransaction(asset, response.regular)
+        const transaction = await makeSendTransaction(asset, fees.regular)
+        console.log("TRANSACTION", transaction)
         if (!transaction) {
           showMessage({ message: "Unable to Send", type: "danger" })
         } else {
           showMessage({ message: "Transaction sent", type: "success" })
           setFees(null)
+          setIsPreview(false)
+          goBack()
         }
-      } catch (error) {
-        console.error("error sending amount ", error)
-        showMessage({ message: "Unable to Send", type: "danger" })
+      } catch (err) {
+        showMessage({ message: err.message, type: "danger" })
+      } finally {
       }
     }
+
+    const goBack = () => navigation.goBack()
 
     return (
       <Screen style={DashboardStyle} preset="scroll">
         <ImageBackground source={MainBackground} style={BackgroundStyle}>
           <View style={CONTAINER}>
-              <View style={WALLET_STYLE}>
-                <CurrencyDescriptionBlock logo={walletLogo} icon={walletIcon}/>
-                <Text style={rewardsStyle}>Available rewards @stake1</Text>
-                <Text style={amountStyle}>0.459 AVT</Text>
-              </View>
-              <View>
-                <Controller
-                  control={control}
-                  name="address"
-                  render={({ field: { onChange, value, onBlur } }) => (
-                    <TextInputField
-                      name="address"
-                      style={textInput}
-                      errors={errors}
-                      label="Recipient's address"
-                      value={value}
-                      onBlur={onBlur}
-                      onChangeText={(value) => onChange(value)}
-                    />
-                  )}
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "Field is required!",
-                    },
-                  }}
-                />
+            <View style={WALLET_STYLE}>
+              <CurrencyDescriptionBlock icon="transfer" asset={asset} title="Available balance" />
+            </View>
+            <View>
+              <Controller
+                control={control}
+                name="recipientAddress"
+                render={({ field: { onChange, value, onBlur } }) => (
+                  <TextInputField
+                    name="recipientAddress"
+                    style={textInput}
+                    errors={errors}
+                    label="Recipient's address"
+                    value={value}
+                    onBlur={onBlur}
+                    onChangeText={(value) => onChange(value)}
+                  />
+                )}
+                rules={{
+                  required: {
+                    value: true,
+                    message: "Field is required!",
+                  },
+                }}
+              />
 
-                <Controller
-                  control={control}
-                  name="amount"
-                  render={({ field: { onChange, value, onBlur } }) => (
-                    <TextInputField
-                      name="amount"
-                      style={textInput}
-                      errors={errors}
-                      label="Amount"
-                      value={value}
-                      onBlur={onBlur}
-                      onChangeText={(value) => onChange(value)}
-                      keyboardType="numeric"
-                      numberOfLines={1}
-                      returnKeyType="done"
-                    />
-                  )}
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "Field is required!",
-                    },
-                  }}
-                />
-              </View>
-              <View style={ALIGN_CENTER}>
-                <Button
-                  style={BUTTON_STYLE}
-                  textStyle={BUTTON_TEXT_STYLE}
-                  onPress={()=>handlePreview(true)}
-                >
-                  <Text>PREVIEW THE TRANSFER</Text>
-                </Button>
-              </View>
+              <Controller
+                control={control}
+                name="amount"
+                render={({ field: { onChange, value, onBlur } }) => (
+                  <TextInputField
+                    name="amount"
+                    style={textInput}
+                    errors={errors}
+                    label="Amount"
+                    value={value}
+                    onBlur={onBlur}
+                    onChangeText={(value) => onChange(value)}
+                    keyboardType="numeric"
+                    numberOfLines={1}
+                    returnKeyType="done"
+                  />
+                )}
+                rules={{
+                  required: {
+                    value: true,
+                    message: "Field is required!",
+                  },
+                }}
+              />
+            </View>
+            <View style={ALIGN_CENTER}>
+              <WalletButton
+                type="primary"
+                text="Preview the transfer"
+                outline={true}
+                disabled={!isValid}
+                onPress={handleSubmit(onSubmit)}
+              ></WalletButton>
+            </View>
           </View>
         </ImageBackground>
-        {isPreview && <Drawer
-          title="Sign and Submit"
-          style={DrawerStyle}
-          actions={[
-            <Button
-              text="CANCEL"
-              style={styles.DRAWER_BTN_CANCEL}
-              textStyle={styles.DRAWER_BTN_TEXT}
-              onPress={()=>handlePreview(false)}
-            >
-            </Button>,
-            <Button
-              text="SIGN AND SUBMIT"
-              style={styles.DRAWER_BTN_OK}
-              textStyle={styles.DRAWER_BTN_TEXT}
-            >
-            </Button>,
-          ]}
-        >
-          <View style={styles.DRAWER_CARD}>
-            <View style={styles.DRAWER_CARD_ITEM}>
-                <Text style={styles.CARD_ITEM_TITLE}>TO STAKE</Text>
+        {isPreview && (
+          <Drawer
+            title="Sign and Submit"
+            style={DrawerStyle}
+            actions={[
+              <Button
+                text="CANCEL"
+                style={styles.DRAWER_BTN_CANCEL}
+                textStyle={styles.DRAWER_BTN_TEXT}
+                onPress={() => {
+                  setIsPreview(false)
+                }}
+              ></Button>,
+              <Button
+                text="SIGN AND SUBMIT"
+                style={styles.DRAWER_BTN_OK}
+                textStyle={styles.DRAWER_BTN_TEXT}
+                onPress={processTransaction}
+              ></Button>,
+            ]}
+          >
+            <View style={styles.DRAWER_CARD}>
+              <View style={styles.DRAWER_CARD_ITEM}>
+                <Text style={styles.CARD_ITEM_TITLE}>Transfer</Text>
                 <View style={styles.CARD_ITEM_DESCRIPTION}>
-                  <Text style={styles.AMOUNT_STYLE}>100AVT</Text>
-                  <Text style={styles.AMOUNT_SUB_STYLE}>120 available</Text>
+                  <Text style={styles.AMOUNT_STYLE}>{amount}</Text>
                 </View>
-            </View>
-            <View style={styles.CARD_ITEM_DIVIDER}></View>
-            <View style={styles.DRAWER_CARD_ITEM}>
-                <Text style={styles.CARD_ITEM_TITLE}>TRANSACTION FEES</Text>
+              </View>
+              <View style={styles.CARD_ITEM_DIVIDER}></View>
+              <View style={styles.DRAWER_CARD_ITEM}>
+                <Text style={styles.CARD_ITEM_TITLE}>Recipient</Text>
                 <View style={styles.CARD_ITEM_DESCRIPTION}>
-                  <Text style={styles.AMOUNT_STYLE}>0.0021ETH</Text>
-                  <Text style={styles.AMOUNT_SUB_STYLE}>0.23 available</Text>
+                  <Text style={styles.AMOUNT_STYLE}>{truncateRecipient(recipientAddress)}</Text>
                 </View>
+              </View>
+              <View style={styles.CARD_ITEM_DIVIDER}></View>
+              <View style={styles.DRAWER_CARD_ITEM}>
+                <Text style={styles.CARD_ITEM_TITLE}>Transaction fees</Text>
+                <View style={styles.CARD_ITEM_DESCRIPTION}>
+                  <Text style={styles.AMOUNT_STYLE}>
+                    {fees ? `${fees.regular.settings.value} ${fees.regular.currency}` : "Unknown"}
+                  </Text>
+                  {/* <Text style={styles.AMOUNT_SUB_STYLE}>0.23 available</Text> */}
+                </View>
+              </View>
             </View>
-          </View>
-        </Drawer>}
-        
-        <Footer />
+          </Drawer>
+        )}
+
+        <Footer onLeftButtonPress={goBack}></Footer>
       </Screen>
     )
   },

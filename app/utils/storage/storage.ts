@@ -118,10 +118,12 @@ export async function save(key: string, value: any): Promise<boolean> {
 /**
  * Removes something from storage.
  *
- * @param key The key to kill.
+ * @param walletName The walletName to kill.
  */
-export async function remove(key: string): Promise<boolean> {
+export async function remove(walletName: string): Promise<boolean> {
   try {
+    const key = WALLETS_STORE_ID + walletName
+
     EncryptedStorage.removeItem(key)
     removeKey(key)
     return true
