@@ -1,26 +1,22 @@
 import React, { FC, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { ImageBackground, ImageStyle, ScrollView, TextStyle, View, ViewStyle } from "react-native"
+import { ImageBackground, ImageStyle, TextStyle, View, ViewStyle } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import SplashScreen from "react-native-splash-screen"
 import { NavigatorParamList } from "../../navigators"
 import { AppScreen, Button, Header, Screen, Text } from "../../components"
-// import { useNavigation } from "@react-navigation/native"
-// import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
 import { getListOfWallets } from "../../utils/storage"
 import { useForm, Controller } from "react-hook-form"
+import { SvgXml } from "react-native-svg"
+import { Biometrics } from "../../components/biometrics/biometrics"
 import {
   BackgroundStyle,
-  btnDefault,
-  btnDisabled,
   CONTAINER,
   DropdownArrowStyle,
   DropdownContainerStyle,
   DropdownListStyle,
   DropdownTextStyle,
-  footBtn,
-  headerTitle,
   MainBackground,
   NORMAL_TEXT,
   PRIMARY_BTN,
@@ -35,25 +31,17 @@ import DropDownPicker from "react-native-dropdown-picker"
 import { TextInputField } from "../../components/text-input-field/text-input-field"
 import { StoredWallet } from "../../utils/stored-wallet"
 import { showMessage } from "react-native-flash-message"
+import { save, IKeychainData } from "../../utils/keychain"
 
 import { useNavigation } from "@react-navigation/native"
 import { useStores } from "models"
 import eyeIcon from "../../../assets/svg/eye.svg"
 import unlockIcon from "../../../assets/svg/unlock.svg"
-import fingerIcon from "../../../assets/svg/finger.svg"
-
-import { SvgXml } from "react-native-svg"
-import { defaultAssets } from "utils/consts"
 
 const headerStyle: ViewStyle = {
   justifyContent: "center",
   paddingHorizontal: spacing[0],
   width: "100%",
-}
-
-const CONTAINER_STYLE: ViewStyle = {
-  ...CONTAINER,
-  justifyContent: "flex-start",
 }
 
 const buttonIconStyle: ImageStyle = {
@@ -77,37 +65,19 @@ const BUTTON_STYLE: ViewStyle = {
   marginTop: spacing[6],
   marginBottom: spacing[3],
 }
+
 export const ChooseWalletScreen: FC<
   StackScreenProps<NavigatorParamList, "chooseWallet">
 > = observer(function ChooseWalletScreen() {
   const { currentWalletStore } = useStores()
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
 
-  const [walletNames, setWalletNames] = useState<string[]>([])
-
-  useEffect(() => {
-    SplashScreen.hide()
-  }, [])
-
-  useEffect(() => {
-    getListOfWallets().then((walletNames) => {
-      setWalletNames(walletNames)
-      if (walletNames.length === 1) {
-        setItemValue(walletNames[0])
-      }
-    })
-  }, [])
-
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [itemValue, setItemValue] = useState(null)
+  const [walletNames, setWalletNames] = useState<string[]>([])
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    formState: { errors, isValid },
-  } = useForm({ mode: "onChange" })
+  const { control, handleSubmit, setValue, formState: { errors, isValid }, } = useForm({ mode: "onChange" });
 
   const onSubmit = async (data) => {
     setLoading(true)
@@ -116,6 +86,7 @@ export const ChooseWalletScreen: FC<
       showMessage({ message: "Wallet unlocked", type: "success" })
       currentWalletStore.open(loadedWallet as any)
 
+      save(data.walletName, data.walletPassword).catch(null)
       navigation.navigate("dashboard")
     } catch (err) {
       console.log(err)
@@ -123,10 +94,23 @@ export const ChooseWalletScreen: FC<
     } finally {
       setLoading(false)
     }
-    setValue("walletPassword", "")
+    setValue('walletPassword', '')
+  }
+
+  const onGetKeychainData = (keychainData: IKeychainData)=>{
+    setItemValue(keychainData.username)
+    setValue('walletName',keychainData.username)
+    // setValue('walletPassword',keychainData.password)
+    const data = {
+      walletName: keychainData.username,
+      walletPassword: keychainData.password
+    }
+    onSubmit(data)
   }
 
   useEffect(() => {
+    SplashScreen.hide()
+
     getListOfWallets().then((walletNames) => {
       console.log({ walletNames })
       setWalletNames(walletNames)
@@ -150,10 +134,10 @@ export const ChooseWalletScreen: FC<
     return unsubscribe
   }, [navigation])
   return (
-    <Screen preset="scroll" style={RootPageStyle} backgroundColor={color.palette.black}>
+    <Screen preset="fixed" style={RootPageStyle} backgroundColor={color.palette.black}>
       <ImageBackground source={MainBackground} style={BackgroundStyle}>
         <AppScreen>
-          <ScrollView contentContainerStyle={CONTAINER}>
+          <View style={CONTAINER}>
             <View>
               <Header
                 headerText="Unlock your wallet"
@@ -175,7 +159,7 @@ export const ChooseWalletScreen: FC<
                     <DropDownPicker
                       style={DropdownContainerStyle}
                       textStyle={DropdownTextStyle}
-                      arrowIconStyle={DropdownArrowStyle}
+                      // arrowIconStyle={DropdownArrowStyle}
                       listItemContainerStyle={DropdownListStyle}
                       theme={"DARK"}
                       open={open}
@@ -241,9 +225,9 @@ export const ChooseWalletScreen: FC<
               />
             </View>
             <View style={footerStyle}>
-              <SvgXml width={64} height={64} xml={fingerIcon} />
+              <Biometrics onLoad={onGetKeychainData}/>
             </View>
-          </ScrollView>
+          </View>
         </AppScreen>
       </ImageBackground>
     </Screen>
