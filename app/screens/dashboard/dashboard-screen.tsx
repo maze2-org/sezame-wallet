@@ -12,6 +12,7 @@ import { color, spacing, typography } from "../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { NavigatorParamList } from "../../navigators"
 import { Text, Button, AppScreen } from "../../components"
+import { chainSymbolsToNames } from "utils/consts"
 
 const Fonts = [11, 15, 24, 48, 64]
 const MY_STYLE = StyleSheet.create({
@@ -373,7 +374,7 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
                       style={styles.COIN_EXPAND_CONTAINER}
                       onPress={() => onExpandEvent(id)}
                     >
-                      <Text>{`${asset.name} Network`}</Text>
+                      <Text>{`${chainSymbolsToNames[asset.chain]} `}</Text>
                       {expandFlags[id] ? (
                         <FontAwesomeIcon name="chevron-up" color={color.palette.white} />
                       ) : (
