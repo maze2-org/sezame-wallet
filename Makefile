@@ -33,7 +33,7 @@ android: node_modules
 android-prod: android
 #	cd android &&  ./gradlew clean
 	cd android && ./gradlew assembleRelease -x bundleReleaseJsAndAssets
-	cd android && ./gradlew bundle -x bundleReleaseJsAndAssets
+	cd android && ./gradlew bundleRelease -x bundleReleaseJsAndAssets
 	@ echo Prod APK: ./android/app/build/outputs/apk/release/app-release.apk
 
 
