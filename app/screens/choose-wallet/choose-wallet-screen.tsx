@@ -145,8 +145,8 @@ export const ChooseWalletScreen: FC<
                 titleStyle={headerTitleSTYLE}
               />
               <Text style={[NORMAL_TEXT, TEXT_CENTTER]}>
-                The restoration of your wallet is successful. You are now ready to manage your
-                assets.
+                Your wallets are currently locked. Select the wallet you wish to access 
+                then press the fingerprint icon or provide the password.
               </Text>
             </View>
             <View>
