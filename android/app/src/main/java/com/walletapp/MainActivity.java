@@ -1,4 +1,4 @@
-package com.walletapp;
+package org.maze2.sezamewallet;
 
 import com.facebook.react.ReactActivity;
 import android.os.Bundle;

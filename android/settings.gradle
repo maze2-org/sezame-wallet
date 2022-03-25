@@ -15,7 +15,7 @@ apply from: '../node_modules/react-native-colo-loco/scripts/android.groovy'
 linkColocatedNativeFiles([
   appName: "WalletApp",
   appPath: "../app",
-  appPackageName: "com.walletapp",
+  appPackageName: "org.maze2.sezamewallet",
   androidPath: "./android/app/src/main/java/com/walletapp"
 ])
 

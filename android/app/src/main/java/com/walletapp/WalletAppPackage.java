@@ -1,6 +1,6 @@
 
 // ./android/app/src/main/java/com/myapp/WalletAppPackage.java
-package com.walletapp;
+package org.maze2.sezamewallet;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
