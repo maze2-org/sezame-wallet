@@ -3,6 +3,8 @@ import { observer } from "mobx-react-lite"
 import { ImageBackground, TextStyle, View, ViewStyle } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import { NavigatorParamList } from "../../navigators"
+import BigNumber from "bignumber.js"
+
 import {
   Button,
   CurrencyDescriptionBlock,
@@ -133,8 +135,11 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
           showMessage({ message: "Unable to Send", type: "danger" })
         } else {
           showMessage({ message: "Transaction sent", type: "success" })
+
           pendingTransactions.add(asset, {
-            amount: `-${amount}`,
+            amount: `-${new BigNumber(amount)
+              .plus(fees.regular.value ? fees.regular.value : "0")
+              .toString()}`,
             from: asset.address,
             to: recipientAddress,
             timestamp: new Date().getTime(),

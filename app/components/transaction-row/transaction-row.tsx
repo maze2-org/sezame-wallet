@@ -70,8 +70,11 @@ export const TransactionRow = observer(function TransactionRow(props: Transactio
     return text.substring(0, 8) + "..." + text.substring(text.length - 8, text.length)
   }
 
-  const txs = transaction.out ? transaction.from : transaction.to
+  const txs = transaction.out ? transaction.to : transaction.from
 
+  if (!transaction.out) {
+    console.log(transaction)
+  }
   return (
     <View style={TRANSACTION_ITEM}>
       <View style={TRANSACTION_ITEM_BODY}>

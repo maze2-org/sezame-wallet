@@ -65,6 +65,17 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const asset = getAssetById(route.params.coinId)
     const tokenInfo = tokens.find((token) => token.id === route.params.coinId)
 
+    const _getBalances = async () => {
+      const balance = await getBalance(asset)
+      console.log("balance", balance)
+      setBalance(asset, balance)
+    }
+
+    const _getTransactions = async () => {
+      const tsx = await getTransactions(asset)
+      setTransactions(tsx)
+    }
+
     const updateTransactions = () => {
       console.log("This will run every second!")
       const txList = pendingTransactions.getPendingTxsForAsset(asset)
@@ -74,6 +85,8 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
             console.log("GOT TRANSACTION STATUS", status)
             if (status === "success" || status === "failed") {
               pendingTransactions.remove(asset, tx)
+              _getBalances()
+              _getTransactions()
             }
           })
           .catch((err) => {
@@ -93,17 +106,6 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
         // getTransactionStatus(asset, "696a796d-c8fd-4fa5-9c03-8f2411560061").then((status) => {
         //   console.log("GOT TRANSACTION STATUS", status)
         // })
-
-        const _getBalances = async () => {
-          const balance = await getBalance(asset)
-          console.log("balance", balance)
-          setBalance(asset, balance)
-        }
-
-        const _getTransactions = async () => {
-          const tsx = await getTransactions(asset)
-          setTransactions(tsx)
-        }
 
         _getTransactions()
         _getBalances()
