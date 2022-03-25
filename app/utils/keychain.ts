@@ -1,5 +1,11 @@
 import * as ReactNativeKeychain from "react-native-keychain"
 
+export interface IKeychainData {
+  username: string | null,
+  password: string | null,
+  server: any,
+}
+
 /**
  * Saves some credentials securely.
  *
@@ -28,7 +34,7 @@ export async function load(server?: string) {
       username: creds ? creds.username : null,
       password: creds ? creds.password : null,
       server,
-    }
+    } as IKeychainData
   } else {
     const creds = await ReactNativeKeychain.getGenericPassword()
     if (typeof creds === "object") {
@@ -36,13 +42,13 @@ export async function load(server?: string) {
         username: creds.username,
         password: creds.password,
         server: null,
-      }
+      } as IKeychainData
     } else {
       return {
         username: null,
         password: null,
         server: null,
-      }
+      } as IKeychainData
     }
   }
 }
