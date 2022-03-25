@@ -46,6 +46,16 @@ export const CurrentWalletModel = types
     getAssetById: (cid: string) => {
       return self.assets.find((a) => a.cid === cid)
     },
+    getAssetByChain: (chain: string) => {
+      return self.assets.find((a) => a.chain === chain)
+    },
+    getWalletAddressByChain: (chain: string) => {
+      const asset = self.assets.find((a) => a.chain === chain)
+      if (asset) {
+        return asset.address
+      }
+      return ""
+    },
   })) // eslint-disable-line @typescript-eslint/no-unused-vars
   .actions((self) => ({
     setAssets(assets) {

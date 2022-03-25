@@ -73,7 +73,7 @@ import { SvgXml } from "react-native-svg"
 import tabWallet from "../../assets/svg/tab-wallet.svg"
 import ready from "../../assets/svg/ready.svg"
 import tabNft from "../../assets/svg/tab-nft.svg"
-
+import { WalletConnectScreen } from "screens/wallet-connect/wallet-connect-screen"
 const NAV_HEADER_CONTAINER: ViewStyle = {
   flexDirection: "row",
   justifyContent: "space-between",
@@ -169,6 +169,10 @@ function SettingsBtn() {
         onPress={() => {
           console.log("a")
           currentWalletStore.stopLoading()
+          navigation.navigate("walletConnect", {
+            uri:
+              "wc:f2db1a28-6161-4706-899b-e4477ec261bb@1?bridge=https%3A%2F%2F9.bridge.walletconnect.org&key=00a1b624cd72b864f56e3ae9876101975d7862c36411dfcca48d9424dca9f1ad",
+          })
         }}
       >
         <SvgXml style={BTN_ICON} xml={QRCodeIcon} />
@@ -228,6 +232,9 @@ export type NavigatorParamList = {
   settings: undefined
   changePassword: undefined
   addCurrency: undefined
+  walletConnect: {
+    uri: string
+  }
   // 🔥 Your screens go here
 }
 
@@ -382,6 +389,17 @@ const AppStack = () => {
           <Stack.Screen
             name="addCurrency"
             component={AddCurrencyScreen}
+            options={{
+              headerShown: true,
+              headerRight: SettingsBtn,
+              headerStyle: { backgroundColor: color.palette.black },
+              headerLeft: Logo,
+              title: "",
+            }}
+          />
+          <Stack.Screen
+            name="walletConnect"
+            component={WalletConnectScreen}
             options={{
               headerShown: true,
               headerRight: SettingsBtn,
