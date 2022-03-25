@@ -95,25 +95,42 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
           })
       })
     }
+    console.log("chartDays", chartDays)
+
+    const updateChart = () => {
+      getChartData()
+    }
 
     useEffect(() => {
+      // Get transaction once then once every 10sec
       updateTransactions()
       const interval = setInterval(updateTransactions, 10000)
 
-      getCoinData(route?.params?.coinId)
-      getChartData(chartDays)
-      if (asset) {
-        // getTransactionStatus(asset, "696a796d-c8fd-4fa5-9c03-8f2411560061").then((status) => {
-        //   console.log("GOT TRANSACTION STATUS", status)
-        // })
+      // Get graph data once then once every 60secs
+      updateChart()
 
+      getCoinData(route?.params?.coinId)
+
+      if (asset) {
         _getTransactions()
         _getBalances()
         setExplorerUrl(getTransactionsUrl(asset))
       }
 
-      return () => clearInterval(interval)
+      return () => {
+        clearInterval(interval)
+      }
     }, [])
+
+    // Handle the graph duration selector
+    React.useEffect(() => {
+      getChartData()
+
+      const intervalChart = setInterval(updateChart, 60000)
+      return () => {
+        clearInterval(intervalChart)
+      }
+    }, [chartDays])
 
     const addAsset = React.useCallback((chain: any) => {
       setLoading((loading) => ({ ...loading, [chain.id]: true }))
@@ -159,10 +176,11 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
       }
     }
 
-    const getChartData = async (days) => {
+    const getChartData = async () => {
       try {
-        setChartDays(days)
-        const data = await getMarketChart(route?.params?.coinId, days)
+        // setChartDays(days)
+        console.log("GET CHART DAY", chartDays)
+        const data = await getMarketChart(route?.params?.coinId, chartDays)
 
         setChartData(data.prices)
       } catch (error) {
@@ -195,6 +213,10 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
             console.log(e)
           })
       }
+    }
+
+    const switchChart = (type: number | "max") => {
+      setChartDays(type)
     }
 
     return (
@@ -244,6 +266,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                       ].map((frame) => (
                         <Button
                           key={frame.value}
+                          onPress={() => switchChart(frame.value as number | "max")}
                           style={
                             chartDays === frame.value
                               ? styles.TIMEFRAME_BTN_ACTIVE
@@ -256,7 +279,6 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                                 ? styles.TIMEFRAME_BTN_TEXT_ACTIVE
                                 : styles.TIMEFRAME_BTN_TEXT
                             }
-                            onPress={() => getChartData(frame.value)}
                           >
                             {frame.label}
                           </Text>

@@ -27,13 +27,17 @@ const chartStyle = {
  */
 export const PriceChart = observer(function PriceChart(props: PriceChartProps) {
   const { style } = props
-  const styles = Object.assign({ marginLeft: -65 }, CONTAINER, style)
+  const styles = Object.assign({ marginLeft: -68 }, CONTAINER, style)
+
+  const graphColor =
+    props.data[props.data.length - 1] < props.data[props.data.length - 2] ? "#cdff38" : "#cd5d38"
+
   return (
     <View style={styles}>
       <LineChart
-        withVerticalLabels={false}
-        withHorizontalLabels={false}
-        withHorizontalLines={false}
+        withVerticalLabels={true}
+        withHorizontalLabels={true}
+        withHorizontalLines={true}
         withDots={false}
         withVerticalLines={false}
         withOuterLines={false}
@@ -41,25 +45,39 @@ export const PriceChart = observer(function PriceChart(props: PriceChartProps) {
           labels: [],
           datasets: [
             {
+              color: (opacity = 1) => graphColor,
               data: props.data || [],
             },
           ],
         }}
         width={Dimensions.get("window").width + 65} // from react-native
-        height={241}
-        yAxisInterval={1} // optional, defaults to 1
+        height={180}
+        yAxisLabel="$"
         chartConfig={{
+          strokeWidth: 1,
+
+          propsForBackgroundLines: {
+            opacity: 0.2,
+            strokeDasharray: "2,3",
+          },
+          propsForLabels: {
+            fontSize: "8",
+            dx: "70",
+            dy: "-2",
+            fontWeight: "bold",
+          },
           backgroundGradientFromOpacity: 0,
           backgroundGradientToOpacity: 0,
-          color: (opacity = 1) => color.primaryDarker,
-          fillShadowGradientFrom: color.primaryDarker,
-          fillShadowGradientFromOpacity: 1,
+          color: (opacity = 1) => "white",
+
+          fillShadowGradientFrom: graphColor,
+          fillShadowGradientFromOpacity: 0.5,
           fillShadowGradientTo: color.palette.noise,
           fillShadowGradientToOpacity: 0,
           fillShadowGradientFromOffset: 0,
           fillShadowGradientToOffset: 0.8,
           propsForDots: {
-            r: "2",
+            r: "1",
             strokeWidth: "2",
           },
         }}
