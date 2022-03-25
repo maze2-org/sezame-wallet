@@ -69,7 +69,7 @@ const BUTTON_STYLE: ViewStyle = {
 export const ChooseWalletScreen: FC<
   StackScreenProps<NavigatorParamList, "chooseWallet">
 > = observer(function ChooseWalletScreen() {
-  const { currentWalletStore } = useStores()
+  const { currentWalletStore, pendingTransactions } = useStores()
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
 
   const [open, setOpen] = useState(false)
@@ -85,6 +85,7 @@ export const ChooseWalletScreen: FC<
       const loadedWallet = await StoredWallet.loadFromStorage(data.walletName, data.walletPassword)
       showMessage({ message: "Wallet unlocked", type: "success" })
       currentWalletStore.open(loadedWallet as any)
+      pendingTransactions.open()
 
       save(data.walletName, data.walletPassword).catch(null)
       navigation.navigate("dashboard")

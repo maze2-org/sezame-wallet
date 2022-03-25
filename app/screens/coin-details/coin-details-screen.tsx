@@ -32,12 +32,19 @@ import { color } from "../../theme"
 import { useNavigation } from "@react-navigation/native"
 import { getCoinDetails, getMarketChart } from "utils/apis"
 import { CoingeckoCoin } from "types/coingeckoCoin"
-import { useStores } from "models"
+import { PendingTransaction, useStores } from "models"
 import { BackgroundStyle, MainBackground, SEPARATOR } from "theme/elements"
 import styles from "./styles"
 import QRCode from "react-native-qrcode-svg"
 import { SvgXml } from "react-native-svg"
-import { CryptoTransaction, getBalance, getTransactions, getTransactionsUrl } from "services/api"
+import {
+  CryptoTransaction,
+  getBalance,
+  getTransactions,
+  getTransactionStatus,
+  getTransactionsUrl,
+} from "services/api"
+import { autorun } from "mobx"
 // import InAppBrowser from "react-native-inappbrowser-reborn"
 const tokens = require("../../config/tokens.json")
 
@@ -49,7 +56,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const [chartData, setChartData] = useState<any[]>([])
     const [transactions, setTransactions] = useState<CryptoTransaction[]>([])
     const [chartDays, setChartDays] = useState<number | "max">(1)
-    const { currentWalletStore } = useStores()
+    const { currentWalletStore, pendingTransactions } = useStores()
     const { getAssetById, setBalance } = currentWalletStore
     const [loading, setLoading] = React.useState({})
 
@@ -57,25 +64,55 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
 
     const asset = getAssetById(route.params.coinId)
     const tokenInfo = tokens.find((token) => token.id === route.params.coinId)
+
+    const _getBalances = async () => {
+      const balance = await getBalance(asset)
+      console.log("balance", balance)
+      setBalance(asset, balance)
+    }
+
+    const _getTransactions = async () => {
+      const tsx = await getTransactions(asset)
+      setTransactions(tsx)
+    }
+
+    const updateTransactions = () => {
+      console.log("This will run every second!")
+      const txList = pendingTransactions.getPendingTxsForAsset(asset)
+      txList.forEach((tx) => {
+        getTransactionStatus(asset, tx.txId)
+          .then((status) => {
+            console.log("GOT TRANSACTION STATUS", status)
+            if (status === "success" || status === "failed") {
+              pendingTransactions.remove(asset, tx)
+              _getBalances()
+              _getTransactions()
+            }
+          })
+          .catch((err) => {
+            console.error("GOT ERROR!!! Removing it...", err)
+            // pendingTransactions.remove(asset, tx)
+          })
+      })
+    }
+
     useEffect(() => {
+      updateTransactions()
+      const interval = setInterval(updateTransactions, 10000)
+
       getCoinData(route?.params?.coinId)
       getChartData(chartDays)
       if (asset) {
-        const _getBalances = async () => {
-          const balance = await getBalance(asset)
-          console.log("balance", balance)
-          setBalance(asset, balance)
-        }
-
-        const _getTransactions = async () => {
-          const tsx = await getTransactions(asset)
-          setTransactions(tsx)
-        }
+        // getTransactionStatus(asset, "696a796d-c8fd-4fa5-9c03-8f2411560061").then((status) => {
+        //   console.log("GOT TRANSACTION STATUS", status)
+        // })
 
         _getTransactions()
         _getBalances()
         setExplorerUrl(getTransactionsUrl(asset))
       }
+
+      return () => clearInterval(interval)
     }, [])
 
     const addAsset = React.useCallback((chain: any) => {
@@ -268,13 +305,31 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                           </Button>
                         </View>
                       </View>
+
+                      {pendingTransactions.getPendingTxsForAsset(asset).length > 0 && (
+                        <View>
+                          <View style={styles.TRANSACTIONS_HEADER}>
+                            <Text preset="header" text="Pending transactions" />
+                          </View>
+                          <View style={styles.TRANSACTIONS_CONTAINER}>
+                            {pendingTransactions.getPendingTxsForAsset(asset).map((tx, index) => (
+                              <TransactionRow
+                                key={index}
+                                asset={asset}
+                                transaction={{ ...tx, date: null, out: true, hash: "" }}
+                              />
+                            ))}
+                          </View>
+                        </View>
+                      )}
+
                       <View>
                         <View style={styles.TRANSACTIONS_HEADER}>
                           <Text preset="header" text="Transactions" />
                         </View>
                         <View style={styles.TRANSACTIONS_CONTAINER}>
-                          {transactions.map((tx) => (
-                            <TransactionRow key={tx.hash} asset={asset} transaction={tx} />
+                          {transactions.map((tx, index) => (
+                            <TransactionRow key={index} asset={asset} transaction={tx} />
                           ))}
                         </View>
                       </View>
