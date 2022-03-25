@@ -135,10 +135,9 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
           showMessage({ message: "Unable to Send", type: "danger" })
         } else {
           showMessage({ message: "Transaction sent", type: "success" })
-
           pendingTransactions.add(asset, {
             amount: `-${new BigNumber(amount)
-              .plus(fees.regular.value ? fees.regular.value : "0")
+              .plus(fees.regular.settings.value ? fees.regular.settings.value : "0")
               .toString()}`,
             from: asset.address,
             to: recipientAddress,
