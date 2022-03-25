@@ -2,11 +2,13 @@ import { WalletFactory } from "@maze2/sezame-sdk"
 import { IWalletAsset } from "models"
 
 export type CryptoTransaction = {
-  date: Date
+  date: Date | null
+  timestamp: number
+  out: boolean
   hash: string
-  from: string
-  to: string
-  amount: number
+  from: string[] | string
+  to: string[] | string
+  amount: string
 }
 
 const getWallet = (asset) => {
@@ -29,39 +31,17 @@ export const getBalance = async (asset: IWalletAsset) => {
 export const getTransactionsUrl = (asset: IWalletAsset) => {
   const cryptoWallet = getWallet(asset)
   const url = cryptoWallet.getTransactionsUrl(cryptoWallet.address)
-  console.log("GOT URLLLLLLLLLLLLL", { url })
   return url
+}
+
+export const getTransactionStatus = (asset: IWalletAsset, txId: string) => {
+  const cryptoWallet = getWallet(asset)
+  return cryptoWallet.getTransactionStatus(txId)
 }
 
 export const getTransactions = async (asset: IWalletAsset): Promise<Array<CryptoTransaction>> => {
   const cryptoWallet = getWallet(asset)
   return await cryptoWallet.getTransactions()
-  // Returning fake data
-  // return [
-  //   {
-  //     date: new Date(),
-  //     hash: "bc1qzl0yv9xqkm36me3xu94qj9ejjn49ez677ukd5e",
-  //     from: "bc1qzl0yv9xqkm36me3xu94qj9ejjn49ez677ukd5e",
-  //     to: "5GzrBLTUs4EEovTAVXLMiSw9JYkSBTih8FurD8xYe9GvhZs9",
-  //     amount: 20,
-  //   },
-
-  //   {
-  //     date: new Date(),
-  //     hash: "bc1qzl0yv9xqkm36me3xu94qj9ejjn49ez677ukd5e",
-  //     from: "5GzrBLTUs4EEovTAVXLMiSw9JYkSBTih8FurD8xYe9GvhZs9",
-  //     to: "bc1qzl0yv9xqkm36me3xu94qj9ejjn49ez677ukd5e",
-  //     amount: 21,
-  //   },
-
-  //   {
-  //     date: new Date(),
-  //     hash: "bc1qzl0yv9xqkm36me3xu94qj9ejjn49ez677ukd5e",
-  //     from: "5GzrBLTUs4EEovTAVXLMiSw9JYkSBTih8FurD8xYe9GvhZs9",
-  //     to: "bc1qzl0yv9xqkm36me3xu94qj9ejjn49ez677ukd5e",
-  //     amount: 22,
-  //   },
-  // ]
 }
 
 export const getFees = async (asset: IWalletAsset, address: string, amount: number) => {
