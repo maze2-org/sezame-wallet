@@ -169,10 +169,7 @@ function SettingsBtn() {
         onPress={() => {
           console.log("a")
           currentWalletStore.stopLoading()
-          navigation.navigate("walletConnect", {
-            uri:
-              "wc:f2db1a28-6161-4706-899b-e4477ec261bb@1?bridge=https%3A%2F%2F9.bridge.walletconnect.org&key=00a1b624cd72b864f56e3ae9876101975d7862c36411dfcca48d9424dca9f1ad",
-          })
+          navigation.navigate("walletConnect")
         }}
       >
         <SvgXml style={BTN_ICON} xml={QRCodeIcon} />
