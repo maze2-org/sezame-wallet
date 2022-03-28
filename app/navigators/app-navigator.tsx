@@ -24,7 +24,10 @@ import {
   useNavigation,
   useRoute,
 } from "@react-navigation/native"
-import { createNativeStackNavigator } from "@react-navigation/native-stack"
+import {
+  createNativeStackNavigator,
+  NativeStackHeaderProps,
+} from "@react-navigation/native-stack"
 import {
   WelcomeScreen,
   ImportWalletScreen,
@@ -63,20 +66,23 @@ import {
   tabBarLabelFocused,
   tabBarStyle,
 } from "theme/elements"
+import { icons } from '../components/icon/icons/index'
 
 import ReloadIcon from "../../assets/svg/reload.svg"
 import QRCodeIcon from "../../assets/svg/qr_code.svg"
 import UserIcon from "../../assets/svg/user.svg"
 import PlusIcon from "../../assets/svg/plus.svg"
 import { SvgXml } from "react-native-svg"
-
-import tabWallet from "../../assets/svg/tab-wallet.svg"
-import ready from "../../assets/svg/ready.svg"
-import tabNft from "../../assets/svg/tab-nft.svg"
+import TabNft from "../components/svg/TabNft"
+import Ready from "../components/svg/Ready"
+import {
+  boolean
+} from "mobx-state-tree/dist/internal"
 
 const NAV_HEADER_CONTAINER: ViewStyle = {
   flexDirection: "row",
   justifyContent: "space-between",
+  alignItems:"center",
   paddingTop: spacing[7],
   paddingBottom: spacing[2],
   paddingHorizontal: spacing[4],
@@ -115,6 +121,10 @@ const LOGO: TextStyle = {
   fontWeight: "700",
   paddingRight: spacing[1],
 }
+const BACK_ARROW_ICON: ImageStyle = {
+  width:16,
+  height:16,
+}
 
 const Logo = () => (
   <View style={NAV_HEADER_BTN_CONTAINER}>
@@ -125,6 +135,13 @@ const Logo = () => (
     </View>
   </View>
 )
+const BackArrow = ({navigation}) => (
+    <TouchableOpacity activeOpacity={0.7}
+                      hitSlop={{top:15,bottom:15,left:15,right:15}}
+                      onPress={()=>navigation.goBack()}>
+      <Image source={icons.back} style={BACK_ARROW_ICON} />
+    </TouchableOpacity>
+  )
 
 const MODAL_CONTAINER: TextStyle = {
   flex: 1,
@@ -251,21 +268,13 @@ const BottomTabNavigator = () => {
                     focused && { ...tabBarItemFocused },
                   ]}
                 >
-                  <SvgXml
-                    stroke={focused ? color.palette.gold : color.palette.lightGrey}
-                    xml={ready}
-                    height={20}
-                  />
+                  <Ready isActive={focused}/>
                   <Text style={focused ? tabBarLabelFocused : tabBarLabel}>WALLET</Text>
                 </View>
               )}
               {route.name === "nfts" && (
                 <View style={[tabBarItem, focused && { ...tabBarItemFocused }]}>
-                  <SvgXml
-                    stroke={focused ? color.palette.gold : color.palette.lightGrey}
-                    xml={tabNft}
-                    height={20}
-                  />
+                  <TabNft isActive={focused}/>
                   <Text style={focused ? tabBarLabelFocused : tabBarLabel}>NFT</Text>
                 </View>
               )}
@@ -291,12 +300,21 @@ const BottomTabNavigator = () => {
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createNativeStackNavigator<NavigatorParamList>()
 
-const AppStackHeader = () => {
+const AppStackHeader = (props: NativeStackHeaderProps & {backArrow: boolean}) => {
   return (
     <View style={NAV_HEADER_CONTAINER}>
-      <Logo />
+      {props.backArrow ?
+       <BackArrow navigation={props.navigation}/>
+        :
+        <Logo/>}
       <SettingsBtn />
     </View>
+  )
+}
+
+const AppStackHeaderWithBackArrow = (props) => {
+  return (
+    <AppStackHeader {...props} backArrow/>
   )
 }
 
@@ -335,14 +353,21 @@ const AppStack = () => {
             }}
           />
           <Stack.Screen name="walletReady" component={WalletReadyScreen} />
-          <Stack.Screen name="coinDetails" component={CoinDetailsScreen} />
+          <Stack.Screen name="coinDetails"
+                        component={CoinDetailsScreen}
+                        options={{
+                          title: null,
+                          headerShown: true,
+                          header: AppStackHeaderWithBackArrow,
+                          headerStyle: { backgroundColor: color.palette.black },
+                        }}
+          />
           <Stack.Screen
             options={{
               presentation: "modal",
               headerShown: true,
-              headerRight: SettingsBtn,
+              header: AppStackHeader,
               headerStyle: { backgroundColor: color.palette.black },
-              headerLeft: Logo,
               title: "",
             }}
             name="send"
@@ -362,9 +387,8 @@ const AppStack = () => {
             component={SettingsScreen}
             options={{
               headerShown: true,
-              headerRight: SettingsBtn,
+              header: AppStackHeader,
               headerStyle: { backgroundColor: color.palette.black },
-              headerLeft: Logo,
               title: "",
             }}
           />
@@ -373,9 +397,8 @@ const AppStack = () => {
             component={ChangePasswordScreen}
             options={{
               headerShown: true,
-              headerRight: SettingsBtn,
+              header: AppStackHeader,
               headerStyle: { backgroundColor: color.palette.black },
-              headerLeft: Logo,
               title: "",
             }}
           />
@@ -384,9 +407,8 @@ const AppStack = () => {
             component={AddCurrencyScreen}
             options={{
               headerShown: true,
-              headerRight: SettingsBtn,
+              header: AppStackHeader,
               headerStyle: { backgroundColor: color.palette.black },
-              headerLeft: Logo,
               title: "",
             }}
           />

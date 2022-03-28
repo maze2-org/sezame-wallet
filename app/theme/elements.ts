@@ -15,6 +15,7 @@ import { color, spacing, typography } from "."
 export const BackgroundStyle: ImageStyle = {
   flex: 1,
   justifyContent: "space-between",
+  backgroundColor:color.palette.black
 }
 
 export const RootPageStyle: ViewStyle = {

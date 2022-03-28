@@ -57,7 +57,7 @@ const MultiStepsController = ({
 
   return (
     <StepsContext.Provider value={{ onButtonNext, onButtonBack }}>
-      <Step name={stepElements[currentStep].name} />
+      <Step name={stepElements[currentStep].name}/>
     </StepsContext.Provider>
   )
 }

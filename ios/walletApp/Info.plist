@@ -41,6 +41,7 @@
 	<string></string>
 	<key>UIAppFonts</key>
 	<array>
+		<string>OpenSansBold.ttf</string>
 		<string>OpenSans.ttf</string>
 		<string>AntDesign.ttf</string>
 		<string>Entypo.ttf</string>

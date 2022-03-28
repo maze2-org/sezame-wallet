@@ -5,7 +5,11 @@ import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import SplashScreen from "react-native-splash-screen"
 import { NavigatorParamList } from "../../navigators"
 import { AppScreen, Button, Header, Screen, Text } from "../../components"
-import { color, spacing } from "../../theme"
+import {
+  color,
+  spacing,
+  typography,
+} from "../../theme"
 import { getListOfWallets } from "../../utils/storage"
 import { useForm, Controller } from "react-hook-form"
 import { SvgXml } from "react-native-svg"
@@ -54,6 +58,7 @@ const headerTitleSTYLE: TextStyle = {
   fontSize: 27,
   lineHeight: 37,
   fontWeight: "700",
+  fontFamily: typography.primaryBold
 }
 const footerStyle: TextStyle = {
   display: "flex",

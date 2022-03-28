@@ -79,6 +79,11 @@ const styles = StyleSheet.create({
   LIGHT_FONT_FULL: {
     color: color.palette.white,
   },
+  LOADING_BOX:{
+    alignItems:'center',
+    flex:1,
+    justifyContent:'center'
+  },
   NETWORK: {
     ...MY_STYLE.common,
     padding: spacing[2],
@@ -318,7 +323,11 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
         scrollEventThrottle={16}
       >
         <AppScreen unsafe>
-          {loadingBalance && <Text>Loading</Text>}
+          {!!loadingBalance &&
+            <View style={styles.LOADING_BOX}>
+              <Text>Loading</Text>
+            </View>
+          }
           <View style={styles.PORTFOLIO_WRAPPER}>
             <Animated.View style={[styles.PORTFOLIO_CONTAINER, { transform: [{ translateY }] }]}>
               <Animated.View style={[styles.PORTFOLIO_OVERLAY, { opacity }]} />

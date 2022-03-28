@@ -18,6 +18,7 @@ export const typography = {
    * The primary font.  Used in most places.
    */
   primary: Platform.select({ ios: "Open Sans", android: "Open Sans" }),
+  primaryBold: Platform.select({ ios: "Open Sans Bold", android: "Open Sans Bold" }),
 
   /**
    * An alternate font used for perhaps titles and stuff.
