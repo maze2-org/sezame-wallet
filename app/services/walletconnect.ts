@@ -33,6 +33,7 @@ export class WalletConnect {
   }
 
   acceptSession = async (chainId, address) => {
+    console.log("acceptSession", chainId, address, this.walletConnector)
     if (this.walletConnector) {
       const approveData = {
         chainId: chainId,

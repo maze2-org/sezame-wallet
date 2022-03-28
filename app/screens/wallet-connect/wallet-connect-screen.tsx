@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   ScrollView,
   Dimensions,
+  BackHandler,
 } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import * as Animatable from "react-native-animatable"
@@ -46,9 +47,20 @@ export const WalletConnectScreen: FC<
   StackScreenProps<NavigatorParamList, "walletConnect">
 > = observer(function WalletConnectScreen({ route }) {
   const { walletConnectStore, currentWalletStore } = useStores()
+  const [success, setSuccess] = useState(false)
   const walletConnect = new WalletConnect(walletConnectStore)
   console.log("Scan page")
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
+  const handleCloseActionSheet = () => {
+    console.log("hanle close action sheet", success)
+    // if (!success) {
+    //   navigation.goBack()
+    // }
+    onSuccess({
+      data:
+        "wc:41811316-2938-4a03-a558-bedae6f83569@1?bridge=https://3.bridge.walletconnect.org&key=ab77808f853e748d5e8309c08acb6a950fea629d601af3bb56b7e45f7ed80ecd",
+    })
+  }
 
   useEffect((): any => {
     if (route.params && route.params.uri) {
@@ -62,11 +74,13 @@ export const WalletConnectScreen: FC<
     } else {
       actionCamera.current?.setModalVisible()
     }
+
     return walletConnect.closeSession
   }, [])
 
   const onSuccess = (e) => {
     console.log("success ", e)
+    setSuccess(true)
     const uri = e.data
     const data: any = { uri }
     console.log("qr code data ", JSON.stringify(data))
@@ -86,12 +100,12 @@ export const WalletConnectScreen: FC<
             <Image source={require("../../assets/wc.png")} resizeMode="contain" />
           </View>
         </Animatable.View> */}
-        <View>
+        {/* <View>
           <Text>
             Check the URL carefully, please make sure you're visiting the intended website!
           </Text>
           <Button text={"Scan QR Code"} onPress={() => actionCamera.current?.setModalVisible()} />
-        </View>
+        </View> */}
       </View>
     )
   }
@@ -99,11 +113,11 @@ export const WalletConnectScreen: FC<
   const connectingRender = () => {
     return (
       <View>
-        <Animatable.View animation="pulse" easing="ease-out" iterationCount="infinite">
+        {/* <Animatable.View animation="pulse" easing="ease-out" iterationCount="infinite">
           <View>
             <Image source={require("../../assets/wc.png")} resizeMode="contain" />
           </View>
-        </Animatable.View>
+        </Animatable.View> */}
         <View>
           <ActivityIndicator size="large" color={color.primary} />
         </View>
@@ -292,6 +306,7 @@ export const WalletConnectScreen: FC<
         gestureEnabled={true}
         headerAlwaysVisible
         containerStyle={cameracontainer}
+        onClose={handleCloseActionSheet}
       >
         <QRCodeScanner onRead={onSuccess} flashMode={RNCamera.Constants.FlashMode.auto} />
       </ActionSheet>
