@@ -274,7 +274,7 @@ export const WalletConnectScreen: FC<
           onPress={() => {
             // Get the coresponding wallet for the chain
             walletConnect.acceptSession(
-              walletConnectStore.chainId,
+              chainType,
               currentWalletStore.getWalletAddressByChain(chainType),
             )
           }}
