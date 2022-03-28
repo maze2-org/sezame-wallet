@@ -9,6 +9,8 @@ import {
   ScrollView,
   Dimensions,
   BackHandler,
+  TextStyle,
+  ImageStyle,
 } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import * as Animatable from "react-native-animatable"
@@ -20,7 +22,7 @@ import { NavigatorParamList } from "../../navigators"
 import { AppScreen, Button, Footer, Screen, Text } from "../../components"
 // import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "../../models"
-import { color } from "../../theme"
+import { color, spacing } from "../../theme"
 import { SEPARATOR } from "theme/elements"
 import { walletConnectService, WALLET_CONNECT_STATUS } from "services/walletconnect"
 import { useStores } from "models"
@@ -32,14 +34,51 @@ const shortenAddress = (address: string) => {
   return `${address.slice(0, 6)}...${address.slice(address.length - 4, address.length)}`
 }
 const ROOT: ViewStyle = {
-  backgroundColor: color.palette.black,
-  flex: 1,
+  padding: spacing[4],
 }
 
 const cameracontainer: ViewStyle = {
   height: Dimensions.get("window").height / 1.1,
   margin: 10,
   backgroundColor: "black",
+}
+
+const CONNECT_BTNS_CONTAINER: ViewStyle = {
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "center",
+}
+
+const AUTH_CONTAINER: ViewStyle = {
+  display: "flex",
+  flexDirection: "column",
+}
+
+const ACCEPT_BTN: ViewStyle = {
+  margin: spacing[2],
+}
+const REJECT_BTN: ViewStyle = {
+  margin: spacing[2],
+  backgroundColor: color.palette.darkBlack,
+}
+
+const ACCEPT_BTN_TEXT: TextStyle = {
+  color: color.palette.white,
+  fontWeight: "bold",
+}
+const REJECTT_BTN_TEXT: TextStyle = {
+  ...ACCEPT_BTN_TEXT,
+}
+const WC_LOGO_CONTAINER: ViewStyle = {
+  display: "flex",
+  justifyContent: "center",
+  alignContent: "center",
+  alignItems: "center",
+}
+
+const WC_LOGO: ImageStyle = {
+  width: 80,
+  height: 80,
 }
 const actionCamera: React.RefObject<any> = createRef()
 
@@ -97,17 +136,17 @@ export const WalletConnectScreen: FC<
   const disconnectedRender = () => {
     return (
       <View>
-        {/* <Animatable.View animation="zoomIn" delay={100}>
-          <View>
-            <Image source={require("../../assets/wc.png")} resizeMode="contain" />
+        <Animatable.View>
+          <View style={WC_LOGO_CONTAINER}>
+            <Image style={WC_LOGO} source={require("../../assets/wc.png")} resizeMode="contain" />
           </View>
-        </Animatable.View> */}
-        {/* <View>
+        </Animatable.View>
+        <View>
           <Text>
             Check the URL carefully, please make sure you're visiting the intended website!
           </Text>
           <Button text={"Scan QR Code"} onPress={() => actionCamera.current?.setModalVisible()} />
-        </View> */}
+        </View>
       </View>
     )
   }
@@ -137,9 +176,9 @@ export const WalletConnectScreen: FC<
   }
 
   const renderPeerMeta = () => {
-    if (walletConnectStore.status === WALLET_CONNECT_STATUS.CONNECTING) {
-      return connectingRender()
-    }
+    // if (walletConnectStore.status === WALLET_CONNECT_STATUS.CONNECTING) {
+    //   return connectingRender()
+    // }
     if (walletConnectStore.status === WALLET_CONNECT_STATUS.DISCONNECTED) {
       return disconnectedRender()
     }
@@ -255,9 +294,9 @@ export const WalletConnectScreen: FC<
   }
 
   const renderAuthRequest = () => {
-    if (walletConnectStore.status !== WALLET_CONNECT_STATUS.SESSION_REQUEST) {
-      return null
-    }
+    // if (walletConnectStore.status !== WALLET_CONNECT_STATUS.SESSION_REQUEST) {
+    //   return null
+    // }
 
     const chainType = CHAIN_ID_TYPE_MAP[walletConnectStore.chainId]
     if (!chainType) {
@@ -266,7 +305,7 @@ export const WalletConnectScreen: FC<
         message: "Wrong chain",
         type: "warning",
       })
-      return
+      // return
     }
 
     const acceptSession = () => {
@@ -285,10 +324,18 @@ export const WalletConnectScreen: FC<
     }
 
     return (
-      <Animatable.View animation="bounceIn">
-        <Text>{"Trying to connect"}</Text>
-        <Button text={"Accept"} onPress={acceptSession} />
-        <Button text={"Reject"} onPress={() => walletConnectService.rejectSession()} />
+      <Animatable.View animation="bounceIn" style={AUTH_CONTAINER}>
+        <View>
+          <Text>{"Do you accept the connection?"}</Text>
+        </View>
+        <View style={CONNECT_BTNS_CONTAINER}>
+          <Button style={ACCEPT_BTN} onPress={acceptSession}>
+            <Text style={ACCEPT_BTN_TEXT}>{"Accept"}</Text>
+          </Button>
+          <Button style={REJECT_BTN} onPress={() => walletConnectService.rejectSession()}>
+            <Text style={REJECTT_BTN_TEXT}>{"Reject"}</Text>
+          </Button>
+        </View>
       </Animatable.View>
     )
   }
@@ -306,7 +353,7 @@ export const WalletConnectScreen: FC<
 
   return (
     <AppScreen>
-      <ScrollView>
+      <ScrollView style={ROOT}>
         {renderPeerMeta()}
         {renderDisconnect()}
       </ScrollView>

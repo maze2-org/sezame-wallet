@@ -171,7 +171,7 @@ function SettingsBtn() {
           currentWalletStore.stopLoading()
           navigation.navigate("walletConnect", {
             uri:
-              "wc:fe13e1a2-a77c-4f60-bb02-3d7310dfa428@1?bridge=https%3A%2F%2Fn.bridge.walletconnect.org&key=1074cbe2990c85e9b196ce40d59e3016cd170e80b5569499ab72a769b2dc8e75",
+              "wc:77675dda-77a9-456c-be96-58f9543ae360@1?bridge=https%3A%2F%2Fc.bridge.walletconnect.org&key=5175bb82a1ece90a46dc91783842c252af41231300681ee356e651cf21c7820c",
           })
         }}
       >
