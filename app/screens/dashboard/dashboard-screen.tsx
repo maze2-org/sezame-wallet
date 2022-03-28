@@ -170,7 +170,6 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
         return 1
       })
       assetIds.slice(0, -1)
-
       const getPrice = async () => {
         let _price = 0
 

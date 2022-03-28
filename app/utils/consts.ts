@@ -65,3 +65,13 @@ export const chainSymbolsToNames = {
   AVN: "Aventus network",
   ALPH: "Alephium network",
 }
+export const CHAIN_ID_MAP = {
+  ETH: 1,
+  BSC: 56,
+  POLYGON: 137,
+}
+export const CHAIN_ID_TYPE_MAP = {
+  1: "ETH",
+  56: "BSC",
+  137: "POLYGON",
+}
