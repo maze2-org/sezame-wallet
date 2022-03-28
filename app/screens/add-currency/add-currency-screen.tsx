@@ -55,9 +55,8 @@ export const AddCurrencyScreen: FC<StackScreenProps<NavigatorParamList, "addCurr
     }
 
     return (
-      <Screen preset="scroll" style={RootPageStyle}>
+      <Screen unsafe preset="fixed" style={RootPageStyle}>
         <ImageBackground source={MainBackground} style={BackgroundStyle}>
-          <AppScreen>
             <View style={styles.SEARCH_INPUT_CONTAINER}>
               <TextInput
                 style={styles.SEARCH_INPUT}
@@ -70,8 +69,7 @@ export const AddCurrencyScreen: FC<StackScreenProps<NavigatorParamList, "addCurr
 
             <BigList data={selectedTokens} renderItem={renderItem} itemHeight={50} />
 
-            <Footer onLefButtonPress={goBack}></Footer>
-          </AppScreen>
+            <Footer onLeftButtonPress={goBack}></Footer>
         </ImageBackground>
       </Screen>
     )

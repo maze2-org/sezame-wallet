@@ -120,7 +120,7 @@ export function TextInputField(props: TextFieldProps) {
   } = props
 
   const containerStyles = [CONTAINER]
-  let inputStyles = [INPUT, inputStyleOverride]
+  const inputStyles = [INPUT, inputStyleOverride]
   const actualPlaceholder = placeholderTx ? translate(placeholderTx) : placeholder
   const labelStyle = [LABEL]
   if (errors[name] && errors[name].message) {

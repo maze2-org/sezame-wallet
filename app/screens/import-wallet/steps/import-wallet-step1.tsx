@@ -19,6 +19,7 @@ import { WalletGenerator } from "@maze2/sezame-sdk"
 import { spacing } from "theme/spacing"
 import { ScrollView } from "react-native-gesture-handler"
 import { TextInputField } from "components/text-input-field/text-input-field"
+import eyeIcon from "../../../../assets/svg/eye.svg"
 
 export function ImportWalletStep1(props: StepProps) {
   // Pull in navigation via hook
@@ -103,8 +104,10 @@ export function ImportWalletStep1(props: StepProps) {
             name="walletPassword"
             render={({ field: { onChange, value, onBlur } }) => (
               <TextInputField
+                ref={null}
                 label="Choose a password"
-                secureTextEntry={true}
+                showEye={true}
+                icon={eyeIcon}
                 name="walletPassword"
                 style={textInput}
                 errors={errors}
@@ -128,7 +131,8 @@ export function ImportWalletStep1(props: StepProps) {
             render={({ field: { onChange, value, onBlur } }) => (
               <TextInputField
                 label="Confirm password"
-                secureTextEntry={true}
+                showEye={true}
+                icon={eyeIcon}
                 name="walletConfirmPassword"
                 style={textInput}
                 errors={errors}

@@ -48,9 +48,6 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
     // styling
     const DashboardStyle: ViewStyle = {
       ...ROOT,
-      borderTopColor: "rgba(190, 195, 225, 0.7)",
-      borderTopWidth: 1,
-      borderStyle: "dashed",
     }
 
     const WALLET_STYLE: ViewStyle = {
@@ -159,7 +156,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
     const goBack = () => navigation.goBack()
 
     return (
-      <Screen style={DashboardStyle} preset="scroll">
+      <Screen unsafe style={DashboardStyle} preset="fixed">
         <ImageBackground source={MainBackground} style={BackgroundStyle}>
           <View style={CONTAINER}>
             <View style={WALLET_STYLE}>

@@ -22,7 +22,11 @@ import { NavigatorParamList } from "../../navigators"
 import { Button, Footer, Screen, Text } from "../../components"
 // import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "../../models"
-import { color, spacing } from "../../theme"
+import {
+  color,
+  spacing,
+  typography,
+} from "../../theme"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { useStores } from "models"
@@ -62,10 +66,12 @@ const SETTING_HEADER_CONTAINER: ViewStyle = {
 
 const SETTING_HEADER: TextStyle = {
   fontSize: 24,
+  fontFamily:typography.primaryBold,
+  fontWeight:"700"
 }
 const WALLET_NAME: TextStyle = {
   fontSize: 14,
-  color: color.palette.orange,
+  color: color.palette.gold,
 }
 const SETTING_ITEM_WRAP: ViewStyle = {
   backgroundColor: color.palette.darkblack,
@@ -111,9 +117,6 @@ const SETTING_ITEM_SUBTITLE: TextStyle = {
 
 const DashboardStyle: ViewStyle = {
   ...ROOT,
-  borderTopColor: "rgba(190, 195, 225, 0.7)",
-  borderTopWidth: 1,
-  borderStyle: "dashed",
 }
 
 const styles = StyleSheet.create({
@@ -123,8 +126,8 @@ const styles = StyleSheet.create({
     marginTop: spacing[6],
   },
   SEPARATOR: {
-    borderBottomColor: color.palette.lightGrey,
-    borderBottomWidth: 0.5,
+    borderBottomColor: color.palette.lineColor,
+    borderBottomWidth: 1,
   },
   buttonContainer: {
     display: "flex",
@@ -251,9 +254,9 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
       })
     }
     return (
-      <Screen style={DashboardStyle} preset="scroll">
-        <ScrollView>
-          <View style={BackgroundStyle}>
+      <Screen unsafe={true} style={DashboardStyle} preset="fixed">
+        <ScrollView contentContainerStyle={BackgroundStyle}>
+          <View>
             <View style={MAIN_CONTAINER}>
               <View>
                 <View style={SETTING_HEADER_CONTAINER}>
@@ -277,7 +280,7 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
                       />
                     </View>
                     <View style={SETTING_ICON_CONTAINER}>
-                      <FontAwesomeIcon name="chevron-right" color={color.palette.white} />
+                      <FontAwesomeIcon name="chevron-right" color={color.palette.lightGrey} />
                     </View>
                   </TouchableOpacity>
                   <View style={styles.SEPARATOR} />
@@ -301,7 +304,7 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
                       />
                     </View>
                     <View style={SETTING_ICON_CONTAINER}>
-                      <FontAwesomeIcon name="chevron-right" color={color.palette.white} />
+                      <FontAwesomeIcon name="chevron-right" color={color.palette.lightGrey} />
                     </View>
                   </TouchableOpacity>
                   <View style={styles.SEPARATOR} />
@@ -322,7 +325,7 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
                       />
                     </View>
                     <View style={SETTING_ICON_CONTAINER}>
-                      <FontAwesomeIcon name="chevron-right" color={color.palette.white} />
+                      <FontAwesomeIcon name="chevron-right" color={color.palette.lightGrey} />
                     </View>
                   </TouchableOpacity>
                   <View style={styles.SEPARATOR} />
@@ -345,7 +348,7 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
                       <Text style={SETTING_ITEM_SUBTITLE} text="Switch to Mainnet or Testnet" />
                     </View>
                     <View style={SETTING_ICON_CONTAINER}>
-                      <FontAwesomeIcon name="chevron-right" color={color.palette.white} />
+                      <FontAwesomeIcon name="chevron-right" color={color.palette.lightGrey} />
                     </View>
                   </TouchableOpacity>
                 </View>
@@ -370,7 +373,7 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
                       />
                     </View>
                     <View style={SETTING_ICON_CONTAINER}>
-                      <FontAwesomeIcon name="chevron-right" color={color.palette.white} />
+                      <FontAwesomeIcon name="chevron-right" color={color.palette.lightGrey} />
                     </View>
                   </TouchableOpacity>
                 </View>

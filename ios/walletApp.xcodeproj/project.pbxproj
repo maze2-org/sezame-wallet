@@ -20,6 +20,7 @@
 		A4B148D367B119F99EC2C2E5 /* libPods-walletApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EADEA568884090C1B008E181 /* libPods-walletApp.a */; };
 		D3BBD1EE28083B32DCCCD9E7 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32BB11C19824A84866ED4603 /* ExpoModulesProvider.swift */; };
 		E0E402AF856107EC82190244 /* libPods-walletApp-walletAppTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 301BE758935A381A571F5B21 /* libPods-walletApp-walletAppTests.a */; };
+		F06166D127EDE19E00626FB2 /* OpenSansBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F06166D027EDE19D00626FB2 /* OpenSansBold.ttf */; };
 		F0E6B62E27E3269E000EDA58 /* OpenSans.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F0E6B62D27E3256D000EDA58 /* OpenSans.ttf */; };
 /* End PBXBuildFile section */
 
@@ -47,7 +48,7 @@
 		00E356F21AD99517003FC87E /* walletAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = walletAppTests.m; sourceTree = "<group>"; };
 		0559BF244A624DD68EAA1D58 /* Octicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Octicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Octicons.ttf"; sourceTree = "<group>"; };
 		078943998356451CA41E295D /* FontAwesome.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome.ttf"; sourceTree = "<group>"; };
-		13B07F961A680F5B00A75B9A /* walletApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = walletApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07F961A680F5B00A75B9A /* walletApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = walletApp.app; path = sezamewallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = walletApp/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = walletApp/AppDelegate.m; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = walletApp/Images.xcassets; sourceTree = "<group>"; };
@@ -81,6 +82,7 @@
 		EADEA568884090C1B008E181 /* libPods-walletApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-walletApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
+		F06166D027EDE19D00626FB2 /* OpenSansBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = OpenSansBold.ttf; sourceTree = "<group>"; };
 		F0E6B62D27E3256D000EDA58 /* OpenSans.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = OpenSans.ttf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -227,6 +229,7 @@
 		AFDF61386A834CA1BBA13C55 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				F06166D027EDE19D00626FB2 /* OpenSansBold.ttf */,
 				F0E6B62D27E3256D000EDA58 /* OpenSans.ttf */,
 				BC3541104DAA40DD819C5C6B /* AntDesign.ttf */,
 				6835EAE8C796475CB2A3890E /* Entypo.ttf */,
@@ -402,6 +405,7 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				F06166D127EDE19E00626FB2 /* OpenSansBold.ttf in Resources */,
 				F0E6B62E27E3269E000EDA58 /* OpenSans.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -445,8 +449,8 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-walletApp-walletAppTests/Pods-walletApp-walletAppTests-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/double-conversion/double-conversion.framework/double-conversion",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL/OpenSSL.framework/OpenSSL",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/Flipper-DoubleConversion/double-conversion.framework/double-conversion",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Universal/OpenSSL.framework/OpenSSL",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -627,8 +631,8 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-walletApp/Pods-walletApp-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/double-conversion/double-conversion.framework/double-conversion",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL/OpenSSL.framework/OpenSSL",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/Flipper-DoubleConversion/double-conversion.framework/double-conversion",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Universal/OpenSSL.framework/OpenSSL",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
