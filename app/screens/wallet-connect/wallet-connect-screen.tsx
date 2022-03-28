@@ -22,7 +22,7 @@ import { AppScreen, Button, Footer, Screen, Text } from "../../components"
 // import { useStores } from "../../models"
 import { color } from "../../theme"
 import { SEPARATOR } from "theme/elements"
-import { WalletConnect, WALLET_CONNECT_STATUS } from "services/walletconnect"
+import { walletConnectService, WALLET_CONNECT_STATUS } from "services/walletconnect"
 import { useStores } from "models"
 import { chainSymbolsToNames, CHAIN_ID_TYPE_MAP } from "utils/consts"
 import { useNavigation } from "@react-navigation/native"
@@ -48,11 +48,8 @@ export const WalletConnectScreen: FC<
 > = observer(function WalletConnectScreen({ route }) {
   const { walletConnectStore, currentWalletStore } = useStores()
   const [success, setSuccess] = useState(false)
-  const walletConnect = new WalletConnect(walletConnectStore)
-  console.log("Scan page")
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
   const handleCloseActionSheet = () => {
-    console.log("hanle close action sheet", success)
     if (!success) {
       navigation.goBack()
     }
@@ -64,7 +61,7 @@ export const WalletConnectScreen: FC<
       const data: any = { uri }
       data.redirect = ""
       data.autosign = false
-      if (!walletConnect.init(data)) {
+      if (!walletConnectService.init(walletConnectStore, data)) {
         // Display error message
         showMessage({
           message: "Something went wrong",
@@ -75,7 +72,7 @@ export const WalletConnectScreen: FC<
       actionCamera.current?.setModalVisible()
     }
 
-    return walletConnect.closeSession
+    return walletConnectService.closeSession
   }, [])
 
   const onSuccess = (e) => {
@@ -83,10 +80,10 @@ export const WalletConnectScreen: FC<
     setSuccess(true)
     const uri = e.data
     const data: any = { uri }
-    console.log("qr code data ", JSON.stringify(data))
     data.redirect = ""
     data.autosign = false
-    const intiResult = walletConnect.init(data)
+    const intiResult = walletConnectService.init(walletConnectStore, data)
+
     if (!intiResult) {
       // Display error message
       showMessage({
@@ -191,14 +188,14 @@ export const WalletConnectScreen: FC<
       )
 
       if (!cryptoWallet) {
-        walletConnect.rejectRequest({
+        walletConnectService.rejectRequest({
           id: walletConnectStore.transactionData.id!,
           error: "Chain is not supported",
         })
       }
       const signingManager = cryptoWallet.getSigningManager()
       if (!signingManager) {
-        walletConnect.rejectRequest({
+        walletConnectService.rejectRequest({
           id: walletConnectStore.transactionData.id!,
           error: "Something went wrong",
         })
@@ -220,13 +217,13 @@ export const WalletConnectScreen: FC<
         const params = JSON.parse(walletConnectStore.transactionData.params[1]!)
         result = await signingManager.signTypedData(params)
       }
-      walletConnect.approveRequest({
+      walletConnectService.approveRequest({
         id: walletConnectStore.transactionData.id!,
         result: result,
       })
     } catch (e: any) {
       console.error(e)
-      walletConnect.rejectRequest({
+      walletConnectService.rejectRequest({
         id: walletConnectStore.transactionData.id!,
         error: e?.message,
       })
@@ -245,7 +242,7 @@ export const WalletConnectScreen: FC<
           <Button
             text={"Reject"}
             onPress={() =>
-              walletConnect.rejectRequest({
+              walletConnectService.rejectRequest({
                 id: walletConnectStore.transactionData.id!,
                 error: "",
               })
@@ -264,27 +261,34 @@ export const WalletConnectScreen: FC<
 
     const chainType = CHAIN_ID_TYPE_MAP[walletConnectStore.chainId]
     if (!chainType) {
-      walletConnect.rejectSession()
+      walletConnectService.rejectSession()
       showMessage({
         message: "Wrong chain",
         type: "warning",
       })
       return
     }
+
+    const acceptSession = () => {
+      if (!currentWalletStore.getWalletAddressByChain(chainType)) {
+        showMessage({
+          message: "Wallet not found",
+          type: "warning",
+        })
+        return
+      }
+      // Get the coresponding wallet for the chain
+      walletConnectService.acceptSession(
+        walletConnectStore.chainId,
+        currentWalletStore.getWalletAddressByChain(chainType),
+      )
+    }
+
     return (
       <Animatable.View animation="bounceIn">
         <Text>{"Trying to connect"}</Text>
-        <Button
-          text={"Accept"}
-          onPress={() => {
-            // Get the coresponding wallet for the chain
-            walletConnect.acceptSession(
-              chainType,
-              currentWalletStore.getWalletAddressByChain(chainType),
-            )
-          }}
-        />
-        <Button text={"Reject"} onPress={() => walletConnect.rejectSession()} />
+        <Button text={"Accept"} onPress={acceptSession} />
+        <Button text={"Reject"} onPress={() => walletConnectService.rejectSession()} />
       </Animatable.View>
     )
   }
@@ -295,7 +299,7 @@ export const WalletConnectScreen: FC<
     }
     return (
       <View>
-        <Button text={"Disconnect"} onPress={() => walletConnect.closeSession()} />
+        <Button text={"Disconnect"} onPress={() => walletConnectService.closeSession()} />
       </View>
     )
   }

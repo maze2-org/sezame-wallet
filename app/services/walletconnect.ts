@@ -22,9 +22,6 @@ export const WALLET_CONNECT_STATUS = {
 export class WalletConnect {
   walletConnector: any
   walletConnectStore: any
-  constructor(walletConnectStore) {
-    this.walletConnectStore = walletConnectStore
-  }
 
   rejectSession = async () => {
     if (this.walletConnector) {
@@ -33,13 +30,13 @@ export class WalletConnect {
   }
 
   acceptSession = async (chainId, address) => {
-    console.log("acceptSession", chainId, address, this.walletConnector)
     if (this.walletConnector) {
       const approveData = {
         chainId: chainId,
         accounts: [address],
       }
       this.walletConnectStore.setStatus(WALLET_CONNECT_STATUS.CONNECTED)
+      console.log("acceptSession", JSON.stringify(approveData))
       await this.walletConnector.approveSession(approveData)
     }
   }
@@ -63,19 +60,24 @@ export class WalletConnect {
   }
 
   onDisconnect() {
-    this.walletConnectStore.setPeerMeta(null)
-    this.walletConnectStore.setChainId(null)
+    this.walletConnectStore.setPeerMeta({
+      url: "",
+      description: "",
+      icons: [],
+      name: "",
+    })
+    this.walletConnectStore.setChainId(0)
     this.walletConnectStore.setStatus(WALLET_CONNECT_STATUS.DISCONNECTED)
   }
 
-  init(options) {
+  init(walletConnectStore, options) {
+    this.walletConnectStore = walletConnectStore
     if (this.walletConnector) {
       // Disconnect previous connection
       this.walletConnector.killSession()
     }
     this.walletConnectStore.setStatus(WALLET_CONNECT_STATUS.CONNECTING)
     try {
-      console.log("connect to walletconnect", options)
       this.walletConnector = new RNWalletConnect({
         ...options,
         clientMeta: CLIENT_META,
@@ -151,3 +153,4 @@ export class WalletConnect {
     return true
   }
 }
+export const walletConnectService = new WalletConnect()
