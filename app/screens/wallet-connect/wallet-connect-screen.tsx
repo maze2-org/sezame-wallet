@@ -56,29 +56,59 @@ const AUTH_CONTAINER: ViewStyle = {
 
 const ACCEPT_BTN: ViewStyle = {
   margin: spacing[2],
+  width: 120,
 }
 const REJECT_BTN: ViewStyle = {
   margin: spacing[2],
   backgroundColor: color.palette.darkBlack,
+  width: 120,
 }
 
 const ACCEPT_BTN_TEXT: TextStyle = {
   color: color.palette.white,
   fontWeight: "bold",
 }
-const REJECTT_BTN_TEXT: TextStyle = {
+const REJECT_BTN_TEXT: TextStyle = {
   ...ACCEPT_BTN_TEXT,
 }
 const WC_LOGO_CONTAINER: ViewStyle = {
   display: "flex",
   justifyContent: "center",
-  alignContent: "center",
   alignItems: "center",
+  marginVertical: spacing[4],
 }
 
 const WC_LOGO: ImageStyle = {
   width: 80,
   height: 80,
+}
+
+const DO_YOU_ACCEPT_TEXT: TextStyle = {
+  fontSize: 16,
+  fontWeight: "bold",
+  marginBottom: spacing[2],
+}
+
+const DISCONNECT_BTN: ViewStyle = {
+  backgroundColor: color.error,
+}
+
+const NETWORK_DETAILS: ViewStyle = {
+  display: "flex",
+  alignContent: "center",
+  alignItems: "center",
+  justifyContent: "center",
+  marginVertical: spacing[2],
+}
+
+const TRANSACTION_DETAILS: ViewStyle = {}
+
+const TRANSACTION_DETAILS_TEXT: TextStyle = {
+  textAlign: "center",
+}
+const PEER_NAME: TextStyle = {
+  textAlign: "center",
+  fontWeight: "bold",
 }
 const actionCamera: React.RefObject<any> = createRef()
 
@@ -133,32 +163,14 @@ export const WalletConnectScreen: FC<
     actionCamera.current?.setModalVisible(false)
   }
 
-  const disconnectedRender = () => {
+  const connectingRender = () => {
     return (
       <View>
-        <Animatable.View>
+        <Animatable.View animation="pulse" easing="ease-out" iterationCount="infinite">
           <View style={WC_LOGO_CONTAINER}>
             <Image style={WC_LOGO} source={require("../../assets/wc.png")} resizeMode="contain" />
           </View>
         </Animatable.View>
-        <View>
-          <Text>
-            Check the URL carefully, please make sure you're visiting the intended website!
-          </Text>
-          <Button text={"Scan QR Code"} onPress={() => actionCamera.current?.setModalVisible()} />
-        </View>
-      </View>
-    )
-  }
-
-  const connectingRender = () => {
-    return (
-      <View>
-        {/* <Animatable.View animation="pulse" easing="ease-out" iterationCount="infinite">
-          <View>
-            <Image source={require("../../assets/wc.png")} resizeMode="contain" />
-          </View>
-        </Animatable.View> */}
         <View>
           <ActivityIndicator size="large" color={color.primary} />
         </View>
@@ -168,44 +180,51 @@ export const WalletConnectScreen: FC<
 
   const transactionDetails = () => {
     return (
-      <View>
-        <Text numberOfLines={3}>{walletConnectStore.peerMeta.description}</Text>
-        <Text numberOfLines={3}>{walletConnectStore.peerMeta.url}</Text>
+      <View style={TRANSACTION_DETAILS}>
+        <Text style={TRANSACTION_DETAILS_TEXT} numberOfLines={3}>
+          {walletConnectStore.peerMeta.description}
+        </Text>
+        <Text style={TRANSACTION_DETAILS_TEXT} numberOfLines={3}>
+          {walletConnectStore.peerMeta.url}
+        </Text>
       </View>
     )
   }
 
   const renderPeerMeta = () => {
-    // if (walletConnectStore.status === WALLET_CONNECT_STATUS.CONNECTING) {
-    //   return connectingRender()
-    // }
-    if (walletConnectStore.status === WALLET_CONNECT_STATUS.DISCONNECTED) {
-      return disconnectedRender()
+    if (walletConnectStore.status === WALLET_CONNECT_STATUS.CONNECTING) {
+      return connectingRender()
     }
+
     if (!walletConnectStore.peerMeta) {
       return null
     }
     return (
       <View>
-        <View>
-          <Image
-            source={{
-              uri: walletConnectStore.peerMeta.icons[0],
-            }}
-            resizeMode="contain"
-          />
-          {walletConnectStore.status !== WALLET_CONNECT_STATUS.SESSION_REQUEST ? (
-            <View>
-              <Text>
-                {"Wallet connected"}
-                {" - Network: "}
-                {chainSymbolsToNames[walletConnectStore.chainId]}
-              </Text>
-            </View>
-          ) : null}
-          <Text numberOfLines={2}>{walletConnectStore.peerMeta.name}</Text>
-          {transactionDetails()}
-        </View>
+        {!!walletConnectStore.peerMeta.name && (
+          <View style={NETWORK_DETAILS}>
+            {walletConnectStore.status !== WALLET_CONNECT_STATUS.SESSION_REQUEST ? (
+              <View>
+                <Text style={DO_YOU_ACCEPT_TEXT}>
+                  {"Wallet connected"}
+                  {" - Network: "}
+                  {chainSymbolsToNames[walletConnectStore.chainId]}
+                </Text>
+              </View>
+            ) : null}
+            <Text style={PEER_NAME} numberOfLines={2}>
+              {walletConnectStore.peerMeta.name}
+            </Text>
+            <Image
+              style={WC_LOGO}
+              source={{
+                uri: walletConnectStore.peerMeta.icons[0],
+              }}
+              resizeMode="contain"
+            />
+            {transactionDetails()}
+          </View>
+        )}
         {renderActionRequest()}
         {renderAuthRequest()}
       </View>
@@ -276,9 +295,12 @@ export const WalletConnectScreen: FC<
       walletConnectStore.status === WALLET_CONNECT_STATUS.SIGN_TYPED_DATA
     ) {
       return (
-        <Animatable.View animation="bounceIn">
-          <Button text={"Approve"} onPress={async () => acceptRequest(walletConnectStore.status)} />
+        <Animatable.View animation="bounceIn" style={CONNECT_BTNS_CONTAINER}>
+          <Button style={ACCEPT_BTN} onPress={async () => acceptRequest(walletConnectStore.status)}>
+            <Text style={ACCEPT_BTN_TEXT}>Approve</Text>
+          </Button>
           <Button
+            style={REJECT_BTN}
             text={"Reject"}
             onPress={() =>
               walletConnectService.rejectRequest({
@@ -286,7 +308,9 @@ export const WalletConnectScreen: FC<
                 error: "",
               })
             }
-          />
+          >
+            <Text style={REJECT_BTN_TEXT}>Reject</Text>
+          </Button>
         </Animatable.View>
       )
     }
@@ -294,9 +318,9 @@ export const WalletConnectScreen: FC<
   }
 
   const renderAuthRequest = () => {
-    // if (walletConnectStore.status !== WALLET_CONNECT_STATUS.SESSION_REQUEST) {
-    //   return null
-    // }
+    if (walletConnectStore.status !== WALLET_CONNECT_STATUS.SESSION_REQUEST) {
+      return null
+    }
 
     const chainType = CHAIN_ID_TYPE_MAP[walletConnectStore.chainId]
     if (!chainType) {
@@ -326,14 +350,14 @@ export const WalletConnectScreen: FC<
     return (
       <Animatable.View animation="bounceIn" style={AUTH_CONTAINER}>
         <View>
-          <Text>{"Do you accept the connection?"}</Text>
+          <Text style={DO_YOU_ACCEPT_TEXT}>{"Do you accept the connection?"}</Text>
         </View>
         <View style={CONNECT_BTNS_CONTAINER}>
           <Button style={ACCEPT_BTN} onPress={acceptSession}>
             <Text style={ACCEPT_BTN_TEXT}>{"Accept"}</Text>
           </Button>
           <Button style={REJECT_BTN} onPress={() => walletConnectService.rejectSession()}>
-            <Text style={REJECTT_BTN_TEXT}>{"Reject"}</Text>
+            <Text style={REJECT_BTN_TEXT}>{"Reject"}</Text>
           </Button>
         </View>
       </Animatable.View>
@@ -344,9 +368,15 @@ export const WalletConnectScreen: FC<
     if (walletConnectStore.status !== WALLET_CONNECT_STATUS.CONNECTED) {
       return null
     }
+    const disconnect = () => {
+      walletConnectService.closeSession()
+      navigation.goBack()
+    }
     return (
       <View>
-        <Button text={"Disconnect"} onPress={() => walletConnectService.closeSession()} />
+        <Button style={DISCONNECT_BTN} onPress={disconnect}>
+          <Text style={REJECT_BTN_TEXT}>{"Disconnect"}</Text>
+        </Button>
       </View>
     )
   }
