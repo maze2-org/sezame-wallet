@@ -21,7 +21,7 @@ export const NftsScreen: FC<StackScreenProps<NavigatorParamList, "nfts">> = obse
     // Pull in navigation via hook
     // const navigation = useNavigation()
     return (
-      <Screen unsafe={true} style={ROOT} preset="scroll">
+      <Screen unsafe={true} style={ROOT} preset="scroll" backgroundColor={color.palette.black}>
         <Text preset="header" text="nfts" />
       </Screen>
     )
