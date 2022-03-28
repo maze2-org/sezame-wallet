@@ -1,18 +1,15 @@
 import React, { FC, useCallback, useEffect, useRef, useState } from "react"
-import FontAwesomeIcon from "react-native-vector-icons/FontAwesome"
 import { observer } from "mobx-react-lite"
-import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
-import { View, Image, ScrollView, Animated, StyleSheet, Dimensions } from "react-native"
+import { StackScreenProps } from "@react-navigation/stack"
+import { View, Animated, StyleSheet, Dimensions } from "react-native"
 
 import { useStores } from "../../models"
-import { getBalance } from "services/api"
 import { getCoinPrices } from "utils/apis"
-import { useNavigation } from "@react-navigation/native"
 import { color, spacing, typography } from "../../theme"
-import { TouchableOpacity } from "react-native-gesture-handler"
 import { NavigatorParamList } from "../../navigators"
 import { Text, Button, AppScreen } from "../../components"
 import { chainSymbolsToNames } from "utils/consts"
+import CoinBox from "../../components/CoinBox/CoinBox"
 
 const Fonts = [11, 15, 24, 48, 64]
 const MY_STYLE = StyleSheet.create({
@@ -22,63 +19,8 @@ const MY_STYLE = StyleSheet.create({
   },
 })
 const styles = StyleSheet.create({
-  BOLD_FONT: {
-    color: color.palette.white,
-    fontSize: Fonts[1],
-    fontWeight: "bold",
-  },
-  COIN_BOX: {
-    backgroundColor: color.palette.darkblack,
-    borderRadius: 8,
-    marginBottom: spacing[4],
-  },
-  COIN_BOX_BODY: { padding: spacing[4] },
-  COIN_CARD: {
-    ...MY_STYLE.common,
-    alignItems: "center",
-    width: "100%",
-  },
-  COIN_CARD_CONTENT: {
-    ...MY_STYLE.common,
-    flexGrow: 1,
-    justifyContent: "space-between",
-  },
-  COIN_CARD_CONTENT_LEFT: {
-    display: "flex",
-    flexDirection: "column",
-  },
-  COIN_CARD_CONTENT_RIGHT: {
-    alignItems: "flex-end",
-    display: "flex",
-    flexDirection: "column",
-  },
-  COIN_EXPAND_CONTAINER: {
-    ...MY_STYLE.common,
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[2],
-  },
-  COIN_STAKE: {
-    alignItems: "center",
-    backgroundColor: color.palette.black,
-    borderRadius: 10,
-    display: "flex",
-    height: 20,
-    justifyContent: "center",
-    marginLeft: spacing[4],
-    width: 80,
-  },
-  COIN_STAKE_FULL: {
-    backgroundColor: color.palette.gold,
-  },
-  LIGHT_FONT: {
-    color: color.palette.lighterGrey,
-    fontSize: Fonts[0],
-  },
-  LIGHT_FONT_FULL: {
-    color: color.palette.white,
-  },
+
+
   LOADING_BOX:{
     alignItems:'center',
     flex:1,
@@ -91,17 +33,7 @@ const styles = StyleSheet.create({
   NETWORK_CONTAINER: {
     marginTop: spacing[3],
   },
-  NETWORK_IMAGE: {
-    height: 50,
-    width: 50,
-  },
-  NETWORK_IMAGE_BORDER: {
-    alignItems: "center",
-    backgroundColor: color.palette.lineColor,
-    borderRadius: 50,
-    justifyContent: "center",
-    marginRight: spacing[3],
-  },
+
   ORANGE_COLOR: {
     color: color.palette.gold,
     fontFamily: typography.primary,
@@ -150,10 +82,7 @@ const styles = StyleSheet.create({
   SCROLL_VIEW: {
     backgroundColor: color.palette.black,
   },
-  SEPARATOR: {
-    borderBottomColor: color.palette.lightGrey,
-    borderBottomWidth: 0.5,
-  },
+
   SORT_BTN_CONTAINER: {
     ...MY_STYLE.common,
   },
@@ -215,14 +144,12 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
     const { currentWalletStore } = useStores()
     const { wallet, assets, setBalance, refreshBalances, loadingBalance } = currentWalletStore
     const [totalPrice, setTotalPrice] = useState<string>("0")
-    const [sortStatus, setSortStatus] = useState<string>("network")
+    const [details, setDetails] = useState<Array<any>>([])
     const [prices, setPrices] = useState<Array<any>>([])
     const [sortBy, setSortBy] = useState<SortTypeValues>(SORT_TYPES.NETWORK)
-    const [expandFlags, setExpandFlags] = useState<Array<boolean>>([])
-    const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
+    const [groups, setGroups] = useState({})
 
     useEffect(() => {
-      // setExpandFlags(Array(assets.length).fill(false))
       // const getBalances = async () => {
       //   await Promise.all(
       //     assets.map(async (asset) => {
@@ -237,9 +164,6 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
 
     useEffect(() => {
       // get prices and calculate the total price
-      // if new asset was added newly then add new flag value(false) to expandFlags
-      if (assets.length !== expandFlags.length) setExpandFlags([false, ...expandFlags])
-
       let assetIds = ""
       assets.map((asset) => {
         assetIds += asset.cid + ","
@@ -250,7 +174,8 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
       const getPrice = async () => {
         let _price = 0
 
-        const details = await getCoinPrices(assetIds)
+        const details = await getCoinPrices(assetIds);
+        setDetails(details)
         const _prices = []
         assets.map((asset) => {
           const data = details.find((detail) => detail.id === asset.cid)
@@ -268,14 +193,77 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
             .toString()
             .replace(/\B(?=(\d{3})+(?!\d))/g, "."),
         )
+        preparingAssets(sortBy, details)
       }
       getPrice()
     }, [JSON.stringify(assets)])
 
-    const onExpandEvent = (id) => {
-      const tmp = [...expandFlags]
-      tmp[id] = !tmp[id]
-      setExpandFlags(tmp)
+    const preparingAssets = (sortBy: SortTypeValues, details) => {
+      const groups = {}
+       assets.forEach((asset) => {
+         const data = details.find((detail) => detail.id === asset.cid);
+         if(sortBy === SORT_TYPES.NETWORK) {
+           if (asset.chain) {
+             if (Array.isArray(groups[asset.chain])) {
+               groups[asset.chain].push({...asset, image: data?.image || asset.image})
+             } else {
+               groups[asset.chain] = [{...asset, image: data?.image || asset.image}]
+             }
+           }
+         }else{
+           if (asset.name) {
+             if (Array.isArray(groups[asset.name])) {
+               groups[asset.name].push({...asset, image: data?.image || asset.image})
+             } else {
+               groups[asset.name] = [{...asset, image: data?.image || asset.image}]
+             }
+           }
+         }
+     })
+
+      console.log(groups)
+
+      const sortByFns = {
+        [SORT_TYPES.NETWORK]: getSortedGroupsByNetwork,
+        [SORT_TYPES.CURRENCIES]: getSortedGroupsByCurrency,
+      }
+
+      const sortedGroups = sortByFns[sortBy](groups)
+
+      setGroups(sortedGroups)
+    }
+
+    const getSortedGroupsByNetwork = groups => {
+      const sortedGroupNames = Object.keys(groups);
+      sortedGroupNames.sort((a,b)=>{
+        const aName = chainSymbolsToNames[a];
+        const bName = chainSymbolsToNames[b];
+        return aName.toLowerCase() > bName.toLowerCase() ? 1 : -1;
+      })
+      const sortedGroups = {};
+      sortedGroupNames.forEach(groupName=>{
+        if(!sortedGroups[groupName]){
+          sortedGroups[groupName] = [];
+        }
+        sortedGroups[groupName] = [...groups[groupName]];
+      })
+      return sortedGroups
+    }
+
+    const getSortedGroupsByCurrency = groups => {
+      const sortedGroupNames = Object.keys(groups);
+      sortedGroupNames.sort((a,b)=>{
+        return a.toLowerCase() > b.toLowerCase() ? 1 : -1;
+      })
+
+      const sortedGroups = {};
+      sortedGroupNames.forEach(groupName=>{
+        if(!sortedGroups[groupName]){
+          sortedGroups[groupName] = [];
+        }
+        sortedGroups[groupName] = groups[groupName].map(g=>({...g,name: chainSymbolsToNames[g.chain]}));
+      })
+      return sortedGroups
     }
 
     const getAssetPrice = (cid, balance) => {
@@ -285,8 +273,9 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
     }
 
     const changeSortType = useCallback((sortType: SortTypeValues) => {
+      preparingAssets(sortType, details)
       setSortBy(sortType)
-    }, [])
+    }, [details])
 
     const scale = scrollY.interpolate({
       inputRange: [50, 85],
@@ -375,66 +364,21 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
               </View>
             </Animated.View>
             <View style={styles.NETWORK_CONTAINER}>
-              {[...assets]
-                .sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1))
-                .map((asset, id) => (
-                  <View style={styles.COIN_BOX} key={asset.cid}>
-                    <TouchableOpacity
-                      style={styles.COIN_EXPAND_CONTAINER}
-                      onPress={() => onExpandEvent(id)}
-                    >
-                      <Text>{`${chainSymbolsToNames[asset.chain]} `}</Text>
-                      {expandFlags[id] ? (
-                        <FontAwesomeIcon name="chevron-up" color={color.palette.white} />
-                      ) : (
-                        <FontAwesomeIcon name="chevron-down" color={color.palette.white} />
-                      )}
-                    </TouchableOpacity>
-                    <View style={styles.SEPARATOR} />
-                    <View style={styles.COIN_BOX_BODY}>
-                      <TouchableOpacity
-                        style={styles.COIN_CARD}
-                        onPress={() => navigation.navigate("coinDetails", { coinId: asset.cid })}
-                      >
-                        <View style={styles.NETWORK_IMAGE_BORDER}>
-                          <Image style={styles.NETWORK_IMAGE} source={{ uri: asset.image }} />
-                        </View>
-                        <View style={styles.COIN_CARD_CONTENT}>
-                          <View style={styles.COIN_CARD_CONTENT_LEFT}>
-                            <View style={styles.SORT_BTN_CONTAINER}>
-                              <Text style={styles.BOLD_FONT}>{asset.name}</Text>
-                              <View
-                                style={[
-                                  styles.COIN_STAKE,
-                                  asset.value === 100 && styles.COIN_STAKE_FULL,
-                                ]}
-                              >
-                                <Text
-                                  style={[
-                                    styles.LIGHT_FONT,
-                                    asset.value === 100 && styles.LIGHT_FONT_FULL,
-                                  ]}
-                                >
-                                  {`Staked ${
-                                    asset.value === 0 ? asset.value : asset.value.toFixed(2)
-                                  }%`}
-                                </Text>
-                              </View>
-                            </View>
-                            <Text style={styles.LIGHT_FONT}>{"Base currency"}</Text>
-                          </View>
-                          <View style={styles.COIN_CARD_CONTENT_RIGHT}>
-                            <Text style={styles.BOLD_FONT}>{asset.balance}</Text>
-                            <Text style={styles.LIGHT_FONT}>{`~${getAssetPrice(
-                              asset.cid,
-                              asset.balance,
-                            )}$`}</Text>
-                          </View>
-                        </View>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                ))}
+              {Object.values(groups)
+                .map((assets, index) => {
+                  const title = Object.keys(groups)[index];
+                  const titleMap = {
+                    [SORT_TYPES.NETWORK]: chainSymbolsToNames[title],
+                    [SORT_TYPES.CURRENCIES]: title,
+                  }
+                  return (
+                    <CoinBox key={titleMap[sortBy]}
+                             assets={assets}
+                             title={titleMap[sortBy]}
+                             getAssetPrice={getAssetPrice}
+                    />
+                  )
+                })}
             </View>
           </View>
         </AppScreen>
