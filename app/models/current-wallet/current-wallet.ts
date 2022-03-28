@@ -50,6 +50,10 @@ export const CurrentWalletModel = types
   .actions((self) => ({
     setAssets(assets) {
       self.assets = assets
+
+      let wallet = JSON.parse(self.wallet)
+      wallet.assets = assets
+      self.wallet = JSON.stringify(wallet)
     },
     hasAsset: (network: NetworkType): boolean => {
       return (

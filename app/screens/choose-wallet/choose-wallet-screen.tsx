@@ -5,11 +5,7 @@ import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import SplashScreen from "react-native-splash-screen"
 import { NavigatorParamList } from "../../navigators"
 import { AppScreen, Button, Header, Screen, Text } from "../../components"
-import {
-  color,
-  spacing,
-  typography,
-} from "../../theme"
+import { color, spacing, typography } from "../../theme"
 import { getListOfWallets } from "../../utils/storage"
 import { useForm, Controller } from "react-hook-form"
 import { SvgXml } from "react-native-svg"
@@ -58,7 +54,7 @@ const headerTitleSTYLE: TextStyle = {
   fontSize: 27,
   lineHeight: 37,
   fontWeight: "700",
-  fontFamily: typography.primaryBold
+  fontFamily: typography.primaryBold,
 }
 const footerStyle: TextStyle = {
   display: "flex",
@@ -82,12 +78,18 @@ export const ChooseWalletScreen: FC<
   const [itemValue, setItemValue] = useState(null)
   const [walletNames, setWalletNames] = useState<string[]>([])
 
-  const { control, handleSubmit, setValue, formState: { errors, isValid }, } = useForm({ mode: "onChange" });
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    formState: { errors, isValid },
+  } = useForm({ mode: "onChange" })
 
   const onSubmit = async (data) => {
     setLoading(true)
     try {
       const loadedWallet = await StoredWallet.loadFromStorage(data.walletName, data.walletPassword)
+      console.log("loaded wallets", JSON.stringify(loadedWallet.assets, null, 2))
       showMessage({ message: "Wallet unlocked", type: "success" })
       currentWalletStore.open(loadedWallet as any)
       pendingTransactions.open()
@@ -100,16 +102,16 @@ export const ChooseWalletScreen: FC<
     } finally {
       setLoading(false)
     }
-    setValue('walletPassword', '')
+    setValue("walletPassword", "")
   }
 
-  const onGetKeychainData = (keychainData: IKeychainData)=>{
+  const onGetKeychainData = (keychainData: IKeychainData) => {
     setItemValue(keychainData.username)
-    setValue('walletName',keychainData.username)
+    setValue("walletName", keychainData.username)
     // setValue('walletPassword',keychainData.password)
     const data = {
       walletName: keychainData.username,
-      walletPassword: keychainData.password
+      walletPassword: keychainData.password,
     }
     onSubmit(data)
   }
@@ -151,8 +153,8 @@ export const ChooseWalletScreen: FC<
                 titleStyle={headerTitleSTYLE}
               />
               <Text style={[NORMAL_TEXT, TEXT_CENTTER]}>
-                Your wallets are currently locked. Select the wallet you wish to access 
-                then press the fingerprint icon or provide the password.
+                Your wallets are currently locked. Select the wallet you wish to access then press
+                the fingerprint icon or provide the password.
               </Text>
             </View>
             <View>
@@ -231,7 +233,7 @@ export const ChooseWalletScreen: FC<
               />
             </View>
             <View style={footerStyle}>
-              <Biometrics onLoad={onGetKeychainData}/>
+              <Biometrics onLoad={onGetKeychainData} />
             </View>
           </View>
         </AppScreen>

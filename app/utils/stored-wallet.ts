@@ -56,14 +56,6 @@ export class StoredWallet {
     this.assets.push(asset)
   }
 
-  longProcess() {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve("ok")
-      }, 5000)
-    })
-  }
-
   addAutoAsset(asset: IWalletAsset) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
