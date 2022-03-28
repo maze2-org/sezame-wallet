@@ -13,6 +13,7 @@ export type NetworkType = {
   decimals: number
   address: string
   image: string
+  contract?: string
 }
 
 const COMMON = {

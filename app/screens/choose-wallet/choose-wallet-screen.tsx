@@ -89,7 +89,6 @@ export const ChooseWalletScreen: FC<
     setLoading(true)
     try {
       const loadedWallet = await StoredWallet.loadFromStorage(data.walletName, data.walletPassword)
-      console.log("loaded wallets", JSON.stringify(loadedWallet.assets, null, 2))
       showMessage({ message: "Wallet unlocked", type: "success" })
       currentWalletStore.open(loadedWallet as any)
       pendingTransactions.open()

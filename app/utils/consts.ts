@@ -20,6 +20,7 @@ export const defaultAssets: IWalletAsset[] = [
     rate: 0,
     image: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
     version: 1,
+    contract: "",
   },
   {
     symbol: "ETH",
@@ -36,6 +37,7 @@ export const defaultAssets: IWalletAsset[] = [
     rate: 0,
     image: "https://assets.coingecko.com/coins/images/279/large/ethereum.png",
     version: 1,
+    contract: "",
   },
   {
     symbol: "AVT",
@@ -52,6 +54,7 @@ export const defaultAssets: IWalletAsset[] = [
     rate: 0,
     image: "https://assets.coingecko.com/coins/images/901/small/Aventus.png?1625122968",
     version: 1,
+    contract: "",
   },
 ]
 export const chainSymbolsToNames = {

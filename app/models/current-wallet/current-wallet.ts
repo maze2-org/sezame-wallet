@@ -13,6 +13,7 @@ const WalletAsset = types.model({
   symbol: types.string,
   type: types.string,
   cid: types.optional(types.string, ""),
+  contract: types.optional(types.string, ""),
   balance: types.optional(types.number, 0),
   value: types.optional(types.number, 0),
   rate: types.optional(types.number, 0),
@@ -61,7 +62,6 @@ export const CurrentWalletModel = types
           return asset.name === network.name && asset.chain === asset.chain
         }).length > 0
       )
-      return true
     },
     open: (wallet: StoredWallet) => {
       self.wallet = JSON.stringify(wallet.toJson())
@@ -94,7 +94,6 @@ export const CurrentWalletModel = types
         }
       }
       self.loadingBalance = false
-      // ... including try/catch error handling
     }),
 
     removeWallet: async () => {
