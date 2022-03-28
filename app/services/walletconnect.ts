@@ -129,6 +129,7 @@ export class WalletConnect {
       }
     })
     this.walletConnector.on("disconnect", (error) => {
+      console.log("disconnect", error)
       if (error) {
         console.log("Error connecting to walletconnect", error)
 
@@ -140,6 +141,7 @@ export class WalletConnect {
     })
 
     this.walletConnector.on("session_update", (error, payload) => {
+      console.log("session_update", error, payload)
       if (error) {
         console.log("Error connecting to walletconnect", error)
 

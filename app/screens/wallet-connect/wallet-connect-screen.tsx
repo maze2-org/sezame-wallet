@@ -53,9 +53,13 @@ export const WalletConnectScreen: FC<
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
   const handleCloseActionSheet = () => {
     console.log("hanle close action sheet", success)
-    if (!success) {
-      navigation.goBack()
-    }
+    // if (!success) {
+    //   navigation.goBack()
+    // } data: 'wc:41811316-2938-4a03-a558-bedae6f83569@1?bridge=https%3A%2F%2F3.bridge.walletconnect.org&key=ab77808f853e748d5e8309c08acb6a950fea629d601af3bb56b7e45f7ed80ecd'
+    onSuccess({
+      data:
+        "wc:41811316-2938-4a03-a558-bedae6f83569@1?bridge=https%3A%2F%2F3.bridge.walletconnect.org&key=ab77808f853e748d5e8309c08acb6a950fea629d601af3bb56b7e45f7ed80ecd",
+    })
   }
 
   useEffect((): any => {
@@ -66,6 +70,10 @@ export const WalletConnectScreen: FC<
       data.autosign = false
       if (!walletConnect.init(data)) {
         // Display error message
+        showMessage({
+          message: "Something went wrong",
+          type: "warning",
+        })
       }
     } else {
       actionCamera.current?.setModalVisible()
@@ -84,6 +92,10 @@ export const WalletConnectScreen: FC<
     data.autosign = false
     if (!walletConnect.init(data)) {
       // Display error message
+      showMessage({
+        message: "Something went wrong",
+        type: "warning",
+      })
     }
     actionCamera.current?.setModalVisible(false)
   }
