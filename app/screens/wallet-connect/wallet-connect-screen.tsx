@@ -1,4 +1,4 @@
-import React, { createRef, FC, useEffect } from "react"
+import React, { createRef, FC, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import {
   TouchableOpacity,
@@ -36,7 +36,7 @@ const ROOT: ViewStyle = {
 }
 
 const cameracontainer: ViewStyle = {
-  height: Dimensions.get("window").height / 1.4,
+  height: Dimensions.get("window").height / 1.1,
   margin: 10,
   backgroundColor: "black",
 }
@@ -59,13 +59,17 @@ export const WalletConnectScreen: FC<
       if (!walletConnect.init(data)) {
         // Display error message
       }
+    } else {
+      actionCamera.current?.setModalVisible()
     }
     return walletConnect.closeSession
   }, [])
 
   const onSuccess = (e) => {
+    console.log("success ", e)
     const uri = e.data
     const data: any = { uri }
+    console.log("qr code data ", JSON.stringify(data))
     data.redirect = ""
     data.autosign = false
     if (!walletConnect.init(data)) {
@@ -77,13 +81,15 @@ export const WalletConnectScreen: FC<
   const disconnectedRender = () => {
     return (
       <View>
-        <Animatable.View animation="zoomIn" delay={100}>
+        {/* <Animatable.View animation="zoomIn" delay={100}>
           <View>
             <Image source={require("../../assets/wc.png")} resizeMode="contain" />
           </View>
-        </Animatable.View>
+        </Animatable.View> */}
         <View>
-          <Text>walletconnect.disclaimer</Text>
+          <Text>
+            Check the URL carefully, please make sure you're visiting the intended website!
+          </Text>
           <Button text={"Scan QR Code"} onPress={() => actionCamera.current?.setModalVisible()} />
         </View>
       </View>

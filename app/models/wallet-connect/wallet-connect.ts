@@ -21,7 +21,7 @@ export const WalletConnectModel = types
         name: "",
       },
     ),
-    chainId: types.optional(types.string, ""),
+    chainId: types.optional(types.number, 0),
     status: types.optional(types.string, WALLET_CONNECT_STATUS.DISCONNECTED),
     transactionData: types.optional(
       types.model({
