@@ -45,6 +45,13 @@ export const textInputErrorMessage: TextStyle = {
   paddingTop: spacing[2],
 }
 
+export const drawerErrorMessage: TextStyle = {
+  color: color.error,
+  paddingTop: spacing[2],
+  textAlign: "center",
+  fontSize: 10,
+}
+
 export const textInputError: TextStyle = {
   borderBottomColor: color.palette.orange,
   borderBottomWidth: 1,

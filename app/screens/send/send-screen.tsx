@@ -25,11 +25,13 @@ import {
   btnDisabled,
   CONTAINER,
   demoText,
+  drawerErrorMessage,
   footBtn,
   MainBackground,
   PRIMARY_BTN,
   PRIMARY_TEXT,
   textInput,
+  textInputErrorMessage,
 } from "theme/elements"
 import { useNavigation } from "@react-navigation/native"
 import { useStores } from "models"
@@ -107,6 +109,8 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
     const [fees, setFees] = useState<any>(null)
     const [isPreview, setIsPreview] = useState<boolean>(false)
     const [sending, setSending] = useState<boolean>(false)
+    const [sendable, setSendable] = useState<boolean>(false)
+    const [errorMsg, setErrorMsg] = useState<string | null>(null)
     const { setBalance } = currentWalletStore
 
     useEffect(() => {
@@ -119,15 +123,35 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
     }, [])
 
     const onSubmit = async () => {
-      const response = await getFees(asset, recipientAddress, amount)
-      setFees(response)
-      setIsPreview(true)
+      setErrorMsg(null)
+      try {
+        setIsPreview(true)
+        setSendable(false)
+        console.log("WILL GET FEESSSSSSSSSSSSSSSSS")
+        const response = await getFees(asset, recipientAddress, amount)
+        console.log("GOT FEESSSSSSSSSSSSSSSSSSS")
+        setFees(response)
+        setSendable(true)
+      } catch (error) {
+        console.log("Unable to get fees")
+        console.log(error)
+        switch (error.message) {
+          case "INSUFFICIENT_FUNDS":
+            setErrorMsg("Insufficiant funds")
+            break
+          default:
+            setErrorMsg(error.message)
+            break
+        }
+
+        setSendable(false)
+      }
     }
 
     const processTransaction = async () => {
       setSending(true)
       try {
-        const txId = await makeSendTransaction(asset, fees.regular)
+        const txId = await makeSendTransaction(asset, fees ? fees.regular : null)
         if (!txId) {
           showMessage({ message: "Unable to Send", type: "danger" })
         } else {
@@ -236,7 +260,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
               ></Button>,
               <Button
                 text={sending ? "SENDING..." : "SIGN AND SUBMIT"}
-                disabled={sending}
+                disabled={sending || !sendable}
                 style={styles.DRAWER_BTN_OK}
                 textStyle={styles.DRAWER_BTN_TEXT}
                 onPress={processTransaction}
@@ -268,6 +292,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                 </View>
               </View>
             </View>
+            {errorMsg && <Text style={[drawerErrorMessage]}>{errorMsg}</Text>}
           </Drawer>
         )}
 
