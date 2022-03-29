@@ -299,7 +299,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                             <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>{asset.balance}</Text>
                             <Text style={styles.BALANCE_STAKING_CARD_NOTE}> (~1$)</Text>
                           </View>
-
+                          {/* 
                           <View style={SEPARATOR} />
                           <Button style={styles.BALANCE_STAKING_CARD_BTN}>
                             <MaterialCommunityIcons
@@ -308,7 +308,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                               name="swap-vertical-circle-outline"
                             />
                             <Text style={styles.BALANCE_STAKING_CARD_BTN_TEXT}>SWAP</Text>
-                          </Button>
+                          </Button> */}
                         </View>
                         {/*<View style={styles.BALANCE_STAKING_CARD}>*/}
                         {/*  <View style={styles.BALANCE_STAKING_CARD_BODY}>*/}
