@@ -85,3 +85,5 @@ app/config/env.*.js
 
 # Bundle 
 android/app/src/main/assets/index.android.bundle
+
+package-lock.json
