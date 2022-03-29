@@ -7,6 +7,7 @@ import {
   CONTAINER,
   copyBtn,
   headerTitle,
+  LABEL,
   NORMAL_TEXT,
   PRIMARY_BTN,
   PRIMARY_OUTLINE_BTN,
@@ -24,7 +25,11 @@ import { SvgXml } from "react-native-svg"
 import copyIcon from "../../../../assets/icons/copy.svg"
 
 // const copyIcon = require()
-
+const READ_CONDITIONS_TEXT: TextStyle = {
+  fontSize: 14,
+  fontWeight: "600",
+  marginVertical: spacing[4],
+}
 export function CreateWalletStep2(props: StepProps) {
   // style
   const headerStyle: ViewStyle = {
@@ -129,10 +134,15 @@ export function CreateWalletStep2(props: StepProps) {
     <AppScreen {...props}>
       <ScrollView contentContainerStyle={CONTAINER}>
         <View>
-          <Header headerText="Keep your seed phrase safe" style={headerStyle} titleStyle={headerTitle} />
+          <Header
+            headerText="Keep your seed phrase safe"
+            style={headerStyle}
+            titleStyle={headerTitle}
+          />
           <Text style={TEXT_STYLE}>
-            A seed phrase is the only way for you to keep access on your assets even if your device is 
-            destroyed or stolen. You will be the only owner of this need and nobody else will keep it for you.
+            A seed phrase is the only way for you to keep access on your assets even if your device
+            is destroyed or stolen. You will be the only owner of this need and nobody else will
+            keep it for you.
           </Text>
           <Text style={IMPORTANT_STYLE}>
             SAVE THE FOLLOWING SEED PHRASE IN SEVERAL AND SAFE LOCATIONS
@@ -152,7 +162,9 @@ export function CreateWalletStep2(props: StepProps) {
             </View>
           </View>
         </View>
-        <Text style={SMALL_TEXT}>Please accept the following conditions to continue.</Text>
+        <Text style={READ_CONDITIONS_TEXT}>
+          Please accept the following conditions to continue.
+        </Text>
         <SafeAreaView>
           <Checkbox
             text="I have written my seed phrase in a safe location."
@@ -180,7 +192,7 @@ export function CreateWalletStep2(props: StepProps) {
           />
           <Button
             testID="next-screen-button"
-            style={[PRIMARY_BTN, (!condition1 || !condition2 || !condition3) && {...btnDisabled}]}
+            style={[PRIMARY_BTN, (!condition1 || !condition2 || !condition3) && { ...btnDisabled }]}
             textStyle={PRIMARY_TEXT}
             onPress={handleSubmit(onSubmit)}
             disabled={!condition1 || !condition2 || !condition3}
