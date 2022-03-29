@@ -37,11 +37,13 @@ export function ImportWalletStep1(props: StepProps) {
     handleSubmit,
     formState: { errors, isValid },
   } = useForm({ mode: "onChange" })
-
+  const { setWalletName, setWalletPassword, walletName, walletPassword } = useContext(
+    WalletImportContext,
+  )
   const password = useWatch({
     control,
     name: "walletPassword",
-    defaultValue: "",
+    defaultValue: walletPassword,
   })
 
   const onSubmit = (data) => {
@@ -50,10 +52,6 @@ export function ImportWalletStep1(props: StepProps) {
 
     onButtonNext()
   }
-
-  const { setWalletName, setWalletPassword, walletName, walletPassword } = useContext(
-    WalletImportContext,
-  )
 
   const [condition1, setCondition1] = useState(false)
 
