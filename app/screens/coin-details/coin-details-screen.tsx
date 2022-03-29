@@ -330,23 +330,22 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                         {/*</View>*/}
                       </View>
 
-                      {asset.chain !== "AVN" &&
-                        pendingTransactions.getPendingTxsForAsset(asset).length > 0 && (
-                          <View>
-                            <View style={styles.TRANSACTIONS_HEADER}>
-                              <Text preset="header" text="Pending transactions" />
-                            </View>
-                            <View style={styles.TRANSACTIONS_CONTAINER}>
-                              {pendingTransactions.getPendingTxsForAsset(asset).map((tx, index) => (
-                                <TransactionRow
-                                  key={index}
-                                  asset={asset}
-                                  transaction={{ ...tx, date: null, out: true, hash: "" }}
-                                />
-                              ))}
-                            </View>
+                      {pendingTransactions.getPendingTxsForAsset(asset).length > 0 && (
+                        <View>
+                          <View style={styles.TRANSACTIONS_HEADER}>
+                            <Text preset="header" text="Pending transactions" />
                           </View>
-                        )}
+                          <View style={styles.TRANSACTIONS_CONTAINER}>
+                            {pendingTransactions.getPendingTxsForAsset(asset).map((tx, index) => (
+                              <TransactionRow
+                                key={index}
+                                asset={asset}
+                                transaction={{ ...tx, date: null, out: true, hash: "" }}
+                              />
+                            ))}
+                          </View>
+                        </View>
+                      )}
 
                       {asset.chain !== "AVN" && (
                         <View>
