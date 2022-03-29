@@ -49,7 +49,7 @@ export const drawerErrorMessage: TextStyle = {
   color: color.error,
   paddingTop: spacing[2],
   textAlign: "center",
-  fontSize: 10,
+  fontSize: 12,
 }
 
 export const textInputError: TextStyle = {

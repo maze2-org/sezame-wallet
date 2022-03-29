@@ -30,7 +30,7 @@ export const PriceChart = observer(function PriceChart(props: PriceChartProps) {
   const styles = Object.assign({ marginLeft: -68 }, CONTAINER, style)
 
   const graphColor =
-    props.data[props.data.length - 1] < props.data[props.data.length - 2] ? "#cdff38" : "#cd5d38"
+    props.data[props.data.length - 1] > props.data[props.data.length - 2] ? "#cdff38" : "#cd5d38"
 
   return (
     <View style={styles}>

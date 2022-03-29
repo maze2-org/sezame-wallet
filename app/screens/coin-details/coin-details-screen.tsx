@@ -83,7 +83,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
       txList.forEach((tx) => {
         getTransactionStatus(asset, tx.txId)
           .then((status) => {
-            console.log("GOT TRANSACTION STATUS", status)
+            console.log("GOT TRANSACTION STATUS", tx, status)
             if (status === "success" || status === "failed") {
               pendingTransactions.remove(asset, tx)
               _getBalances()
@@ -247,10 +247,10 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
       setChartDays(type)
     }
 
-    const walletChains = useMemo(()=>{
+    const walletChains = useMemo(() => {
       console.log(JSON.parse(JSON.stringify(assets)))
-      return assets.map(asset=>asset.contract)
-    },[assets])
+      return assets.map((asset) => asset.contract)
+    }, [assets])
 
     return (
       <Screen unsafe={true} style={styles.ROOT} preset="fixed">
@@ -396,22 +396,27 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                   {!!tokenInfo && route.params.fromAddCurrency && (
                     <View style={styles.TOKEN_CHAINS_CONTAINER}>
                       {tokenInfo.chains.map((chain) => {
-                        const hasInWallet = walletChains.includes(chain.contract);
+                        const hasInWallet = walletChains.includes(chain.contract)
                         return (
                           <View style={styles.TOKEN_CHAIN_ROW} key={chain.id}>
                             <Text>{chain.name}</Text>
-                            <Button preset='secondary' onPress={() => {
-                              if(hasInWallet) {
-                                removeAsset(chain)
-                              } else {
-                                addAsset(chain)
-                              }
-                            }}>
-                              {hasInWallet ?
-                                <Text style={styles.ADD_TO_PORTFOLIO_BTN}>Remove from portfolio</Text>
-                                :
+                            <Button
+                              preset="secondary"
+                              onPress={() => {
+                                if (hasInWallet) {
+                                  removeAsset(chain)
+                                } else {
+                                  addAsset(chain)
+                                }
+                              }}
+                            >
+                              {hasInWallet ? (
+                                <Text style={styles.ADD_TO_PORTFOLIO_BTN}>
+                                  Remove from portfolio
+                                </Text>
+                              ) : (
                                 <Text style={styles.ADD_TO_PORTFOLIO_BTN}>Add to portfolio</Text>
-                              }
+                              )}
                             </Button>
                           </View>
                         )

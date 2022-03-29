@@ -127,9 +127,8 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
       try {
         setIsPreview(true)
         setSendable(false)
-        console.log("WILL GET FEESSSSSSSSSSSSSSSSS")
         const response = await getFees(asset, recipientAddress, amount)
-        console.log("GOT FEESSSSSSSSSSSSSSSSSSS")
+        console.log("GOT FEESSSSSSSSSSSSSSSSSSS", JSON.stringify(response, null, 2))
         setFees(response)
         setSendable(true)
       } catch (error) {
@@ -158,7 +157,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
           showMessage({ message: "Transaction sent", type: "success" })
           pendingTransactions.add(asset, {
             amount: `-${new BigNumber(amount)
-              .plus(fees.regular.settings.value ? fees.regular.settings.value : "0")
+              .plus(fees.regular.settings.feeValue ? fees.regular.settings.feeValue : "0")
               .toString()}`,
             from: asset.address,
             to: recipientAddress,
@@ -286,7 +285,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                 <Text style={styles.CARD_ITEM_TITLE}>Transaction fees</Text>
                 <View style={styles.CARD_ITEM_DESCRIPTION}>
                   <Text style={styles.AMOUNT_STYLE}>
-                    {fees ? `${fees.regular.settings.value} ${fees.regular.currency}` : "Unknown"}
+                    {fees ? `${fees.regular.settings.feeValue} ${fees.regular.currency}` : ""}
                   </Text>
                   {/* <Text style={styles.AMOUNT_SUB_STYLE}>0.23 available</Text> */}
                 </View>
