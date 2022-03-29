@@ -189,8 +189,11 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
       if (wallet) {
         await currentWalletStore.removeWallet()
         currentWalletStore.close()
-        reset().catch(null);
-        navigation.navigate("chooseWallet")
+        reset()
+          .then(()=>{
+            navigation.navigate("chooseWallet")
+          })
+          .catch(null);
       }
     }
     const deleteWalletConfirmation = async () => {

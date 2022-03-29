@@ -89,7 +89,6 @@ export const ChooseWalletScreen: FC<
     setLoading(true)
     try {
       const loadedWallet = await StoredWallet.loadFromStorage(data.walletName, data.walletPassword)
-      console.log("loaded wallets", JSON.stringify(loadedWallet.assets, null, 2))
       showMessage({ message: "Wallet unlocked", type: "success" })
       currentWalletStore.open(loadedWallet as any)
       pendingTransactions.open()
@@ -120,7 +119,6 @@ export const ChooseWalletScreen: FC<
     SplashScreen.hide()
 
     getListOfWallets().then((walletNames) => {
-      console.log({ walletNames })
       setWalletNames(walletNames)
       if (walletNames.length === 1) {
         setItemValue(walletNames[0])
@@ -130,9 +128,7 @@ export const ChooseWalletScreen: FC<
   }, [])
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
-      console.log("choose wallet focused")
       getListOfWallets().then((walletNames) => {
-        console.log({ walletNames })
         setWalletNames(walletNames)
         if (walletNames.length === 1) {
           setItemValue(walletNames[0])

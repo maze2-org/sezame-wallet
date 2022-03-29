@@ -10,6 +10,7 @@ import { NavigatorParamList } from "../../navigators"
 import { Text, Button, AppScreen } from "../../components"
 import { chainSymbolsToNames } from "utils/consts"
 import CoinBox from "../../components/CoinBox/CoinBox"
+import axios, {CancelTokenSource} from 'axios'
 
 const Fonts = [11, 15, 24, 48, 64]
 const MY_STYLE = StyleSheet.create({
@@ -137,9 +138,10 @@ const SORT_TYPES = {
 type SortTypeKeys = keyof typeof SORT_TYPES
 type SortTypeValues = typeof SORT_TYPES[SortTypeKeys]
 const { width } = Dimensions.get("screen")
-
 export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard">> = observer(
   function DashboardScreen() {
+    const signal = useRef<CancelTokenSource>(axios.CancelToken.source()).current;
+    const[isMounted, setIsMounted] = useState<boolean>(false)
     const scrollY = useRef(new Animated.Value(0)).current
     const { currentWalletStore } = useStores()
     const { wallet, assets, setBalance, refreshBalances, loadingBalance } = currentWalletStore
@@ -150,6 +152,7 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
     const [groups, setGroups] = useState({})
 
     useEffect(() => {
+      setIsMounted(true)
       // const getBalances = async () => {
       //   await Promise.all(
       //     assets.map(async (asset) => {
@@ -160,6 +163,10 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
       // }
       // getBalances()
       refreshBalances()
+      return ()=> {
+        setIsMounted(false)
+        signal.cancel('Api is being canceled')
+      }
     }, [])
 
     useEffect(() => {
@@ -174,8 +181,8 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
       const getPrice = async () => {
         let _price = 0
 
-        const details = await getCoinPrices(assetIds);
-        setDetails(details)
+        const details = await getCoinPrices(assetIds,signal);
+       !!isMounted && setDetails(details)
         const _prices = []
         assets.map((asset) => {
           const data = details.find((detail) => detail.id === asset.cid)
@@ -185,10 +192,10 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
           }
           return 0
         })
-        setPrices(_prices)
+       !!isMounted && setPrices(_prices)
 
         // Format price separating every 3 numbers with quote
-        setTotalPrice(
+        !!isMounted && setTotalPrice(
           Math.round(_price)
             .toString()
             .replace(/\B(?=(\d{3})+(?!\d))/g, "."),
@@ -221,7 +228,6 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
          }
      })
 
-      console.log(groups)
 
       const sortByFns = {
         [SORT_TYPES.NETWORK]: getSortedGroupsByNetwork,
