@@ -66,9 +66,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const tokenInfo = tokens.find((token) => token.id === route.params.coinId)
 
     const _getBalances = async () => {
-      console.log("GET BALANCE OF", asset)
       const balance = await getBalance(asset)
-      console.log("balance", balance)
       setBalance(asset, balance)
     }
 
@@ -78,12 +76,10 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     }
 
     const updateTransactions = () => {
-      console.log("This will run every second!")
       const txList = pendingTransactions.getPendingTxsForAsset(asset)
       txList.forEach((tx) => {
         getTransactionStatus(asset, tx.txId)
           .then((status) => {
-            console.log("GOT TRANSACTION STATUS", tx, status)
             if (status === "success" || status === "failed") {
               pendingTransactions.remove(asset, tx)
               _getBalances()
@@ -134,7 +130,6 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
 
     const addAsset = React.useCallback((chain: any) => {
       setLoading((loading) => ({ ...loading, [chain.id]: true }))
-      console.log({ currentWalletStore })
       currentWalletStore.getWallet().then((wallet) => {
         wallet
           .addAutoAsset({
@@ -162,7 +157,6 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
             })
           })
           .finally(() => {
-            console.log(JSON.stringify(wallet, null, 2))
             setLoading((loading) => ({ ...loading, [chain.id]: false }))
           })
       })
@@ -207,7 +201,6 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const getChartData = async () => {
       try {
         // setChartDays(days)
-        console.log("GET CHART DAY", chartDays)
         const data = await getMarketChart(route?.params?.coinId, chartDays)
 
         setChartData(data.prices)
@@ -248,7 +241,6 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     }
 
     const walletChains = useMemo(() => {
-      console.log(JSON.parse(JSON.stringify(assets)))
       return assets.map((asset) => asset.contract)
     }, [assets])
 

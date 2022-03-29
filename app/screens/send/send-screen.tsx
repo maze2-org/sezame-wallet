@@ -128,7 +128,6 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
         setIsPreview(true)
         setSendable(false)
         const response = await getFees(asset, recipientAddress, amount)
-        console.log("GOT FEESSSSSSSSSSSSSSSSSSS", JSON.stringify(response, null, 2))
         setFees(response)
         setSendable(true)
       } catch (error) {

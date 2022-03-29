@@ -41,7 +41,6 @@ export class StoredWallet {
         walletData.assets,
       )
 
-      console.log("LOADFROMSTORAGE ASSETS", walletData.assets)
       // await storedWallet.addAssets(walletData.assets)
       return storedWallet
     } catch (err) {
@@ -88,10 +87,6 @@ export class StoredWallet {
   }
 
   async save() {
-    console.log(
-      "save wallet ",
-      this.assets.map((a) => a.name),
-    )
     return await saveWallet(
       `${this.walletName}`,
       encrypt(this.password, JSON.stringify(this.toJson())),

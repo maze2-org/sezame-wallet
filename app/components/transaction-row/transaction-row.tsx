@@ -74,9 +74,6 @@ export const TransactionRow = observer(function TransactionRow(props: Transactio
 
   const myself = `${transaction.from}` === `${transaction.to}`
 
-  if (!transaction.out) {
-    console.log(transaction)
-  }
   return (
     <View style={TRANSACTION_ITEM}>
       <View style={TRANSACTION_ITEM_BODY}>

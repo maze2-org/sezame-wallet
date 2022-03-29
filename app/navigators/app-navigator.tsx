@@ -24,10 +24,7 @@ import {
   useNavigation,
   useRoute,
 } from "@react-navigation/native"
-import {
-  createNativeStackNavigator,
-  NativeStackHeaderProps,
-} from "@react-navigation/native-stack"
+import { createNativeStackNavigator, NativeStackHeaderProps } from "@react-navigation/native-stack"
 import {
   WelcomeScreen,
   ImportWalletScreen,
@@ -66,7 +63,7 @@ import {
   tabBarLabelFocused,
   tabBarStyle,
 } from "theme/elements"
-import { icons } from '../components/icon/icons/index'
+import { icons } from "../components/icon/icons/index"
 
 import ReloadIcon from "../../assets/svg/reload.svg"
 import QRCodeIcon from "../../assets/svg/qr_code.svg"
@@ -80,7 +77,7 @@ import { WalletConnectScreen } from "screens/wallet-connect/wallet-connect-scree
 const NAV_HEADER_CONTAINER: ViewStyle = {
   flexDirection: "row",
   justifyContent: "space-between",
-  alignItems:"center",
+  alignItems: "center",
   paddingTop: spacing[7],
   paddingBottom: spacing[2],
   paddingHorizontal: spacing[4],
@@ -120,8 +117,8 @@ const LOGO: TextStyle = {
   paddingRight: spacing[1],
 }
 const BACK_ARROW_ICON: ImageStyle = {
-  width:16,
-  height:16,
+  width: 16,
+  height: 16,
 }
 
 const Logo = () => (
@@ -133,13 +130,15 @@ const Logo = () => (
     </View>
   </View>
 )
-const BackArrow = ({navigation}) => (
-    <TouchableOpacity activeOpacity={0.7}
-                      hitSlop={{top:15,bottom:15,left:15,right:15}}
-                      onPress={()=>navigation.goBack()}>
-      <Image source={icons.back} style={BACK_ARROW_ICON} />
-    </TouchableOpacity>
-  )
+const BackArrow = ({ navigation }) => (
+  <TouchableOpacity
+    activeOpacity={0.7}
+    hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+    onPress={() => navigation.goBack()}
+  >
+    <Image source={icons.back} style={BACK_ARROW_ICON} />
+  </TouchableOpacity>
+)
 
 const MODAL_CONTAINER: TextStyle = {
   flex: 1,
@@ -182,7 +181,6 @@ function SettingsBtn() {
         key="btn_scan"
         style={NAV_HEADER_BTN}
         onPress={() => {
-          console.log("a")
           currentWalletStore.stopLoading()
           navigation.navigate("walletConnect")
         }}
@@ -233,7 +231,7 @@ export type NavigatorParamList = {
   walletReady: undefined
   nfts: undefined
   coinDetails: {
-    fromAddCurrency?: boolean,
+    fromAddCurrency?: boolean
     coinId: string
   }
   send: {
@@ -271,13 +269,13 @@ const BottomTabNavigator = () => {
                     focused && { ...tabBarItemFocused },
                   ]}
                 >
-                  <Ready isActive={focused}/>
+                  <Ready isActive={focused} />
                   <Text style={focused ? tabBarLabelFocused : tabBarLabel}>WALLET</Text>
                 </View>
               )}
               {route.name === "nfts" && (
                 <View style={[tabBarItem, focused && { ...tabBarItemFocused }]}>
-                  <TabNft isActive={focused}/>
+                  <TabNft isActive={focused} />
                   <Text style={focused ? tabBarLabelFocused : tabBarLabel}>NFT</Text>
                 </View>
               )}
@@ -303,22 +301,17 @@ const BottomTabNavigator = () => {
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createNativeStackNavigator<NavigatorParamList>()
 
-const AppStackHeader = (props: NativeStackHeaderProps & {backArrow: boolean}) => {
+const AppStackHeader = (props: NativeStackHeaderProps & { backArrow: boolean }) => {
   return (
     <View style={NAV_HEADER_CONTAINER}>
-      {props.backArrow ?
-       <BackArrow navigation={props.navigation}/>
-        :
-        <Logo/>}
+      {props.backArrow ? <BackArrow navigation={props.navigation} /> : <Logo />}
       <SettingsBtn />
     </View>
   )
 }
 
 const AppStackHeaderWithBackArrow = (props) => {
-  return (
-    <AppStackHeader {...props} backArrow/>
-  )
+  return <AppStackHeader {...props} backArrow />
 }
 
 const AppStack = () => {
@@ -356,14 +349,15 @@ const AppStack = () => {
             }}
           />
           <Stack.Screen name="walletReady" component={WalletReadyScreen} />
-          <Stack.Screen name="coinDetails"
-                        component={CoinDetailsScreen}
-                        options={{
-                          title: null,
-                          headerShown: true,
-                          header: AppStackHeaderWithBackArrow,
-                          headerStyle: { backgroundColor: color.palette.black },
-                        }}
+          <Stack.Screen
+            name="coinDetails"
+            component={CoinDetailsScreen}
+            options={{
+              title: null,
+              headerShown: true,
+              header: AppStackHeaderWithBackArrow,
+              headerStyle: { backgroundColor: color.palette.black },
+            }}
           />
           <Stack.Screen
             options={{

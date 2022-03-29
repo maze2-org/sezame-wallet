@@ -51,10 +51,8 @@ export const CurrentWalletModel = types
       return self.assets.find((a) => a.chain === chain)
     },
     getWalletAddressByChain: (chain: string) => {
-      console.log("getWalletAddressByChain", chain, console.log(JSON.stringify(self.assets)))
       const asset = self.assets.find((a) => a.chain === chain)
       if (asset) {
-        console.log("asset ", asset, "adddress ", asset.address)
         return asset.address
       }
       console.warn("NO asset found")
@@ -79,7 +77,6 @@ export const CurrentWalletModel = types
     open: (wallet: StoredWallet) => {
       self.wallet = JSON.stringify(wallet.toJson())
       self.assets = wallet.toJson().assets as any
-      console.log("open wallet ", JSON.stringify(self.assets))
       self.name = wallet.toJson().walletName
     },
     close: () => {
@@ -113,7 +110,6 @@ export const CurrentWalletModel = types
     removeWallet: async () => {
       try {
         const deleted = await remove(self.name)
-        console.log("removeWallet", deleted, self.name)
       } catch (error) {
         console.log("Error removing wallet", error)
       }
