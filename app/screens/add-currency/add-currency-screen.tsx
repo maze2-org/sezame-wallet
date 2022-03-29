@@ -8,9 +8,27 @@ import { AppScreen, Button, Footer, Text, Screen } from "../../components"
 import styles from "./styles"
 
 import { useNavigation } from "@react-navigation/native"
-import { BackgroundStyle, MainBackground, RootPageStyle, SEPARATOR } from "theme/elements"
+import {
+  BackgroundStyle,
+  MainBackground,
+  RootPageStyle,
+  SEPARATOR,
+} from "theme/elements"
+import {
+  color,
+  spacing,
+} from "../../theme"
 
 const tokens = require("../../config/tokens.json")
+
+const TEXT_INPUT = {
+  color: color.palette.white,
+  borderBottomColor: color.palette.white,
+  borderBottomWidth: 1,
+  borderRadius: 4,
+  padding: spacing[2],
+  margin: spacing[4],
+}
 
 export const AddCurrencyScreen: FC<StackScreenProps<NavigatorParamList, "addCurrency">> = observer(
   function AddCurrencyScreen() {
@@ -49,7 +67,7 @@ export const AddCurrencyScreen: FC<StackScreenProps<NavigatorParamList, "addCurr
           <View style={styles.CURRENCY_ROW_LOGO}>
             <Image source={{ uri: item.thumb, width: 20, height: 20 }}></Image>
           </View>
-          <Text style={styles.CURRENCY_ROW_NAME}>{item.name}</Text>
+          <Text style={styles.CURRENCY_ROW_NAME}>{item.name} ({item.symbol.toUpperCase()})</Text>
 
           <View style={SEPARATOR}></View>
         </TouchableOpacity>
@@ -61,8 +79,7 @@ export const AddCurrencyScreen: FC<StackScreenProps<NavigatorParamList, "addCurr
         <ImageBackground source={MainBackground} style={BackgroundStyle}>
             <View style={styles.SEARCH_INPUT_CONTAINER}>
               <TextInput
-                style={styles.SEARCH_INPUT}
-                // autoFocus
+                style={TEXT_INPUT}
                 autoCorrect={false}
                 onChangeText={(text) => searchTokens(text)}
                 placeholder={"Search coins"}
