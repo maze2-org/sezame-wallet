@@ -72,6 +72,8 @@ export const TransactionRow = observer(function TransactionRow(props: Transactio
 
   const txs = transaction.out ? transaction.to : transaction.from
 
+  const myself = `${transaction.from}` === `${transaction.to}`
+
   if (!transaction.out) {
     console.log(transaction)
   }
@@ -98,7 +100,9 @@ export const TransactionRow = observer(function TransactionRow(props: Transactio
             color={color.palette.white}
           />
 
-          <Text style={TRANSACTIONS_SORT_BTN_TEXT}>{transaction.out ? "TO" : "FROM"}</Text>
+          <Text style={TRANSACTIONS_SORT_BTN_TEXT}>
+            {myself ? "MYSELF" : transaction.out ? "TO" : "FROM"}
+          </Text>
         </Button>
         <Text style={TRANSACTION_ITEM_HASH}>{parseFloat(transaction.amount).toFixed(4)}</Text>
       </View>

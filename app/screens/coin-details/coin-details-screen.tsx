@@ -104,7 +104,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     useEffect(() => {
       // Get transaction once then once every 10sec
       updateTransactions()
-      const interval = setInterval(updateTransactions, 10000)
+      const interval = setInterval(updateTransactions, 20000)
 
       // Get graph data once then once every 60secs
       updateChart()
@@ -433,6 +433,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
           rightButtonText="Explore"
           RightButtonIcon={(props) => <IonIcons {...props} name="globe-outline" size={23} />}
           onRightButtonPress={() => explorerUrl && openLink(explorerUrl)}
+          rightButtonDisabled={!explorerUrl}
           onLeftButtonPress={goBack}
         />
 
