@@ -1,6 +1,5 @@
 import { CoingeckoCoin } from "types/coingeckoCoin"
-
-const axios = require("axios")
+import axios, {CancelTokenSource} from 'axios';
 
 const coingeckoBaseUrl = "https://api.coingecko.com/api/v3"
 export const getCoinDetails = (symbol): Promise<CoingeckoCoin> => {
@@ -15,7 +14,7 @@ export const getCoinDetails = (symbol): Promise<CoingeckoCoin> => {
     })
 }
 
-export const getCoinPrices = (ids): Promise<Array<any>> => {
+export const getCoinPrices = (ids, signal?: CancelTokenSource): Promise<Array<any>> => {
   return axios
 
     .get(
@@ -23,7 +22,7 @@ export const getCoinPrices = (ids): Promise<Array<any>> => {
         "/coins/markets?vs_currency=usd&ids=" +
         ids +
         "&order=market_cap_desc&per_page=10&page=1&sparkline=false",
-    )
+    { cancelToken: signal.token})
     .then(function (response) {
       return response.data
     })

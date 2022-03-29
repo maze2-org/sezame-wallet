@@ -27,8 +27,10 @@ export const AddCurrencyScreen: FC<StackScreenProps<NavigatorParamList, "addCurr
     const goBack = () => navigation.goBack()
 
     const searchTokens = (text: string) => {
-      const matches = tokens.filter((token) =>
-        token.name.toLowerCase().includes(text.toLowerCase()),
+      const matches = tokens.filter((token) => {
+          return token.name.toLowerCase().includes(text.toLowerCase()) ||
+            token.symbol.toLowerCase().includes(text.toLowerCase())
+        },
       )
       setSelectedTokens(matches)
     }
@@ -42,7 +44,7 @@ export const AddCurrencyScreen: FC<StackScreenProps<NavigatorParamList, "addCurr
         <TouchableOpacity
           style={styles.CURRENCY_ROW}
           key={item.cid}
-          onPress={() => navigation.navigate("coinDetails", { coinId: item.id })}
+          onPress={() => navigation.navigate("coinDetails", { fromAddCurrency: true, coinId: item.id })}
         >
           <View style={styles.CURRENCY_ROW_LOGO}>
             <Image source={{ uri: item.thumb, width: 20, height: 20 }}></Image>

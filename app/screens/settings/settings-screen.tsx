@@ -55,6 +55,11 @@ const ROOT: ViewStyle = {
 
   flex: 1,
 }
+const SCROLL_VIEW_CONTAINER: ViewStyle = {
+  flexGrow:1,
+  justifyContent: "space-between",
+  backgroundColor:color.palette.black
+}
 const MAIN_CONTAINER: ViewStyle = {
   ...CONTAINER,
   paddingVertical: spacing[4],
@@ -189,8 +194,11 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
       if (wallet) {
         await currentWalletStore.removeWallet()
         currentWalletStore.close()
-        reset().catch(null);
-        navigation.navigate("chooseWallet")
+        reset()
+          .then(()=>{
+            navigation.navigate("chooseWallet")
+          })
+          .catch(null);
       }
     }
     const deleteWalletConfirmation = async () => {
@@ -255,7 +263,7 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
     }
     return (
       <Screen unsafe={true} style={DashboardStyle} preset="fixed">
-        <ScrollView contentContainerStyle={BackgroundStyle}>
+        <ScrollView contentContainerStyle={SCROLL_VIEW_CONTAINER}>
           <View>
             <View style={MAIN_CONTAINER}>
               <View>

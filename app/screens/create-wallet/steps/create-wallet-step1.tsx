@@ -42,11 +42,18 @@ export function CreateWalletStep1(props: StepProps) {
     watch,
     formState: { errors, isValid },
   } = useForm({ mode: "onChange" })
-
+  const {
+    setWalletName,
+    setWalletPassword,
+    setSeedPhrase,
+    walletName,
+    walletPassword,
+    seedPhrase,
+  } = useContext(WalletCreateContext)
   const password = useWatch({
     control,
     name: "walletPassword",
-    defaultValue: "",
+    defaultValue: walletPassword,
   })
 
   const onSubmit = (data) => {
@@ -60,15 +67,6 @@ export function CreateWalletStep1(props: StepProps) {
 
     onButtonNext()
   }
-
-  const {
-    setWalletName,
-    setWalletPassword,
-    setSeedPhrase,
-    walletName,
-    walletPassword,
-    seedPhrase,
-  } = useContext(WalletCreateContext)
 
   const [condition1, setCondition1] = useState(false)
 

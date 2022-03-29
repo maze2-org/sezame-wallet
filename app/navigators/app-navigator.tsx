@@ -233,6 +233,7 @@ export type NavigatorParamList = {
   walletReady: undefined
   nfts: undefined
   coinDetails: {
+    fromAddCurrency?: boolean,
     coinId: string
   }
   send: {
