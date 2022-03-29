@@ -16,7 +16,7 @@ if (typeof process === "undefined") {
   }
 }
 
-if (typeof BigInt === 'undefined') global.BigInt = require('big-integer')
+if (typeof BigInt === "undefined") global.BigInt = require("big-integer")
 
 process.browser = false
 if (typeof Buffer === "undefined") {
@@ -33,3 +33,4 @@ if (typeof localStorage !== "undefined") {
 // If using the crypto shim, uncomment the following line to ensure
 // crypto is loaded first, so it can populate global.crypto
 require("crypto")
+require("node-libs-react-native/globals.js")

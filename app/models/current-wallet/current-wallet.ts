@@ -13,6 +13,7 @@ const WalletAsset = types.model({
   symbol: types.string,
   type: types.string,
   cid: types.optional(types.string, ""),
+  contract: types.optional(types.string, ""),
   balance: types.optional(types.number, 0),
   value: types.optional(types.number, 0),
   rate: types.optional(types.number, 0),
@@ -46,6 +47,19 @@ export const CurrentWalletModel = types
     getAssetById: (cid: string) => {
       return self.assets.find((a) => a.cid === cid)
     },
+    getAssetByChain: (chain: string) => {
+      return self.assets.find((a) => a.chain === chain)
+    },
+    getWalletAddressByChain: (chain: string) => {
+      console.log("getWalletAddressByChain", chain, console.log(JSON.stringify(self.assets)))
+      const asset = self.assets.find((a) => a.chain === chain)
+      if (asset) {
+        console.log("asset ", asset, "adddress ", asset.address)
+        return asset.address
+      }
+      console.warn("NO asset found")
+      return ""
+    },
   })) // eslint-disable-line @typescript-eslint/no-unused-vars
   .actions((self) => ({
     setAssets(assets) {
@@ -61,11 +75,11 @@ export const CurrentWalletModel = types
           return asset.name === network.name && asset.chain === asset.chain
         }).length > 0
       )
-      return true
     },
     open: (wallet: StoredWallet) => {
       self.wallet = JSON.stringify(wallet.toJson())
       self.assets = wallet.toJson().assets as any
+      console.log("open wallet ", JSON.stringify(self.assets))
       self.name = wallet.toJson().walletName
     },
     close: () => {
@@ -94,7 +108,6 @@ export const CurrentWalletModel = types
         }
       }
       self.loadingBalance = false
-      // ... including try/catch error handling
     }),
 
     removeWallet: async () => {

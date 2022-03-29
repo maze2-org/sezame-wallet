@@ -40,6 +40,8 @@ export class StoredWallet {
         password,
         walletData.assets,
       )
+
+      console.log("LOADFROMSTORAGE ASSETS", walletData.assets)
       // await storedWallet.addAssets(walletData.assets)
       return storedWallet
     } catch (err) {

@@ -66,6 +66,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const tokenInfo = tokens.find((token) => token.id === route.params.coinId)
 
     const _getBalances = async () => {
+      console.log("GET BALANCE OF", asset)
       const balance = await getBalance(asset)
       console.log("balance", balance)
       setBalance(asset, balance)
@@ -143,6 +144,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
             symbol: tokenInfo.symbol,
             cid: tokenInfo.id,
             type: tokenInfo.type,
+            contract: `${chain.contract}`,
           } as any)
           .then(async () => {
             await currentWalletStore.setAssets(wallet.assets)

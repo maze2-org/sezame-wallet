@@ -1,5 +1,6 @@
 import { CONFIG } from "@maze2/sezame-sdk"
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { createWalletConnectDefaultModel } from "models/wallet-connect/wallet-connect"
 import {
   createCurrencySelectorDefaultModel,
   CurrencySelectorModel,
@@ -19,6 +20,7 @@ export const RootStoreModel = types.model("RootStore").props({
   currencySelectorStore: createCurrencySelectorDefaultModel(),
   pendingTransactions: createPendingTransactionsDefaultModel(),
   TESTNET: types.optional(types.boolean, CONFIG.TESTNET),
+  walletConnectStore: createWalletConnectDefaultModel(),
 }).actions(self => ({
   setTestnet(value: boolean) {
     self.TESTNET = value;

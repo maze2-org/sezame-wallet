@@ -19,6 +19,7 @@ module.exports = (async () => {
       resolveRequest: MetroSymlinksResolver(),
       assetExts: [...defaultConfig.resolver.assetExts, "bin"],
       sourceExts: [...defaultConfig.resolver.sourceExts, "mjs"],
+      extraNodeModules: require("node-libs-react-native"),
     },
   })
 })()

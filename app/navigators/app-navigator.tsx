@@ -75,10 +75,8 @@ import PlusIcon from "../../assets/svg/plus.svg"
 import { SvgXml } from "react-native-svg"
 import TabNft from "../components/svg/TabNft"
 import Ready from "../components/svg/Ready"
-import {
-  boolean
-} from "mobx-state-tree/dist/internal"
 
+import { WalletConnectScreen } from "screens/wallet-connect/wallet-connect-screen"
 const NAV_HEADER_CONTAINER: ViewStyle = {
   flexDirection: "row",
   justifyContent: "space-between",
@@ -186,6 +184,7 @@ function SettingsBtn() {
         onPress={() => {
           console.log("a")
           currentWalletStore.stopLoading()
+          navigation.navigate("walletConnect")
         }}
       >
         <SvgXml style={BTN_ICON} xml={QRCodeIcon} />
@@ -245,6 +244,9 @@ export type NavigatorParamList = {
   settings: undefined
   changePassword: undefined
   addCurrency: undefined
+  walletConnect: {
+    uri: string
+  }
   // 🔥 Your screens go here
 }
 
@@ -409,6 +411,17 @@ const AppStack = () => {
               headerShown: true,
               header: AppStackHeader,
               headerStyle: { backgroundColor: color.palette.black },
+              title: "",
+            }}
+          />
+          <Stack.Screen
+            name="walletConnect"
+            component={WalletConnectScreen}
+            options={{
+              headerShown: true,
+              headerRight: SettingsBtn,
+              headerStyle: { backgroundColor: color.palette.black },
+              headerLeft: Logo,
               title: "",
             }}
           />
