@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react"
-import { TextStyle, ImageStyle, TouchableOpacity, Linking } from "react-native"
+import { TextStyle, ImageStyle, Linking } from "react-native"
 import { Button, AutoImage as Image, Text, Checkbox, AppScreen } from "../../../components"
 import {
   CONTAINER,
@@ -165,10 +165,10 @@ export function ImportWalletStep1(props: StepProps) {
           style={{ paddingHorizontal: spacing[2], marginBottom: spacing[6] }}
         >
           <Text style={LABEL}>
-            By creating a wallet, I accept the
-            <TouchableOpacity onPress={() => openLink(TERMS_AND_POLICIES_URL)}>
-              <Text style={TERMS_TXT}>terms and policies</Text>
-            </TouchableOpacity>
+            By creating a wallet, I accept the{" "}
+            <Text onPress={() => openLink(TERMS_AND_POLICIES_URL)} style={TERMS_TXT}>
+              terms and policies
+            </Text>
           </Text>
         </Checkbox>
         <Button
