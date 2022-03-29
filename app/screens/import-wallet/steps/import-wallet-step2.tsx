@@ -213,7 +213,7 @@ export function ImportWalletStep2(props: StepProps) {
               titleStyle={headerTitle}
             />
             <Text style={NORMAL_TEXT}>
-              In order to recover your wallet, you must provide your seed phrase.
+              Recovering your wallet requires that you provide your seed phrase.
             </Text>
           </View>
           <View>

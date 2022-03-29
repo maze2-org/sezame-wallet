@@ -3,7 +3,7 @@ import { TextStyle, TouchableOpacity, View, ViewStyle, Image } from "react-nativ
 import { Text } from "../text/text"
 import { color, spacing } from "../../theme"
 import { CheckboxProps } from "./checkbox.props"
-import { checkboxLabelError, textInputErrorMessage } from "theme/elements"
+import { checkboxLabelError, LABEL, textInputErrorMessage } from "theme/elements"
 import { SvgXml } from "react-native-svg"
 import checkIcon from "../../../assets/icons/check.svg"
 
@@ -33,13 +33,6 @@ const FILL: ViewStyle = {
   width: DIMENSIONS.width - 2.25,
   height: DIMENSIONS.height - 2.25,
   backgroundColor: color.primary,
-}
-
-const LABEL: TextStyle = {
-  paddingLeft: spacing[4],
-  fontSize: 12,
-  lineHeight: 16.34,
-  fontWeight: "600",
 }
 
 const labelStyle: ViewStyle = {
@@ -72,18 +65,21 @@ export function Checkbox(props: CheckboxProps) {
           {props.value && <SvgXml width="28" height="28" xml={checkIcon} />}
         </View>
         <View style={labelStyle}>
-          <Text
-            text={props.text}
-            tx={props.tx}
-            numberOfLines={numberOfLines}
-            style={checkboxTextStyle}
-          />
+          {!!props.text && (
+            <Text
+              text={props.text}
+              tx={props.tx}
+              numberOfLines={numberOfLines}
+              style={checkboxTextStyle}
+            />
+          )}
         </View>
+        {props.children}
       </TouchableOpacity>
       {props.displayErrors && props.errors && props.errors.length > 0 && (
         <View>
           {props.errors.map((err) => (
-            <Text style={textInputErrorMessage} text={err} />
+            <Text key={err} style={textInputErrorMessage} text={err} />
           ))}
         </View>
       )}

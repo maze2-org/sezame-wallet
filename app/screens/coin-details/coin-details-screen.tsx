@@ -330,7 +330,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                             <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>{asset.balance}</Text>
                             <Text style={styles.BALANCE_STAKING_CARD_NOTE}> (~1$)</Text>
                           </View>
-
+                          {/* 
                           <View style={SEPARATOR} />
                           <Button style={styles.BALANCE_STAKING_CARD_BTN}>
                             <MaterialCommunityIcons
@@ -339,7 +339,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                               name="swap-vertical-circle-outline"
                             />
                             <Text style={styles.BALANCE_STAKING_CARD_BTN_TEXT}>SWAP</Text>
-                          </Button>
+                          </Button> */}
                         </View>
                         {/*<View style={styles.BALANCE_STAKING_CARD}>*/}
                         {/*  <View style={styles.BALANCE_STAKING_CARD_BODY}>*/}
@@ -378,16 +378,18 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                         </View>
                       )}
 
-                      <View>
-                        <View style={styles.TRANSACTIONS_HEADER}>
-                          <Text preset="header" text="Transactions" />
+                      {asset.chain !== "AVN" && (
+                        <View>
+                          <View style={styles.TRANSACTIONS_HEADER}>
+                            <Text preset="header" text="Transactions" />
+                          </View>
+                          <View style={styles.TRANSACTIONS_CONTAINER}>
+                            {transactions.map((tx, index) => (
+                              <TransactionRow key={index} asset={asset} transaction={tx} />
+                            ))}
+                          </View>
                         </View>
-                        <View style={styles.TRANSACTIONS_CONTAINER}>
-                          {transactions.map((tx, index) => (
-                            <TransactionRow key={index} asset={asset} transaction={tx} />
-                          ))}
-                        </View>
-                      </View>
+                      )}
                     </View>
                   )}
 

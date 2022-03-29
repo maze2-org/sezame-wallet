@@ -15,7 +15,7 @@ import { color, spacing, typography } from "."
 export const BackgroundStyle: ImageStyle = {
   flex: 1,
   justifyContent: "space-between",
-  backgroundColor:color.palette.black
+  backgroundColor: color.palette.black,
 }
 
 export const RootPageStyle: ViewStyle = {
@@ -316,4 +316,17 @@ export const buttons = {
     paddingVertical: spacing[2],
     fontWeight: "600" as any,
   },
+}
+export const LABEL: TextStyle = {
+  paddingLeft: spacing[4],
+  fontSize: 12,
+  lineHeight: 16.34,
+  fontWeight: "600",
+}
+
+export const TERMS_TXT: TextStyle = {
+  ...LABEL,
+  fontSize: 13,
+  paddingLeft: 0,
+  color: color.primary,
 }
