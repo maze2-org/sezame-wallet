@@ -45,4 +45,6 @@ export interface CheckboxProps {
   errors?: string[]
 
   displayErrors?: boolean
+
+  children?: React.ReactNode
 }

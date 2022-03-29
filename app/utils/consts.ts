@@ -75,3 +75,6 @@ export const CHAIN_ID_TYPE_MAP = {
   56: "BSC",
   137: "POLYGON",
 }
+
+export const TERMS_AND_POLICIES_URL =
+  "https://raw.githubusercontent.com/maze2-org/sezame-wallet/master/LICENSE"
