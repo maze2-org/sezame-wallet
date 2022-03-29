@@ -1,4 +1,4 @@
-import React, { createRef, FC, useEffect, useRef, useState } from "react"
+import React, { useMemo, FC, useEffect, useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
 import {
   View,
@@ -57,7 +57,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const [transactions, setTransactions] = useState<CryptoTransaction[]>([])
     const [chartDays, setChartDays] = useState<number | "max">(1)
     const { currentWalletStore, pendingTransactions } = useStores()
-    const { getAssetById, setBalance } = currentWalletStore
+    const { getAssetById, setBalance, assets } = currentWalletStore
     const [loading, setLoading] = React.useState({})
 
     const [explorerUrl, setExplorerUrl] = useState<string>("")
@@ -96,7 +96,6 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
           })
       })
     }
-    console.log("chartDays", chartDays)
 
     const updateChart = () => {
       getChartData()
@@ -169,6 +168,33 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
       })
     }, [])
 
+    const removeAsset = React.useCallback((chain: any) => {
+      setLoading((loading) => ({ ...loading, [chain.id]: true }))
+      currentWalletStore.getWallet().then((wallet) => {
+        // wallet
+        //   .remove()
+        //   .then(async () => {
+        //     await currentWalletStore.setAssets(wallet.assets)
+        //
+        //     await wallet.save()
+        //     showMessage({
+        //       message: "Coin removed from wallet",
+        //       type: "success",
+        //     })
+        //   })
+        //   .catch((e) => {
+        //     console.log(e)
+        //     showMessage({
+        //       message: "Something went wrong",
+        //       type: "danger",
+        //     })
+        //   })
+        //   .finally(() => {
+        //     setLoading((loading) => ({ ...loading, [chain.id]: false }))
+        //   })
+      })
+    }, [])
+
     const getCoinData = async (coin) => {
       try {
         const data = await getCoinDetails(coin)
@@ -220,6 +246,11 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const switchChart = (type: number | "max") => {
       setChartDays(type)
     }
+
+    const walletChains = useMemo(()=>{
+      console.log(JSON.parse(JSON.stringify(assets)))
+      return assets.map(asset=>asset.contract)
+    },[assets])
 
     return (
       <Screen unsafe={true} style={styles.ROOT} preset="fixed">
@@ -288,7 +319,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                       ))}
                     </View>
                   )}
-                  {!!asset && (
+                  {!!asset && !route.params.fromAddCurrency && (
                     <View>
                       <View style={styles.BALANCE_STAKING_CONTAINER}>
                         <View style={styles.BALANCE_STAKING_CARD}>
@@ -362,16 +393,29 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                     </View>
                   )}
 
-                  {!asset && !!tokenInfo && (
+                  {!!tokenInfo && route.params.fromAddCurrency && (
                     <View style={styles.TOKEN_CHAINS_CONTAINER}>
-                      {tokenInfo.chains.map((chain) => (
-                        <View style={styles.TOKEN_CHAIN_ROW} key={chain.id}>
-                          <Text>{chain.name}</Text>
-                          <Button onPress={() => addAsset(chain)}>
-                            <Text style={styles.ADD_TO_PORTFOLIO_BTN}>Add to portfolio</Text>
-                          </Button>
-                        </View>
-                      ))}
+                      {tokenInfo.chains.map((chain) => {
+                        const hasInWallet = walletChains.includes(chain.contract);
+                        return (
+                          <View style={styles.TOKEN_CHAIN_ROW} key={chain.id}>
+                            <Text>{chain.name}</Text>
+                            <Button preset='secondary' onPress={() => {
+                              if(hasInWallet) {
+                                removeAsset(chain)
+                              } else {
+                                addAsset(chain)
+                              }
+                            }}>
+                              {hasInWallet ?
+                                <Text style={styles.ADD_TO_PORTFOLIO_BTN}>Remove from portfolio</Text>
+                                :
+                                <Text style={styles.ADD_TO_PORTFOLIO_BTN}>Add to portfolio</Text>
+                              }
+                            </Button>
+                          </View>
+                        )
+                      })}
                     </View>
                   )}
                 </View>

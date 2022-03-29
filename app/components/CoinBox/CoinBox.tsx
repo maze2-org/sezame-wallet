@@ -1,4 +1,5 @@
 import React, {
+  useEffect,
   useState,
 } from "react"
 import { View, Text, Image, StyleSheet, } from "react-native"
@@ -180,7 +181,7 @@ const CoinBoxItem = ({asset, getAssetPrice }) => {
           <Text style={styles.LIGHT_FONT}>{"Base currency"}</Text>
         </View>
         <View style={styles.COIN_CARD_CONTENT_RIGHT}>
-          <Text style={styles.BOLD_FONT}>{asset.balance}</Text>
+          <Text style={styles.BOLD_FONT}>{+(Number(asset?.balance).toFixed(4))}</Text>
           <Text style={styles.LIGHT_FONT}>{`~${getAssetPrice(
             asset.cid,
             asset.balance,
