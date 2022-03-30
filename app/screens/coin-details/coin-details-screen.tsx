@@ -319,7 +319,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                               Available balance
                             </Text>
                             <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>
-                              {asset.balance.toFixed(4)}
+                              {+(Number(asset?.balance).toFixed(4))}
                             </Text>
                             <Text style={styles.BALANCE_STAKING_CARD_NOTE}>
                               {" "}
@@ -412,12 +412,12 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                               }}
                             >
                               {hasInWallet ? (
-                                <Text 
+                                <Text
                                   style={styles.ADD_TO_PORTFOLIO_BTN}
                                   text={updatingWallet ? "Loading ..." : "Remove from portfolio"}
                                 />
                               ) : (
-                                <Text 
+                                <Text
                                   style={styles.ADD_TO_PORTFOLIO_BTN}
                                   text={updatingWallet ? "Loading ..." : "Add to portfolio"}
                                   />

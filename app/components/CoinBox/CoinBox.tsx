@@ -167,7 +167,7 @@ const CoinBoxItem = ({ asset }) => {
                 styles.COIN_STAKE,
                 asset.value === 100 && styles.COIN_STAKE_FULL,
               ]}
-            > 
+            >
               <Text
                 style={[
                   styles.LIGHT_FONT,

@@ -1,6 +1,14 @@
 import React, { FC, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { ImageBackground, TextStyle, View, ViewStyle } from "react-native"
+import {
+  ImageBackground,
+  TextStyle,
+  View,
+  ViewStyle,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import { NavigatorParamList } from "../../navigators"
 import BigNumber from "bignumber.js"
@@ -30,6 +38,11 @@ import { useStores } from "models"
 import { getBalance, getFees, makeSendTransaction } from "services/api"
 import { showMessage } from "react-native-flash-message"
 import styles from "./styles"
+import { boolean } from "mobx-state-tree/dist/internal"
+import {
+  offsets,
+  presets,
+} from "../../components/screen/screen.presets"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
@@ -69,6 +82,12 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
     const DrawerStyle: ViewStyle = {
       display: "flex",
     }
+    const SCROLL_VIEW_CONTAINER: ViewStyle = {
+      flexGrow:1,
+      justifyContent: "space-between",
+      backgroundColor:color.palette.black
+    }
+
     const walletLogo = require("../../../assets/images/avt.png")
     // Pull in one of our MST stores
     const { currentWalletStore, pendingTransactions, exchangeRates } = useStores()
@@ -167,7 +186,13 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
     const goBack = () => navigation.goBack()
 
     return (
-      <Screen unsafe style={DashboardStyle} preset="fixed">
+      <Screen unsafe style={DashboardStyle} preset="fixed" backgroundColor={color.palette.black}>
+        <ScrollView contentContainerStyle={SCROLL_VIEW_CONTAINER}>
+      <KeyboardAvoidingView
+        style={[presets.scroll.outer,{backgroundColor:color.palette.black}]}
+        behavior={Platform.OS === "ios" ? "padding" : 'height'}
+        keyboardVerticalOffset={50}
+      >
         <ImageBackground source={MainBackground} style={BackgroundStyle}>
           <View style={CONTAINER}>
             <View style={WALLET_STYLE}>
@@ -228,7 +253,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                 outline={true}
                 disabled={!isValid}
                 onPress={handleSubmit(onSubmit)}
-              ></WalletButton>
+              />
             </View>
           </View>
         </ImageBackground>
@@ -245,14 +270,14 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                 onPress={() => {
                   setIsPreview(false)
                 }}
-              ></Button>,
+              />,
               <Button
                 text={sending ? "SENDING..." : "SIGN AND SUBMIT"}
                 disabled={sending || !sendable}
                 style={styles.DRAWER_BTN_OK}
                 textStyle={styles.DRAWER_BTN_TEXT}
                 onPress={processTransaction}
-              ></Button>,
+              />,
             ]}
           >
             <View style={styles.DRAWER_CARD}>
@@ -262,14 +287,14 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                   <Text style={styles.AMOUNT_STYLE}>{amount}</Text>
                 </View>
               </View>
-              <View style={styles.CARD_ITEM_DIVIDER}></View>
+              <View style={styles.CARD_ITEM_DIVIDER}/>
               <View style={styles.DRAWER_CARD_ITEM}>
                 <Text style={styles.CARD_ITEM_TITLE}>Recipient</Text>
                 <View style={styles.CARD_ITEM_DESCRIPTION}>
                   <Text style={styles.AMOUNT_STYLE}>{truncateRecipient(recipientAddress)}</Text>
                 </View>
               </View>
-              <View style={styles.CARD_ITEM_DIVIDER}></View>
+              <View style={styles.CARD_ITEM_DIVIDER}/>
               <View style={styles.DRAWER_CARD_ITEM}>
                 <Text style={styles.CARD_ITEM_TITLE}>Transaction fees</Text>
                 <View style={styles.CARD_ITEM_DESCRIPTION}>
@@ -283,8 +308,11 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
           </Drawer>
         )}
 
-        <Footer onLeftButtonPress={goBack}></Footer>
+        <Footer onLeftButtonPress={goBack}/>
+        </KeyboardAvoidingView>
+        </ScrollView>
       </Screen>
-    )
+
+        )
   },
 )

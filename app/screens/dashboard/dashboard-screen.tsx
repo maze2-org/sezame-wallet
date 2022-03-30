@@ -286,7 +286,7 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
               <Animated.View style={[styles.PORTFOLIO_VALUE, { transform: [{ scale }] }]}>
                 <Text style={styles.ORANGE_COLOR}>~ </Text>
                 <Text style={styles.PORTFOLIO} adjustsFontSizeToFit numberOfLines={1}>
-                  {exchangeRates.getTotal(assets).toFixed(2)}
+                  {+(Number(exchangeRates.getTotal(assets)).toFixed(2))}
                 </Text>
                 <Text style={styles.PORTFOLIO_DOLLAR}> $</Text>
               </Animated.View>
