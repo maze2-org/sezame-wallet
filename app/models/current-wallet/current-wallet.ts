@@ -74,6 +74,7 @@ export const CurrentWalletModel = types
         }).length > 0
       )
     },
+
     open: (wallet: StoredWallet) => {
       self.wallet = JSON.stringify(wallet.toJson())
       self.assets = wallet.toJson().assets as any

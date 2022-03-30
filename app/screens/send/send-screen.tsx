@@ -131,7 +131,6 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
         setFees(response)
         setSendable(true)
       } catch (error) {
-        console.log("Unable to get fees")
         console.log(error)
         switch (error.message) {
           case "INSUFFICIENT_FUNDS":

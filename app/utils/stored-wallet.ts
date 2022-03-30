@@ -57,6 +57,14 @@ export class StoredWallet {
     this.assets.push(asset)
   }
 
+  removeAsset(chain: string, symbol: string) {
+    const existingAssets = this.assets || []
+
+    this.assets = existingAssets.filter((currentAsset) => {
+      return currentAsset.chain !== chain || currentAsset.symbol !== symbol
+    })
+  }
+
   addAutoAsset(asset: IWalletAsset) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {

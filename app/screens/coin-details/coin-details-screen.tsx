@@ -59,6 +59,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const { currentWalletStore, pendingTransactions } = useStores()
     const { getAssetById, setBalance, assets } = currentWalletStore
     const [loading, setLoading] = React.useState({})
+    const [updatingWallet, setUpdatingWallet] = React.useState<boolean>(false)
 
     const [explorerUrl, setExplorerUrl] = useState<string>("")
 
@@ -130,6 +131,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
 
     const addAsset = React.useCallback((chain: any) => {
       setLoading((loading) => ({ ...loading, [chain.id]: true }))
+      setUpdatingWallet(true)
       currentWalletStore.getWallet().then((wallet) => {
         wallet
           .addAutoAsset({
@@ -158,34 +160,37 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
           })
           .finally(() => {
             setLoading((loading) => ({ ...loading, [chain.id]: false }))
+            setUpdatingWallet(false)
           })
       })
     }, [])
 
     const removeAsset = React.useCallback((chain: any) => {
       setLoading((loading) => ({ ...loading, [chain.id]: true }))
+      setUpdatingWallet(true)
+
       currentWalletStore.getWallet().then((wallet) => {
-        // wallet
-        //   .remove()
-        //   .then(async () => {
-        //     await currentWalletStore.setAssets(wallet.assets)
-        //
-        //     await wallet.save()
-        //     showMessage({
-        //       message: "Coin removed from wallet",
-        //       type: "success",
-        //     })
-        //   })
-        //   .catch((e) => {
-        //     console.log(e)
-        //     showMessage({
-        //       message: "Something went wrong",
-        //       type: "danger",
-        //     })
-        //   })
-        //   .finally(() => {
-        //     setLoading((loading) => ({ ...loading, [chain.id]: false }))
-        //   })
+        wallet.removeAsset(chain.id, tokenInfo.symbol)
+        currentWalletStore.setAssets(wallet.assets)
+        wallet
+          .save()
+          .then(() => {
+            showMessage({
+              message: "Coin removed from wallet",
+              type: "success",
+            })
+          })
+          .catch((err) => {
+            console.log(err)
+            showMessage({
+              message: "Something went wrong",
+              type: "danger",
+            })
+          })
+          .finally(() => {
+            setLoading((loading) => ({ ...loading, [chain.id]: false }))
+            setUpdatingWallet(false)
+          })
       })
     }, [])
 
@@ -239,10 +244,6 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const switchChart = (type: number | "max") => {
       setChartDays(type)
     }
-
-    const walletChains = useMemo(() => {
-      return assets.map((asset) => asset.contract)
-    }, [assets])
 
     return (
       <Screen unsafe={true} style={styles.ROOT} preset="fixed">
@@ -388,12 +389,16 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                   {!!tokenInfo && route.params.fromAddCurrency && (
                     <View style={styles.TOKEN_CHAINS_CONTAINER}>
                       {tokenInfo.chains.map((chain) => {
-                        const hasInWallet = walletChains.includes(chain.contract)
+                        const hasInWallet = currentWalletStore.assets.find(
+                          (item) => item.contract === chain.contract,
+                        )
+
                         return (
                           <View style={styles.TOKEN_CHAIN_ROW} key={chain.id}>
                             <Text>{chain.name}</Text>
                             <Button
                               preset="secondary"
+                              disabled={updatingWallet}
                               onPress={() => {
                                 if (hasInWallet) {
                                   removeAsset(chain)
