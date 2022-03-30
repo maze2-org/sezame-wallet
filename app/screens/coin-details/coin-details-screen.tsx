@@ -408,11 +408,15 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                               }}
                             >
                               {hasInWallet ? (
-                                <Text style={styles.ADD_TO_PORTFOLIO_BTN}>
-                                  Remove from portfolio
-                                </Text>
+                                <Text 
+                                  style={styles.ADD_TO_PORTFOLIO_BTN}
+                                  text={updatingWallet ? "Loading ..." : "Remove from portfolio"}
+                                />
                               ) : (
-                                <Text style={styles.ADD_TO_PORTFOLIO_BTN}>Add to portfolio</Text>
+                                <Text 
+                                  style={styles.ADD_TO_PORTFOLIO_BTN}
+                                  text={updatingWallet ? "Loading ..." : "Add to portfolio"}
+                                  />
                               )}
                             </Button>
                           </View>
