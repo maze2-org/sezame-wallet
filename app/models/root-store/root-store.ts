@@ -5,11 +5,9 @@ import {
   createCurrencySelectorDefaultModel,
   CurrencySelectorModel,
 } from "models/currency-selector/currency-selector"
-import {
-  createCurrentWalletDefaultModel,
-  CurrentWalletModel,
-} from "models/current-wallet/current-wallet"
+import { createCurrentWalletDefaultModel } from "models/current-wallet/current-wallet"
 import { createPendingTransactionsDefaultModel } from "models/pending-transactions/pending-transactions"
+import { createExchangeRateDefaultModel } from "models/exchange-rate/exchange-rate"
 
 /**
  * A RootStore model.
@@ -19,6 +17,7 @@ export const RootStoreModel = types.model("RootStore").props({
   currentWalletStore: createCurrentWalletDefaultModel(),
   currencySelectorStore: createCurrencySelectorDefaultModel(),
   pendingTransactions: createPendingTransactionsDefaultModel(),
+  exchangeRates: createExchangeRateDefaultModel(),
   TESTNET: types.optional(types.boolean, CONFIG.TESTNET),
   walletConnectStore: createWalletConnectDefaultModel(),
 }).actions(self => ({

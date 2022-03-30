@@ -12,7 +12,6 @@ import {
 } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5"
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
 import IonIcons from "react-native-vector-icons/Ionicons"
 import copyImg from "../../../assets/svg/copy.svg"
 import { NavigatorParamList } from "../../navigators"
@@ -20,7 +19,6 @@ import FlashMessage, { showMessage } from "react-native-flash-message"
 import {
   Button,
   CoinCard,
-  Drawer,
   Footer,
   PriceChart,
   Screen,
@@ -32,7 +30,7 @@ import { color } from "../../theme"
 import { useNavigation } from "@react-navigation/native"
 import { getCoinDetails, getMarketChart } from "utils/apis"
 import { CoingeckoCoin } from "types/coingeckoCoin"
-import { PendingTransaction, useStores } from "models"
+import { useStores } from "models"
 import { BackgroundStyle, MainBackground, SEPARATOR } from "theme/elements"
 import styles from "./styles"
 import QRCode from "react-native-qrcode-svg"
@@ -56,7 +54,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const [chartData, setChartData] = useState<any[]>([])
     const [transactions, setTransactions] = useState<CryptoTransaction[]>([])
     const [chartDays, setChartDays] = useState<number | "max">(1)
-    const { currentWalletStore, pendingTransactions } = useStores()
+    const { currentWalletStore, pendingTransactions, exchangeRates } = useStores()
     const { getAssetById, setBalance, assets } = currentWalletStore
     const [loading, setLoading] = React.useState({})
     const [updatingWallet, setUpdatingWallet] = React.useState<boolean>(false)
@@ -320,8 +318,14 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                             <Text style={styles.BALANCE_STAKING_CARD_HEADER}>
                               Available balance
                             </Text>
-                            <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>{asset.balance}</Text>
-                            <Text style={styles.BALANCE_STAKING_CARD_NOTE}> (~1$)</Text>
+                            <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>
+                              {asset.balance.toFixed(4)}
+                            </Text>
+                            <Text style={styles.BALANCE_STAKING_CARD_NOTE}>
+                              {" "}
+                              (~{`${(exchangeRates.getRate(asset.cid) * asset.balance).toFixed(2)}`}
+                              $)
+                            </Text>
                           </View>
                           {/* 
                           <View style={SEPARATOR} />

@@ -3,14 +3,15 @@ import { observer } from "mobx-react-lite"
 import { StackScreenProps } from "@react-navigation/stack"
 import { View, Animated, StyleSheet, Dimensions } from "react-native"
 
-import { useStores } from "../../models"
+import { ExchangeRateModel, useStores } from "../../models"
 import { getCoinPrices } from "utils/apis"
 import { color, spacing, typography } from "../../theme"
 import { NavigatorParamList } from "../../navigators"
 import { Text, Button, AppScreen } from "../../components"
 import { chainSymbolsToNames } from "utils/consts"
 import CoinBox from "../../components/CoinBox/CoinBox"
-import axios, {CancelTokenSource} from 'axios'
+import axios, { CancelTokenSource } from "axios"
+import { useFocusEffect } from "@react-navigation/native"
 
 const Fonts = [11, 15, 24, 48, 64]
 const MY_STYLE = StyleSheet.create({
@@ -20,12 +21,10 @@ const MY_STYLE = StyleSheet.create({
   },
 })
 const styles = StyleSheet.create({
-
-
-  LOADING_BOX:{
-    alignItems:'center',
-    flex:1,
-    justifyContent:'center'
+  LOADING_BOX: {
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
   },
   NETWORK: {
     ...MY_STYLE.common,
@@ -140,93 +139,55 @@ type SortTypeValues = typeof SORT_TYPES[SortTypeKeys]
 const { width } = Dimensions.get("screen")
 export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard">> = observer(
   function DashboardScreen() {
-    const signal = useRef<CancelTokenSource>(axios.CancelToken.source()).current;
-    const[isMounted, setIsMounted] = useState<boolean>(false)
     const scrollY = useRef(new Animated.Value(0)).current
-    const { currentWalletStore } = useStores()
-    const { wallet, assets, setBalance, refreshBalances, loadingBalance } = currentWalletStore
-    const [totalPrice, setTotalPrice] = useState<string>("0")
-    const [details, setDetails] = useState<Array<any>>([])
-    const [prices, setPrices] = useState<Array<any>>([])
+    const { currentWalletStore, exchangeRates, TESTNET } = useStores()
+    const { wallet, assets, refreshBalances, loadingBalance, resetBalance } = currentWalletStore
     const [sortBy, setSortBy] = useState<SortTypeValues>(SORT_TYPES.NETWORK)
     const [groups, setGroups] = useState({})
 
     useEffect(() => {
-      setIsMounted(true)
-      // const getBalances = async () => {
-      //   await Promise.all(
-      //     assets.map(async (asset) => {
-      //       const balance = await getBalance(asset)
-      //       setBalance(asset, balance)
-      //     }),
-      //   )
-      // }
-      // getBalances()
-      refreshBalances()
-      return ()=> {
-        setIsMounted(false)
-        signal.cancel('Api is being canceled')
-      }
+      // Load balance and prepare the display of the assets when initializing the dashboard
+      refreshBalances().then(() => {
+        preparingAssets(sortBy)
+      })
     }, [])
 
     useEffect(() => {
-      // get prices and calculate the total price
-      let assetIds = ""
-      assets.map((asset) => {
-        assetIds += asset.cid + ","
-        return 1
-      })
-      assetIds.slice(0, -1)
-      const getPrice = async () => {
-        let _price = 0
+      resetBalance()
+      preparingAssets(sortBy)
+    }, [TESTNET])
 
-        const details = await getCoinPrices(assetIds,signal);
-       !!isMounted && setDetails(details)
-        const _prices = []
-        assets.map((asset) => {
-          const data = details.find((detail) => detail.id === asset.cid)
-          if (data) {
-            _prices.push({ id: asset.cid, price: data.current_price })
-            _price += data.current_price * asset.balance
-          }
-          return 0
+    useFocusEffect(
+      // Refresh the list when dashaboard becomes active
+      React.useCallback(() => {
+        refreshBalances().then(() => {
+          preparingAssets(sortBy)
         })
-       !!isMounted && setPrices(_prices)
+      }, []),
+    )
 
-        // Format price separating every 3 numbers with quote
-        !!isMounted && setTotalPrice(
-          Math.round(_price)
-            .toString()
-            .replace(/\B(?=(\d{3})+(?!\d))/g, "."),
-        )
-        preparingAssets(sortBy, details)
-      }
-      getPrice()
-    }, [JSON.stringify(assets)])
-
-    const preparingAssets = (sortBy: SortTypeValues, details) => {
+    const preparingAssets = (sortBy: SortTypeValues) => {
       const groups = {}
-       assets.forEach((asset) => {
-         const data = details.find((detail) => detail.id === asset.cid);
-         if(sortBy === SORT_TYPES.NETWORK) {
-           if (asset.chain) {
-             if (Array.isArray(groups[asset.chain])) {
-               groups[asset.chain].push({...asset, image: data?.image || asset.image})
-             } else {
-               groups[asset.chain] = [{...asset, image: data?.image || asset.image}]
-             }
-           }
-         }else{
-           if (asset.name) {
-             if (Array.isArray(groups[asset.name])) {
-               groups[asset.name].push({...asset, image: data?.image || asset.image})
-             } else {
-               groups[asset.name] = [{...asset, image: data?.image || asset.image}]
-             }
-           }
-         }
-     })
-
+      assets.forEach((asset) => {
+        const data = { image: "" }
+        if (sortBy === SORT_TYPES.NETWORK) {
+          if (asset.chain) {
+            if (Array.isArray(groups[asset.chain])) {
+              groups[asset.chain].push({ ...asset, image: data?.image || asset.image })
+            } else {
+              groups[asset.chain] = [{ ...asset, image: data?.image || asset.image }]
+            }
+          }
+        } else {
+          if (asset.name) {
+            if (Array.isArray(groups[asset.name])) {
+              groups[asset.name].push({ ...asset, image: data?.image || asset.image })
+            } else {
+              groups[asset.name] = [{ ...asset, image: data?.image || asset.image }]
+            }
+          }
+        }
+      })
 
       const sortByFns = {
         [SORT_TYPES.NETWORK]: getSortedGroupsByNetwork,
@@ -238,49 +199,46 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
       setGroups(sortedGroups)
     }
 
-    const getSortedGroupsByNetwork = groups => {
-      const sortedGroupNames = Object.keys(groups);
-      sortedGroupNames.sort((a,b)=>{
-        const aName = chainSymbolsToNames[a];
-        const bName = chainSymbolsToNames[b];
-        return aName.toLowerCase() > bName.toLowerCase() ? 1 : -1;
+    const getSortedGroupsByNetwork = (groups) => {
+      const sortedGroupNames = Object.keys(groups)
+      sortedGroupNames.sort((a, b) => {
+        const aName = chainSymbolsToNames[a]
+        const bName = chainSymbolsToNames[b]
+        return aName.toLowerCase() > bName.toLowerCase() ? 1 : -1
       })
-      const sortedGroups = {};
-      sortedGroupNames.forEach(groupName=>{
-        if(!sortedGroups[groupName]){
-          sortedGroups[groupName] = [];
+      const sortedGroups = {}
+      sortedGroupNames.forEach((groupName) => {
+        if (!sortedGroups[groupName]) {
+          sortedGroups[groupName] = []
         }
-        sortedGroups[groupName] = [...groups[groupName]];
+        sortedGroups[groupName] = [...groups[groupName]]
       })
       return sortedGroups
     }
 
-    const getSortedGroupsByCurrency = groups => {
-      const sortedGroupNames = Object.keys(groups);
-      sortedGroupNames.sort((a,b)=>{
-        return a.toLowerCase() > b.toLowerCase() ? 1 : -1;
+    const getSortedGroupsByCurrency = (groups) => {
+      const sortedGroupNames = Object.keys(groups)
+      sortedGroupNames.sort((a, b) => {
+        return a.toLowerCase() > b.toLowerCase() ? 1 : -1
       })
 
-      const sortedGroups = {};
-      sortedGroupNames.forEach(groupName=>{
-        if(!sortedGroups[groupName]){
-          sortedGroups[groupName] = [];
+      const sortedGroups = {}
+      sortedGroupNames.forEach((groupName) => {
+        if (!sortedGroups[groupName]) {
+          sortedGroups[groupName] = []
         }
-        sortedGroups[groupName] = groups[groupName].map(g=>({...g,name: chainSymbolsToNames[g.chain]}));
+        sortedGroups[groupName] = groups[groupName].map((g) => ({
+          ...g,
+          name: chainSymbolsToNames[g.chain],
+        }))
       })
       return sortedGroups
-    }
-
-    const getAssetPrice = (cid, balance) => {
-      const data = prices.find((price) => price.id === cid)
-      if (data) return data.price * balance
-      return 0
     }
 
     const changeSortType = useCallback((sortType: SortTypeValues) => {
-      preparingAssets(sortType, details)
+      preparingAssets(sortType)
       setSortBy(sortType)
-    }, [details])
+    }, [])
 
     const scale = scrollY.interpolate({
       inputRange: [50, 85],
@@ -317,18 +275,18 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
         scrollEventThrottle={16}
       >
         <AppScreen unsafe>
-          {!!loadingBalance &&
+          {!!loadingBalance && (
             <View style={styles.LOADING_BOX}>
               <Text>Loading</Text>
             </View>
-          }
+          )}
           <View style={styles.PORTFOLIO_WRAPPER}>
             <Animated.View style={[styles.PORTFOLIO_CONTAINER, { transform: [{ translateY }] }]}>
               <Animated.View style={[styles.PORTFOLIO_OVERLAY, { opacity }]} />
               <Animated.View style={[styles.PORTFOLIO_VALUE, { transform: [{ scale }] }]}>
                 <Text style={styles.ORANGE_COLOR}>~ </Text>
                 <Text style={styles.PORTFOLIO} adjustsFontSizeToFit numberOfLines={1}>
-                  {totalPrice}
+                  {exchangeRates.getTotal(assets).toFixed(2)}
                 </Text>
                 <Text style={styles.PORTFOLIO_DOLLAR}> $</Text>
               </Animated.View>
@@ -369,21 +327,14 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
               </View>
             </Animated.View>
             <View style={styles.NETWORK_CONTAINER}>
-              {Object.values(groups)
-                .map((assets, index) => {
-                  const title = Object.keys(groups)[index];
-                  const titleMap = {
-                    [SORT_TYPES.NETWORK]: chainSymbolsToNames[title],
-                    [SORT_TYPES.CURRENCIES]: title,
-                  }
-                  return (
-                    <CoinBox key={titleMap[sortBy]}
-                             assets={assets}
-                             title={titleMap[sortBy]}
-                             getAssetPrice={getAssetPrice}
-                    />
-                  )
-                })}
+              {Object.values(groups).map((assets, index) => {
+                const title = Object.keys(groups)[index]
+                const titleMap = {
+                  [SORT_TYPES.NETWORK]: chainSymbolsToNames[title],
+                  [SORT_TYPES.CURRENCIES]: title,
+                }
+                return <CoinBox key={titleMap[sortBy]} assets={assets} title={titleMap[sortBy]} />
+              })}
             </View>
           </View>
         </AppScreen>

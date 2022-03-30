@@ -14,31 +14,22 @@ import {
   Text,
   WalletButton,
 } from "../../components"
-// import { useNavigation } from "@react-navigation/native"
-// import { useStores } from "../../models"
+
 import { color, spacing } from "../../theme"
 import { Controller, useForm, useWatch } from "react-hook-form"
 import { TextInputField } from "components/text-input-field/text-input-field"
 import {
   BackgroundStyle,
-  btnDefault,
-  btnDisabled,
   CONTAINER,
-  demoText,
   drawerErrorMessage,
-  footBtn,
   MainBackground,
-  PRIMARY_BTN,
-  PRIMARY_TEXT,
   textInput,
-  textInputErrorMessage,
 } from "theme/elements"
 import { useNavigation } from "@react-navigation/native"
 import { useStores } from "models"
 import { getBalance, getFees, makeSendTransaction } from "services/api"
 import { showMessage } from "react-native-flash-message"
 import styles from "./styles"
-import { boolean } from "mobx-state-tree/dist/internal"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
@@ -80,7 +71,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
     }
     const walletLogo = require("../../../assets/images/avt.png")
     // Pull in one of our MST stores
-    const { currentWalletStore, pendingTransactions } = useStores()
+    const { currentWalletStore, pendingTransactions, exchangeRates } = useStores()
     const { getAssetById } = currentWalletStore
     const {
       control,
@@ -285,7 +276,6 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                   <Text style={styles.AMOUNT_STYLE}>
                     {fees ? `${fees.regular.settings.feeValue} ${fees.regular.currency}` : ""}
                   </Text>
-                  {/* <Text style={styles.AMOUNT_SUB_STYLE}>0.23 available</Text> */}
                 </View>
               </View>
             </View>

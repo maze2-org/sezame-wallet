@@ -11,18 +11,15 @@ import {
   useColorScheme,
   View,
   ViewStyle,
-  Button,
   StyleSheet,
   Text,
   ImageStyle,
 } from "react-native"
-import Modal from "react-native-modal"
 import {
   NavigationContainer,
   DefaultTheme,
   DarkTheme,
   useNavigation,
-  useRoute,
 } from "@react-navigation/native"
 import { createNativeStackNavigator, NativeStackHeaderProps } from "@react-navigation/native-stack"
 import {
@@ -36,8 +33,6 @@ import {
   AddCurrencyScreen,
 } from "../screens"
 import { navigationRef, useBackButtonHandler } from "./navigation-utilities"
-import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5"
-import FontAwesomeIcon from "react-native-vector-icons/FontAwesome"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 // import Icon from "react-native-vector-icons/Ionicons"
 
@@ -49,7 +44,7 @@ import { ChooseWalletScreen } from "../screens/choose-wallet/choose-wallet-scree
 import { getListOfWallets } from "../utils/storage"
 import { ReceiveScreen } from "screens/receive/receive-screen"
 import { useStores } from "../models"
-import { StoredWallet } from "../utils/stored-wallet"
+
 import { StackNavigationProp } from "@react-navigation/stack"
 import { AutoImage as Image, CurrenciesSelector, Drawer } from "../components"
 import {
@@ -149,20 +144,8 @@ const MODAL_CONTAINER: TextStyle = {
   alignItems: "center",
 }
 
-// Just some styles
-const styles = StyleSheet.create({
-  item: {
-    padding: 24,
-  },
-  title: {
-    fontSize: 32,
-  },
-})
-
 function SettingsBtn() {
-  const { currentWalletStore } = useStores()
-  const { loadingBalance } = currentWalletStore
-  const [storedWallet, setStoredWallet] = useState<any>(null)
+  const { currentWalletStore, exchangeRates } = useStores()
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
   const route = navigationRef.current?.getCurrentRoute()
 
@@ -173,6 +156,7 @@ function SettingsBtn() {
         style={NAV_HEADER_BTN}
         onPress={() => {
           currentWalletStore.refreshBalances()
+          exchangeRates.refreshCurrencies()
         }}
       >
         <SvgXml style={BTN_ICON} xml={ReloadIcon} />
@@ -316,6 +300,7 @@ const AppStackHeaderWithBackArrow = (props) => {
 
 const AppStack = () => {
   const [initialRouteName, setInitialRouteName] = useState<any>(null)
+  const { exchangeRates } = useStores()
   useEffect(() => {
     getListOfWallets().then((walletNames) => {
       if (walletNames.length) {
@@ -325,6 +310,18 @@ const AppStack = () => {
       }
     })
   }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Automatically refresh exchange rates every 2min
+      exchangeRates.refreshCurrencies()
+    }, 120000)
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [exchangeRates])
+
   return (
     <>
       {initialRouteName && (

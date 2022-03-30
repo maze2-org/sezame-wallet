@@ -3,6 +3,7 @@ import { flow, Instance, SnapshotOut, types } from "mobx-state-tree"
 import { remove } from "utils/storage"
 import { StoredWallet } from "../../utils/stored-wallet"
 import { getBalance } from "services/api"
+import { walletConnectService } from "services/walletconnect"
 
 const WalletAsset = types.model({
   name: types.string,
@@ -73,6 +74,13 @@ export const CurrentWalletModel = types
           return asset.name === network.name && asset.chain === asset.chain
         }).length > 0
       )
+    },
+
+    resetBalance: () => {
+      let wallet = JSON.parse(self.wallet)
+      self.assets = self.assets.map((asset) => ({ ...asset, balance: 0 })) as any
+      wallet.assets = self.assets
+      self.wallet = JSON.stringify(wallet)
     },
 
     open: (wallet: StoredWallet) => {
