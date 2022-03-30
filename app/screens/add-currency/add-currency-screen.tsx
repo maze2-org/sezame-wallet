@@ -1,4 +1,8 @@
-import React, { FC, useEffect } from "react"
+import React, {
+  FC,
+  useEffect,
+  useRef,
+} from "react"
 import { observer } from "mobx-react-lite"
 import { TextInput, View, Image, TouchableOpacity, ImageBackground } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
@@ -32,6 +36,7 @@ const TEXT_INPUT = {
 
 export const AddCurrencyScreen: FC<StackScreenProps<NavigatorParamList, "addCurrency">> = observer(
   function AddCurrencyScreen() {
+    let inputRef = useRef(null)
     // Pull in one of our MST stores
     // const { someStore, anotherStore } = useStores()
     const [selectedTokens, setSelectedTokens] = React.useState<string[]>(tokens)
@@ -74,15 +79,21 @@ export const AddCurrencyScreen: FC<StackScreenProps<NavigatorParamList, "addCurr
       )
     }
 
+    useEffect(()=>{
+      inputRef.current.focus()
+    },[])
+
     return (
       <Screen unsafe preset="fixed" style={RootPageStyle}>
         <ImageBackground source={MainBackground} style={BackgroundStyle}>
             <View style={styles.SEARCH_INPUT_CONTAINER}>
               <TextInput
+                ref={inputRef}
                 style={TEXT_INPUT}
                 autoCorrect={false}
                 onChangeText={(text) => searchTokens(text)}
                 placeholder={"Search coins"}
+                placeholderTextColor={color.palette.white}
               />
             </View>
 

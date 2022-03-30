@@ -59,10 +59,14 @@ export function Biometrics({ onLoad }: IBiometrics) {
 
   const authenticate = (savedData: IKeychainData | null) => {
     ReactNativeBiometrics.isSensorAvailable().then(resultObject => {
-      setBiometricType(resultObject.biometryType || ReactNativeBiometrics.TouchID)
+      if(Platform.OS === 'ios' || Platform.OS === 'android' && resultObject.available) {
+        setBiometricType(resultObject.biometryType || ReactNativeBiometrics.TouchID)
+      }
     })
       .catch(error=>{
-        setBiometricType(ReactNativeBiometrics.TouchID)
+        if(Platform.OS === 'ios') {
+          setBiometricType(ReactNativeBiometrics.TouchID)
+        }
         console.log('ReactNativeBiometrics[isSensorAvailable]: ', error)
       })
       .finally(()=>{
@@ -95,17 +99,22 @@ export function Biometrics({ onLoad }: IBiometrics) {
   }
 
   const promptPassCodeAndroid = (savedData) => {
-    ReactNativeBiometrics.simplePrompt({
-      promptMessage: 'Please Authenticate'
+    ReactNativeBiometrics.isSensorAvailable().then(resultObject => {
+      const { available } = resultObject;
+      if(available) {
+        ReactNativeBiometrics.simplePrompt({
+          promptMessage: 'Please Authenticate'
+        })
+          .then(({success})=>{
+            if(success) {
+              onLoad(keyChainData || savedData)
+            }
+          })
+          .catch(error=>{
+            showError(error.message)
+          })
+      }
     })
-      .then(({success})=>{
-        if(success) {
-          onLoad(keyChainData || savedData)
-        }
-      })
-      .catch(error=>{
-        showError(error.message)
-      })
   }
 
   const focusHandler = () => {

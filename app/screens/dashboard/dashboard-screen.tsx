@@ -178,10 +178,10 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
       })
       assetIds.slice(0, -1)
       const getPrice = async () => {
-        let _price = 0
+        let _price = 0;
 
         const details = await getCoinPrices(assetIds,signal);
-       !!isMounted && setDetails(details)
+       setDetails(details)
         const _prices = []
         assets.map((asset) => {
           const data = details.find((detail) => detail.id === asset.cid)
@@ -191,13 +191,14 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
           }
           return 0
         })
-       !!isMounted && setPrices(_prices)
+       setPrices(_prices)
 
         // Format price separating every 3 numbers with quote
-        !!isMounted && setTotalPrice(
-          Math.round(_price)
+        setTotalPrice(
+          _price
+            .toFixed(2)
             .toString()
-            .replace(/\B(?=(\d{3})+(?!\d))/g, "."),
+            .replace(/\B(?=(\d{3})+(?!\d))/g, "'"),
         )
         preparingAssets(sortBy, details)
       }
@@ -273,7 +274,7 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
 
     const getAssetPrice = (cid, balance) => {
       const data = prices.find((price) => price.id === cid)
-      if (data) return data.price * balance
+      if (data) return +(Number(data.price * balance).toFixed(2))
       return 0
     }
 
@@ -328,7 +329,7 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
               <Animated.View style={[styles.PORTFOLIO_VALUE, { transform: [{ scale }] }]}>
                 <Text style={styles.ORANGE_COLOR}>~ </Text>
                 <Text style={styles.PORTFOLIO} adjustsFontSizeToFit numberOfLines={1}>
-                  {totalPrice}
+                  {+(Number(totalPrice).toFixed(2))}
                 </Text>
                 <Text style={styles.PORTFOLIO_DOLLAR}> $</Text>
               </Animated.View>

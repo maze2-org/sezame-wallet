@@ -1,5 +1,5 @@
 import * as React from "react"
-import { StyleProp, TextStyle, View, ViewStyle, Image, ImageStyle } from "react-native"
+import { StyleProp, TextStyle, View, ViewStyle, Image, ImageStyle, Text as TextReact } from "react-native"
 import { observer } from "mobx-react-lite"
 import { color, spacing, typography } from "../../theme"
 import { Text } from "../text/text"
@@ -38,6 +38,8 @@ const COIN_NAME: TextStyle = {
 }
 const COIN_AMOUNT: TextStyle = {
   fontSize: 16,
+  fontWeight: "bold",
+  color:color.palette.white
 }
 export interface CoinCardProps {
   /**
@@ -65,7 +67,8 @@ export const CoinCard = observer(function CoinCard(props: CoinCardProps) {
         {!!chain && <Text text={chain} />}
         <Text style={COIN_NAME} preset="header" text={name} />
         {balance !== undefined && (
-          <Text style={COIN_AMOUNT} preset="header" text={balance + " " + symbol} />
+          // <Text style={COIN_AMOUNT} preset="header" text={} />
+          <TextReact style={COIN_AMOUNT}>{+(Number(balance).toFixed(4))}</TextReact>
         )}
       </View>
     </View>

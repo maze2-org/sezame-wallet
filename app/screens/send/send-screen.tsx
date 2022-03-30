@@ -1,6 +1,14 @@
 import React, { FC, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { ImageBackground, TextStyle, View, ViewStyle } from "react-native"
+import {
+  ImageBackground,
+  TextStyle,
+  View,
+  ViewStyle,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import { NavigatorParamList } from "../../navigators"
 import BigNumber from "bignumber.js"
@@ -39,6 +47,10 @@ import { getBalance, getFees, makeSendTransaction } from "services/api"
 import { showMessage } from "react-native-flash-message"
 import styles from "./styles"
 import { boolean } from "mobx-state-tree/dist/internal"
+import {
+  offsets,
+  presets,
+} from "../../components/screen/screen.presets"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
@@ -78,6 +90,12 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
     const DrawerStyle: ViewStyle = {
       display: "flex",
     }
+    const SCROLL_VIEW_CONTAINER: ViewStyle = {
+      flexGrow:1,
+      justifyContent: "space-between",
+      backgroundColor:color.palette.black
+    }
+
     const walletLogo = require("../../../assets/images/avt.png")
     // Pull in one of our MST stores
     const { currentWalletStore, pendingTransactions } = useStores()
@@ -179,7 +197,13 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
     const goBack = () => navigation.goBack()
 
     return (
-      <Screen unsafe style={DashboardStyle} preset="fixed">
+      <Screen unsafe style={DashboardStyle} preset="fixed" backgroundColor={color.palette.black}>
+        <ScrollView contentContainerStyle={SCROLL_VIEW_CONTAINER}>
+      <KeyboardAvoidingView
+        style={[presets.scroll.outer,{backgroundColor:color.palette.black}]}
+        behavior={Platform.OS === "ios" ? "padding" : 'height'}
+        keyboardVerticalOffset={50}
+      >
         <ImageBackground source={MainBackground} style={BackgroundStyle}>
           <View style={CONTAINER}>
             <View style={WALLET_STYLE}>
@@ -297,7 +321,10 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
         )}
 
         <Footer onLeftButtonPress={goBack}></Footer>
+        </KeyboardAvoidingView>
+        </ScrollView>
       </Screen>
-    )
+
+        )
   },
 )

@@ -327,7 +327,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                             <Text style={styles.BALANCE_STAKING_CARD_HEADER}>
                               Available balance
                             </Text>
-                            <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>{asset.balance}</Text>
+                            <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>{+(Number(asset?.balance).toFixed(4))}</Text>
                             <Text style={styles.BALANCE_STAKING_CARD_NOTE}> (~1$)</Text>
                           </View>
                           {/* 
