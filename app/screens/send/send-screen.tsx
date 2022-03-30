@@ -22,24 +22,16 @@ import {
   Text,
   WalletButton,
 } from "../../components"
-// import { useNavigation } from "@react-navigation/native"
-// import { useStores } from "../../models"
+
 import { color, spacing } from "../../theme"
 import { Controller, useForm, useWatch } from "react-hook-form"
 import { TextInputField } from "components/text-input-field/text-input-field"
 import {
   BackgroundStyle,
-  btnDefault,
-  btnDisabled,
   CONTAINER,
-  demoText,
   drawerErrorMessage,
-  footBtn,
   MainBackground,
-  PRIMARY_BTN,
-  PRIMARY_TEXT,
   textInput,
-  textInputErrorMessage,
 } from "theme/elements"
 import { useNavigation } from "@react-navigation/native"
 import { useStores } from "models"
@@ -98,7 +90,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
 
     const walletLogo = require("../../../assets/images/avt.png")
     // Pull in one of our MST stores
-    const { currentWalletStore, pendingTransactions } = useStores()
+    const { currentWalletStore, pendingTransactions, exchangeRates } = useStores()
     const { getAssetById } = currentWalletStore
     const {
       control,
@@ -145,13 +137,10 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
       try {
         setIsPreview(true)
         setSendable(false)
-        console.log("WILL GET FEESSSSSSSSSSSSSSSSS")
         const response = await getFees(asset, recipientAddress, amount)
-        console.log("GOT FEESSSSSSSSSSSSSSSSSSS")
         setFees(response)
         setSendable(true)
       } catch (error) {
-        console.log("Unable to get fees")
         console.log(error)
         switch (error.message) {
           case "INSUFFICIENT_FUNDS":
@@ -176,7 +165,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
           showMessage({ message: "Transaction sent", type: "success" })
           pendingTransactions.add(asset, {
             amount: `-${new BigNumber(amount)
-              .plus(fees.regular.settings.value ? fees.regular.settings.value : "0")
+              .plus(fees.regular.settings.feeValue ? fees.regular.settings.feeValue : "0")
               .toString()}`,
             from: asset.address,
             to: recipientAddress,
@@ -264,7 +253,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                 outline={true}
                 disabled={!isValid}
                 onPress={handleSubmit(onSubmit)}
-              ></WalletButton>
+              />
             </View>
           </View>
         </ImageBackground>
@@ -281,14 +270,14 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                 onPress={() => {
                   setIsPreview(false)
                 }}
-              ></Button>,
+              />,
               <Button
                 text={sending ? "SENDING..." : "SIGN AND SUBMIT"}
                 disabled={sending || !sendable}
                 style={styles.DRAWER_BTN_OK}
                 textStyle={styles.DRAWER_BTN_TEXT}
                 onPress={processTransaction}
-              ></Button>,
+              />,
             ]}
           >
             <View style={styles.DRAWER_CARD}>
@@ -298,21 +287,20 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                   <Text style={styles.AMOUNT_STYLE}>{amount}</Text>
                 </View>
               </View>
-              <View style={styles.CARD_ITEM_DIVIDER}></View>
+              <View style={styles.CARD_ITEM_DIVIDER}/>
               <View style={styles.DRAWER_CARD_ITEM}>
                 <Text style={styles.CARD_ITEM_TITLE}>Recipient</Text>
                 <View style={styles.CARD_ITEM_DESCRIPTION}>
                   <Text style={styles.AMOUNT_STYLE}>{truncateRecipient(recipientAddress)}</Text>
                 </View>
               </View>
-              <View style={styles.CARD_ITEM_DIVIDER}></View>
+              <View style={styles.CARD_ITEM_DIVIDER}/>
               <View style={styles.DRAWER_CARD_ITEM}>
                 <Text style={styles.CARD_ITEM_TITLE}>Transaction fees</Text>
                 <View style={styles.CARD_ITEM_DESCRIPTION}>
                   <Text style={styles.AMOUNT_STYLE}>
-                    {fees ? `${fees.regular.settings.value} ${fees.regular.currency}` : "Unknown"}
+                    {fees ? `${fees.regular.settings.feeValue} ${fees.regular.currency}` : ""}
                   </Text>
-                  {/* <Text style={styles.AMOUNT_SUB_STYLE}>0.23 available</Text> */}
                 </View>
               </View>
             </View>
@@ -320,7 +308,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
           </Drawer>
         )}
 
-        <Footer onLeftButtonPress={goBack}></Footer>
+        <Footer onLeftButtonPress={goBack}/>
         </KeyboardAvoidingView>
         </ScrollView>
       </Screen>

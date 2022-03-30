@@ -92,6 +92,7 @@ export const AddCurrencyScreen: FC<StackScreenProps<NavigatorParamList, "addCurr
                 style={TEXT_INPUT}
                 autoCorrect={false}
                 onChangeText={(text) => searchTokens(text)}
+                placeholderTextColor="white"
                 placeholder={"Search coins"}
                 placeholderTextColor={color.palette.white}
               />

@@ -11,23 +11,17 @@ import {
   useColorScheme,
   View,
   ViewStyle,
-  Button,
   StyleSheet,
   Text,
   ImageStyle,
 } from "react-native"
-import Modal from "react-native-modal"
 import {
   NavigationContainer,
   DefaultTheme,
   DarkTheme,
   useNavigation,
-  useRoute,
 } from "@react-navigation/native"
-import {
-  createNativeStackNavigator,
-  NativeStackHeaderProps,
-} from "@react-navigation/native-stack"
+import { createNativeStackNavigator, NativeStackHeaderProps } from "@react-navigation/native-stack"
 import {
   WelcomeScreen,
   ImportWalletScreen,
@@ -39,8 +33,6 @@ import {
   AddCurrencyScreen,
 } from "../screens"
 import { navigationRef, useBackButtonHandler } from "./navigation-utilities"
-import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5"
-import FontAwesomeIcon from "react-native-vector-icons/FontAwesome"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 // import Icon from "react-native-vector-icons/Ionicons"
 
@@ -52,7 +44,7 @@ import { ChooseWalletScreen } from "../screens/choose-wallet/choose-wallet-scree
 import { getListOfWallets } from "../utils/storage"
 import { ReceiveScreen } from "screens/receive/receive-screen"
 import { useStores } from "../models"
-import { StoredWallet } from "../utils/stored-wallet"
+
 import { StackNavigationProp } from "@react-navigation/stack"
 import { AutoImage as Image, CurrenciesSelector, Drawer } from "../components"
 import {
@@ -66,7 +58,7 @@ import {
   tabBarLabelFocused,
   tabBarStyle,
 } from "theme/elements"
-import { icons } from '../components/icon/icons/index'
+import { icons } from "../components/icon/icons/index"
 
 import ReloadIcon from "../../assets/svg/reload.svg"
 import QRCodeIcon from "../../assets/svg/qr_code.svg"
@@ -80,7 +72,7 @@ import { WalletConnectScreen } from "screens/wallet-connect/wallet-connect-scree
 const NAV_HEADER_CONTAINER: ViewStyle = {
   flexDirection: "row",
   justifyContent: "space-between",
-  alignItems:"center",
+  alignItems: "center",
   paddingTop: spacing[7],
   paddingBottom: spacing[2],
   paddingHorizontal: spacing[4],
@@ -120,8 +112,8 @@ const LOGO: TextStyle = {
   paddingRight: spacing[1],
 }
 const BACK_ARROW_ICON: ImageStyle = {
-  width:16,
-  height:16,
+  width: 16,
+  height: 16,
 }
 
 const Logo = () => (
@@ -133,13 +125,15 @@ const Logo = () => (
     </View>
   </View>
 )
-const BackArrow = ({navigation}) => (
-    <TouchableOpacity activeOpacity={0.7}
-                      hitSlop={{top:15,bottom:15,left:15,right:15}}
-                      onPress={()=>navigation.goBack()}>
-      <Image source={icons.back} style={BACK_ARROW_ICON} />
-    </TouchableOpacity>
-  )
+const BackArrow = ({ navigation }) => (
+  <TouchableOpacity
+    activeOpacity={0.7}
+    hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+    onPress={() => navigation.goBack()}
+  >
+    <Image source={icons.back} style={BACK_ARROW_ICON} />
+  </TouchableOpacity>
+)
 
 const MODAL_CONTAINER: TextStyle = {
   flex: 1,
@@ -150,20 +144,8 @@ const MODAL_CONTAINER: TextStyle = {
   alignItems: "center",
 }
 
-// Just some styles
-const styles = StyleSheet.create({
-  item: {
-    padding: 24,
-  },
-  title: {
-    fontSize: 32,
-  },
-})
-
 function SettingsBtn() {
-  const { currentWalletStore } = useStores()
-  const { loadingBalance } = currentWalletStore
-  const [storedWallet, setStoredWallet] = useState<any>(null)
+  const { currentWalletStore, exchangeRates } = useStores()
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
   const route = navigationRef.current?.getCurrentRoute()
 
@@ -174,6 +156,7 @@ function SettingsBtn() {
         style={NAV_HEADER_BTN}
         onPress={() => {
           currentWalletStore.refreshBalances()
+          exchangeRates.refreshCurrencies()
         }}
       >
         <SvgXml style={BTN_ICON} xml={ReloadIcon} />
@@ -182,7 +165,6 @@ function SettingsBtn() {
         key="btn_scan"
         style={NAV_HEADER_BTN}
         onPress={() => {
-          console.log("a")
           currentWalletStore.stopLoading()
           navigation.navigate("walletConnect")
         }}
@@ -233,7 +215,7 @@ export type NavigatorParamList = {
   walletReady: undefined
   nfts: undefined
   coinDetails: {
-    fromAddCurrency?: boolean,
+    fromAddCurrency?: boolean
     coinId: string
   }
   send: {
@@ -271,13 +253,13 @@ const BottomTabNavigator = () => {
                     focused && { ...tabBarItemFocused },
                   ]}
                 >
-                  <Ready isActive={focused}/>
+                  <Ready isActive={focused} />
                   <Text style={focused ? tabBarLabelFocused : tabBarLabel}>WALLET</Text>
                 </View>
               )}
               {route.name === "nfts" && (
                 <View style={[tabBarItem, focused && { ...tabBarItemFocused }]}>
-                  <TabNft isActive={focused}/>
+                  <TabNft isActive={focused} />
                   <Text style={focused ? tabBarLabelFocused : tabBarLabel}>NFT</Text>
                 </View>
               )}
@@ -303,26 +285,22 @@ const BottomTabNavigator = () => {
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createNativeStackNavigator<NavigatorParamList>()
 
-const AppStackHeader = (props: NativeStackHeaderProps & {backArrow: boolean}) => {
+const AppStackHeader = (props: NativeStackHeaderProps & { backArrow: boolean }) => {
   return (
     <View style={NAV_HEADER_CONTAINER}>
-      {props.backArrow ?
-       <BackArrow navigation={props.navigation}/>
-        :
-        <Logo/>}
+      {props.backArrow ? <BackArrow navigation={props.navigation} /> : <Logo />}
       <SettingsBtn />
     </View>
   )
 }
 
 const AppStackHeaderWithBackArrow = (props) => {
-  return (
-    <AppStackHeader {...props} backArrow/>
-  )
+  return <AppStackHeader {...props} backArrow />
 }
 
 const AppStack = () => {
   const [initialRouteName, setInitialRouteName] = useState<any>(null)
+  const { exchangeRates } = useStores()
   useEffect(() => {
     getListOfWallets().then((walletNames) => {
       if (walletNames.length) {
@@ -332,6 +310,18 @@ const AppStack = () => {
       }
     })
   }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Automatically refresh exchange rates every 2min
+      exchangeRates.refreshCurrencies()
+    }, 120000)
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [exchangeRates])
+
   return (
     <>
       {initialRouteName && (
@@ -356,14 +346,15 @@ const AppStack = () => {
             }}
           />
           <Stack.Screen name="walletReady" component={WalletReadyScreen} />
-          <Stack.Screen name="coinDetails"
-                        component={CoinDetailsScreen}
-                        options={{
-                          title: null,
-                          headerShown: true,
-                          header: AppStackHeaderWithBackArrow,
-                          headerStyle: { backgroundColor: color.palette.black },
-                        }}
+          <Stack.Screen
+            name="coinDetails"
+            component={CoinDetailsScreen}
+            options={{
+              title: null,
+              headerShown: true,
+              header: AppStackHeaderWithBackArrow,
+              headerStyle: { backgroundColor: color.palette.black },
+            }}
           />
           <Stack.Screen
             options={{

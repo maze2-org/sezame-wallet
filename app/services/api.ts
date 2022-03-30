@@ -12,13 +12,6 @@ export type CryptoTransaction = {
 }
 
 const getWallet = (asset) => {
-  console.log("GET WALLET", {
-    ...asset,
-    walletAddress: asset.address,
-    privKey: asset.privateKey,
-    pubKey: asset.publicKey,
-  })
-
   const cryptoWallet = WalletFactory.getWallet({
     ...asset,
     contract: asset.contract ? asset.contract : null,

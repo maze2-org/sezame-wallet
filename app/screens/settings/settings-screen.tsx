@@ -22,11 +22,7 @@ import { NavigatorParamList } from "../../navigators"
 import { Button, Footer, Screen, Text } from "../../components"
 // import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "../../models"
-import {
-  color,
-  spacing,
-  typography,
-} from "../../theme"
+import { color, spacing, typography } from "../../theme"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { useStores } from "models"
@@ -56,9 +52,9 @@ const ROOT: ViewStyle = {
   flex: 1,
 }
 const SCROLL_VIEW_CONTAINER: ViewStyle = {
-  flexGrow:1,
+  flexGrow: 1,
   justifyContent: "space-between",
-  backgroundColor:color.palette.black
+  backgroundColor: color.palette.black,
 }
 const MAIN_CONTAINER: ViewStyle = {
   ...CONTAINER,
@@ -71,8 +67,8 @@ const SETTING_HEADER_CONTAINER: ViewStyle = {
 
 const SETTING_HEADER: TextStyle = {
   fontSize: 24,
-  fontFamily:typography.primaryBold,
-  fontWeight:"700"
+  fontFamily: typography.primaryBold,
+  fontWeight: "700",
 }
 const WALLET_NAME: TextStyle = {
   fontSize: 14,
@@ -185,7 +181,7 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
     const [seedPhrase, setSeedPhrase] = React.useState("")
     const lockWallet = () => {
       currentWalletStore.close()
-      reset().catch(null);
+      reset().catch(null)
       navigation.navigate("chooseWallet")
     }
 
@@ -195,10 +191,10 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
         await currentWalletStore.removeWallet()
         currentWalletStore.close()
         reset()
-          .then(()=>{
+          .then(() => {
             navigation.navigate("chooseWallet")
           })
-          .catch(null);
+          .catch(null)
       }
     }
     const deleteWalletConfirmation = async () => {
@@ -239,7 +235,6 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
     }
 
     const copyToClipboard = () => {
-      console.log("copying to clipboard")
       if (seedPhrase) {
         Clipboard.setString(seedPhrase)
       }

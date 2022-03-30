@@ -90,7 +90,7 @@ export const CurrencyDescriptionBlock = observer(function CurrencyDescriptionBlo
       </View>
       <Text style={rewardsStyle}>{title}</Text>
       <Text style={amountStyle}>
-        {asset.balance} {asset.symbol}
+        {asset.balance.toFixed(4)} {asset.symbol}
       </Text>
     </View>
   )

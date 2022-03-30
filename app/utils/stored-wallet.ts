@@ -41,7 +41,6 @@ export class StoredWallet {
         walletData.assets,
       )
 
-      console.log("LOADFROMSTORAGE ASSETS", walletData.assets)
       // await storedWallet.addAssets(walletData.assets)
       return storedWallet
     } catch (err) {
@@ -56,6 +55,14 @@ export class StoredWallet {
 
   addAsset(asset: IWalletAsset) {
     this.assets.push(asset)
+  }
+
+  removeAsset(chain: string, symbol: string) {
+    const existingAssets = this.assets || []
+
+    this.assets = existingAssets.filter((currentAsset) => {
+      return currentAsset.chain !== chain || currentAsset.symbol !== symbol
+    })
   }
 
   addAutoAsset(asset: IWalletAsset) {
@@ -88,10 +95,6 @@ export class StoredWallet {
   }
 
   async save() {
-    console.log(
-      "save wallet ",
-      this.assets.map((a) => a.name),
-    )
     return await saveWallet(
       `${this.walletName}`,
       encrypt(this.password, JSON.stringify(this.toJson())),

@@ -12,7 +12,6 @@ import {
 } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5"
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
 import IonIcons from "react-native-vector-icons/Ionicons"
 import copyImg from "../../../assets/svg/copy.svg"
 import { NavigatorParamList } from "../../navigators"
@@ -20,7 +19,6 @@ import FlashMessage, { showMessage } from "react-native-flash-message"
 import {
   Button,
   CoinCard,
-  Drawer,
   Footer,
   PriceChart,
   Screen,
@@ -32,7 +30,7 @@ import { color } from "../../theme"
 import { useNavigation } from "@react-navigation/native"
 import { getCoinDetails, getMarketChart } from "utils/apis"
 import { CoingeckoCoin } from "types/coingeckoCoin"
-import { PendingTransaction, useStores } from "models"
+import { useStores } from "models"
 import { BackgroundStyle, MainBackground, SEPARATOR } from "theme/elements"
 import styles from "./styles"
 import QRCode from "react-native-qrcode-svg"
@@ -56,9 +54,10 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const [chartData, setChartData] = useState<any[]>([])
     const [transactions, setTransactions] = useState<CryptoTransaction[]>([])
     const [chartDays, setChartDays] = useState<number | "max">(1)
-    const { currentWalletStore, pendingTransactions } = useStores()
+    const { currentWalletStore, pendingTransactions, exchangeRates } = useStores()
     const { getAssetById, setBalance, assets } = currentWalletStore
     const [loading, setLoading] = React.useState({})
+    const [updatingWallet, setUpdatingWallet] = React.useState<boolean>(false)
 
     const [explorerUrl, setExplorerUrl] = useState<string>("")
 
@@ -66,9 +65,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const tokenInfo = tokens.find((token) => token.id === route.params.coinId)
 
     const _getBalances = async () => {
-      console.log("GET BALANCE OF", asset)
       const balance = await getBalance(asset)
-      console.log("balance", balance)
       setBalance(asset, balance)
     }
 
@@ -78,12 +75,10 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     }
 
     const updateTransactions = () => {
-      console.log("This will run every second!")
       const txList = pendingTransactions.getPendingTxsForAsset(asset)
       txList.forEach((tx) => {
         getTransactionStatus(asset, tx.txId)
           .then((status) => {
-            console.log("GOT TRANSACTION STATUS", status)
             if (status === "success" || status === "failed") {
               pendingTransactions.remove(asset, tx)
               _getBalances()
@@ -104,7 +99,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     useEffect(() => {
       // Get transaction once then once every 10sec
       updateTransactions()
-      const interval = setInterval(updateTransactions, 10000)
+      const interval = setInterval(updateTransactions, 20000)
 
       // Get graph data once then once every 60secs
       updateChart()
@@ -134,7 +129,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
 
     const addAsset = React.useCallback((chain: any) => {
       setLoading((loading) => ({ ...loading, [chain.id]: true }))
-      console.log({ currentWalletStore })
+      setUpdatingWallet(true)
       currentWalletStore.getWallet().then((wallet) => {
         wallet
           .addAutoAsset({
@@ -162,36 +157,38 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
             })
           })
           .finally(() => {
-            console.log(JSON.stringify(wallet, null, 2))
             setLoading((loading) => ({ ...loading, [chain.id]: false }))
+            setUpdatingWallet(false)
           })
       })
     }, [])
 
     const removeAsset = React.useCallback((chain: any) => {
       setLoading((loading) => ({ ...loading, [chain.id]: true }))
+      setUpdatingWallet(true)
+
       currentWalletStore.getWallet().then((wallet) => {
-        // wallet
-        //   .remove()
-        //   .then(async () => {
-        //     await currentWalletStore.setAssets(wallet.assets)
-        //
-        //     await wallet.save()
-        //     showMessage({
-        //       message: "Coin removed from wallet",
-        //       type: "success",
-        //     })
-        //   })
-        //   .catch((e) => {
-        //     console.log(e)
-        //     showMessage({
-        //       message: "Something went wrong",
-        //       type: "danger",
-        //     })
-        //   })
-        //   .finally(() => {
-        //     setLoading((loading) => ({ ...loading, [chain.id]: false }))
-        //   })
+        wallet.removeAsset(chain.id, tokenInfo.symbol)
+        currentWalletStore.setAssets(wallet.assets)
+        wallet
+          .save()
+          .then(() => {
+            showMessage({
+              message: "Coin removed from wallet",
+              type: "success",
+            })
+          })
+          .catch((err) => {
+            console.log(err)
+            showMessage({
+              message: "Something went wrong",
+              type: "danger",
+            })
+          })
+          .finally(() => {
+            setLoading((loading) => ({ ...loading, [chain.id]: false }))
+            setUpdatingWallet(false)
+          })
       })
     }, [])
 
@@ -207,7 +204,6 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const getChartData = async () => {
       try {
         // setChartDays(days)
-        console.log("GET CHART DAY", chartDays)
         const data = await getMarketChart(route?.params?.coinId, chartDays)
 
         setChartData(data.prices)
@@ -246,11 +242,6 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const switchChart = (type: number | "max") => {
       setChartDays(type)
     }
-
-    const walletChains = useMemo(()=>{
-      console.log(JSON.parse(JSON.stringify(assets)))
-      return assets.map(asset=>asset.contract)
-    },[assets])
 
     return (
       <Screen unsafe={true} style={styles.ROOT} preset="fixed">
@@ -327,8 +318,14 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                             <Text style={styles.BALANCE_STAKING_CARD_HEADER}>
                               Available balance
                             </Text>
-                            <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>{+(Number(asset?.balance).toFixed(4))}</Text>
-                            <Text style={styles.BALANCE_STAKING_CARD_NOTE}> (~1$)</Text>
+                            <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>
+                              {+(Number(asset?.balance).toFixed(4))}
+                            </Text>
+                            <Text style={styles.BALANCE_STAKING_CARD_NOTE}>
+                              {" "}
+                              (~{`${(exchangeRates.getRate(asset.cid) * asset.balance).toFixed(2)}`}
+                              $)
+                            </Text>
                           </View>
                           {/* 
                           <View style={SEPARATOR} />
@@ -396,22 +393,35 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                   {!!tokenInfo && route.params.fromAddCurrency && (
                     <View style={styles.TOKEN_CHAINS_CONTAINER}>
                       {tokenInfo.chains.map((chain) => {
-                        const hasInWallet = walletChains.includes(chain.contract);
+                        const hasInWallet = currentWalletStore.assets.find(
+                          (item) => item.contract === chain.contract,
+                        )
+
                         return (
                           <View style={styles.TOKEN_CHAIN_ROW} key={chain.id}>
                             <Text>{chain.name}</Text>
-                            <Button preset='secondary' onPress={() => {
-                              if(hasInWallet) {
-                                removeAsset(chain)
-                              } else {
-                                addAsset(chain)
-                              }
-                            }}>
-                              {hasInWallet ?
-                                <Text style={styles.ADD_TO_PORTFOLIO_BTN}>Remove from portfolio</Text>
-                                :
-                                <Text style={styles.ADD_TO_PORTFOLIO_BTN}>Add to portfolio</Text>
-                              }
+                            <Button
+                              preset="secondary"
+                              disabled={updatingWallet}
+                              onPress={() => {
+                                if (hasInWallet) {
+                                  removeAsset(chain)
+                                } else {
+                                  addAsset(chain)
+                                }
+                              }}
+                            >
+                              {hasInWallet ? (
+                                <Text
+                                  style={styles.ADD_TO_PORTFOLIO_BTN}
+                                  text={updatingWallet ? "Loading ..." : "Remove from portfolio"}
+                                />
+                              ) : (
+                                <Text
+                                  style={styles.ADD_TO_PORTFOLIO_BTN}
+                                  text={updatingWallet ? "Loading ..." : "Add to portfolio"}
+                                  />
+                              )}
                             </Button>
                           </View>
                         )
@@ -428,6 +438,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
           rightButtonText="Explore"
           RightButtonIcon={(props) => <IonIcons {...props} name="globe-outline" size={23} />}
           onRightButtonPress={() => explorerUrl && openLink(explorerUrl)}
+          rightButtonDisabled={!explorerUrl}
           onLeftButtonPress={goBack}
         />
 
