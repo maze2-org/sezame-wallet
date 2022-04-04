@@ -4,7 +4,10 @@ import { StackScreenProps } from "@react-navigation/stack"
 import { View, Animated, StyleSheet, Dimensions } from "react-native"
 
 import { ExchangeRateModel, useStores } from "../../models"
-import { getCoinPrices } from "utils/apis"
+import {
+  getCoinDetails,
+  getCoinPrices,
+} from "utils/apis"
 import { color, spacing, typography } from "../../theme"
 import { NavigatorParamList } from "../../navigators"
 import { Text, Button, AppScreen } from "../../components"
@@ -12,6 +15,12 @@ import { chainSymbolsToNames } from "utils/consts"
 import CoinBox from "../../components/CoinBox/CoinBox"
 import axios, { CancelTokenSource } from "axios"
 import { useFocusEffect } from "@react-navigation/native"
+import {
+  CoingeckoCoin
+} from "../../types/coingeckoCoin"
+import {
+  showMessage
+} from "react-native-flash-message"
 
 const Fonts = [11, 15, 24, 48, 64]
 const MY_STYLE = StyleSheet.create({
@@ -145,6 +154,15 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
     const [sortBy, setSortBy] = useState<SortTypeValues>(SORT_TYPES.NETWORK)
     const [groups, setGroups] = useState({})
 
+  useEffect(()=>{
+    if(loadingBalance){
+      showMessage({
+        message:"Loading...",
+        type:"success"
+      })
+    }
+  },[loadingBalance])
+
     useEffect(() => {
       // Load balance and prepare the display of the assets when initializing the dashboard
       refreshBalances().then(() => {
@@ -275,11 +293,6 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
         scrollEventThrottle={16}
       >
         <AppScreen unsafe>
-          {!!loadingBalance && (
-            <View style={styles.LOADING_BOX}>
-              <Text>Loading</Text>
-            </View>
-          )}
           <View style={styles.PORTFOLIO_WRAPPER}>
             <Animated.View style={[styles.PORTFOLIO_CONTAINER, { transform: [{ translateY }] }]}>
               <Animated.View style={[styles.PORTFOLIO_OVERLAY, { opacity }]} />

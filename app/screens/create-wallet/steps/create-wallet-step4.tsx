@@ -72,7 +72,7 @@ export function CreateWalletStep4(props: StepProps) {
             testID="next-screen-button"
             style={BUTTON_STYLE}
             textStyle={PRIMARY_TEXT}
-            onPress={onButtonNext}
+            onPress={()=>onButtonNext()}
             text="LET'S GO!"
           />
         </View>

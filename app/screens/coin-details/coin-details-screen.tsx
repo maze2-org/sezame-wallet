@@ -142,6 +142,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
             cid: tokenInfo.id,
             type: tokenInfo.type,
             contract: `${chain.contract}`,
+            image: tokenInfo.thumb
           } as any)
           .then(async () => {
             await currentWalletStore.setAssets(wallet.assets)
@@ -255,6 +256,9 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
         },
       )
     }
+    console.log('currentWalletStore', JSON.parse(JSON.stringify(currentWalletStore.assets)))
+    console.log('tokenInfo', JSON.parse(JSON.stringify(tokenInfo.chains)))
+
     return (
       <Screen unsafe={true} style={styles.ROOT} preset="fixed">
         <ImageBackground source={MainBackground} style={BackgroundStyle}>

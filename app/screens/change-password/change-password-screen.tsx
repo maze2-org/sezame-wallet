@@ -1,4 +1,8 @@
-import React, { FC } from "react"
+import React, {
+  FC,
+  useEffect,
+  useState,
+} from "react"
 import { observer } from "mobx-react-lite"
 import { ImageBackground, ScrollView, ViewStyle } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
@@ -30,7 +34,8 @@ export const ChangePasswordScreen: FC<
   // const { someStore, anotherStore } = useStores()
   const { currentWalletStore } = useStores()
 
-  const [isLoading, setIsLoading] = React.useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
 
   // Pull in navigation via hook
   // const navigation = useNavigation()
@@ -61,11 +66,19 @@ export const ChangePasswordScreen: FC<
       console.log("error is", error)
       showMessage({ message: "Couldn't change password", type: "danger" })
     } finally {
-      setIsLoading(false)
+      !!isMounted && setIsLoading(false)
     }
   }
+
+  useEffect(()=>{
+    setIsMounted(true)
+    return () => {
+      setIsMounted(false)
+    }
+  },[])
+
   return (
-    <Screen style={RootPageStyle} preset="scroll">
+    <Screen unsafe style={RootPageStyle} preset="scroll" backgroundColor={color.palette.black}>
       <ImageBackground source={MainBackground} style={BackgroundStyle}>
         <ScrollView contentContainerStyle={CONTAINER}>
           <Text preset="header" text="Change Password" />
@@ -150,7 +163,7 @@ export const ChangePasswordScreen: FC<
             onPress={handleSubmit(onSubmit)}
             disabled={isLoading || !isValid}
           >
-            <Text text="Save" />
+            <Text text={isLoading ?  "Loading..." : "Save"} />
           </Button>
         </ScrollView>
       </ImageBackground>

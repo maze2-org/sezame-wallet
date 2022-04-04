@@ -193,6 +193,10 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
         reset()
           .then(() => {
             navigation.navigate("chooseWallet")
+            showMessage({
+              message:"Wallet has been deleted",
+              type:"success"
+            })
           })
           .catch(null)
       }
