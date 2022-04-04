@@ -43,6 +43,9 @@ import {
   getTransactionsUrl,
 } from "services/api"
 import { autorun } from "mobx"
+import {
+  StackingBalanceProps
+} from "../staking-balance/StakingBalance"
 // import InAppBrowser from "react-native-inappbrowser-reborn"
 const tokens = require("../../config/tokens.json")
 
@@ -243,6 +246,15 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
       setChartDays(type)
     }
 
+    const navigateStakingBalance = () => {
+      navigation.navigate("stakingBalance",
+        {
+          image: coinData.image?.large,
+          name: coinData?.name,
+          asset: !!asset && !route.params.fromAddCurrency && asset,
+        },
+      )
+    }
     return (
       <Screen unsafe={true} style={styles.ROOT} preset="fixed">
         <ImageBackground source={MainBackground} style={BackgroundStyle}>
@@ -338,24 +350,24 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                             <Text style={styles.BALANCE_STAKING_CARD_BTN_TEXT}>SWAP</Text>
                           </Button> */}
                         </View>
-                        {/*<View style={styles.BALANCE_STAKING_CARD}>*/}
-                        {/*  <View style={styles.BALANCE_STAKING_CARD_BODY}>*/}
-                        {/*    <Text style={styles.BALANCE_STAKING_CARD_HEADER}> Staking balance</Text>*/}
-                        {/*    <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}> 0.459</Text>*/}
-                        {/*    <Text style={styles.BALANCE_STAKING_CARD_NOTE}>*/}
-                        {/*      Available rewards 0.02 (~1$)*/}
-                        {/*    </Text>*/}
-                        {/*  </View>*/}
-                        {/*  <View style={SEPARATOR} />*/}
-                        {/*  <Button style={styles.BALANCE_STAKING_CARD_BTN}>*/}
-                        {/*    <FontAwesome5Icon*/}
-                        {/*      size={18}*/}
-                        {/*      style={styles.BALANCE_STAKING_CARD_BTN_ICON}*/}
-                        {/*      name="database"*/}
-                        {/*    />*/}
-                        {/*    <Text style={styles.BALANCE_STAKING_CARD_BTN_TEXT}>MANAGE STAKING</Text>*/}
-                        {/*  </Button>*/}
-                        {/*</View>*/}
+                        <View style={styles.BALANCE_STAKING_CARD}>
+                          <View style={styles.BALANCE_STAKING_CARD_BODY}>
+                            <Text style={styles.BALANCE_STAKING_CARD_HEADER}> Staking balance</Text>
+                            <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>{+(Number(0.45911).toFixed(4))}</Text>
+                            <Text style={styles.BALANCE_STAKING_CARD_NOTE}>
+                              Available rewards 0.02 (~1$)
+                            </Text>
+                          </View>
+                          <View style={SEPARATOR} />
+                          <Button style={styles.BALANCE_STAKING_CARD_BTN} onPress={navigateStakingBalance}>
+                            <FontAwesome5Icon
+                              size={18}
+                              style={styles.BALANCE_STAKING_CARD_BTN_ICON}
+                              name="database"
+                            />
+                            <Text style={styles.BALANCE_STAKING_CARD_BTN_TEXT}>MANAGE STAKING</Text>
+                          </Button>
+                        </View>
                       </View>
 
                       {pendingTransactions.getPendingTxsForAsset(asset).length > 0 && (

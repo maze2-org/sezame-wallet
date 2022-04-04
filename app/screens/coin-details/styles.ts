@@ -73,10 +73,9 @@ const BALANCE_STAKING_CONTAINER: ViewStyle = {
 }
 const BALANCE_STAKING_CARD: ViewStyle = {
   display: "flex",
-  // flex: 1,
+  flex: 1,
   backgroundColor: color.palette.darkBrown,
-  // margin: spacing[2],
-  width:"50%",
+  margin: spacing[2],
   borderRadius: 10,
 }
 const BALANCE_STAKING_CARD_BODY: ViewStyle = {

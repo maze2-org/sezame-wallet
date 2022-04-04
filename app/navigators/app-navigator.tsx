@@ -69,6 +69,11 @@ import TabNft from "../components/svg/TabNft"
 import Ready from "../components/svg/Ready"
 
 import { WalletConnectScreen } from "screens/wallet-connect/wallet-connect-screen"
+import StakingBalance, {
+  StackingBalanceProps,
+  StackingBalanceRouteParams,
+} from "../screens/staking-balance/StakingBalance"
+
 const NAV_HEADER_CONTAINER: ViewStyle = {
   flexDirection: "row",
   justifyContent: "space-between",
@@ -227,6 +232,7 @@ export type NavigatorParamList = {
   settings: undefined
   changePassword: undefined
   addCurrency: undefined
+  stakingBalance: StackingBalanceRouteParams
   walletConnect: {
     uri: string
   }
@@ -414,6 +420,16 @@ const AppStack = () => {
               headerRight: SettingsBtn,
               headerStyle: { backgroundColor: color.palette.black },
               headerLeft: Logo,
+              title: "",
+            }}
+          />
+          <Stack.Screen
+            name="stakingBalance"
+            component={StakingBalance}
+            options={{
+              headerShown: true,
+              header: AppStackHeader,
+              headerStyle: { backgroundColor: color.palette.black },
               title: "",
             }}
           />
