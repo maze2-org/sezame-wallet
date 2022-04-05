@@ -149,7 +149,7 @@ export const btnDefault: TextStyle = {
   ...bold,
   fontSize: 15,
   letterSpacing: 2,
-  backgroundColor: color.palette.deepPurple,
+  backgroundColor: color.palette.gold,
 }
 
 export const LogoStyle: ImageStyle = {

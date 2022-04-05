@@ -29,6 +29,8 @@ import { Fonts } from "theme/fonts"
 import { useNavigation } from "@react-navigation/native"
 import { TextInputField } from "components/text-input-field/text-input-field"
 import IonIcons from "react-native-vector-icons/Ionicons"
+import copyIcon from "../../../assets/icons/copy.svg"
+import { SvgXml } from "react-native-svg"
 import {
   btnDefault,
   btnDisabled,
@@ -431,8 +433,8 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
                             </TouchableOpacity>
                           </View>
                           <Text
-                            style={styles.modalText}>Unlock
-                            wallet</Text>
+                            style={styles.modalText}>Reveal my seed phrase
+                            </Text>
                           <Controller
                             control={control}
                             defaultValue=""
@@ -506,9 +508,7 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
                             <TouchableOpacity
                               style={copyBtn}
                               onPress={copyToClipboard}>
-                              <FontAwesomeIcon5
-                                name="clipboard-check"
-                                size={23} />
+                              <SvgXml width="20" height="20" xml={copyIcon} />
                             </TouchableOpacity>
                           </View>
                           <Button
