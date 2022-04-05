@@ -7,8 +7,10 @@ import {
   StyleSheet,
   Alert,
   Modal,
-  ImageBackground,
   ScrollView,
+  Dimensions,
+  TouchableWithoutFeedback,
+  Pressable,
 } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import FontAwesomeIcon from "react-native-vector-icons/FontAwesome"
@@ -20,31 +22,27 @@ import Clipboard from "@react-native-clipboard/clipboard"
 
 import { NavigatorParamList } from "../../navigators"
 import { Button, Footer, Screen, Text } from "../../components"
-// import { useNavigation } from "@react-navigation/native"
-// import { useStores } from "../../models"
 import { color, spacing, typography } from "../../theme"
-import { SafeAreaView } from "react-native-safe-area-context"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { useStores } from "models"
 import { Fonts } from "theme/fonts"
 import { useNavigation } from "@react-navigation/native"
 import { TextInputField } from "components/text-input-field/text-input-field"
+import IonIcons from "react-native-vector-icons/Ionicons"
 import {
-  BackgroundStyle,
   btnDefault,
   btnDisabled,
   CONTAINER,
   copyBtn,
-  MainBackground,
   mnemonicContainer,
   mnemonicStyle,
   RootPageStyle,
 } from "theme/elements"
 import { StoredWallet } from "utils/stored-wallet"
 import { showMessage } from "react-native-flash-message"
-import { SvgXml } from "react-native-svg"
-import backIcon from "../../../assets/svg/back.svg"
 import { reset } from "../../utils/keychain"
+
+const { height } = Dimensions.get("screen")
 
 const ROOT: ViewStyle = {
   ...RootPageStyle,
@@ -91,6 +89,12 @@ const SETTING_ICON_CONTAINER: ViewStyle = {
   flex: 1,
   alignItems: "center",
 }
+const RECEIVE_MODAL_WRAPPER: ViewStyle = {
+  alignItems: "center",
+  justifyContent: "center",
+  height: height,
+  backgroundColor: "rgba(0,0,0,0.3)",
+}
 const SETTING_ICON: TextStyle = {
   fontSize: Fonts[1],
 }
@@ -133,30 +137,31 @@ const styles = StyleSheet.create({
   buttonContainer: {
     display: "flex",
     flexDirection: "row",
+    marginTop: spacing[3],
+    justifyContent: 'center'
   },
   centeredView: {
+    width:'100%',
     alignItems: "center",
-    flex: 1,
     justifyContent: "center",
-    marginTop: 22,
+    borderRadius: 20,
   },
   error: {
     color: color.error,
   },
   mnemonicText: {
-    color: color.palette.black,
+    color: color.palette.white,
   },
   modalText: {
-    color: color.palette.black,
+    color: color.palette.white,
     marginBottom: 15,
     textAlign: "center",
   },
   modalView: {
-    alignItems: "center",
-    backgroundColor: color.palette.white,
+    width: 317,
+    backgroundColor: color.palette.noise,
     borderRadius: 20,
     elevation: 5,
-    margin: 20,
     padding: 35,
     shadowColor: color.palette.black,
     shadowOffset: {
@@ -166,6 +171,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
   },
+
+  closeWrapper: {
+    position:'absolute',
+    top:10,
+    right:10,
+  },
+
 })
 
 export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">> = observer(
@@ -386,75 +398,133 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
                 </View>
               </View>
 
-              <Modal animationType="slide" transparent={true} visible={showPasswordModal}>
-                <View style={styles.centeredView}>
-                  {!seedPhrase && (
-                    <View style={styles.modalView}>
-                      <Text style={styles.modalText}>Unlock wallet</Text>
-                      <Controller
-                        control={control}
-                        defaultValue=""
-                        name="password"
-                        render={({ field: { onChange, value, onBlur } }) => (
-                          <TextInputField
-                            secureTextEntry={true}
+              <Modal
+                animationType="fade"
+                transparent={true}
+                visible={showPasswordModal}
+                // onRequestClose={()=>setShowPasswordModal(false)}
+              >
+                <Pressable
+                  onPress={() => setShowPasswordModal(false)}
+                >
+                  <View style={RECEIVE_MODAL_WRAPPER}>
+                    <Pressable style={styles.centeredView}>
+                      {!seedPhrase && (
+                        <View
+                          style={styles.modalView}>
+                          <View
+                            style={styles.closeWrapper}>
+                            <TouchableOpacity
+                              activeOpacity={0.8}
+                              hitSlop={{
+                                top: 10,
+                                left: 10,
+                                right: 10,
+                                bottom: 10,
+                              }}
+                              onPress={() => setShowPasswordModal(false)}
+                            >
+                              <IonIcons
+                                name={"close-outline"}
+                                size={30}
+                                color={color.palette.white} />
+                            </TouchableOpacity>
+                          </View>
+                          <Text
+                            style={styles.modalText}>Unlock
+                            wallet</Text>
+                          <Controller
+                            control={control}
+                            defaultValue=""
                             name="password"
-                            errors={errors}
-                            placeholder="Enter your wallet password"
-                            value={value}
-                            onBlur={onBlur}
-                            onChangeText={(value) => onChange(value)}
+                            render={({
+                                       field: {
+                                         onChange,
+                                         value,
+                                         onBlur,
+                                       },
+                                     }) => (
+                              <TextInputField
+                                secureTextEntry={true}
+                                name="password"
+                                errors={errors}
+                                placeholder="Enter your wallet password"
+                                value={value}
+                                onBlur={onBlur}
+                                placeholderTextColor={color.palette.white}
+                                onChangeText={(value) => onChange(value)}
+                              />
+                            )}
+                            rules={{
+                              required: {
+                                value: true,
+                                message: "Field is required!",
+                              },
+                            }}
                           />
-                        )}
-                        rules={{
-                          required: {
-                            value: true,
-                            message: "Field is required!",
-                          },
-                        }}
-                      />
-                      {errorUnlockingWallet && (
-                        <Text style={styles.error} text="Couldn't unlock wallet" />
+                          {errorUnlockingWallet && (
+                            <Text
+                              style={styles.error}
+                              text="Couldn't unlock wallet" />
+                          )}
+                          <View
+                            style={styles.buttonContainer}>
+                            <Button
+                              style={{
+                                zIndex: 10,
+                                marginRight: 10,
+                              }}
+                              preset={"secondary"}
+                              text="Cancel"
+                              onPress={() => {
+                                console.log(123123)
+                                setErrorUnlockingWallet(false)
+                                setShowPasswordModal(!showPasswordModal)
+                              }}
+                            />
+                            <Button
+                              style={[!isValid && { ...btnDisabled }]}
+                              preset={"secondary"}
+                              disabled={!isValid}
+                              text="Continue"
+                              onPress={handleSubmit(onPasswordSubmit)}
+                            />
+                          </View>
+                        </View>
                       )}
-                      <View style={styles.buttonContainer}>
-                        <Button
-                          style={btnDefault}
-                          text="Cancel"
-                          onPress={() => {
-                            setErrorUnlockingWallet(false)
-                            setShowPasswordModal(!showPasswordModal)
-                          }}
-                        ></Button>
-                        <Button
-                          style={[btnDefault, !isValid && { ...btnDisabled }]}
-                          disabled={!isValid}
-                          text="Continue"
-                          onPress={handleSubmit(onPasswordSubmit)}
-                        />
-                      </View>
-                    </View>
-                  )}
-                  {!!seedPhrase && (
-                    <View style={styles.modalView}>
-                      <Text style={styles.modalText}>Unlock wallet</Text>
-                      <View style={mnemonicContainer}>
-                        <Text style={[mnemonicStyle, styles.mnemonicText]} text={seedPhrase} />
-                        <TouchableOpacity style={copyBtn} onPress={copyToClipboard}>
-                          <FontAwesomeIcon5 name="clipboard-check" size={23} />
-                        </TouchableOpacity>
-                      </View>
-                      <Button
-                        style={btnDefault}
-                        text="Close"
-                        onPress={() => {
-                          setErrorUnlockingWallet(false)
-                          setSeedPhrase("")
-                          setShowPasswordModal(!showPasswordModal)
-                        }}
-                      ></Button>
-                    </View>
-                  )}
-                </View>
+                      {!!seedPhrase && (
+                        <View
+                          style={styles.modalView}>
+                          <Text
+                            style={styles.modalText}>Unlock
+                            wallet</Text>
+                          <View
+                            style={mnemonicContainer}>
+                            <Text
+                              style={[mnemonicStyle, styles.mnemonicText]}
+                              text={seedPhrase} />
+                            <TouchableOpacity
+                              style={copyBtn}
+                              onPress={copyToClipboard}>
+                              <FontAwesomeIcon5
+                                name="clipboard-check"
+                                size={23} />
+                            </TouchableOpacity>
+                          </View>
+                          <Button
+                            style={btnDefault}
+                            text="Close"
+                            onPress={() => {
+                              setErrorUnlockingWallet(false)
+                              setSeedPhrase("")
+                              setShowPasswordModal(!showPasswordModal)
+                            }}
+                          />
+                        </View>
+                      )}
+                  </Pressable>
+                  </View>
+                </Pressable>
               </Modal>
             </View>
           </View>

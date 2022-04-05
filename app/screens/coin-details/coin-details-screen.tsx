@@ -61,6 +61,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const { getAssetById, setBalance, assets } = currentWalletStore
     const [loading, setLoading] = React.useState({})
     const [updatingWallet, setUpdatingWallet] = React.useState<boolean>(false)
+    const [chainAvt, setChainAvt] = useState(false)
 
     const [explorerUrl, setExplorerUrl] = useState<string>("")
 
@@ -115,6 +116,10 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
         setExplorerUrl(getTransactionsUrl(asset))
       }
 
+      const chainAvt = tokenInfo.chains.find((chain)=>{
+        return chain.capabilities
+      })
+      setChainAvt(chainAvt)
       return () => {
         clearInterval(interval)
       }
@@ -362,15 +367,19 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                               Available rewards 0.02 (~1$)
                             </Text>
                           </View>
-                          <View style={SEPARATOR} />
-                          <Button style={styles.BALANCE_STAKING_CARD_BTN} onPress={navigateStakingBalance}>
+                          {!!chainAvt &&
+                            <>
+                            <View style={SEPARATOR} />
+                            <Button style={styles.BALANCE_STAKING_CARD_BTN} onPress={navigateStakingBalance}>
                             <FontAwesome5Icon
-                              size={18}
-                              style={styles.BALANCE_STAKING_CARD_BTN_ICON}
-                              name="database"
+                            size={18}
+                            style={styles.BALANCE_STAKING_CARD_BTN_ICON}
+                            name="database"
                             />
                             <Text style={styles.BALANCE_STAKING_CARD_BTN_TEXT}>MANAGE STAKING</Text>
-                          </Button>
+                            </Button>
+                            </>
+                          }
                         </View>
                       </View>
 
