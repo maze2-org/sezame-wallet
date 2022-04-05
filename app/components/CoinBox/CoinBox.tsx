@@ -114,23 +114,10 @@ const CoinBox = ({ assets, title }) => {
     <View style={[styles.COIN_BOX, { height: isOpen ? "auto" : 115 }]}>
       <TouchableOpacity
         style={styles.COIN_EXPAND_CONTAINER}
-        onPress={changeIsOpen}
-        activeOpacity={disable ? 1 : 0.7}
       >
         <Text style={{ color: disable ? color.palette.lightGrey : color.palette.white }}>
           {title}
         </Text>
-        {isOpen ? (
-          <FontAwesomeIcon
-            name="chevron-up"
-            color={disable ? color.palette.lightGrey : color.palette.white}
-          />
-        ) : (
-          <FontAwesomeIcon
-            name="chevron-down"
-            color={disable ? color.palette.lightGrey : color.palette.white}
-          />
-        )}
       </TouchableOpacity>
 
       <View style={styles.SEPARATOR} />
