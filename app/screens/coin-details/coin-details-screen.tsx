@@ -329,7 +329,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                             </Text>
                             <Text style={styles.BALANCE_STAKING_CARD_NOTE}>
                               {" "}
-                              (~{`${(exchangeRates.getRate(asset.cid) * asset.balance).toFixed(2)}`}
+                              ({`${(exchangeRates.getRate(asset.cid) * asset.balance).toFixed(2)}`}
                               $)
                             </Text>
                           </View>
@@ -349,7 +349,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                         {/*    <Text style={styles.BALANCE_STAKING_CARD_HEADER}> Staking balance</Text>*/}
                         {/*    <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}> 0.459</Text>*/}
                         {/*    <Text style={styles.BALANCE_STAKING_CARD_NOTE}>*/}
-                        {/*      Available rewards 0.02 (~1$)*/}
+                        {/*      Available rewards 0.02 (1$)*/}
                         {/*    </Text>*/}
                         {/*  </View>*/}
                         {/*  <View style={SEPARATOR} />*/}
