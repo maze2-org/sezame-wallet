@@ -62,7 +62,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
 
     const [explorerUrl, setExplorerUrl] = useState<string>("")
 
-    const asset = getAssetById(route.params.coinId)
+    const asset = getAssetById(route.params.coinId, route.params.chain)
     const tokenInfo = tokens.find((token) => token.id === route.params.coinId)
 
     const _getBalances = async () => {

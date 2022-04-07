@@ -216,7 +216,8 @@ export type NavigatorParamList = {
   nfts: undefined
   coinDetails: {
     fromAddCurrency?: boolean
-    coinId: string
+    coinId: string,
+    chain: string
   }
   send: {
     coinId: string

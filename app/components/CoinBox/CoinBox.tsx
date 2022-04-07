@@ -139,7 +139,7 @@ const CoinBoxItem = ({ asset }) => {
     <View style={styles.COIN_BOX_BODY}>
       <TouchableOpacity
         style={styles.COIN_CARD}
-        onPress={() => navigation.navigate("coinDetails", { coinId: asset.cid })}
+        onPress={() => navigation.navigate("coinDetails", { coinId: asset.cid, chain: asset.chain })}
       >
         <View style={styles.NETWORK_IMAGE_BORDER}>
           {!!asset.image && <Image style={styles.NETWORK_IMAGE} source={{ uri: asset.image }} />}
