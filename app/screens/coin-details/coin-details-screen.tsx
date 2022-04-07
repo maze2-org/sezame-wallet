@@ -402,6 +402,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                         const hasInWallet = currentWalletStore.assets.find(
                           (item) => item.contract === chain.contract,
                         )
+                        const showRemoveBtnCondition = asset && asset.cid === chain.name && asset.chain === chain.id;
 
                         return (
                           <View style={styles.TOKEN_CHAIN_ROW} key={chain.id}>
@@ -410,14 +411,14 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                               preset="secondary"
                               disabled={updatingWallet}
                               onPress={() => {
-                                if (hasInWallet) {
+                                if (!!hasInWallet || !!showRemoveBtnCondition) {
                                   removeAsset(chain)
                                 } else {
                                   addAsset(chain)
                                 }
                               }}
                             >
-                              {hasInWallet ? (
+                              {(!!hasInWallet || !!showRemoveBtnCondition) ? (
                                 <Text
                                   style={styles.ADD_TO_PORTFOLIO_BTN}
                                   text={updatingWallet ? "Loading ..." : "Remove from portfolio"}
