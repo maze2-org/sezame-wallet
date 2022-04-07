@@ -48,7 +48,7 @@
 		00E356F21AD99517003FC87E /* walletAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = walletAppTests.m; sourceTree = "<group>"; };
 		0559BF244A624DD68EAA1D58 /* Octicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Octicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Octicons.ttf"; sourceTree = "<group>"; };
 		078943998356451CA41E295D /* FontAwesome.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome.ttf"; sourceTree = "<group>"; };
-		13B07F961A680F5B00A75B9A /* walletApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = walletApp.app; path = sezamewallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07F961A680F5B00A75B9A /* sezamewallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = sezamewallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = walletApp/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = walletApp/AppDelegate.m; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = walletApp/Images.xcassets; sourceTree = "<group>"; };
@@ -218,7 +218,7 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* walletApp.app */,
+				13B07F961A680F5B00A75B9A /* sezamewallet.app */,
 				00E356EE1AD99517003FC87E /* walletAppTests.xctest */,
 				2D02E47B1E0B4A5D006451C7 /* walletApp-tvOS.app */,
 				2D02E4901E0B4A5D006451C7 /* walletApp-tvOSTests.xctest */,
@@ -302,7 +302,7 @@
 			);
 			name = walletApp;
 			productName = walletApp;
-			productReference = 13B07F961A680F5B00A75B9A /* walletApp.app */;
+			productReference = 13B07F961A680F5B00A75B9A /* sezamewallet.app */;
 			productType = "com.apple.product-type.application";
 		};
 		2D02E47A1E0B4A5D006451C7 /* walletApp-tvOS */ = {
@@ -355,7 +355,7 @@
 						TestTargetID = 13B07F861A680F5B00A75B9A;
 					};
 					13B07F861A680F5B00A75B9A = {
-						DevelopmentTeam = GFX3XFP7RB;
+						DevelopmentTeam = 4Y275GR53C;
 						LastSwiftMigration = 1310;
 						ProvisioningStyle = Automatic;
 					};
@@ -449,8 +449,8 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-walletApp/Pods-walletApp-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/Flipper-DoubleConversion/double-conversion.framework/double-conversion",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Universal/OpenSSL.framework/OpenSSL",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/double-conversion/double-conversion.framework/double-conversion",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL/OpenSSL.framework/OpenSSL",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -491,8 +491,8 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-walletApp-walletAppTests/Pods-walletApp-walletAppTests-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/Flipper-DoubleConversion/double-conversion.framework/double-conversion",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Universal/OpenSSL.framework/OpenSSL",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/double-conversion/double-conversion.framework/double-conversion",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL/OpenSSL.framework/OpenSSL",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -792,17 +792,18 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = GFX3XFP7RB;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = 4Y275GR53C;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = walletApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 0.9.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.maze2.sezamewallet;
+				PRODUCT_BUNDLE_IDENTIFIER = com.maze2.sezamewallet;
 				PRODUCT_NAME = sezamewallet;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "walletApp-Bridging-Header.h";
@@ -820,16 +821,17 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = GFX3XFP7RB;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = 4Y275GR53C;
 				INFOPLIST_FILE = walletApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 0.9.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.maze2.sezamewallet;
+				PRODUCT_BUNDLE_IDENTIFIER = com.maze2.sezamewallet;
 				PRODUCT_NAME = walletApp;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "walletApp-Bridging-Header.h";
