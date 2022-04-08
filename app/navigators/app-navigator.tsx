@@ -49,7 +49,6 @@ import { StackNavigationProp } from "@react-navigation/stack"
 import { AutoImage as Image, CurrenciesSelector, Drawer } from "../components"
 import {
   SesameSmallLogo,
-  tabBarButton,
   tabBarItem,
   tabBarItemBorderRightStyle,
   tabBarItemFocused,
@@ -221,7 +220,8 @@ export type NavigatorParamList = {
   nfts: undefined
   coinDetails: {
     fromAddCurrency?: boolean
-    coinId: string
+    coinId: string,
+    chain: string
   }
   send: {
     coinId: string
@@ -250,7 +250,7 @@ const BottomTabNavigator = () => {
         // eslint-disable-next-line react/display-name
         tabBarIcon: ({ focused }) => {
           return (
-            <View style={tabBarButton}>
+            <View>
               {route.name === "home" && (
                 <View
                   style={[

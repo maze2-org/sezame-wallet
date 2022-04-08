@@ -114,23 +114,10 @@ const CoinBox = ({ assets, title }) => {
     <View style={[styles.COIN_BOX, { height: isOpen ? "auto" : 115 }]}>
       <TouchableOpacity
         style={styles.COIN_EXPAND_CONTAINER}
-        onPress={changeIsOpen}
-        activeOpacity={disable ? 1 : 0.7}
       >
         <Text style={{ color: disable ? color.palette.lightGrey : color.palette.white }}>
           {title}
         </Text>
-        {isOpen ? (
-          <FontAwesomeIcon
-            name="chevron-up"
-            color={disable ? color.palette.lightGrey : color.palette.white}
-          />
-        ) : (
-          <FontAwesomeIcon
-            name="chevron-down"
-            color={disable ? color.palette.lightGrey : color.palette.white}
-          />
-        )}
       </TouchableOpacity>
 
       <View style={styles.SEPARATOR} />
@@ -152,7 +139,7 @@ const CoinBoxItem = ({ asset }) => {
     <View style={styles.COIN_BOX_BODY}>
       <TouchableOpacity
         style={styles.COIN_CARD}
-        onPress={() => navigation.navigate("coinDetails", { coinId: asset.cid })}
+        onPress={() => navigation.navigate("coinDetails", { coinId: asset.cid, chain: asset.chain })}
       >
         <View style={styles.NETWORK_IMAGE_BORDER}>
           {!!asset.image && <Image style={styles.NETWORK_IMAGE} source={{ uri: asset.image }} />}
@@ -186,7 +173,7 @@ const CoinBoxItem = ({ asset }) => {
           <View style={styles.COIN_CARD_CONTENT_RIGHT}>
             <Text style={styles.BOLD_FONT}>{+Number(asset?.balance).toFixed(4)}</Text>
 
-            <Text style={styles.LIGHT_FONT}>{`~${(
+            <Text style={styles.LIGHT_FONT}>{`${(
               exchangeRates.getRate(asset?.cid) * asset.balance
             ).toFixed(2)}$`}</Text>
           </View>

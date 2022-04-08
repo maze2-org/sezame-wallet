@@ -297,7 +297,6 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
             <Animated.View style={[styles.PORTFOLIO_CONTAINER, { transform: [{ translateY }] }]}>
               <Animated.View style={[styles.PORTFOLIO_OVERLAY, { opacity }]} />
               <Animated.View style={[styles.PORTFOLIO_VALUE, { transform: [{ scale }] }]}>
-                <Text style={styles.ORANGE_COLOR}>~ </Text>
                 <Text style={styles.PORTFOLIO} adjustsFontSizeToFit numberOfLines={1}>
                   {+(Number(exchangeRates.getTotal(assets)).toFixed(2))}
                 </Text>
