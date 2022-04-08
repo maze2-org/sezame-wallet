@@ -65,7 +65,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
 
     const [explorerUrl, setExplorerUrl] = useState<string>("")
 
-    const asset = getAssetById(route.params.coinId)
+    const asset = getAssetById(route.params.coinId, route.params.chain)
     const tokenInfo = tokens.find((token) => token.id === route.params.coinId)
 
     const _getBalances = async () => {
@@ -344,7 +344,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                             </Text>
                             <Text style={styles.BALANCE_STAKING_CARD_NOTE}>
                               {" "}
-                              (~{`${(exchangeRates.getRate(asset.cid) * asset.balance).toFixed(2)}`}
+                              ({`${(exchangeRates.getRate(asset.cid) * asset.balance).toFixed(2)}`}
                               $)
                             </Text>
                           </View>
@@ -421,6 +421,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                         const hasInWallet = currentWalletStore.assets.find(
                           (item) => item.contract === chain.contract,
                         )
+                        const showRemoveBtnCondition = asset && asset.cid === chain.name && asset.chain === chain.id;
 
                         return (
                           <View style={styles.TOKEN_CHAIN_ROW} key={chain.id}>
@@ -429,14 +430,14 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                               preset="secondary"
                               disabled={updatingWallet}
                               onPress={() => {
-                                if (hasInWallet) {
+                                if (!!hasInWallet || !!showRemoveBtnCondition) {
                                   removeAsset(chain)
                                 } else {
                                   addAsset(chain)
                                 }
                               }}
                             >
-                              {hasInWallet ? (
+                              {(!!hasInWallet || !!showRemoveBtnCondition) ? (
                                 <Text
                                   style={styles.ADD_TO_PORTFOLIO_BTN}
                                   text={updatingWallet ? "Loading ..." : "Remove from portfolio"}

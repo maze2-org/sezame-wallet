@@ -61,7 +61,7 @@ export class StoredWallet {
     const existingAssets = this.assets || []
 
     this.assets = existingAssets.filter((currentAsset) => {
-      return currentAsset.chain !== chain || currentAsset.symbol !== symbol
+      return currentAsset.chain !== chain || currentAsset?.symbol?.toLowerCase() !== symbol?.toLowerCase()
     })
   }
 

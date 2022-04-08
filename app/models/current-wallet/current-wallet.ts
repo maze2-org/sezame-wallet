@@ -45,8 +45,8 @@ export const CurrentWalletModel = types
     getAssets: async () => {
       return self.assets
     },
-    getAssetById: (cid: string) => {
-      return self.assets.find((a) => a.cid === cid)
+    getAssetById: (cid: string, chain?: string) => {
+      return self.assets.find((a) => (!chain && a.cid === cid) || (chain && a.cid === cid && a.chain === chain))
     },
     getAssetByChain: (chain: string) => {
       return self.assets.find((a) => a.chain === chain)
