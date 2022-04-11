@@ -168,7 +168,7 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
       refreshBalances().then(() => {
         preparingAssets(sortBy)
       })
-    }, [])
+    }, [assets])
 
     useEffect(() => {
       resetBalance()
