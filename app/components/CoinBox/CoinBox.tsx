@@ -171,7 +171,7 @@ const CoinBoxItem = ({ asset }) => {
             <Text style={styles.LIGHT_FONT}>{"Base currency"}</Text>
           </View>
           <View style={styles.COIN_CARD_CONTENT_RIGHT}>
-            <Text style={styles.BOLD_FONT}>{+Number(asset?.balance).toFixed(4)}</Text>
+            <Text style={styles.BOLD_FONT}>{Number(asset?.balance).toFixed(4)}</Text>
 
             <Text style={styles.LIGHT_FONT}>{`${(
               exchangeRates.getRate(asset?.cid) * asset.balance
