@@ -216,7 +216,7 @@ export type NavigatorParamList = {
   coinDetails: {
     fromAddCurrency?: boolean
     coinId: string,
-    chain: string
+    chain?: string
   }
   send: {
     coinId: string
