@@ -9,6 +9,7 @@ import {
   Modal,
   TouchableOpacity,
   Clipboard,
+  Pressable,
 } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5"
@@ -455,21 +456,19 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
           onRequestClose={() => toggleReceiveModal(false)}
           transparent
         >
-          <TouchableOpacity
+          <Pressable
             style={styles.RECEIVE_MODAL_WRAPPER}
-            activeOpacity={0}
             onPress={() => toggleReceiveModal(false)}
           >
-            <View style={styles.RECEIVE_MODAL_CONTAINER}>
+            <Pressable style={styles.RECEIVE_MODAL_CONTAINER}>
               <View style={styles.RECEIVE_MODAL_CLOSE_WRAPPER}>
-                <TouchableOpacity
+                <Pressable
                   style={styles.RECEIVE_MODAL_CLOSE}
-                  activeOpacity={0.8}
                   hitSlop={{ top: 10, left: 10, right: 10, bottom: 10 }}
                   onPress={() => toggleReceiveModal(false)}
                 >
                   <IonIcons name={"close-outline"} size={30} color={color.palette.white} />
-                </TouchableOpacity>
+                </Pressable>
               </View>
 
               {!!asset && (
@@ -501,8 +500,8 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                   </View>
                 </TouchableOpacity>
               </View>
-            </View>
-          </TouchableOpacity>
+            </Pressable>
+          </Pressable>
           <FlashMessage ref={modalFlashRef} position="bottom" />
         </Modal>
       </Screen>
