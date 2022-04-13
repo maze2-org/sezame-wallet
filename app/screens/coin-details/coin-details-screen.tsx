@@ -81,7 +81,8 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
       txList.forEach((tx) => {
         getTransactionStatus(asset, tx.txId)
           .then((status) => {
-            if (status === "success" || status === "failed") {
+            pendingTransactions.update(tx, { status })
+            if (status === "success") {
               pendingTransactions.remove(asset, tx)
               _getBalances()
               _getTransactions()
@@ -375,6 +376,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                               <TransactionRow
                                 key={index}
                                 asset={asset}
+                                onRemove={()=>{pendingTransactions.remove(asset, tx)}}
                                 transaction={{ ...tx, date: null, out: true, hash: "" }}
                               />
                             ))}
