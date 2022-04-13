@@ -9,6 +9,7 @@ export type CryptoTransaction = {
   from: string[] | string
   to: string[] | string
   amount: string
+  status?: string | null
 }
 
 const getWallet = (asset) => {

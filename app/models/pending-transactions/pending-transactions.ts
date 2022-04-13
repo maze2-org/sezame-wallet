@@ -8,7 +8,8 @@ export type PendingTransaction = {
   from: string
   to: string
   amount: string
-  timestamp: number
+  timestamp: number,
+  status?: string | null
 }
 
 const PendingTranactionModel = types.model({
@@ -18,6 +19,7 @@ const PendingTranactionModel = types.model({
   to: types.string,
   amount: types.string,
   timestamp: types.number,
+  status: types.maybe(types.string)
 })
 /**
  * Model description here for TypeScript hints.
@@ -50,6 +52,11 @@ export const PendingTransactionsModel = types
     clear: flow(function* () {
       self.transactions.clear()
       yield save("pendingTxs", self.transactions)
+    }),
+    update: flow(function* (tx: PendingTransaction, updatedTx: Partial<PendingTransaction>) {
+      const transactions = yield load("pendingTxs");
+      self.transactions = transactions.map(transaction => transaction.txId === tx.txId ? {...tx, ...updatedTx} : tx);
+      yield save("pendingTxs", self.transactions);
     }),
     remove: flow(function* (asset: IWalletAsset, tx: PendingTransaction) {
       tx.walletId = `${asset.chain}${asset.symbol}${asset.cid}`

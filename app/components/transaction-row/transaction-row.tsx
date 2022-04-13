@@ -15,7 +15,36 @@ export interface TransactionRowProps {
    */
   style?: StyleProp<ViewStyle>
   transaction: CryptoTransaction
-  asset: IWalletAsset
+  asset: IWalletAsset,
+  onRemove?: () => void,
+}
+
+const TRANSACTION_ITEM_WRAPPER: ViewStyle = {
+  display: "flex",
+}
+
+const TRANSACTION_HEAD: ViewStyle = {
+  display: "flex",
+  flexDirection: "row",
+  alignItems: 'center',
+  justifyContent: "space-between",
+  paddingBottom: spacing[1],
+  borderBottomWidth:1,
+  borderBottomColor: color.palette.lineColor
+}
+
+const TRANSACTION_INFO: ViewStyle = {
+  alignItems:'flex-end'
+}
+
+const TRANSACTION_STATUS_WRAPPER: ViewStyle = {
+  borderRadius: 50,
+  paddingVertical: spacing[1],
+  paddingRight: spacing[3],
+}
+
+const TRANSACTION_STATUS: TextStyle = {
+  color: color.error
 }
 
 const TRANSACTION_ITEM: ViewStyle = {
@@ -61,11 +90,18 @@ const TRANSACTIONS_SORT_BTN_TEXT: TextStyle = {
   lineHeight: 16.34,
 }
 
+const TRANSACTIONS_REMOVE_BTN: ViewStyle = {
+  backgroundColor: color.transparent,
+  display: "flex",
+  flexDirection: "row",
+  padding: spacing[1],
+}
+
 /**
  * Describe your component here
  */
 export const TransactionRow = observer(function TransactionRow(props: TransactionRowProps) {
-  const { transaction, asset } = props
+  const { transaction, asset, onRemove = ()=>{} } = props || {}
   const truncateText = (text: string) => {
     return text.substring(0, 8) + "..." + text.substring(text.length - 8, text.length)
   }
@@ -75,33 +111,56 @@ export const TransactionRow = observer(function TransactionRow(props: Transactio
   const myself = `${transaction.from}` === `${transaction.to}`
 
   return (
-    <View style={TRANSACTION_ITEM}>
-      <View style={TRANSACTION_ITEM_BODY}>
-        <Text style={TRANSACTION_ITEM_HASH}>
-          {typeof txs === "string" ? (
-            <Text>{truncateText(txs)}</Text>
-          ) : (
-            txs.map((tx) => <Text>{truncateText(tx)}</Text>)
-          )}
-          {txs.length < 1 && <Text>None</Text>}
-        </Text>
-        <Text style={TRANSACTION_ITEM_DATE}>
-          {dayjs(transaction.timestamp).format("DD/MM/YYYY HH:mm:ss")}
-        </Text>
-      </View>
-      <View>
-        <Button style={[TRANSACTIONS_SORT_BTN, transaction.out && TRANSACTIONS_SORT_BTN_RED]}>
-          <FontAwesome5Icon
-            name={transaction.out ? "arrow-up" : "arrow-down"}
-            size={10}
-            color={color.palette.white}
-          />
-
-          <Text style={TRANSACTIONS_SORT_BTN_TEXT}>
-            {myself ? "MYSELF" : transaction.out ? "TO" : "FROM"}
+    <View style={TRANSACTION_ITEM_WRAPPER}>
+      {transaction.status === 'failed' &&
+        <View
+          style={TRANSACTION_HEAD}>
+          <View
+            style={TRANSACTION_STATUS_WRAPPER}>
+            <Text
+              style={TRANSACTION_STATUS}>
+              Failed
+            </Text>
+          </View>
+          <Button
+            style={TRANSACTIONS_REMOVE_BTN}
+            onPress={onRemove}>
+            <FontAwesome5Icon
+              name={"trash"}
+              size={10}
+              color={color.palette.white}
+            />
+          </Button>
+        </View>
+      }
+      <View style={TRANSACTION_ITEM}>
+        <View style={TRANSACTION_ITEM_BODY}>
+          <Text style={TRANSACTION_ITEM_HASH}>
+            {typeof txs === "string" ? (
+              <Text>{truncateText(txs)}</Text>
+            ) : (
+              txs.map((tx) => <Text>{truncateText(tx)}</Text>)
+            )}
+            {txs.length < 1 && <Text>None</Text>}
           </Text>
-        </Button>
-        <Text style={TRANSACTION_ITEM_HASH}>{parseFloat(transaction.amount).toFixed(4)}</Text>
+          <Text style={TRANSACTION_ITEM_DATE}>
+            {dayjs(transaction.timestamp).format("DD/MM/YYYY HH:mm:ss")}
+          </Text>
+        </View>
+        <View style={TRANSACTION_INFO}>
+          <Button style={[TRANSACTIONS_SORT_BTN, transaction.out && TRANSACTIONS_SORT_BTN_RED]}>
+            <FontAwesome5Icon
+              name={transaction.out ? "arrow-up" : "arrow-down"}
+              size={10}
+              color={color.palette.white}
+            />
+
+            <Text style={TRANSACTIONS_SORT_BTN_TEXT}>
+              {myself ? "MYSELF" : transaction.out ? "TO" : "FROM"}
+            </Text>
+          </Button>
+          <Text style={TRANSACTION_ITEM_HASH}>{parseFloat(transaction.amount).toFixed(4)}</Text>
+        </View>
       </View>
     </View>
   )
