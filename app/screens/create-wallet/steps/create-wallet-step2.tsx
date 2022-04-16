@@ -105,7 +105,7 @@ export function CreateWalletStep2(props: StepProps) {
       Clipboard.setString(seedPhrase)
     }
     showMessage({
-      message: "mnemonic copied to clipboard",
+      message: "Seed phrase copied to clipboard",
       type: "success",
     })
   }
@@ -132,7 +132,7 @@ export function CreateWalletStep2(props: StepProps) {
           <Header headerText="Keep your seed phrase safe" style={headerStyle} titleStyle={headerTitle} />
           <Text style={TEXT_STYLE}>
             A seed phrase is the only way for you to keep access on your assets even if your device is 
-            destroyed or stolen. You will be the only owner of this need and nobody else will keep it for you.
+            destroyed or stolen. You will be the only owner of this seed and nobody else will keep it for you.
           </Text>
           <Text style={IMPORTANT_STYLE}>
             SAVE THE FOLLOWING SEED PHRASE IN SEVERAL AND SAFE LOCATIONS
