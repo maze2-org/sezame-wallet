@@ -110,7 +110,7 @@ export function CreateWalletStep2(props: StepProps) {
       Clipboard.setString(seedPhrase)
     }
     showMessage({
-      message: "mnemonic copied to clipboard",
+      message: "seed phrase copied to clipboard",
       type: "success",
     })
   }

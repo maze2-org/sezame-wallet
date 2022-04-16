@@ -246,7 +246,7 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
         Clipboard.setString(seedPhrase)
       }
       showMessage({
-        message: "mnemonic copied to clipboard",
+        message: "seed phrase copied to clipboard",
         type: "success",
       })
     }
