@@ -177,7 +177,6 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
     const [seedPhrase, setSeedPhrase] = React.useState("")
     const lockWallet = () => {
       currentWalletStore.close()
-      reset().catch(null)
       navigation.dispatch(
         CommonActions.reset({
           index: 0,
