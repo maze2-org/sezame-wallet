@@ -1,5 +1,5 @@
 import { withRootStore } from "models"
-import { ImageStyle, TextStyle, ViewStyle } from "react-native"
+import { ImageStyle, TextStyle, ViewStyle, Dimensions } from "react-native"
 import { capitalize } from "validate.js"
 import { color, spacing, typography } from "."
 
@@ -12,6 +12,8 @@ import { color, spacing, typography } from "."
  * If you have a specific use-case, like a spinner color.  It makes more sense to
  * put that in the <Spinner /> component.
  */
+const {width} = Dimensions.get('screen');
+
 export const BackgroundStyle: ImageStyle = {
   flex: 1,
   justifyContent: "space-between",
@@ -239,6 +241,7 @@ export const tabBarItem: ViewStyle = {
   flexDirection: "row",
   borderTopWidth: 6,
   borderTopColor: color.palette.black,
+  width: width / 2
 }
 
 export const tabBarItemFocused: ViewStyle = {
@@ -258,11 +261,6 @@ export const tabBarLabel: TextStyle = {
 export const tabBarLabelFocused: TextStyle = {
   color: color.palette.white,
   marginLeft: spacing[1],
-}
-
-export const tabBarButton: ViewStyle = {
-  flexGrow: 1,
-  width: "100%",
 }
 
 export const tabBarItemBorderRightStyle: ViewStyle = {

@@ -1,17 +1,6 @@
 import React, { FC } from "react"
 import { observer } from "mobx-react-lite"
-import {
-  TextStyle,
-  View,
-  ViewStyle,
-  StyleSheet,
-  Alert,
-  Modal,
-  ScrollView,
-  Dimensions,
-  TouchableWithoutFeedback,
-  Pressable,
-} from "react-native"
+import { TextStyle, View, ViewStyle, StyleSheet, Alert, Modal, ScrollView, Dimensions, Pressable, } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import FontAwesomeIcon from "react-native-vector-icons/FontAwesome"
 import FontAwesomeIcon5 from "react-native-vector-icons/FontAwesome5"
@@ -31,15 +20,8 @@ import { TextInputField } from "components/text-input-field/text-input-field"
 import IonIcons from "react-native-vector-icons/Ionicons"
 import copyIcon from "../../../assets/icons/copy.svg"
 import { SvgXml } from "react-native-svg"
-import {
-  btnDefault,
-  btnDisabled,
-  CONTAINER,
-  copyBtn,
-  mnemonicContainer,
-  mnemonicStyle,
-  RootPageStyle,
-} from "theme/elements"
+import { CommonActions } from '@react-navigation/native';
+import { btnDefault, btnDisabled, CONTAINER, copyBtn, mnemonicContainer, mnemonicStyle, RootPageStyle, } from "theme/elements"
 import { StoredWallet } from "utils/stored-wallet"
 import { showMessage } from "react-native-flash-message"
 import { reset } from "../../utils/keychain"
@@ -195,8 +177,14 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
     const [seedPhrase, setSeedPhrase] = React.useState("")
     const lockWallet = () => {
       currentWalletStore.close()
-      reset().catch(null)
-      navigation.navigate("chooseWallet")
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [
+            { name: 'chooseWallet' },
+          ],
+        })
+      );
     }
 
     const deleteWallet = async () => {
@@ -257,7 +245,7 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
         Clipboard.setString(seedPhrase)
       }
       showMessage({
-        message: "mnemonic copied to clipboard",
+        message: "seed phrase copied to clipboard",
         type: "success",
       })
     }

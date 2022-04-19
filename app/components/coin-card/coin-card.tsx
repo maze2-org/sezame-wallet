@@ -68,7 +68,7 @@ export const CoinCard = observer(function CoinCard(props: CoinCardProps) {
         <Text style={COIN_NAME} preset="header" text={name} />
         {balance !== undefined && (
           // <Text style={COIN_AMOUNT} preset="header" text={} />
-          <TextReact style={COIN_AMOUNT}>{+(Number(balance).toFixed(4))}</TextReact>
+          <TextReact style={COIN_AMOUNT}>{(Number(balance).toFixed(4))}</TextReact>
         )}
       </View>
     </View>
