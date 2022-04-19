@@ -18,16 +18,21 @@ import { showMessage } from "react-native-flash-message";
 import { load, IKeychainData } from "../../utils/keychain"
 
 interface IBiometrics {
+  walletName: string,
   onLoad: (data: IKeychainData) => void
 }
 
 /**
  * An Biometrics component for handling user TouchID, FaceID or Biometrics.
  */
-export function Biometrics({ onLoad }: IBiometrics) {
+export function Biometrics({walletName, onLoad }: IBiometrics) {
   const navigation = useNavigation();
   const [biometricType, setBiometricType] = useState<string>('');
   const [keyChainData, setKeyChainData] = useState<IKeychainData | null>(null);
+
+  useEffect(()=>{
+   focusHandler()
+  },[walletName])
 
   const showError = (error)=>{
     showMessage({ message: error, type: "danger", })
@@ -47,9 +52,23 @@ export function Biometrics({ onLoad }: IBiometrics) {
 
   const getKCData = () => {
     return load().then(savedData => {
-      if (savedData && !!savedData.username && !!savedData.password && savedData.username !== '_pfo') {
-        setKeyChainData(savedData);
-        return  savedData;
+      const parsedWallet = JSON.parse(savedData.password);
+      if (savedData && !!savedData.password && Array.isArray(parsedWallet)) {
+        if(parsedWallet.length) {
+          let newSaveData = parsedWallet.find((wallet) => wallet.walletName === walletName)
+          if(newSaveData) {
+            const data = {
+              username: newSaveData.walletName,
+              password: newSaveData.walletPassword,
+              server: null,
+            }
+            setKeyChainData(data);
+            return data;
+          }
+          setKeyChainData(null);
+          return null
+        }
+        return null
       }else{
         setKeyChainData(null);
         return null;

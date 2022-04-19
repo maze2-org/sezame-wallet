@@ -31,7 +31,12 @@ import DropDownPicker from "react-native-dropdown-picker"
 import { TextInputField } from "../../components/text-input-field/text-input-field"
 import { StoredWallet } from "../../utils/stored-wallet"
 import { showMessage } from "react-native-flash-message"
-import { save, IKeychainData } from "../../utils/keychain"
+import {
+  reset,
+  save,
+  IKeychainData,
+  load,
+} from "../../utils/keychain"
 
 import { useNavigation } from "@react-navigation/native"
 import { useStores } from "models"
@@ -98,7 +103,27 @@ export const ChooseWalletScreen: FC<
 
       pendingTransactions.open()
 
-      save(data.walletName, data.walletPassword).catch(null)
+      getKCData()
+        .then(keyData => {
+          let parsedWallets = keyData ? JSON.parse(keyData.password) : [];
+          let wallets = Array.isArray(parsedWallets) ? parsedWallets : [];
+          const foundedIndex = wallets.findIndex(wallet=>wallet.walletName === data.walletName);
+
+          const walletToAdd = {
+            walletName: data.walletName,
+            walletPassword: data.walletPassword,
+          };
+          if(foundedIndex === -1) {
+            wallets.push(walletToAdd);
+          }else{
+            wallets[foundedIndex] = walletToAdd;
+          }
+
+          save("wallets", JSON.stringify(wallets)).catch(null)
+        })
+        .catch(error => {
+          console.log(error)
+        })
       navigation.replace("dashboard")
     } catch (err) {
       console.log(err)
@@ -118,6 +143,17 @@ export const ChooseWalletScreen: FC<
       walletPassword: keychainData.password,
     }
     onSubmit(data)
+  }
+
+  const getKCData = () => {
+    return load().then(savedData => {
+      const parsedWallet = JSON.parse(savedData.password);
+      if (savedData && !!savedData.password && Array.isArray(parsedWallet)) {
+        return  savedData;
+      }else{
+        return null;
+      }
+    })
   }
 
   useEffect(() => {
@@ -234,7 +270,7 @@ export const ChooseWalletScreen: FC<
               />
             </View>
             <View style={footerStyle}>
-              <Biometrics onLoad={onGetKeychainData} />
+              <Biometrics walletName={itemValue}  onLoad={onGetKeychainData} />
             </View>
           </View>
         </AppScreen>
