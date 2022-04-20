@@ -1,6 +1,6 @@
 import { Dimensions, TextStyle, ViewStyle } from "react-native"
 import { color, spacing } from "theme"
-const { height } = Dimensions.get("screen")
+const { height, width } = Dimensions.get("screen")
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
@@ -234,6 +234,21 @@ const ADD_TO_PORTFOLIO_BTN: TextStyle = {
   fontSize: 13,
   fontWeight: "bold",
 }
+
+const PADDING_HORIZONTAL: ViewStyle = {
+paddingHorizontal:spacing[2]
+}
+
+const OVERLAY_BLOCK: ViewStyle = {
+  width:width,
+  height:'100%',
+  backgroundColor:'transparent',
+  position:'absolute',
+  top:0,
+  zIndex:2,
+  elevation:2,
+}
+
 const styles = {
   ROOT,
   BTNS_CONTAINER,
@@ -279,6 +294,8 @@ const styles = {
   TOKEN_CHAINS_CONTAINER,
   TOKEN_CHAIN_ROW,
   ADD_TO_PORTFOLIO_BTN,
+  OVERLAY_BLOCK,
+  PADDING_HORIZONTAL,
 }
 
 export default styles
