@@ -8,6 +8,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Linking,
 } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import { NavigatorParamList } from "../../navigators"
@@ -15,6 +16,7 @@ import BigNumber from "bignumber.js"
 
 import {
   Button,
+  Checkbox,
   CurrencyDescriptionBlock,
   Drawer,
   Footer,
@@ -229,6 +231,35 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
                     name="percentage"
                     render={({ field: { onChange, value, onBlur } }) => (
                       <PercentageSelector value={value} onChange={(value) => onChange(value)} />
+                    )}
+                  ></Controller>
+                  <Controller
+                    control={control}
+                    name="cgu"
+                    rules={{
+                      required: {
+                        value: true,
+                        message: "Please accept the terms and conditions",
+                      },
+                    }}
+                    render={({ field: { onChange, value, onBlur } }) => (
+                      <Checkbox
+                        text={
+                          <View>
+                            <Text style={{ paddingHorizontal: spacing[1] }}>
+                              <Text>I have read the </Text>
+                              <Text
+                                onPress={() => Linking.openURL("https://www.aventus.io/")}
+                                style={styles.URL}
+                              >
+                                terms and conditions
+                              </Text>
+                            </Text>
+                          </View>
+                        }
+                        value={value}
+                        onToggle={(value) => onChange(value)}
+                      />
                     )}
                   ></Controller>
                 </View>

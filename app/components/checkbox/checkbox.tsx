@@ -1,5 +1,5 @@
 import * as React from "react"
-import { TextStyle, TouchableOpacity, View, ViewStyle, Image } from "react-native"
+import { TouchableOpacity, View, ViewStyle } from "react-native"
 import { Text } from "../text/text"
 import { color, spacing } from "../../theme"
 import { CheckboxProps } from "./checkbox.props"
@@ -65,7 +65,7 @@ export function Checkbox(props: CheckboxProps) {
           {props.value && <SvgXml width="28" height="28" xml={checkIcon} />}
         </View>
         <View style={labelStyle}>
-          {!!props.text && (
+          {!!props.text && typeof props.text === "string" && (
             <Text
               text={props.text}
               tx={props.tx}
@@ -73,6 +73,7 @@ export function Checkbox(props: CheckboxProps) {
               style={checkboxTextStyle}
             />
           )}
+          {!!props.text && typeof props.text !== "string" && props.text}
         </View>
         {props.children}
       </TouchableOpacity>
