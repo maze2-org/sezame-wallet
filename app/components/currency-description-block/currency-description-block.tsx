@@ -16,6 +16,7 @@ import { SvgXml } from "react-native-svg"
 import { IWalletAsset } from "models"
 
 import transfer from "../../../assets/svg/transfer.svg"
+import stake from "../../../assets/svg/stake.svg"
 
 const CONTAINER: ViewStyle = {
   justifyContent: "center",
@@ -54,7 +55,7 @@ export interface CurrencyDescriptionBlockProps {
 
   asset?: IWalletAsset
   title?: string
-  icon?: "transfer" | "stack"
+  icon?: "transfer" | "stake"
 }
 
 /**
@@ -85,6 +86,11 @@ export const CurrencyDescriptionBlock = observer(function CurrencyDescriptionBlo
         {icon === "transfer" && (
           <View style={IconStyle}>
             <SvgXml width={24} height={24} xml={transfer} />
+          </View>
+        )}
+        {icon === "stake" && (
+          <View style={IconStyle}>
+            <SvgXml width={24} height={24} xml={stake} />
           </View>
         )}
       </View>

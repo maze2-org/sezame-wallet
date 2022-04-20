@@ -64,12 +64,16 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const tokenInfo = tokens.find((token) => token.id === route.params.coinId)
     console.log(JSON.stringify(tokenInfo, null, 2))
 
-    const capabilities = tokenInfo.chains.reduce((previous, current) => {
-      console.log({ previous, current })
-      if (current.id === route.params.chain) {
-        return current.capabilities
-      }
-    }, [])
+    const capabilities =
+      tokenInfo.chains.reduce((previous, current) => {
+        console.log({ previous, current })
+        if (current.id === route.params.chain) {
+          return current.capabilities
+        }
+        return previous
+      }, []) || []
+
+    console.log("CAPBABLITIESSSSSSSSSSSSSSSSSSSSSSSS", capabilities)
 
     const _getBalances = async () => {
       const balance = await getBalance(asset)

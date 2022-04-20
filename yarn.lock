@@ -2152,17 +2152,17 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@maze2/sezame-sdk@^1.3.15":
-  version "1.3.15"
-  resolved "https://registry.yarnpkg.com/@maze2/sezame-sdk/-/sezame-sdk-1.3.15.tgz#2407a0f5cca03b2d594fcd2e7fe40f64a754a8a9"
-  integrity sha512-J5SIUvmryhZI7A5PiYK41pkGX9G/6tZjfuwaX8TOYqn6pysAtRoryhpnQmEysMnx3yXSD/+ZEAhvAosNt/8NfA==
+"@maze2/sezame-sdk@^1.3.16":
+  version "1.3.16"
+  resolved "https://registry.yarnpkg.com/@maze2/sezame-sdk/-/sezame-sdk-1.3.16.tgz#4243d844cec686ecafabb923db5f2e1a30a3e192"
+  integrity sha512-Ukkrn1fw+oqFDowyOer/UhiJ/cDQGY6nFjBMuw3KRmpl5Mi6DXcCBjXhaor1GjZJq3q7l3bs2gsCkthzaMGMxQ==
   dependencies:
     "@metamask/eth-sig-util" "^4.0.0"
     "@polkadot/keyring" "5.9.2"
     "@polkadot/util" "5.9.2"
     "@polkadot/util-crypto" "5.9.2"
     alephium-js "1.1.1"
-    avn-api "^0.5.1"
+    avn-api "^0.6.0"
     axios "0.21.1"
     bignumber "^1.1.0"
     bignumber.js "9.0.1"
@@ -4924,10 +4924,10 @@ available-typed-arrays@^1.0.5:
   resolved "https://registry.npmjs.org/available-typed-arrays/-/available-typed-arrays-1.0.5.tgz"
   integrity sha512-DMD0KiN46eipeziST1LPP/STfDU0sufISXmjSgvVsoU2tqxctQeASejWcfNtxYKqETM1UxQ8sp2OrSBWpHY6sw==
 
-avn-api@^0.5.1:
-  version "0.5.1"
-  resolved "https://registry.npmjs.org/avn-api/-/avn-api-0.5.1.tgz"
-  integrity sha512-1oPQU3wYpdsr/Fs7jdKVHd1/HFk2ml7zBWzuJ+a33kjyM015c2QBsIaXJLpGUyasbCKKfvtt0zAeIH7XDuhEoQ==
+avn-api@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/avn-api/-/avn-api-0.6.0.tgz#983d60e9db5228df9021eae8c849b6a463618e56"
+  integrity sha512-zUXieAk6HwrZO06VoeZAOUdn/sZQto0zD0kmi9phXLwAiIAG/zX5lwdUGQHNkGDp2UdMwlp9J9ruSigp4EJvaQ==
   dependencies:
     "@polkadot/keyring" "5.9.2"
     "@polkadot/types" "^3.0.1"

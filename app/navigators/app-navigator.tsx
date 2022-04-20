@@ -28,6 +28,7 @@ import {
   CreateWalletScreen,
   DashboardScreen,
   SendScreen,
+  StakeScreen,
   SettingsScreen,
   ChangePasswordScreen,
   AddCurrencyScreen,
@@ -72,6 +73,7 @@ import StakingBalance, {
   StackingBalanceProps,
   StackingBalanceRouteParams,
 } from "../screens/staking-balance/StakingBalance"
+import { UnstakeScreen } from "screens/unstake/unstake-screen"
 
 const NAV_HEADER_CONTAINER: ViewStyle = {
   flexDirection: "row",
@@ -226,6 +228,14 @@ export type NavigatorParamList = {
   send: {
     coinId: string
   }
+  stake: {
+    chain: string
+    coinId: string
+  }
+  unstake: {
+    chain: string
+    coinId: string
+  }
   receive: {
     coinId: string
   }
@@ -372,6 +382,28 @@ const AppStack = () => {
             }}
             name="send"
             component={SendScreen}
+          />
+          <Stack.Screen
+            options={{
+              presentation: "modal",
+              headerShown: true,
+              header: AppStackHeader,
+              headerStyle: { backgroundColor: color.palette.black },
+              title: "",
+            }}
+            name="stake"
+            component={StakeScreen}
+          />
+          <Stack.Screen
+            options={{
+              presentation: "modal",
+              headerShown: true,
+              header: AppStackHeader,
+              headerStyle: { backgroundColor: color.palette.black },
+              title: "",
+            }}
+            name="unstake"
+            component={UnstakeScreen}
           />
           <Stack.Screen
             options={{

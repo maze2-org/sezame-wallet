@@ -58,6 +58,17 @@ export const makeSendTransaction = (asset: IWalletAsset, proposal) => {
   const cryptoWallet = getWallet(asset)
   return cryptoWallet.postTxSend(proposal)
 }
+
+export const makeStakeTransaction = (asset: IWalletAsset, proposal) => {
+  const cryptoWallet = getWallet(asset)
+  return cryptoWallet.postTxSend(proposal)
+}
+
+export const makeUnstakeTransaction = (asset: IWalletAsset, proposal) => {
+  const cryptoWallet = getWallet(asset)
+  return cryptoWallet.postTxSend(proposal)
+}
+
 export const makeRawTransaction = async (asset: IWalletAsset, data) => {
   const driver = await getTransactionDriver(asset)
   const rawTransaction = await driver.prepareSignedTransaction(data)

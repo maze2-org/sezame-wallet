@@ -1,6 +1,4 @@
-import React, {
-  useState,
-} from "react"
+import React, { useState } from "react"
 import {
   StyleProp,
   TextInput,
@@ -13,7 +11,12 @@ import {
 import { SvgXml } from "react-native-svg"
 import { color, spacing, typography } from "theme"
 import { translate, TxKeyPath } from "../../i18n"
-import { textInputError, textInputErrorMessage, textInputStyle } from "../../theme/elements"
+import {
+  textInputError,
+  textInputErrorMessage,
+  textInputStyle,
+  textInputStyleAlt,
+} from "../../theme/elements"
 import { Text } from "../text/text"
 // currently we have no presets, but that changes quickly when you build your app.
 const PRESETS: { [name: string]: ViewStyle } = {
@@ -94,7 +97,8 @@ export interface TextFieldProps extends TextInputProps {
 
   icon?: any
 
-  showEye?:boolean
+  showEye?: boolean
+  fieldStyle?: "normal" | "alt"
 }
 
 /**
@@ -116,17 +120,18 @@ export function TextInputField(props: TextFieldProps) {
     formFieldRef,
     icon,
     showEye,
+    fieldStyle,
     ...rest
   } = props
 
   const containerStyles = [CONTAINER]
-  const inputStyles = [INPUT, inputStyleOverride]
+  const inputStyles = [INPUT, fieldStyle === "alt" && textInputStyleAlt, inputStyleOverride]
   const actualPlaceholder = placeholderTx ? translate(placeholderTx) : placeholder
   const labelStyle = [LABEL]
   if (errors[name] && errors[name].message) {
     inputStyles.push(textInputError)
   }
-  const [eye, setEye] = useState(!!showEye);
+  const [eye, setEye] = useState(!!showEye)
 
   return (
     <View style={containerStyles}>
@@ -142,16 +147,16 @@ export function TextInputField(props: TextFieldProps) {
       {errors[name] && errors[name].message && (
         <Text style={textInputErrorMessage}>{errors[name].message}</Text>
       )}
-      {!!showEye &&
-        <TouchableOpacity style={iconStyle}
-                          onPress={()=>setEye((prev)=>!prev)}
-                          hitSlop={{top:10,left:10,right:10,bottom:10}}
-                          activeOpacity={0.8}
+      {!!showEye && (
+        <TouchableOpacity
+          style={iconStyle}
+          onPress={() => setEye((prev) => !prev)}
+          hitSlop={{ top: 10, left: 10, right: 10, bottom: 10 }}
+          activeOpacity={0.8}
         >
           {icon && <SvgXml width="24" height="24" xml={icon} />}
         </TouchableOpacity>
-      }
-
+      )}
     </View>
   )
 }

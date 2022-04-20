@@ -12,7 +12,7 @@ import { color, spacing, typography } from "."
  * If you have a specific use-case, like a spinner color.  It makes more sense to
  * put that in the <Spinner /> component.
  */
-const {width} = Dimensions.get('screen');
+const { width } = Dimensions.get("screen")
 
 export const BackgroundStyle: ImageStyle = {
   flex: 1,
@@ -40,6 +40,16 @@ export const textInputStyle: TextStyle = {
   borderWidth: 1,
   borderColor: color.palette.white,
   color: color.palette.white,
+}
+
+export const textInputStyleAlt: TextStyle = {
+  backgroundColor: "#111111",
+  borderRadius: 8,
+  borderWidth: 1,
+  borderColor: "#111111",
+  borderTopColor: "#333333",
+  marginTop: spacing[2],
+  paddingHorizontal: spacing[2],
 }
 
 export const textInputErrorMessage: TextStyle = {
@@ -241,7 +251,7 @@ export const tabBarItem: ViewStyle = {
   flexDirection: "row",
   borderTopWidth: 6,
   borderTopColor: color.palette.black,
-  width: width / 2
+  width: width / 2,
 }
 
 export const tabBarItemFocused: ViewStyle = {
