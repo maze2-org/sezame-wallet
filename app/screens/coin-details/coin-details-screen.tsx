@@ -251,7 +251,9 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     }
 
     const switchChart = (type: number | "max") => {
-      setLoadingButton(type)
+      if(type !== chartDays) {
+        setLoadingButton(type)
+      }
       setChartDays(type)
     }
 
@@ -286,11 +288,11 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                     </View>
                   )}
                 </View>
-                <View>
+                <View pointerEvents={!!loadingButton ? 'none' : 'auto'}>
                   {!!chartData && !!chartData.length && (
                     <>
                     <PriceChart data={chartData.map((p) => p[1])} />
-                      {loadingButton &&
+                      {!!loadingButton &&
                       <View style={styles.OVERLAY_BLOCK}/>
                       }
                     </>
