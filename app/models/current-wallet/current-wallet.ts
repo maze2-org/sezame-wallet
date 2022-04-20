@@ -1,5 +1,5 @@
 import { NetworkType } from "config/networks"
-import { flow, Instance, SnapshotOut, types } from "mobx-state-tree"
+import { flow, Instance, SnapshotOut, types, cast } from "mobx-state-tree"
 import { remove } from "utils/storage"
 import { StoredWallet } from "../../utils/stored-wallet"
 import { getBalance } from "services/api"
@@ -46,7 +46,9 @@ export const CurrentWalletModel = types
       return self.assets
     },
     getAssetById: (cid: string, chain?: string) => {
-      return self.assets.find((a) => (!chain && a.cid === cid) || (chain && a.cid === cid && a.chain === chain))
+      return self.assets.find(
+        (a) => (!chain && a.cid === cid) || (chain && a.cid === cid && a.chain === chain),
+      )
     },
     getAssetByChain: (chain: string) => {
       return self.assets.find((a) => a.chain === chain)
@@ -56,14 +58,12 @@ export const CurrentWalletModel = types
       if (asset) {
         return asset.address
       }
-      console.warn("NO asset found")
       return ""
     },
   })) // eslint-disable-line @typescript-eslint/no-unused-vars
   .actions((self) => ({
     setAssets(assets) {
-      self.assets = assets
-
+      self.assets.replace(assets)
       let wallet = JSON.parse(self.wallet)
       wallet.assets = assets
       self.wallet = JSON.stringify(wallet)
@@ -78,19 +78,21 @@ export const CurrentWalletModel = types
 
     resetBalance: () => {
       let wallet = JSON.parse(self.wallet)
-      self.assets = self.assets.map((asset) => ({ ...asset, balance: 0 })) as any
+
+      const resetted = self.assets.map((asset) => ({ ...asset, balance: 0 }))
+      self.assets = JSON.parse(JSON.stringify(resetted))
       wallet.assets = self.assets
       self.wallet = JSON.stringify(wallet)
     },
 
     open: (wallet: StoredWallet) => {
       self.wallet = JSON.stringify(wallet.toJson())
-      self.assets = wallet.toJson().assets as any
+      self.assets.replace(wallet.toJson().assets as any)
       self.name = wallet.toJson().walletName
     },
     close: () => {
       self.wallet = undefined
-      self.assets = [] as any
+      self.assets.replace([])
       self.name = ""
     },
     setBalance: (asset, balance: number) => {

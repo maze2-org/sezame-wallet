@@ -46,7 +46,7 @@ import { ReceiveScreen } from "screens/receive/receive-screen"
 import { useStores } from "../models"
 
 import { StackNavigationProp } from "@react-navigation/stack"
-import { AutoImage as Image, CurrenciesSelector, Drawer } from "../components"
+import { AutoImage as Image } from "../components"
 import {
   SesameSmallLogo,
   tabBarItem,
@@ -220,7 +220,7 @@ export type NavigatorParamList = {
   nfts: undefined
   coinDetails: {
     fromAddCurrency?: boolean
-    coinId: string,
+    coinId: string
     chain: string
   }
   send: {

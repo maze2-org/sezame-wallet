@@ -42,11 +42,7 @@ import {
   getTransactionStatus,
   getTransactionsUrl,
 } from "services/api"
-import { autorun } from "mobx"
-import {
-  StackingBalanceProps
-} from "../staking-balance/StakingBalance"
-// import InAppBrowser from "react-native-inappbrowser-reborn"
+
 const tokens = require("../../config/tokens.json")
 
 export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDetails">> = observer(
@@ -61,12 +57,19 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const { getAssetById, setBalance, assets } = currentWalletStore
     const [loading, setLoading] = React.useState({})
     const [updatingWallet, setUpdatingWallet] = React.useState<boolean>(false)
-    const [chainAvt, setChainAvt] = useState(false)
 
     const [explorerUrl, setExplorerUrl] = useState<string>("")
 
     const asset = getAssetById(route.params.coinId, route.params.chain)
     const tokenInfo = tokens.find((token) => token.id === route.params.coinId)
+    console.log(JSON.stringify(tokenInfo, null, 2))
+
+    const capabilities = tokenInfo.chains.reduce((previous, current) => {
+      console.log({ previous, current })
+      if (current.id === route.params.chain) {
+        return current.capabilities
+      }
+    }, [])
 
     const _getBalances = async () => {
       const balance = await getBalance(asset)
@@ -116,10 +119,6 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
         setExplorerUrl(getTransactionsUrl(asset))
       }
 
-      const chainAvt = tokenInfo.chains.find((chain)=>{
-        return chain.capabilities
-      })
-      setChainAvt(chainAvt)
       return () => {
         clearInterval(interval)
       }
@@ -147,7 +146,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
             cid: tokenInfo.id,
             type: tokenInfo.type,
             contract: `${chain.contract}`,
-            image: tokenInfo.thumb
+            image: tokenInfo.thumb,
           } as any)
           .then(async () => {
             await currentWalletStore.setAssets(wallet.assets)
@@ -220,6 +219,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
         console.log(error)
       }
     }
+
     // Pull in navigation via hook
     const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
     const goToSend = () => navigation.navigate("send", { coinId: route.params.coinId })
@@ -253,16 +253,14 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     }
 
     const navigateStakingBalance = () => {
-      navigation.navigate("stakingBalance",
-        {
-          image: coinData.image?.large,
-          name: coinData?.name,
-          asset: !!asset && !route.params.fromAddCurrency && asset,
-        },
-      )
+      navigation.navigate("stakingBalance", {
+        image: coinData.image?.large,
+        name: coinData?.name,
+        asset: !!asset && !route.params.fromAddCurrency && asset,
+      })
     }
-    console.log('currentWalletStore', JSON.parse(JSON.stringify(currentWalletStore.assets)))
-    console.log('tokenInfo', JSON.parse(JSON.stringify(tokenInfo.chains)))
+    console.log("currentWalletStore", JSON.parse(JSON.stringify(currentWalletStore.assets)))
+    console.log("tokenInfo", JSON.parse(JSON.stringify(tokenInfo.chains)))
 
     return (
       <Screen unsafe={true} style={styles.ROOT} preset="fixed">
@@ -340,7 +338,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                               Available balance
                             </Text>
                             <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>
-                              {+(Number(asset?.balance).toFixed(4))}
+                              {+Number(asset?.balance).toFixed(4)}
                             </Text>
                             <Text style={styles.BALANCE_STAKING_CARD_NOTE}>
                               {" "}
@@ -348,39 +346,39 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                               $)
                             </Text>
                           </View>
-                          {/* 
-                          <View style={SEPARATOR} />
-                          <Button style={styles.BALANCE_STAKING_CARD_BTN}>
-                            <MaterialCommunityIcons
-                              style={styles.BALANCE_STAKING_CARD_BTN_ICON}
-                              size={18}
-                              name="swap-vertical-circle-outline"
-                            />
-                            <Text style={styles.BALANCE_STAKING_CARD_BTN_TEXT}>SWAP</Text>
-                          </Button> */}
                         </View>
-                        <View style={styles.BALANCE_STAKING_CARD}>
-                          <View style={styles.BALANCE_STAKING_CARD_BODY}>
-                            <Text style={styles.BALANCE_STAKING_CARD_HEADER}> Staking balance</Text>
-                            <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>{+(Number(0.45911).toFixed(4))}</Text>
-                            <Text style={styles.BALANCE_STAKING_CARD_NOTE}>
-                              Available rewards 0.02 (~1$)
-                            </Text>
-                          </View>
-                          {!!chainAvt &&
+                        {capabilities.includes("staking") && (
+                          <View style={styles.BALANCE_STAKING_CARD}>
+                            <View style={styles.BALANCE_STAKING_CARD_BODY}>
+                              <Text style={styles.BALANCE_STAKING_CARD_HEADER}>
+                                {" "}
+                                Staking balance
+                              </Text>
+                              <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>
+                                {+Number(0.45911).toFixed(4)}
+                              </Text>
+                              <Text style={styles.BALANCE_STAKING_CARD_NOTE}>
+                                Available rewards 0.02 (~1$)
+                              </Text>
+                            </View>
                             <>
-                            <View style={SEPARATOR} />
-                            <Button style={styles.BALANCE_STAKING_CARD_BTN} onPress={navigateStakingBalance}>
-                            <FontAwesome5Icon
-                            size={18}
-                            style={styles.BALANCE_STAKING_CARD_BTN_ICON}
-                            name="database"
-                            />
-                            <Text style={styles.BALANCE_STAKING_CARD_BTN_TEXT}>MANAGE STAKING</Text>
-                            </Button>
+                              <View style={SEPARATOR} />
+                              <Button
+                                style={styles.BALANCE_STAKING_CARD_BTN}
+                                onPress={navigateStakingBalance}
+                              >
+                                <FontAwesome5Icon
+                                  size={18}
+                                  style={styles.BALANCE_STAKING_CARD_BTN_ICON}
+                                  name="database"
+                                />
+                                <Text style={styles.BALANCE_STAKING_CARD_BTN_TEXT}>
+                                  MANAGE STAKING
+                                </Text>
+                              </Button>
                             </>
-                          }
-                        </View>
+                          </View>
+                        )}
                       </View>
 
                       {pendingTransactions.getPendingTxsForAsset(asset).length > 0 && (
@@ -421,7 +419,8 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                         const hasInWallet = currentWalletStore.assets.find(
                           (item) => item.contract === chain.contract,
                         )
-                        const showRemoveBtnCondition = asset && asset.cid === chain.name && asset.chain === chain.id;
+                        const showRemoveBtnCondition =
+                          asset && asset.cid === chain.name && asset.chain === chain.id
 
                         return (
                           <View style={styles.TOKEN_CHAIN_ROW} key={chain.id}>
@@ -437,7 +436,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                                 }
                               }}
                             >
-                              {(!!hasInWallet || !!showRemoveBtnCondition) ? (
+                              {!!hasInWallet || !!showRemoveBtnCondition ? (
                                 <Text
                                   style={styles.ADD_TO_PORTFOLIO_BTN}
                                   text={updatingWallet ? "Loading ..." : "Remove from portfolio"}
@@ -446,7 +445,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                                 <Text
                                   style={styles.ADD_TO_PORTFOLIO_BTN}
                                   text={updatingWallet ? "Loading ..." : "Add to portfolio"}
-                                  />
+                                />
                               )}
                             </Button>
                           </View>
