@@ -9,6 +9,7 @@ import {
   Modal,
   TouchableOpacity,
   Clipboard,
+  Pressable,
 } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5"
@@ -90,7 +91,8 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
       txList.forEach((tx) => {
         getTransactionStatus(asset, tx.txId)
           .then((status) => {
-            if (status === "success" || status === "failed") {
+            pendingTransactions.update(tx, { status })
+            if (status === "success") {
               pendingTransactions.remove(asset, tx)
               _getBalances()
               _getTransactions()
@@ -342,7 +344,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                               Available balance
                             </Text>
                             <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>
-                              {+Number(asset?.balance).toFixed(4)}
+                              {Number(asset?.balance).toFixed(4)}
                             </Text>
                             <Text style={styles.BALANCE_STAKING_CARD_NOTE}>
                               {" "}
@@ -395,6 +397,9 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                               <TransactionRow
                                 key={index}
                                 asset={asset}
+                                onRemove={() => {
+                                  pendingTransactions.remove(asset, tx)
+                                }}
                                 transaction={{ ...tx, date: null, out: true, hash: "" }}
                               />
                             ))}
@@ -477,21 +482,16 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
           onRequestClose={() => toggleReceiveModal(false)}
           transparent
         >
-          <TouchableOpacity
-            style={styles.RECEIVE_MODAL_WRAPPER}
-            activeOpacity={0}
-            onPress={() => toggleReceiveModal(false)}
-          >
-            <View style={styles.RECEIVE_MODAL_CONTAINER}>
+          <Pressable style={styles.RECEIVE_MODAL_WRAPPER} onPress={() => toggleReceiveModal(false)}>
+            <Pressable style={styles.RECEIVE_MODAL_CONTAINER}>
               <View style={styles.RECEIVE_MODAL_CLOSE_WRAPPER}>
-                <TouchableOpacity
+                <Pressable
                   style={styles.RECEIVE_MODAL_CLOSE}
-                  activeOpacity={0.8}
                   hitSlop={{ top: 10, left: 10, right: 10, bottom: 10 }}
                   onPress={() => toggleReceiveModal(false)}
                 >
                   <IonIcons name={"close-outline"} size={30} color={color.palette.white} />
-                </TouchableOpacity>
+                </Pressable>
               </View>
 
               {!!asset && (
@@ -523,8 +523,8 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                   </View>
                 </TouchableOpacity>
               </View>
-            </View>
-          </TouchableOpacity>
+            </Pressable>
+          </Pressable>
           <FlashMessage ref={modalFlashRef} position="bottom" />
         </Modal>
       </Screen>

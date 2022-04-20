@@ -1,27 +1,14 @@
-import React, {
-  FC,
-  useEffect,
-  useRef,
-} from "react"
+import React, { FC, useEffect, useRef, } from "react"
 import { observer } from "mobx-react-lite"
 import { TextInput, View, Image, TouchableOpacity, ImageBackground } from "react-native"
+import { useNavigation } from "@react-navigation/native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import BigList from "react-native-big-list"
 import { NavigatorParamList } from "../../navigators"
-import { AppScreen, Button, Footer, Text, Screen } from "../../components"
+import { Footer, Text, Screen } from "../../components"
 import styles from "./styles"
-
-import { useNavigation } from "@react-navigation/native"
-import {
-  BackgroundStyle,
-  MainBackground,
-  RootPageStyle,
-  SEPARATOR,
-} from "theme/elements"
-import {
-  color,
-  spacing,
-} from "../../theme"
+import { BackgroundStyle, MainBackground, RootPageStyle, SEPARATOR, } from "theme/elements"
+import { color, spacing, } from "../../theme"
 
 const tokens = require("../../config/tokens.json")
 
@@ -67,14 +54,14 @@ export const AddCurrencyScreen: FC<StackScreenProps<NavigatorParamList, "addCurr
         <TouchableOpacity
           style={styles.CURRENCY_ROW}
           key={item.cid}
-          onPress={() => navigation.navigate("coinDetails", { fromAddCurrency: true, coinId: item.id })}
+          onPress={() => navigation.replace("coinDetails", { fromAddCurrency: true, coinId: item.id })}
         >
           <View style={styles.CURRENCY_ROW_LOGO}>
-            <Image source={{ uri: item.thumb, width: 20, height: 20 }}></Image>
+            <Image source={{ uri: item.thumb, width: 20, height: 20 }}/>
           </View>
           <Text style={styles.CURRENCY_ROW_NAME}>{item.name} ({item.symbol.toUpperCase()})</Text>
 
-          <View style={SEPARATOR}></View>
+          <View style={SEPARATOR}/>
         </TouchableOpacity>
       )
     }
@@ -92,7 +79,6 @@ export const AddCurrencyScreen: FC<StackScreenProps<NavigatorParamList, "addCurr
                 style={TEXT_INPUT}
                 autoCorrect={false}
                 onChangeText={(text) => searchTokens(text)}
-                placeholderTextColor="white"
                 placeholder={"Search coins"}
                 placeholderTextColor={color.palette.white}
               />
@@ -100,7 +86,7 @@ export const AddCurrencyScreen: FC<StackScreenProps<NavigatorParamList, "addCurr
 
             <BigList data={selectedTokens} renderItem={renderItem} itemHeight={50} />
 
-            <Footer onLeftButtonPress={goBack}></Footer>
+            <Footer onLeftButtonPress={goBack}/>
         </ImageBackground>
       </Screen>
     )

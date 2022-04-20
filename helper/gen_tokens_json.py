@@ -1,5 +1,7 @@
 from lib import coingecko
 from lib.progressbar import progress
+from lib.getblock import Contract as GetBlock
+from lib.tokenscan import Contract as Tokenscan
 import json
 
 with open("overrides.json") as f:
@@ -20,34 +22,29 @@ coin_qt = len(coins)
 print(f"Found {coin_qt} coins")
 
 def chain_from_platforms(id, coingecko_platforms):
-    print(f"Platform {coingecko_platforms}")
-    try:
-        return [
-               { 
-                "id": chain[platform],
-                "name": platform,
-                "contract": None,
-                } 
-               for platform in overrides[id]["platforms"]
-            ]
-    except KeyError:
+    c = []
+    for platform in coingecko_platforms:
+        contract = coingecko_platforms[platform]
         try:
-            return [ 
-                    { 
-                     "id": chain[platform],
-                     "name": platform,
-                     "contract": coingecko_platforms[platform],
-                     } 
-                    for platform in coingecko_platforms if platform in chain 
-                    ]
-        except (KeyError, ValueError):
-            return []
-             
-def get_capabilities(id):
-    try:
-        return overrides[id]
-    except KeyError:
-        return []
+            if contract == '':
+                raise Exception("Contract address is empty")
+            print(f"####### Got contract {contract} on chain {chain[platform]}")
+            tokenscan = Tokenscan(chain[platform])
+            abi = json.loads(tokenscan.getabi(contract))
+            getblock = GetBlock(chain[platform])
+            decimal = getblock.getdecimals(contract, abi)
+        except Exception as e:
+            print(f"Got exception {e}")
+            continue
+            
+        if platform in chain and coingecko_platforms[platform] != "":
+            c.append ({ 
+                    "id": chain[platform],
+                    "name": platform,
+                    "contract": coingecko_platforms[platform],
+                    "decimal": decimal
+                    })
+    return c
 
 tokens = []
 
@@ -61,14 +58,14 @@ for count, coin in enumerate(coins):
         "symbol": coin["symbol"],
         "type": "coin",
         "chains": chain_from_platforms(coin["id"], details["platforms"]),
-        "capabilities": get_capabilities(coin["id"]),
         "thumb": details["image"]["small"]
     }
-    
-    print(token)
-    
+ 
     if token["chains"] != []:
+        print(f"Adding {token}")
         tokens.append(token)
+    else:
+        print(f"NOT adding {token}")
     
     if count % 10 == 0:
         with open("tokens.json", "w") as t:

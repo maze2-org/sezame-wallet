@@ -37,14 +37,14 @@ const LABEL: TextStyle = {
 const INPUT: TextStyle = {
   fontFamily: typography.primary,
   color: color.text,
-  minHeight: 44,
+  paddingVertical:spacing[2],
   fontSize: 15,
   lineHeight: 20,
   backgroundColor: color.transparent,
   borderBottomWidth: 1,
   borderColor: color.palette.white,
-  padding: spacing[0],
 }
+
 
 const iconStyle: ViewStyle = {
   position: "absolute",
@@ -137,7 +137,7 @@ export function TextInputField(props: TextFieldProps) {
     <View style={containerStyles}>
       <Text preset="fieldLabel" tx={labelTx} text={label} style={labelStyle} />
       <TextInput
-        style={inputStyles}
+        style={[inputStyles,{paddingRight: eye ? spacing[5] : 0}]}
         placeholder={actualPlaceholder}
         onChangeText={onChangeText}
         secureTextEntry={eye}
