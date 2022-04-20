@@ -3,6 +3,7 @@ import { StyleProp, TextStyle, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import { color, typography } from "../../theme"
 import { Text } from "../text/text"
+import styles from "./styles"
 
 const CONTAINER: ViewStyle = {
   justifyContent: "center",
@@ -15,22 +16,50 @@ const TEXT: TextStyle = {
 }
 
 export interface PercentageSelectorProps {
-  /**
-   * An optional style override useful for padding & margin.
-   */
-  style?: StyleProp<ViewStyle>
+  onChange: (value: number) => void
+  value: number
 }
 
 /**
  * Describe your component here
  */
-export const PercentageSelector = observer(function PercentageSelector(props: PercentageSelectorProps) {
-  const { style } = props
-  const styles = Object.assign({}, CONTAINER, style)
+export const PercentageSelector = observer(function PercentageSelector(
+  props: PercentageSelectorProps,
+) {
+  const { onChange, value } = props
+
+  const pressed = (number: number) => {
+    onChange(number)
+  }
+
+  console.log("PROPS", props)
 
   return (
-    <View style={styles}>
-      <Text style={TEXT}>Hello</Text>
+    <View style={styles.percentageRow}>
+      <Text
+        onPress={() => pressed(25)}
+        style={[styles.percentageEntry, value === 25 && styles.percentageEntrySelected]}
+      >
+        25%
+      </Text>
+      <Text
+        onPress={() => pressed(50)}
+        style={[styles.percentageEntry, value === 50 && styles.percentageEntrySelected]}
+      >
+        50%
+      </Text>
+      <Text
+        onPress={() => pressed(75)}
+        style={[styles.percentageEntry, value === 75 && styles.percentageEntrySelected]}
+      >
+        75%
+      </Text>
+      <Text
+        onPress={() => pressed(100)}
+        style={[styles.percentageEntry, value === 100 && styles.percentageEntrySelected]}
+      >
+        100%
+      </Text>
     </View>
   )
 })

@@ -74,11 +74,9 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
         return previous
       }, []) || []
 
-    console.log("CAPBABLITIESSSSSSSSSSSSSSSSSSSSSSSS", capabilities)
-
     const _getBalances = async () => {
       const balance = await getBalance(asset)
-      setBalance(asset, balance)
+      setBalance(asset, balance.confirmedBalance, balance.stakedBalance)
     }
 
     const _getTransactions = async () => {
@@ -344,11 +342,11 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                               Available balance
                             </Text>
                             <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>
-                              {Number(asset?.balance).toFixed(4)}
+                              {Number(asset?.balance - asset?.stakedBalance).toFixed(4)}
                             </Text>
                             <Text style={styles.BALANCE_STAKING_CARD_NOTE}>
                               {" "}
-                              ({`${(exchangeRates.getRate(asset.cid) * asset.balance).toFixed(2)}`}
+                              (~{`${(exchangeRates.getRate(asset.cid) * asset.balance).toFixed(2)}`}
                               $)
                             </Text>
                           </View>
@@ -361,10 +359,14 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                                 Staking balance
                               </Text>
                               <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>
-                                {+Number(0.45911).toFixed(4)}
+                                {+Number(asset.stakedBalance).toFixed(4)}
                               </Text>
                               <Text style={styles.BALANCE_STAKING_CARD_NOTE}>
-                                Available rewards 0.02 (~1$)
+                                (~
+                                {`${(
+                                  exchangeRates.getRate(asset.cid) * asset.stakedBalance
+                                ).toFixed(2)}`}
+                                $)
                               </Text>
                             </View>
                             <>
@@ -395,7 +397,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                           <View style={styles.TRANSACTIONS_CONTAINER}>
                             {pendingTransactions.getPendingTxsForAsset(asset).map((tx, index) => (
                               <TransactionRow
-                                key={index}
+                                key={tx.txId}
                                 asset={asset}
                                 onRemove={() => {
                                   pendingTransactions.remove(asset, tx)

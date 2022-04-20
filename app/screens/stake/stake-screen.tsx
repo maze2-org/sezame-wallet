@@ -27,13 +27,7 @@ import {
 import { color, spacing } from "../../theme"
 import { Controller, useForm, useWatch } from "react-hook-form"
 import { TextInputField } from "components/text-input-field/text-input-field"
-import {
-  BackgroundStyle,
-  CONTAINER,
-  drawerErrorMessage,
-  MainBackground,
-  amountInput,
-} from "theme/elements"
+import { BackgroundStyle, CONTAINER, drawerErrorMessage, MainBackground } from "theme/elements"
 import { useNavigation } from "@react-navigation/native"
 import { useStores } from "models"
 import { getBalance, getFees, makeStakeTransaction } from "services/api"
@@ -80,6 +74,7 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
     const {
       control,
       handleSubmit,
+      setValue,
       formState: { errors, isValid },
     } = useForm({ mode: "onChange" })
 
@@ -91,6 +86,12 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
     const recipientAddress = useWatch({
       control,
       name: "recipientAddress",
+      defaultValue: "",
+    })
+
+    const percentage = useWatch({
+      control,
+      name: "percentage",
       defaultValue: "",
     })
 
@@ -111,7 +112,7 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
     useEffect(() => {
       const _getBalances = async () => {
         const balance = await getBalance(asset)
-        setBalance(asset, balance)
+        setBalance(asset, balance.confirmedBalance, balance.stakedBalance)
       }
       _getBalances()
     }, [])
@@ -121,7 +122,7 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
       try {
         setIsPreview(true)
         setStakeable(false)
-        const response = await getFees(asset, recipientAddress, amount)
+        const response = await getFees(asset, recipientAddress, amount, "staking")
         setFees(response)
         setStakeable(true)
       } catch (error) {
@@ -139,6 +140,16 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
       }
     }
 
+    useEffect(() => {
+      // Percentage changed, adjust the amount to be staked
+      const amount = (asset.balance * percentage) / 100
+      setValue(
+        "amount",
+        `${percentage === 100 ? `${asset.balance}` : parseFloat(amount.toFixed(4))}`,
+        { shouldValidate: true },
+      )
+    }, [percentage])
+
     const processTransaction = async () => {
       setStakeing(true)
       try {
@@ -146,7 +157,7 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
         if (!txId) {
           showMessage({ message: "Unable to Stake", type: "danger" })
         } else {
-          showMessage({ message: "Transaction sent", type: "success" })
+          showMessage({ message: "Staking request done", type: "success" })
           pendingTransactions.add(asset, {
             amount: `-${new BigNumber(amount)
               .plus(fees.regular.settings.feeValue ? fees.regular.settings.feeValue : "0")
@@ -154,6 +165,7 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
             from: asset.address,
             to: recipientAddress,
             timestamp: new Date().getTime(),
+            reason: "staking",
             txId,
           })
           setFees(null)
@@ -205,16 +217,26 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
                         value: true,
                         message: "Field is required!",
                       },
+                      min: {
+                        value: 0.00000001,
+                        message: "Not enough tokens",
+                      },
                     }}
                   />
+
+                  <Controller
+                    control={control}
+                    name="percentage"
+                    render={({ field: { onChange, value, onBlur } }) => (
+                      <PercentageSelector value={value} onChange={(value) => onChange(value)} />
+                    )}
+                  ></Controller>
                 </View>
-                <View>
-                  <PercentageSelector />
-                </View>
+
                 <View style={ALIGN_CENTER}>
                   <WalletButton
                     type="primary"
-                    text="Preview the transfer"
+                    text="Preview the staking"
                     outline={true}
                     disabled={!isValid}
                     onPress={handleSubmit(onSubmit)}
@@ -224,7 +246,7 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
             </ImageBackground>
             {isPreview && (
               <Drawer
-                title="Sign and Submit"
+                title="Resume of your staking"
                 style={DrawerStyle}
                 actions={[
                   <Button
@@ -247,16 +269,9 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
               >
                 <View style={styles.DRAWER_CARD}>
                   <View style={styles.DRAWER_CARD_ITEM}>
-                    <Text style={styles.CARD_ITEM_TITLE}>Transfer</Text>
+                    <Text style={styles.CARD_ITEM_TITLE}>Amount to stake</Text>
                     <View style={styles.CARD_ITEM_DESCRIPTION}>
                       <Text style={styles.AMOUNT_STYLE}>{amount}</Text>
-                    </View>
-                  </View>
-                  <View style={styles.CARD_ITEM_DIVIDER} />
-                  <View style={styles.DRAWER_CARD_ITEM}>
-                    <Text style={styles.CARD_ITEM_TITLE}>Recipient</Text>
-                    <View style={styles.CARD_ITEM_DESCRIPTION}>
-                      <Text style={styles.AMOUNT_STYLE}>{truncateRecipient(recipientAddress)}</Text>
                     </View>
                   </View>
                   <View style={styles.CARD_ITEM_DIVIDER} />

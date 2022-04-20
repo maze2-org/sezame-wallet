@@ -112,9 +112,7 @@ const CoinBox = ({ assets, title }) => {
   }
   return (
     <View style={[styles.COIN_BOX, { height: isOpen ? "auto" : 115 }]}>
-      <TouchableOpacity
-        style={styles.COIN_EXPAND_CONTAINER}
-      >
+      <TouchableOpacity style={styles.COIN_EXPAND_CONTAINER}>
         <Text style={{ color: disable ? color.palette.lightGrey : color.palette.white }}>
           {title}
         </Text>
@@ -139,7 +137,9 @@ const CoinBoxItem = ({ asset }) => {
     <View style={styles.COIN_BOX_BODY}>
       <TouchableOpacity
         style={styles.COIN_CARD}
-        onPress={() => navigation.navigate("coinDetails", { coinId: asset.cid, chain: asset.chain })}
+        onPress={() =>
+          navigation.navigate("coinDetails", { coinId: asset.cid, chain: asset.chain })
+        }
       >
         <View style={styles.NETWORK_IMAGE_BORDER}>
           {!!asset.image && <Image style={styles.NETWORK_IMAGE} source={{ uri: asset.image }} />}

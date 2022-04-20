@@ -16,6 +16,7 @@ const WalletAsset = types.model({
   cid: types.optional(types.string, ""),
   contract: types.optional(types.string, ""),
   balance: types.optional(types.number, 0),
+  stakedBalance: types.optional(types.number, 0),
   value: types.optional(types.number, 0),
   rate: types.optional(types.number, 0),
   version: types.optional(types.number, 0),
@@ -79,7 +80,7 @@ export const CurrentWalletModel = types
     resetBalance: () => {
       let wallet = JSON.parse(self.wallet)
 
-      const resetted = self.assets.map((asset) => ({ ...asset, balance: 0 }))
+      const resetted = self.assets.map((asset) => ({ ...asset, balance: 0, stakedBalance: 0 }))
       self.assets = JSON.parse(JSON.stringify(resetted))
       wallet.assets = self.assets
       self.wallet = JSON.stringify(wallet)
@@ -95,11 +96,12 @@ export const CurrentWalletModel = types
       self.assets.replace([])
       self.name = ""
     },
-    setBalance: (asset, balance: number) => {
+    setBalance: (asset, balance: number, stakedBalance: number) => {
       const storedAsset = self.assets.find(
         (a) => a.symbol === asset.symbol && a.chain === asset.chain,
       )
       storedAsset.balance = balance
+      storedAsset.stakedBalance = stakedBalance
     },
     stopLoading: () => {
       self.loadingBalance = false
@@ -110,7 +112,8 @@ export const CurrentWalletModel = types
       for (let asset of self.assets) {
         try {
           const balance = yield getBalance(asset)
-          asset.balance = balance
+          asset.balance = balance.confirmedBalance
+          asset.stakedBalance = balance.stakedBalance
         } catch (error) {
           console.error({ error })
         }

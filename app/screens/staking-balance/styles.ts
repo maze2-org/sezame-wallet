@@ -1,18 +1,13 @@
-import {
-  Dimensions,
-  ImageStyle,
-  TextStyle,
-  ViewStyle,
-} from "react-native"
-import {
-  color,
-  spacing,
-} from "theme"
-
+import { Dimensions, ImageStyle, TextStyle, ViewStyle } from "react-native"
+import { color, spacing } from "theme"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
   flex: 1,
+}
+
+const DISABLED: ViewStyle = {
+  opacity: 0.3,
 }
 
 const HEADER: ViewStyle = {
@@ -64,7 +59,7 @@ const MIDDLE_TEXT: TextStyle = {
   fontSize: 23,
   lineHeight: 31,
   color: color.palette.white,
-  marginRight:spacing[2]
+  marginRight: spacing[2],
 }
 
 const IMG_CONTAINER: ImageStyle = {
@@ -87,25 +82,24 @@ const CARD: ViewStyle = {
   borderRadius: 10,
   flexDirection: "row",
   justifyContent: "space-between",
-  alignItems:'center',
+  alignItems: "center",
   marginBottom: spacing[4],
 }
 
 const ROW_ALIGN: ViewStyle = {
-  alignItems:"center",
-  flexDirection:"row"
+  alignItems: "center",
+  flexDirection: "row",
 }
 
-
 const ICON_ONE: ViewStyle = {
-  justifyContent:'center',
-  alignItems:"center",
-  marginRight:spacing[2],
+  justifyContent: "center",
+  alignItems: "center",
+  marginRight: spacing[2],
 }
 
 const ICON_CONTAINER: ViewStyle = {
-  justifyContent:'center',
-  alignItems:"center",
+  justifyContent: "center",
+  alignItems: "center",
 }
 
 const FOOTER: ViewStyle = {
@@ -114,6 +108,7 @@ const FOOTER: ViewStyle = {
 }
 const styles = {
   ROOT,
+  DISABLED,
   TEXT,
   BOLD_TEXT,
   GOLD_TEXT,
@@ -127,7 +122,7 @@ const styles = {
   CARD,
   ROW_ALIGN,
   ICON_ONE,
-  ICON_CONTAINER
+  ICON_CONTAINER,
 }
 
 export default styles

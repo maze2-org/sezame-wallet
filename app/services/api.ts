@@ -10,6 +10,7 @@ export type CryptoTransaction = {
   to: string[] | string
   amount: string
   status?: string | null
+  reason?: "transaction" | "staking" | "unstaking"
 }
 
 const getWallet = (asset) => {
@@ -23,10 +24,14 @@ const getWallet = (asset) => {
 
   return cryptoWallet
 }
-export const getBalance = async (asset: IWalletAsset) => {
+export const getBalance = async (
+  asset: IWalletAsset,
+): Promise<{ confirmedBalance: number; stakedBalance: number }> => {
   const cryptoWallet = getWallet(asset)
   const balance = await cryptoWallet.getBalance()
-  return balance.confirmedBalance
+
+  console.log("GOTBALANCEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE", balance)
+  return balance
 }
 
 export const getTransactionsUrl = (asset: IWalletAsset) => {
@@ -45,9 +50,14 @@ export const getTransactions = async (asset: IWalletAsset): Promise<Array<Crypto
   return await cryptoWallet.getTransactions()
 }
 
-export const getFees = async (asset: IWalletAsset, address: string, amount: number) => {
+export const getFees = async (
+  asset: IWalletAsset,
+  address: string,
+  amount: number,
+  reason?: "transfer" | "staking" | "unstaking" | "lowering" | "lifting",
+) => {
   const cryptoWallet = getWallet(asset)
-  const fees = await cryptoWallet.getTxSendProposals(address, amount)
+  const fees = await cryptoWallet.getTxSendProposals(address, amount, reason)
   return fees
 }
 export const getTransactionDriver = async (asset: IWalletAsset) => {
@@ -62,12 +72,12 @@ export const makeSendTransaction = (asset: IWalletAsset, proposal) => {
 
 export const makeStakeTransaction = (asset: IWalletAsset, proposal) => {
   const cryptoWallet = getWallet(asset)
-  return cryptoWallet.postTxSend(proposal)
+  return cryptoWallet.stake(proposal)
 }
 
 export const makeUnstakeTransaction = (asset: IWalletAsset, proposal) => {
   const cryptoWallet = getWallet(asset)
-  return cryptoWallet.postTxSend(proposal)
+  return cryptoWallet.unstake(proposal)
 }
 
 export const makeRawTransaction = async (asset: IWalletAsset, data) => {

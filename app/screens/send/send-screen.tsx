@@ -39,10 +39,7 @@ import { getBalance, getFees, makeSendTransaction } from "services/api"
 import { showMessage } from "react-native-flash-message"
 import styles from "./styles"
 import { boolean } from "mobx-state-tree/dist/internal"
-import {
-  offsets,
-  presets,
-} from "../../components/screen/screen.presets"
+import { offsets, presets } from "../../components/screen/screen.presets"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
@@ -83,9 +80,9 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
       display: "flex",
     }
     const SCROLL_VIEW_CONTAINER: ViewStyle = {
-      flexGrow:1,
+      flexGrow: 1,
       justifyContent: "space-between",
-      backgroundColor:color.palette.black
+      backgroundColor: color.palette.black,
     }
 
     const walletLogo = require("../../../assets/images/avt.png")
@@ -127,7 +124,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
       // setBalance(asset, currentWalletStore.getBalance(asset))
       const _getBalances = async () => {
         const balance = await getBalance(asset)
-        setBalance(asset, balance)
+        setBalance(asset, balance.confirmedBalance, balance.stakedBalance)
       }
       _getBalances()
     }, [])
@@ -170,6 +167,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
             from: asset.address,
             to: recipientAddress,
             timestamp: new Date().getTime(),
+            reason: "transaction",
             txId,
           })
           setFees(null)
@@ -188,131 +186,134 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
     return (
       <Screen unsafe style={DashboardStyle} preset="fixed" backgroundColor={color.palette.black}>
         <ScrollView contentContainerStyle={SCROLL_VIEW_CONTAINER}>
-      <KeyboardAvoidingView
-        style={[presets.scroll.outer,{backgroundColor:color.palette.black}]}
-        behavior={Platform.OS === "ios" ? "padding" : 'height'}
-        keyboardVerticalOffset={50}
-      >
-        <ImageBackground source={MainBackground} style={BackgroundStyle}>
-          <View style={CONTAINER}>
-            <View style={WALLET_STYLE}>
-              <CurrencyDescriptionBlock icon="transfer" asset={asset} title="Available balance" />
-            </View>
-            <View>
-              <Controller
-                control={control}
-                name="recipientAddress"
-                render={({ field: { onChange, value, onBlur } }) => (
-                  <TextInputField
-                    name="recipientAddress"
-                    style={textInput}
-                    errors={errors}
-                    label="Recipient's address"
-                    value={value}
-                    onBlur={onBlur}
-                    onChangeText={(value) => onChange(value)}
-                  />
-                )}
-                rules={{
-                  required: {
-                    value: true,
-                    message: "Field is required!",
-                  },
-                }}
-              />
-
-              <Controller
-                control={control}
-                name="amount"
-                render={({ field: { onChange, value, onBlur } }) => (
-                  <TextInputField
-                    name="amount"
-                    style={textInput}
-                    errors={errors}
-                    label="Amount"
-                    value={value}
-                    onBlur={onBlur}
-                    onChangeText={(value) => onChange(value)}
-                    keyboardType="numeric"
-                    numberOfLines={1}
-                    returnKeyType="done"
-                  />
-                )}
-                rules={{
-                  required: {
-                    value: true,
-                    message: "Field is required!",
-                  },
-                }}
-              />
-            </View>
-            <View style={ALIGN_CENTER}>
-              <WalletButton
-                type="primary"
-                text="Preview the transfer"
-                outline={true}
-                disabled={!isValid}
-                onPress={handleSubmit(onSubmit)}
-              />
-            </View>
-          </View>
-        </ImageBackground>
-        {isPreview && (
-          <Drawer
-            title="Sign and Submit"
-            style={DrawerStyle}
-            actions={[
-              <Button
-                text="CANCEL"
-                style={styles.DRAWER_BTN_CANCEL}
-                textStyle={styles.DRAWER_BTN_TEXT}
-                disabled={sending}
-                onPress={() => {
-                  setIsPreview(false)
-                }}
-              />,
-              <Button
-                text={sending ? "SENDING..." : "SIGN AND SUBMIT"}
-                disabled={sending || !sendable}
-                style={styles.DRAWER_BTN_OK}
-                textStyle={styles.DRAWER_BTN_TEXT}
-                onPress={processTransaction}
-              />,
-            ]}
+          <KeyboardAvoidingView
+            style={[presets.scroll.outer, { backgroundColor: color.palette.black }]}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            keyboardVerticalOffset={50}
           >
-            <View style={styles.DRAWER_CARD}>
-              <View style={styles.DRAWER_CARD_ITEM}>
-                <Text style={styles.CARD_ITEM_TITLE}>Transfer</Text>
-                <View style={styles.CARD_ITEM_DESCRIPTION}>
-                  <Text style={styles.AMOUNT_STYLE}>{amount}</Text>
+            <ImageBackground source={MainBackground} style={BackgroundStyle}>
+              <View style={CONTAINER}>
+                <View style={WALLET_STYLE}>
+                  <CurrencyDescriptionBlock
+                    icon="transfer"
+                    asset={asset}
+                    title="Available balance"
+                  />
                 </View>
-              </View>
-              <View style={styles.CARD_ITEM_DIVIDER}/>
-              <View style={styles.DRAWER_CARD_ITEM}>
-                <Text style={styles.CARD_ITEM_TITLE}>Recipient</Text>
-                <View style={styles.CARD_ITEM_DESCRIPTION}>
-                  <Text style={styles.AMOUNT_STYLE}>{truncateRecipient(recipientAddress)}</Text>
-                </View>
-              </View>
-              <View style={styles.CARD_ITEM_DIVIDER}/>
-              <View style={styles.DRAWER_CARD_ITEM}>
-                <Text style={styles.CARD_ITEM_TITLE}>Transaction fees</Text>
-                <View style={styles.CARD_ITEM_DESCRIPTION}>
-                  <Text style={styles.AMOUNT_STYLE}>
-                    {fees ? `${fees.regular.settings.feeValue} ${fees.regular.currency}` : ""}
-                  </Text>
-                </View>
-              </View>
-            </View>
-            {errorMsg && <Text style={[drawerErrorMessage]}>{errorMsg}</Text>}
-          </Drawer>
-        )}
+                <View>
+                  <Controller
+                    control={control}
+                    name="recipientAddress"
+                    render={({ field: { onChange, value, onBlur } }) => (
+                      <TextInputField
+                        name="recipientAddress"
+                        style={textInput}
+                        errors={errors}
+                        label="Recipient's address"
+                        value={value}
+                        onBlur={onBlur}
+                        onChangeText={(value) => onChange(value)}
+                      />
+                    )}
+                    rules={{
+                      required: {
+                        value: true,
+                        message: "Field is required!",
+                      },
+                    }}
+                  />
 
-        <Footer onLeftButtonPress={goBack}/>
-        </KeyboardAvoidingView>
+                  <Controller
+                    control={control}
+                    name="amount"
+                    render={({ field: { onChange, value, onBlur } }) => (
+                      <TextInputField
+                        name="amount"
+                        style={textInput}
+                        errors={errors}
+                        label="Amount"
+                        value={value}
+                        onBlur={onBlur}
+                        onChangeText={(value) => onChange(value)}
+                        keyboardType="numeric"
+                        numberOfLines={1}
+                        returnKeyType="done"
+                      />
+                    )}
+                    rules={{
+                      required: {
+                        value: true,
+                        message: "Field is required!",
+                      },
+                    }}
+                  />
+                </View>
+                <View style={ALIGN_CENTER}>
+                  <WalletButton
+                    type="primary"
+                    text="Preview the transfer"
+                    outline={true}
+                    disabled={!isValid}
+                    onPress={handleSubmit(onSubmit)}
+                  />
+                </View>
+              </View>
+            </ImageBackground>
+            {isPreview && (
+              <Drawer
+                title="Sign and Submit"
+                style={DrawerStyle}
+                actions={[
+                  <Button
+                    text="CANCEL"
+                    style={styles.DRAWER_BTN_CANCEL}
+                    textStyle={styles.DRAWER_BTN_TEXT}
+                    disabled={sending}
+                    onPress={() => {
+                      setIsPreview(false)
+                    }}
+                  />,
+                  <Button
+                    text={sending ? "SENDING..." : "SIGN AND SUBMIT"}
+                    disabled={sending || !sendable}
+                    style={styles.DRAWER_BTN_OK}
+                    textStyle={styles.DRAWER_BTN_TEXT}
+                    onPress={processTransaction}
+                  />,
+                ]}
+              >
+                <View style={styles.DRAWER_CARD}>
+                  <View style={styles.DRAWER_CARD_ITEM}>
+                    <Text style={styles.CARD_ITEM_TITLE}>Transfer</Text>
+                    <View style={styles.CARD_ITEM_DESCRIPTION}>
+                      <Text style={styles.AMOUNT_STYLE}>{amount}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.CARD_ITEM_DIVIDER} />
+                  <View style={styles.DRAWER_CARD_ITEM}>
+                    <Text style={styles.CARD_ITEM_TITLE}>Recipient</Text>
+                    <View style={styles.CARD_ITEM_DESCRIPTION}>
+                      <Text style={styles.AMOUNT_STYLE}>{truncateRecipient(recipientAddress)}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.CARD_ITEM_DIVIDER} />
+                  <View style={styles.DRAWER_CARD_ITEM}>
+                    <Text style={styles.CARD_ITEM_TITLE}>Transaction fees</Text>
+                    <View style={styles.CARD_ITEM_DESCRIPTION}>
+                      <Text style={styles.AMOUNT_STYLE}>
+                        {fees ? `${fees.regular.settings.feeValue} ${fees.regular.currency}` : ""}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+                {errorMsg && <Text style={[drawerErrorMessage]}>{errorMsg}</Text>}
+              </Drawer>
+            )}
+
+            <Footer onLeftButtonPress={goBack} />
+          </KeyboardAvoidingView>
         </ScrollView>
       </Screen>
-
-        )
+    )
   },
 )

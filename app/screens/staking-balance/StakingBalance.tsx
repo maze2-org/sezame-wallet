@@ -43,7 +43,6 @@ const StakingBalance = (props: StackingBalanceProps) => {
   }
 
   const pressUnsStakeIcon = () => {
-    console.log("Unstack", asset)
     navigation.navigate("unstake", {
       chain: asset.chain,
       coinId: asset.cid,
@@ -67,13 +66,13 @@ const StakingBalance = (props: StackingBalanceProps) => {
         <View style={styles.BODY}>
           <View style={styles.CARD}>
             <View>
-              <Text style={styles.GOLD_TEXT}>Availabl Balance</Text>
-              <View style={styles.ROW_ALIGN}>
-                <Text style={styles.MIDDLE_TEXT}>{+Number(asset?.balance).toFixed(4)}</Text>
-                <Text style={styles.TEXT}>
-                  (~{`${(exchangeRates.getRate(asset.cid) * asset.balance).toFixed(2)}`}$)
-                </Text>
-              </View>
+              <Text style={styles.GOLD_TEXT}>Available Balance</Text>
+              <Text style={styles.MIDDLE_TEXT}>
+                {+Number(asset?.balance - asset?.stakedBalance).toFixed(4)}
+              </Text>
+              <Text style={styles.TEXT}>
+                (~{`${(exchangeRates.getRate(asset.cid) * asset.balance).toFixed(2)}`}$)
+              </Text>
             </View>
 
             <View>
@@ -85,27 +84,40 @@ const StakingBalance = (props: StackingBalanceProps) => {
                 >
                   <SvgXml width={24} height={24} xml={icon_stack} />
                 </TouchableOpacity>
-                <Text style={styles.TEXT}>Stack</Text>
+                <Text style={styles.TEXT}>Stake</Text>
               </View>
             </View>
           </View>
 
-          <View style={styles.CARD}>
+          <View style={[styles.CARD, asset.stakedBalance <= 0 && styles.DISABLED]}>
             <View>
-              <Text style={styles.GOLD_TEXT}>Staking</Text>
-              <Text style={styles.MIDDLE_TEXT}>{+Number(0.894444).toFixed(4)}</Text>
-              <Text style={styles.TEXT}>Available rewards 0.02 (~1$)</Text>
+              <Text style={styles.GOLD_TEXT}>Stake</Text>
+              <Text style={styles.MIDDLE_TEXT}>{+Number(asset.stakedBalance).toFixed(4)}</Text>
+              <Text style={styles.TEXT}>
+                (~
+                {`${(exchangeRates.getRate(asset.cid) * asset.stakedBalance).toFixed(2)}`}
+                $)
+              </Text>
             </View>
             <View style={styles.ROW_ALIGN}>
-              <View style={styles.ICON_CONTAINER}>
-                <TouchableOpacity
-                  onPress={pressUnsStakeIcon}
-                  activeOpacity={0.7}
-                  hitSlop={{ top: 15, bottom: 15, left: 10, right: 15 }}
-                >
-                  <SvgXml width={24} height={24} xml={icon_unStake} />
-                </TouchableOpacity>
-                <Text style={styles.TEXT}>Unstack</Text>
+              <View style={[styles.ICON_CONTAINER]}>
+                {asset.stakedBalance > 0 ? (
+                  <>
+                    <TouchableOpacity
+                      onPress={pressUnsStakeIcon}
+                      activeOpacity={0.7}
+                      hitSlop={{ top: 15, bottom: 15, left: 10, right: 15 }}
+                    >
+                      <SvgXml width={24} height={24} xml={icon_unStake} />
+                    </TouchableOpacity>
+                    <Text style={styles.TEXT}>Unstake</Text>
+                  </>
+                ) : (
+                  <View>
+                    <SvgXml width={24} height={24} xml={icon_unStake} />
+                    <Text style={styles.TEXT}>Unstake</Text>
+                  </View>
+                )}
               </View>
             </View>
           </View>

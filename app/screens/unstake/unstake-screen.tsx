@@ -18,6 +18,7 @@ import {
   CurrencyDescriptionBlock,
   Drawer,
   Footer,
+  PercentageSelector,
   Screen,
   Text,
   WalletButton,
@@ -26,13 +27,7 @@ import {
 import { color, spacing } from "../../theme"
 import { Controller, useForm, useWatch } from "react-hook-form"
 import { TextInputField } from "components/text-input-field/text-input-field"
-import {
-  BackgroundStyle,
-  CONTAINER,
-  drawerErrorMessage,
-  MainBackground,
-  textInput,
-} from "theme/elements"
+import { BackgroundStyle, CONTAINER, drawerErrorMessage, MainBackground } from "theme/elements"
 import { useNavigation } from "@react-navigation/native"
 import { useStores } from "models"
 import { getBalance, getFees, makeUnstakeTransaction } from "services/api"
@@ -60,18 +55,6 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
       flexDirection: "column",
     }
 
-    const rewardsStyle: TextStyle = {
-      color: color.palette.gold,
-      fontSize: 10,
-      lineHeight: 14,
-      paddingVertical: spacing[2],
-    }
-    const amountStyle: TextStyle = {
-      color: color.palette.white,
-      fontSize: 27,
-      lineHeight: 37,
-    }
-
     const ALIGN_CENTER: ViewStyle = {
       alignItems: "center",
     }
@@ -85,13 +68,13 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
       backgroundColor: color.palette.black,
     }
 
-    const walletLogo = require("../../../assets/images/avt.png")
     // Pull in one of our MST stores
     const { currentWalletStore, pendingTransactions, exchangeRates } = useStores()
     const { getAssetById } = currentWalletStore
     const {
       control,
       handleSubmit,
+      setValue,
       formState: { errors, isValid },
     } = useForm({ mode: "onChange" })
 
@@ -103,6 +86,12 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
     const recipientAddress = useWatch({
       control,
       name: "recipientAddress",
+      defaultValue: "",
+    })
+
+    const percentage = useWatch({
+      control,
+      name: "percentage",
       defaultValue: "",
     })
 
@@ -121,10 +110,9 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
     const { setBalance } = currentWalletStore
 
     useEffect(() => {
-      // setBalance(asset, currentWalletStore.getBalance(asset))
       const _getBalances = async () => {
         const balance = await getBalance(asset)
-        setBalance(asset, balance)
+        setBalance(asset, balance.confirmedBalance, balance.stakedBalance)
       }
       _getBalances()
     }, [])
@@ -134,7 +122,7 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
       try {
         setIsPreview(true)
         setUnstakeable(false)
-        const response = await getFees(asset, recipientAddress, amount)
+        const response = await getFees(asset, recipientAddress, amount, "staking")
         setFees(response)
         setUnstakeable(true)
       } catch (error) {
@@ -152,6 +140,16 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
       }
     }
 
+    useEffect(() => {
+      // Percentage changed, adjust the amount to be unstaked
+      const amount = (asset.balance * percentage) / 100
+      setValue(
+        "amount",
+        `${percentage === 100 ? `${asset.balance}` : parseFloat(amount.toFixed(4))}`,
+        { shouldValidate: true },
+      )
+    }, [percentage])
+
     const processTransaction = async () => {
       setUnstakeing(true)
       try {
@@ -167,6 +165,7 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
             from: asset.address,
             to: recipientAddress,
             timestamp: new Date().getTime(),
+            reason: "unstaking",
             txId,
           })
           setFees(null)
@@ -194,7 +193,7 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
               <View style={CONTAINER}>
                 <View style={WALLET_STYLE}>
                   <CurrencyDescriptionBlock
-                    icon="transfer"
+                    icon="unstake"
                     asset={asset}
                     title="Available balance"
                   />
@@ -202,35 +201,13 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
                 <View>
                   <Controller
                     control={control}
-                    name="recipientAddress"
-                    render={({ field: { onChange, value, onBlur } }) => (
-                      <TextInputField
-                        name="recipientAddress"
-                        style={textInput}
-                        errors={errors}
-                        label="Recipient's address"
-                        value={value}
-                        onBlur={onBlur}
-                        onChangeText={(value) => onChange(value)}
-                      />
-                    )}
-                    rules={{
-                      required: {
-                        value: true,
-                        message: "Field is required!",
-                      },
-                    }}
-                  />
-
-                  <Controller
-                    control={control}
                     name="amount"
                     render={({ field: { onChange, value, onBlur } }) => (
                       <TextInputField
                         name="amount"
-                        style={textInput}
+                        fieldStyle="alt"
                         errors={errors}
-                        label="Amount"
+                        label={`Number of ${asset.symbol} to unstake`}
                         value={value}
                         onBlur={onBlur}
                         onChangeText={(value) => onChange(value)}
@@ -244,13 +221,26 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
                         value: true,
                         message: "Field is required!",
                       },
+                      min: {
+                        value: 0.00000001,
+                        message: "Not enough tokens",
+                      },
                     }}
                   />
+
+                  <Controller
+                    control={control}
+                    name="percentage"
+                    render={({ field: { onChange, value, onBlur } }) => (
+                      <PercentageSelector value={value} onChange={(value) => onChange(value)} />
+                    )}
+                  ></Controller>
                 </View>
+
                 <View style={ALIGN_CENTER}>
                   <WalletButton
                     type="primary"
-                    text="Preview the transfer"
+                    text="Preview the unstaking"
                     outline={true}
                     disabled={!isValid}
                     onPress={handleSubmit(onSubmit)}
@@ -260,7 +250,7 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
             </ImageBackground>
             {isPreview && (
               <Drawer
-                title="Sign and Submit"
+                title="Resume of your unstaking"
                 style={DrawerStyle}
                 actions={[
                   <Button
@@ -283,16 +273,9 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
               >
                 <View style={styles.DRAWER_CARD}>
                   <View style={styles.DRAWER_CARD_ITEM}>
-                    <Text style={styles.CARD_ITEM_TITLE}>Transfer</Text>
+                    <Text style={styles.CARD_ITEM_TITLE}>Amount to unstake</Text>
                     <View style={styles.CARD_ITEM_DESCRIPTION}>
                       <Text style={styles.AMOUNT_STYLE}>{amount}</Text>
-                    </View>
-                  </View>
-                  <View style={styles.CARD_ITEM_DIVIDER} />
-                  <View style={styles.DRAWER_CARD_ITEM}>
-                    <Text style={styles.CARD_ITEM_TITLE}>Recipient</Text>
-                    <View style={styles.CARD_ITEM_DESCRIPTION}>
-                      <Text style={styles.AMOUNT_STYLE}>{truncateRecipient(recipientAddress)}</Text>
                     </View>
                   </View>
                   <View style={styles.CARD_ITEM_DIVIDER} />

@@ -15,8 +15,8 @@ export interface TransactionRowProps {
    */
   style?: StyleProp<ViewStyle>
   transaction: CryptoTransaction
-  asset: IWalletAsset,
-  onRemove?: () => void,
+  asset: IWalletAsset
+  onRemove?: () => void
 }
 
 const TRANSACTION_ITEM_WRAPPER: ViewStyle = {
@@ -26,15 +26,15 @@ const TRANSACTION_ITEM_WRAPPER: ViewStyle = {
 const TRANSACTION_HEAD: ViewStyle = {
   display: "flex",
   flexDirection: "row",
-  alignItems: 'center',
+  alignItems: "center",
   justifyContent: "space-between",
   paddingBottom: spacing[1],
-  borderBottomWidth:1,
-  borderBottomColor: color.palette.lineColor
+  borderBottomWidth: 1,
+  borderBottomColor: color.palette.lineColor,
 }
 
 const TRANSACTION_INFO: ViewStyle = {
-  alignItems:'flex-end'
+  alignItems: "flex-end",
 }
 
 const TRANSACTION_STATUS_WRAPPER: ViewStyle = {
@@ -44,7 +44,7 @@ const TRANSACTION_STATUS_WRAPPER: ViewStyle = {
 }
 
 const TRANSACTION_STATUS: TextStyle = {
-  color: color.error
+  color: color.error,
 }
 
 const TRANSACTION_ITEM: ViewStyle = {
@@ -101,7 +101,7 @@ const TRANSACTIONS_REMOVE_BTN: ViewStyle = {
  * Describe your component here
  */
 export const TransactionRow = observer(function TransactionRow(props: TransactionRowProps) {
-  const { transaction, asset, onRemove = ()=>{} } = props || {}
+  const { transaction, asset, onRemove = () => {} } = props || {}
   const truncateText = (text: string) => {
     return text.substring(0, 8) + "..." + text.substring(text.length - 8, text.length)
   }
@@ -109,40 +109,37 @@ export const TransactionRow = observer(function TransactionRow(props: Transactio
   const txs = transaction.out ? transaction.to : transaction.from
 
   const myself = `${transaction.from}` === `${transaction.to}`
+  console.log("rowwwwwwwwwwww", transaction)
+
+  let rowTitle: any = null
+
+  if (transaction.reason === "unstaking") {
+    rowTitle = <Text>Unstaking</Text>
+  } else if (transaction.reason === "staking") {
+    rowTitle = <Text>Staking</Text>
+  } else if (typeof txs === "string") {
+    rowTitle = <Text>{truncateText(txs)}</Text>
+  } else if (txs.length > 0) {
+    txs.map((tx) => <Text>{truncateText(tx)}</Text>)
+  } else if (txs.length < 1) {
+    ;<Text>None</Text>
+  }
 
   return (
     <View style={TRANSACTION_ITEM_WRAPPER}>
-      {transaction.status === 'failed' &&
-        <View
-          style={TRANSACTION_HEAD}>
-          <View
-            style={TRANSACTION_STATUS_WRAPPER}>
-            <Text
-              style={TRANSACTION_STATUS}>
-              Failed
-            </Text>
+      {transaction.status === "failed" && (
+        <View style={TRANSACTION_HEAD}>
+          <View style={TRANSACTION_STATUS_WRAPPER}>
+            <Text style={TRANSACTION_STATUS}>Failed</Text>
           </View>
-          <Button
-            style={TRANSACTIONS_REMOVE_BTN}
-            onPress={onRemove}>
-            <FontAwesome5Icon
-              name={"trash"}
-              size={10}
-              color={color.palette.white}
-            />
+          <Button style={TRANSACTIONS_REMOVE_BTN} onPress={onRemove}>
+            <FontAwesome5Icon name={"trash"} size={10} color={color.palette.white} />
           </Button>
         </View>
-      }
+      )}
       <View style={TRANSACTION_ITEM}>
         <View style={TRANSACTION_ITEM_BODY}>
-          <Text style={TRANSACTION_ITEM_HASH}>
-            {typeof txs === "string" ? (
-              <Text>{truncateText(txs)}</Text>
-            ) : (
-              txs.map((tx) => <Text>{truncateText(tx)}</Text>)
-            )}
-            {txs.length < 1 && <Text>None</Text>}
-          </Text>
+          <Text style={TRANSACTION_ITEM_HASH}>{rowTitle}</Text>
           <Text style={TRANSACTION_ITEM_DATE}>
             {dayjs(transaction.timestamp).format("DD/MM/YYYY HH:mm:ss")}
           </Text>
