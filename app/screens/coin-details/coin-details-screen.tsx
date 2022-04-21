@@ -149,7 +149,8 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
             cid: tokenInfo.id,
             type: tokenInfo.type,
             contract: `${chain.contract}`,
-            image: tokenInfo.thumb
+            image: tokenInfo.thumb,
+            decimals: chain.decimals,
           } as any)
           .then(async () => {
             await currentWalletStore.setAssets(wallet.assets)
