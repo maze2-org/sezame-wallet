@@ -1,0 +1,112 @@
+    {
+        "id": "alephium",
+        "name": "Alephium",
+        "symbol": "alph",
+        "type": "coin",
+        "chains": [
+            {
+                "id": "ALPH",
+                "name": "alephium",
+                "contract": null
+            }
+        ],
+        "thumb": "https://assets.coingecko.com/coins/images/21598/small/Alephium-Logo_200x200_listing.png?1639547498"
+    },
+    {
+        "id": "aventus",
+        "name": "Aventus",
+        "symbol": "avt",
+        "type": "coin",
+        "chains": [
+            {
+                "id": "ETH",
+                "name": "ethereum",
+                "contract": "0x0d88eD6E74bbFD96B831231638b66C05571e824F",
+                "capabilities": ["swap"]
+            },
+            {
+                "id": "AVN",
+                "name": "aventus",
+                "contract": null,
+                "capabilities": ["staking"]
+            }
+        ],
+        "thumb": "https://assets.coingecko.com/coins/images/901/small/Aventus.png?1625122968"
+    },
+    {
+        "id": "bitcoin",
+        "name": "Bitcoin",
+        "symbol": "btc",
+        "type": "coin",
+        "chains": [
+            {
+                "id": "BTC",
+                "name": "bitcoin",
+                "contract": null
+            }
+        ],
+        "thumb": "https://assets.coingecko.com/coins/images/1/small/bitcoin.png?1547033579"
+    },
+        {
+        "id": "ethereum",
+        "name": "Ethereum",
+        "symbol": "eth",
+        "type": "coin",
+        "chains": [
+            {
+                "id": "ETH",
+                "name": "ethereum",
+                "contract": null
+            }
+        ],
+        "thumb": "https://assets.coingecko.com/coins/images/279/small/ethereum.png?1595348880"
+    },
+    {
+        "id": "matic-network",
+        "name": "Polygon",
+        "symbol": "matic",
+        "type": "coin",
+        "chains": [
+            {
+                "id": "ETH",
+                "name": "ethereum",
+                "contract": "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0"
+            },
+            {
+                "id": "POLYGON",
+                "name": "polygon-pos",
+                "contract": "0x0000000000000000000000000000000000001010"
+            },
+            {
+                "id": "BSC",
+                "name": "binance-smart-chain",
+                "contract": "0xcc42724c6683b7e57334c4e856f4c9965ed682bd"
+            }
+        ],
+        "thumb": "https://assets.coingecko.com/coins/images/4713/small/matic-token-icon.png?1624446912"
+    },
+    {
+        "id": "bnb",
+        "name": "BNB",
+        "symbol": "BNB",
+        "type": "coin",
+        "chains": [
+            {
+                "id": "ETH",
+                "name": "ethereum",
+                "contract": "0xb8c77482e45f1f44de1745f52c74426C631bdd52"
+            },
+            {
+                "id": "POLYGON",
+                "name": "polygon-pos",
+                "contract": "0x3BA4c387f786bFEE076A58914F5Bd38d668B42c3"
+            },
+            {
+                "id": "BSC",
+                "name": "binance-smart-chain",
+                "contract": "0x0000000000000000000000000000000000001004"
+            }
+        ],
+        "thumb": "https://assets.coingecko.com/coins/images/4713/small/matic-token-icon.png?1624446912"
+    },
+

@@ -42,7 +42,7 @@ def chain_from_platforms(id, coingecko_platforms):
                     "id": chain[platform],
                     "name": platform,
                     "contract": coingecko_platforms[platform],
-                    "decimal": decimal
+                    "decimals": decimal
                     })
     return c
 
@@ -52,14 +52,18 @@ for count, coin in enumerate(coins):
     
     details = coingecko.get_coin_details(coin["id"])
 
-    token = {
-        "id": coin["id"],
-        "name": coin["name"],
-        "symbol": coin["symbol"],
-        "type": "coin",
-        "chains": chain_from_platforms(coin["id"], details["platforms"]),
-        "thumb": details["image"]["small"]
-    }
+    try:
+        token = {
+            "id": coin["id"],
+            "name": coin["name"],
+            "symbol": coin["symbol"],
+            "type": "coin",
+            "chains": chain_from_platforms(coin["id"], details["platforms"]),
+            "thumb": details["image"]["small"]
+        }
+
+    except KeyError:
+        continue
  
     if token["chains"] != []:
         print(f"Adding {token}")
