@@ -68,6 +68,8 @@ import TabNft from "../components/svg/TabNft"
 import Ready from "../components/svg/Ready"
 
 import { WalletConnectScreen } from "screens/wallet-connect/wallet-connect-screen"
+import { OverlayLoading } from "../components/overlay-loading/overlay-loading"
+import { observer } from "mobx-react-lite"
 const NAV_HEADER_CONTAINER: ViewStyle = {
   flexDirection: "row",
   justifyContent: "space-between",
@@ -426,19 +428,24 @@ const AppStack = () => {
 
 interface NavigationProps extends Partial<React.ComponentProps<typeof NavigationContainer>> {}
 
-export const AppNavigator = (props: NavigationProps) => {
+export const AppNavigator = observer((props: NavigationProps) => {
   const colorScheme = useColorScheme()
+  const { overlayLoadingShown } = useStores();
+
   useBackButtonHandler(canExit)
   return (
-    <NavigationContainer
-      ref={navigationRef}
-      theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-      {...props}
-    >
-      <AppStack />
-    </NavigationContainer>
+    <>
+      <NavigationContainer
+        ref={navigationRef}
+        theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+        {...props}
+      >
+        <AppStack />
+      </NavigationContainer>
+      <OverlayLoading visible={overlayLoadingShown} />
+    </>
   )
-}
+})
 
 AppNavigator.displayName = "AppNavigator"
 

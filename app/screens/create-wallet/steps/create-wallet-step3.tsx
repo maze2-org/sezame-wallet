@@ -13,6 +13,7 @@ import {
   PRIMARY_TEXT,
   textInput,
 } from "theme/elements"
+import { useStores } from "models"
 import { StepProps } from "utils/MultiStepController/Step"
 import { StepsContext } from "utils/MultiStepController/MultiStepController"
 import { WalletCreateContext } from "../create-wallet-screen"
@@ -33,10 +34,9 @@ export function CreateWalletStep3(props: StepProps) {
     name: "pastedSeedPhrase",
     defaultValue: "",
   })
-
+  const {setOverlayLoadingShown, overlayLoadingShown} = useStores()
   const isSeedPhraseCorrect = seedPhrase === pastedSeedPhrase
   const { onButtonBack, onButtonNext } = useContext(StepsContext)
-  const [loading, setLoading] = useState(false)
   const [words, setWords] = useState([])
   const [usedWords, setUsedWords] = useState([])
 
@@ -156,14 +156,14 @@ export function CreateWalletStep3(props: StepProps) {
             style={[PRIMARY_BTN, !isSeedPhraseCorrect && { ...btnDisabled }]}
             textStyle={PRIMARY_TEXT}
             onPress={()=>{
-              setLoading(true)
+              setOverlayLoadingShown(true)
               onButtonNext(()=>{
-                setLoading(false)
+                setOverlayLoadingShown(false)
               })
             }}
-            disabled={!isSeedPhraseCorrect || loading}
+            disabled={!isSeedPhraseCorrect || overlayLoadingShown}
           >
-            <Text text={loading ? "Loading ..." : 'NEXT'}/>
+            <Text text={overlayLoadingShown ? "Loading ..." : 'NEXT'}/>
             <Image source={nextIcon} style={buttonIconStyle} />
           </Button>
           <Button

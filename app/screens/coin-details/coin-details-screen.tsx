@@ -56,7 +56,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const [chartData, setChartData] = useState<any[]>([])
     const [transactions, setTransactions] = useState<CryptoTransaction[]>([])
     const [chartDays, setChartDays] = useState<number | "max">(1)
-    const { currentWalletStore, pendingTransactions, exchangeRates } = useStores()
+    const { currentWalletStore, pendingTransactions, exchangeRates, setOverlayLoadingShown } = useStores()
     const { getAssetById, setBalance, assets } = currentWalletStore
     const [loading, setLoading] = React.useState({})
     const [loadingButton, setLoadingButton] = React.useState(null)
@@ -138,6 +138,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     }, [chartDays])
 
     const addAsset = React.useCallback((chain: any) => {
+      setOverlayLoadingShown(true)
       setLoading((loading) => ({ ...loading, [chain.id]: true }))
       setUpdatingWallet(true)
       currentWalletStore.getWallet().then((wallet) => {
@@ -169,6 +170,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
             })
           })
           .finally(() => {
+            setOverlayLoadingShown(false)
             setLoading((loading) => ({ ...loading, [chain.id]: false }))
             setUpdatingWallet(false)
           })

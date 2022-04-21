@@ -8,6 +8,9 @@ import {
 import { createCurrentWalletDefaultModel } from "models/current-wallet/current-wallet"
 import { createPendingTransactionsDefaultModel } from "models/pending-transactions/pending-transactions"
 import { createExchangeRateDefaultModel } from "models/exchange-rate/exchange-rate"
+import {
+  StoredWallet
+} from "../../utils/stored-wallet"
 
 /**
  * A RootStore model.
@@ -20,11 +23,15 @@ export const RootStoreModel = types.model("RootStore").props({
   exchangeRates: createExchangeRateDefaultModel(),
   TESTNET: types.optional(types.boolean, CONFIG.TESTNET),
   walletConnectStore: createWalletConnectDefaultModel(),
+  overlayLoadingShown: types.optional(types.boolean, false),
 }).actions(self => ({
   setTestnet(value: boolean) {
     self.TESTNET = value;
     CONFIG.setTESTNET(value);
-  } 
+  },
+  setOverlayLoadingShown(value: boolean) {
+    self.overlayLoadingShown = value;
+  }
 }))
 
 /**
