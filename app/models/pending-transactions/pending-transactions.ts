@@ -34,6 +34,10 @@ export const PendingTransactionsModel = types
   })
   .views((self) => ({
     getPendingTxsForAsset: (asset: IWalletAsset): PendingTransaction[] => {
+      if (!asset) {
+        return []
+      }
+
       return self.transactions.filter((a) => {
         const walletId = `${asset.chain}${asset.symbol}${asset.cid}`
         return walletId === a.walletId
