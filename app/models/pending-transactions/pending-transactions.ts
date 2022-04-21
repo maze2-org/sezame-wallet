@@ -9,7 +9,7 @@ export type PendingTransaction = {
   to: string
   amount: string
   timestamp: number
-  reason?: "transaction" | "staking" | "unstaking"
+  reason?: "transaction" | "staking" | "unstaking" | "lowering" | "lifting" | "swaping"
   status?: string | null
 }
 
@@ -21,7 +21,7 @@ const PendingTranactionModel = types.model({
   amount: types.string,
   timestamp: types.number,
   reason: types.string,
-  status: types.maybe(types.string),
+  status: types.maybeNull(types.string),
 })
 /**
  * Model description here for TypeScript hints.

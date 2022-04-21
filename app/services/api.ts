@@ -10,7 +10,7 @@ export type CryptoTransaction = {
   to: string[] | string
   amount: string
   status?: string | null
-  reason?: "transaction" | "staking" | "unstaking"
+  reason?: "transfer" | "transaction" | "staking" | "unstaking" | "lowering" | "lifting" | "swaping"
 }
 
 const getWallet = (asset) => {
@@ -30,7 +30,6 @@ export const getBalance = async (
   const cryptoWallet = getWallet(asset)
   const balance = await cryptoWallet.getBalance()
 
-  console.log("GOTBALANCEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE", balance)
   return balance
 }
 
@@ -54,7 +53,14 @@ export const getFees = async (
   asset: IWalletAsset,
   address: string,
   amount: number,
-  reason?: "transfer" | "staking" | "unstaking" | "lowering" | "lifting",
+  reason?:
+    | "transfer"
+    | "transaction"
+    | "staking"
+    | "unstaking"
+    | "lowering"
+    | "lifting"
+    | "swaping",
 ) => {
   const cryptoWallet = getWallet(asset)
   const fees = await cryptoWallet.getTxSendProposals(address, amount, reason)
@@ -73,6 +79,15 @@ export const makeSendTransaction = (asset: IWalletAsset, proposal) => {
 export const makeStakeTransaction = (asset: IWalletAsset, proposal) => {
   const cryptoWallet = getWallet(asset)
   return cryptoWallet.stake(proposal)
+}
+
+export const makeSwapTransaction = (
+  asset: IWalletAsset,
+  proposal,
+  swapType: "swaping" | "lowering" | "lifting",
+) => {
+  const cryptoWallet = getWallet(asset)
+  return cryptoWallet.swap(proposal, swapType)
 }
 
 export const makeUnstakeTransaction = (asset: IWalletAsset, proposal) => {

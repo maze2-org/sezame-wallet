@@ -8,6 +8,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Linking,
 } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import { NavigatorParamList } from "../../navigators"
@@ -15,6 +16,7 @@ import BigNumber from "bignumber.js"
 
 import {
   Button,
+  Checkbox,
   CurrencyDescriptionBlock,
   Drawer,
   Footer,
@@ -30,19 +32,18 @@ import { TextInputField } from "components/text-input-field/text-input-field"
 import { BackgroundStyle, CONTAINER, drawerErrorMessage, MainBackground } from "theme/elements"
 import { useNavigation } from "@react-navigation/native"
 import { useStores } from "models"
-import { getBalance, getFees, makeUnstakeTransaction } from "services/api"
+import { getBalance, getFees, makeSwapTransaction } from "services/api"
 import { showMessage } from "react-native-flash-message"
 import styles from "./styles"
-import { boolean } from "mobx-state-tree/dist/internal"
-import { offsets, presets } from "../../components/screen/screen.presets"
+import { presets } from "../../components/screen/screen.presets"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
   flex: 1,
 }
 
-export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> = observer(
-  function UnstakeScreen({ route }) {
+export const SwapScreen: FC<StackScreenProps<NavigatorParamList, "swap">> = observer(
+  function SwapScreen({ route }) {
     // styling
     const DashboardStyle: ViewStyle = {
       ...ROOT,
@@ -83,11 +84,6 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
       name: "amount",
       defaultValue: "",
     })
-    const recipientAddress = useWatch({
-      control,
-      name: "recipientAddress",
-      defaultValue: "",
-    })
 
     const percentage = useWatch({
       control,
@@ -104,10 +100,12 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
     const asset = getAssetById(route.params.coinId)
     const [fees, setFees] = useState<any>(null)
     const [isPreview, setIsPreview] = useState<boolean>(false)
-    const [unstakeing, setUnstakeing] = useState<boolean>(false)
-    const [unstakeable, setUnstakeable] = useState<boolean>(false)
+    const [swaping, setSwaping] = useState<boolean>(false)
+    const [swapable, setSwapable] = useState<boolean>(false)
     const [errorMsg, setErrorMsg] = useState<string | null>(null)
     const { setBalance } = currentWalletStore
+
+    const [recipientAddress, setRecipientAddress] = useState<string>("")
 
     useEffect(() => {
       const _getBalances = async () => {
@@ -115,16 +113,19 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
         setBalance(asset, balance.confirmedBalance, balance.stakedBalance)
       }
       _getBalances()
+
+      // Get the recipient address
+      setRecipientAddress(currentWalletStore.getWalletAddressByChain(route.params.swapToChain))
     }, [])
 
     const onSubmit = async () => {
       setErrorMsg(null)
       try {
         setIsPreview(true)
-        setUnstakeable(false)
-        const response = await getFees(asset, recipientAddress, amount, "staking")
+        setSwapable(false)
+        const response = await getFees(asset, recipientAddress, amount, route.params.swapType)
         setFees(response)
-        setUnstakeable(true)
+        setSwapable(true)
       } catch (error) {
         console.log(error)
         switch (error.message) {
@@ -136,12 +137,12 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
             break
         }
 
-        setUnstakeable(false)
+        setSwapable(false)
       }
     }
 
     useEffect(() => {
-      // Percentage changed, adjust the amount to be unstaked
+      // Percentage changed, adjust the amount to be swapd
       const amount = (asset.balance * percentage) / 100
       setValue(
         "amount",
@@ -151,21 +152,25 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
     }, [percentage])
 
     const processTransaction = async () => {
-      setUnstakeing(true)
+      setSwaping(true)
       try {
-        const txId = await makeUnstakeTransaction(asset, fees ? fees.regular : null)
+        const txId = await makeSwapTransaction(
+          asset,
+          fees ? fees.regular : null,
+          route.params.swapType,
+        )
         if (!txId) {
-          showMessage({ message: "Unable to Unstake", type: "danger" })
+          showMessage({ message: "Unable to Swap", type: "danger" })
         } else {
-          showMessage({ message: "Transaction sent", type: "success" })
+          showMessage({ message: "Swaping request done", type: "success" })
           pendingTransactions.add(asset, {
-            amount: `-${new BigNumber(amount)
+            amount: `${new BigNumber(amount)
               .plus(fees.regular.settings.feeValue ? fees.regular.settings.feeValue : "0")
               .toString()}`,
             from: asset.address,
             to: recipientAddress,
             timestamp: new Date().getTime(),
-            reason: "unstaking",
+            reason: route.params.swapType,
             txId,
           })
           setFees(null)
@@ -175,7 +180,7 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
       } catch (err) {
         showMessage({ message: err.message, type: "danger" })
       } finally {
-        setUnstakeing(false)
+        setSwaping(false)
       }
     }
 
@@ -192,11 +197,7 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
             <ImageBackground source={MainBackground} style={BackgroundStyle}>
               <View style={CONTAINER}>
                 <View style={WALLET_STYLE}>
-                  <CurrencyDescriptionBlock
-                    icon="unstake"
-                    asset={asset}
-                    title="Available balance"
-                  />
+                  <CurrencyDescriptionBlock icon="swap" asset={asset} title="Available balance" />
                 </View>
                 <View>
                   <Controller
@@ -207,7 +208,7 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
                         name="amount"
                         fieldStyle="alt"
                         errors={errors}
-                        label={`Number of ${asset.symbol} to unstake`}
+                        label={`Number of ${asset.symbol} to swap to ${route.params.swapToChain} network`}
                         value={value}
                         onBlur={onBlur}
                         onChangeText={(value) => onChange(value)}
@@ -235,12 +236,41 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
                       <PercentageSelector value={value} onChange={(value) => onChange(value)} />
                     )}
                   ></Controller>
+                  <Controller
+                    control={control}
+                    name="cgu"
+                    rules={{
+                      required: {
+                        value: true,
+                        message: "Please accept the terms and conditions",
+                      },
+                    }}
+                    render={({ field: { onChange, value, onBlur } }) => (
+                      <Checkbox
+                        text={
+                          <View>
+                            <Text style={{ paddingHorizontal: spacing[1] }}>
+                              <Text>I have read the </Text>
+                              <Text
+                                onPress={() => Linking.openURL("https://www.aventus.io/")}
+                                style={styles.URL}
+                              >
+                                terms and conditions
+                              </Text>
+                            </Text>
+                          </View>
+                        }
+                        value={value}
+                        onToggle={(value) => onChange(value)}
+                      />
+                    )}
+                  ></Controller>
                 </View>
 
                 <View style={ALIGN_CENTER}>
                   <WalletButton
                     type="primary"
-                    text="Preview the unstaking"
+                    text="Preview the swap"
                     outline={true}
                     disabled={!isValid}
                     onPress={handleSubmit(onSubmit)}
@@ -250,21 +280,21 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
             </ImageBackground>
             {isPreview && (
               <Drawer
-                title="Summarize of your unstaking"
+                title="Summarize of your swap"
                 style={DrawerStyle}
                 actions={[
                   <Button
                     text="CANCEL"
                     style={styles.DRAWER_BTN_CANCEL}
                     textStyle={styles.DRAWER_BTN_TEXT}
-                    disabled={unstakeing}
+                    disabled={swaping}
                     onPress={() => {
                       setIsPreview(false)
                     }}
                   />,
                   <Button
-                    text={unstakeing ? "SENDING..." : "SIGN AND SUBMIT"}
-                    disabled={unstakeing || !unstakeable}
+                    text={swaping ? "SENDING..." : "SIGN AND SUBMIT"}
+                    disabled={swaping || !swapable}
                     style={styles.DRAWER_BTN_OK}
                     textStyle={styles.DRAWER_BTN_TEXT}
                     onPress={processTransaction}
@@ -273,9 +303,16 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
               >
                 <View style={styles.DRAWER_CARD}>
                   <View style={styles.DRAWER_CARD_ITEM}>
-                    <Text style={styles.CARD_ITEM_TITLE}>Amount to unstake</Text>
+                    <Text style={styles.CARD_ITEM_TITLE}>Amount to swap</Text>
                     <View style={styles.CARD_ITEM_DESCRIPTION}>
                       <Text style={styles.AMOUNT_STYLE}>{amount}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.CARD_ITEM_DIVIDER} />
+                  <View style={styles.DRAWER_CARD_ITEM}>
+                    <Text style={styles.CARD_ITEM_TITLE}>Recipient address</Text>
+                    <View style={styles.CARD_ITEM_DESCRIPTION}>
+                      <Text style={styles.AMOUNT_STYLE}>{truncateRecipient(recipientAddress)}</Text>
                     </View>
                   </View>
                   <View style={styles.CARD_ITEM_DIVIDER} />

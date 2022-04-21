@@ -277,7 +277,7 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
             </ImageBackground>
             {isPreview && (
               <Drawer
-                title="Resume of your staking"
+                title="Summarize of your staking"
                 style={DrawerStyle}
                 actions={[
                   <Button

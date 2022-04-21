@@ -263,8 +263,42 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
         asset: !!asset && !route.params.fromAddCurrency && asset,
       })
     }
-    console.log("currentWalletStore", JSON.parse(JSON.stringify(currentWalletStore.assets)))
-    console.log("tokenInfo", JSON.parse(JSON.stringify(tokenInfo.chains)))
+
+    const navigateSwapping = () => {
+      let swapType: "swap" | "lowering" | "lifting" = "swap"
+      let swapToChain = ""
+      let swapToToken = ""
+
+      if (capabilities.includes("lowering")) {
+        swapType = "lowering"
+        const liftTo = tokenInfo.chains.find(
+          (item) => item.capabilities && item.capabilities.includes("lifting"),
+        )
+        if (liftTo) {
+          swapToChain = liftTo.id
+          swapToToken = tokenInfo.id
+        }
+      } else if (capabilities.includes("lifting")) {
+        swapType = "lifting"
+        const lowerTo = tokenInfo.chains.find(
+          (item) => item.capabilities && item.capabilities.includes("lowering"),
+        )
+        if (lowerTo) {
+          swapToChain = lowerTo.id
+          swapToToken = tokenInfo.id
+        }
+      }
+
+      let navigationOptions = {
+        chain: asset.chain,
+        coinId: asset.cid,
+        swapType,
+        swapToChain,
+        swapToToken,
+      }
+
+      navigation.navigate("swap", navigationOptions)
+    }
 
     return (
       <Screen unsafe={true} style={styles.ROOT} preset="fixed">
@@ -350,6 +384,22 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                               $)
                             </Text>
                           </View>
+                          {["lifting", "lowering"].some((el) => capabilities.includes(el)) && (
+                            <>
+                              <View style={SEPARATOR} />
+                              <Button
+                                style={styles.BALANCE_STAKING_CARD_BTN}
+                                onPress={navigateSwapping}
+                              >
+                                <IonIcons
+                                  style={styles.BALANCE_STAKING_CARD_BTN_ICON}
+                                  name="swap-horizontal"
+                                  size={23}
+                                />
+                                <Text style={styles.BALANCE_STAKING_CARD_BTN_TEXT}>SWAP</Text>
+                              </Button>
+                            </>
+                          )}
                         </View>
                         {capabilities.includes("staking") && (
                           <View style={styles.BALANCE_STAKING_CARD}>

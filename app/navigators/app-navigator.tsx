@@ -74,6 +74,7 @@ import StakingBalance, {
   StackingBalanceRouteParams,
 } from "../screens/staking-balance/StakingBalance"
 import { UnstakeScreen } from "screens/unstake/unstake-screen"
+import { SwapScreen } from "screens/swap/swap-screen"
 
 const NAV_HEADER_CONTAINER: ViewStyle = {
   flexDirection: "row",
@@ -231,6 +232,13 @@ export type NavigatorParamList = {
   stake: {
     chain: string
     coinId: string
+  }
+  swap: {
+    chain: string
+    coinId: string
+    swapToChain: string
+    swapToToken: string
+    swapType: "swaping" | "lowering" | "lifting"
   }
   unstake: {
     chain: string
@@ -404,6 +412,17 @@ const AppStack = () => {
             }}
             name="unstake"
             component={UnstakeScreen}
+          />
+          <Stack.Screen
+            options={{
+              presentation: "modal",
+              headerShown: true,
+              header: AppStackHeader,
+              headerStyle: { backgroundColor: color.palette.black },
+              title: "",
+            }}
+            name="swap"
+            component={SwapScreen}
           />
           <Stack.Screen
             options={{
