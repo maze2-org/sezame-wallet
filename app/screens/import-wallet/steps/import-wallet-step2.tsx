@@ -16,6 +16,7 @@ import { StoredWallet } from "utils/stored-wallet"
 import { defaultAssets } from "utils/consts"
 import { WalletImportContext } from "../import-wallet-screen"
 import { color, spacing, typography } from "theme"
+import { useStores } from "models"
 import {
   Button,
   Header,
@@ -102,21 +103,27 @@ export function ImportWalletStep2(props: StepProps) {
   const scrollViewRef = useRef(null);
   const { walletName, walletPassword } = useContext(WalletImportContext);
   const { onButtonBack, onButtonNext } = useContext(StepsContext);
+  const {setOverlayLoadingShown, overlayLoadingShown} = useStores()
+
 
   const [value, setValue] = useState<string>('');
   const [contentHeight, setContentHeight] = useState<number>(0);
   const [whitelist, setWhitelist] = useState<string[]>([]);
   const [selectedWords, setSelectedWords] = useState<string[]>([]);
   const [isValid, setIsValid] = useState<boolean>(true);
-  const [loading, setLoading] = useState(false)
 
   const onSubmit = async () => {
-    setLoading(true)
-    const storedWallet = new StoredWallet(walletName, selectedWords.join(" "), walletPassword)
-    await storedWallet.addAssets(defaultAssets)
-    await storedWallet.save()
-    setLoading(false)
-    onButtonNext();
+    setOverlayLoadingShown(true)
+    try{
+      const storedWallet = new StoredWallet(walletName, selectedWords.join(" "), walletPassword)
+      await storedWallet.addAssets(defaultAssets)
+      await storedWallet.save()
+      setOverlayLoadingShown(false)
+      onButtonNext();
+    }catch (e){
+      console.log(e)
+      setOverlayLoadingShown(false)
+    }
   }
 
   useEffect(() => {
@@ -248,9 +255,9 @@ export function ImportWalletStep2(props: StepProps) {
               style={[PRIMARY_BTN, isValid && { ...btnDisabled }]}
               textStyle={PRIMARY_TEXT}
               onPress={onSubmit}
-              disabled={isValid || !!loading}
+              disabled={isValid || !!overlayLoadingShown}
             >
-              <Text text={loading ? "Loading ..." : 'NEXT'}/>
+              <Text text={overlayLoadingShown ? "Loading ..." : 'NEXT'}/>
               <Image source={nextIcon} style={buttonIconStyle} />
             </Button>
 
