@@ -361,7 +361,7 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
                     </View>
                   </TouchableOpacity>
                 </View>
-                <Text style={styles.DANGER_ZONE} text="DANGER ZONE"></Text>
+                <Text style={styles.DANGER_ZONE} text="DANGER ZONE"/>
                 <View style={SETTING_ITEM_WRAP}>
                   <TouchableOpacity
                     style={SETTING_ITEM_CONTAINER}
@@ -517,7 +517,7 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
             </View>
           </View>
         </ScrollView>
-        <Footer onLeftButtonPress={goBack}></Footer>
+        <Footer onLeftButtonPress={goBack}/>
       </Screen>
     )
   },

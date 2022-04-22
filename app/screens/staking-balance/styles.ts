@@ -18,6 +18,7 @@ const HEADER: ViewStyle = {
 
 const BODY: ViewStyle = {
   paddingHorizontal: spacing[3],
+  marginBottom: spacing[7]
 }
 
 const TEXT: TextStyle = {
@@ -102,10 +103,13 @@ const ICON_CONTAINER: ViewStyle = {
   alignItems: "center",
 }
 
-const FOOTER: ViewStyle = {
-  position: "absolute",
-  bottom: 0,
+const SCROLL_VIEW: ViewStyle = {
+  flex: 1,
 }
+const SCROLL_VIEW_CONTAINER: ViewStyle = {
+  flexGrow: 1,
+}
+
 const styles = {
   ROOT,
   DISABLED,
@@ -118,11 +122,12 @@ const styles = {
   HEADER,
   IMG_CONTAINER,
   BODY,
-  FOOTER,
   CARD,
   ROW_ALIGN,
   ICON_ONE,
   ICON_CONTAINER,
+  SCROLL_VIEW,
+  SCROLL_VIEW_CONTAINER
 }
 
 export default styles
