@@ -58,6 +58,8 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const { getAssetById, setBalance, assets } = currentWalletStore
     const [loading, setLoading] = React.useState({})
     const [updatingWallet, setUpdatingWallet] = React.useState<boolean>(false)
+    const [prevPndTsx, setPrevPndTsx] = useState(null)
+    const pndTsx = pendingTransactions?.transactions;
 
     const [explorerUrl, setExplorerUrl] = useState<string>("")
 
@@ -137,6 +139,54 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
         clearInterval(intervalChart)
       }
     }, [chartDays])
+
+    // Every PendingTransaction Update check transaction status and show notification
+    const showTsxMessage = ({success, failed})=>{
+      let type, message;
+      if(success === 1 && failed === 0){
+        message = 'Your pending transaction has succeeded';
+        type = 'success';
+      }else if(failed === 1 && success === 0){
+        message = 'Your pending transaction has failed'
+        type = 'danger';
+      }else if(success > 1 && failed === 0){
+        message = 'Your pending transactions have succeeded';
+        type = 'success';
+      }else if(failed > 1 && success === 0){
+        message = 'Your pending transactions have failed';
+        type = 'danger';
+      }else {
+        message = 'Your pending transactions status have changed'
+        type = 'success';
+      }
+
+      showMessage({type , message})
+    }
+
+    useEffect(()=>{
+      const tsxStatuses = {};
+      const statuses = {success:0, failed: 0}
+      if (prevPndTsx) {
+        if (Array.isArray(pendingTransactions?.transactions)) {
+          pendingTransactions.transactions.forEach(tsx => {
+            if (tsx.status !== prevPndTsx[tsx.txId]) {
+              if (["success"].includes(tsx.status)) {
+                // success
+                statuses.success = statuses.success + 1
+              } else if (["failed"].includes(tsx.status)) {
+                // failed
+                statuses.failed = statuses.failed + 1
+              }
+            }
+            tsxStatuses[tsx.txId] = tsx.status;
+          })
+          showTsxMessage(statuses)
+        }
+      }else {
+        pendingTransactions?.transactions?.forEach(tsx => tsxStatuses[tsx.txId] = tsx.status)
+        setPrevPndTsx(tsxStatuses)
+      }
+    },[pndTsx])
 
     const addAsset = React.useCallback((chain: any) => {
       setOverlayLoadingShown(true)
