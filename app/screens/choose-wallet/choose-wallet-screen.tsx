@@ -1,6 +1,13 @@
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useEffect, useState, useMemo } from "react"
 import { observer } from "mobx-react-lite"
-import { ImageBackground, ImageStyle, TextStyle, View, ViewStyle } from "react-native"
+import {
+  ImageBackground,
+  ImageStyle,
+  ScrollView,
+  TextStyle,
+  View,
+  ViewStyle,
+} from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import SplashScreen from "react-native-splash-screen"
 import { NavigatorParamList } from "../../navigators"
@@ -70,6 +77,13 @@ const BUTTON_STYLE: ViewStyle = {
   ...PRIMARY_BTN,
   marginTop: spacing[6],
   marginBottom: spacing[3],
+}
+
+const VIEW_WRAPPER: ViewStyle = {
+  flex:1
+}
+const SCROLL_VIEW_WRAPPER: ViewStyle = {
+  flexGrow:1,
 }
 
 export const ChooseWalletScreen: FC<
@@ -178,9 +192,15 @@ export const ChooseWalletScreen: FC<
     })
     return unsubscribe
   }, [navigation])
+
+  const ScrollComponent = useMemo(()=>open ? View: ScrollView,[open])
+
   return (
     <Screen preset="fixed" style={RootPageStyle} backgroundColor={color.palette.black}>
       <ImageBackground source={MainBackground} style={BackgroundStyle}>
+          <ScrollComponent style={VIEW_WRAPPER}
+                           contentContainerStyle={SCROLL_VIEW_WRAPPER}
+                           bounces={false}>
         <AppScreen>
           <View style={CONTAINER}>
             <View>
@@ -274,6 +294,7 @@ export const ChooseWalletScreen: FC<
             </View>
           </View>
         </AppScreen>
+          </ScrollComponent>
       </ImageBackground>
     </Screen>
   )

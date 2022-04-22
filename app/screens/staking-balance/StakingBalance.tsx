@@ -51,7 +51,7 @@ const StakingBalance = (props: StackingBalanceProps) => {
 
   return (
     <Screen unsafe={true} style={styles.ROOT} preset="fixed">
-      <ScrollView>
+      <ScrollView style={styles.SCROLL_VIEW} contentContainerStyle={styles.SCROLL_VIEW_CONTAINER}>
         <View style={styles.HEADER}>
           <Text style={styles.BOLD_TEXT}>{name}</Text>
           <View style={styles.IMG_CONTAINER}>
@@ -127,7 +127,6 @@ const StakingBalance = (props: StackingBalanceProps) => {
       <Footer
         RightButtonIcon={(props) => <IonIcons {...props} name="globe-outline" size={23} />}
         onLeftButtonPress={() => navigation.goBack()}
-        style={styles.FOOTER}
       />
     </Screen>
   )
