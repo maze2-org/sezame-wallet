@@ -52,7 +52,7 @@ export function Biometrics({walletName, onLoad }: IBiometrics) {
 
   const getKCData = () => {
     return load().then(savedData => {
-      const parsedWallet = JSON.parse(savedData.password);
+      const parsedWallet = savedData ? JSON.parse(savedData.password) : [];
       if (savedData && !!savedData.password && Array.isArray(parsedWallet)) {
         if(parsedWallet.length) {
           let newSaveData = parsedWallet.find((wallet) => wallet.walletName === walletName)
@@ -74,6 +74,8 @@ export function Biometrics({walletName, onLoad }: IBiometrics) {
         return null;
       }
     })
+      .catch(error=>{
+      })
   }
 
   const authenticate = (savedData: IKeychainData | null) => {
