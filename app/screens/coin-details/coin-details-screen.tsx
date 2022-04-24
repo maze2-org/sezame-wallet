@@ -54,7 +54,12 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const [chartData, setChartData] = useState<any[]>([])
     const [transactions, setTransactions] = useState<CryptoTransaction[]>([])
     const [chartDays, setChartDays] = useState<number | "max">(1)
-    const { currentWalletStore, pendingTransactions, exchangeRates, setOverlayLoadingShown } = useStores()
+    const {
+      currentWalletStore,
+      pendingTransactions,
+      exchangeRates,
+      setOverlayLoadingShown,
+    } = useStores()
     const { getAssetById, setBalance, assets } = currentWalletStore
     const [loading, setLoading] = React.useState({})
     const [updatingWallet, setUpdatingWallet] = React.useState<boolean>(false)
@@ -155,7 +160,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
           } as any)
           .then(async () => {
             await currentWalletStore.setAssets(wallet.assets)
-
+            exchangeRates.addCurrencies([tokenInfo.id])
             await wallet.save()
             showMessage({
               message: "Coin added to wallet",

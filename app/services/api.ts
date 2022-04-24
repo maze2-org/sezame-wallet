@@ -1,6 +1,6 @@
 import { WalletFactory } from "@maze2/sezame-sdk"
+import { asCreateObservableOptions } from "mobx/dist/internal"
 import { IWalletAsset } from "models"
-
 export type CryptoTransaction = {
   date: Date | null
   timestamp: number
@@ -12,6 +12,8 @@ export type CryptoTransaction = {
   status?: string | null
   reason?: "transaction" | "staking" | "unstaking"
 }
+
+const tokens = require("../../config/tokens.json")
 
 const getWallet = (asset) => {
   const cryptoWallet = WalletFactory.getWallet({
@@ -27,10 +29,19 @@ const getWallet = (asset) => {
 export const getBalance = async (
   asset: IWalletAsset,
 ): Promise<{ confirmedBalance: number; stakedBalance: number }> => {
+  const tokenInfo = tokens.find((token) => token.id === asset.cid)
+  const assetInfo = tokenInfo.chains.find((chain) => chain.id === asset.chain)
+  console.log("TOKENINFO", JSON.stringify(tokenInfo, null, 2))
+  asset.decimals = assetInfo.decimals
+  console.log(
+    "GETBALANCEEEEEEEEEEE TOKENINFO",
+    JSON.stringify(assetInfo, null, 2),
+    JSON.stringify(asset, null, 2),
+    JSON.stringify({ asset, ...assetInfo.decimals }, null, 2),
+  )
   const cryptoWallet = getWallet(asset)
   const balance = await cryptoWallet.getBalance()
 
-  console.log("GOTBALANCEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE", balance)
   return balance
 }
 
