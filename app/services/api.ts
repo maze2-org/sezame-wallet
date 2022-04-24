@@ -31,14 +31,8 @@ export const getBalance = async (
 ): Promise<{ confirmedBalance: number; stakedBalance: number }> => {
   const tokenInfo = tokens.find((token) => token.id === asset.cid)
   const assetInfo = tokenInfo.chains.find((chain) => chain.id === asset.chain)
-  console.log("TOKENINFO", JSON.stringify(tokenInfo, null, 2))
   asset.decimals = assetInfo.decimals
-  console.log(
-    "GETBALANCEEEEEEEEEEE TOKENINFO",
-    JSON.stringify(assetInfo, null, 2),
-    JSON.stringify(asset, null, 2),
-    JSON.stringify({ asset, ...assetInfo.decimals }, null, 2),
-  )
+
   const cryptoWallet = getWallet(asset)
   const balance = await cryptoWallet.getBalance()
 
