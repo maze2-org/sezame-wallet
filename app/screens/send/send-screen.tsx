@@ -7,6 +7,7 @@ import {
   ViewStyle,
   ScrollView,
   KeyboardAvoidingView,
+  Keyboard,
   Platform,
 } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
@@ -185,7 +186,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
 
     return (
       <Screen unsafe style={DashboardStyle} preset="fixed" backgroundColor={color.palette.black}>
-        <ScrollView contentContainerStyle={SCROLL_VIEW_CONTAINER}>
+        <ScrollView contentContainerStyle={SCROLL_VIEW_CONTAINER}  keyboardShouldPersistTaps={'handled'}>
           <KeyboardAvoidingView
             style={[presets.scroll.outer, { backgroundColor: color.palette.black }]}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -254,7 +255,10 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                     text="Preview the transfer"
                     outline={true}
                     disabled={!isValid}
-                    onPress={handleSubmit(onSubmit)}
+                    onPress={()=>{
+                      Keyboard.dismiss()
+                      handleSubmit(onSubmit)()
+                    }}
                   />
                 </View>
               </View>

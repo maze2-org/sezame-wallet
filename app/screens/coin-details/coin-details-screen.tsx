@@ -43,6 +43,8 @@ import {
   getTransactionStatus,
   getTransactionsUrl,
 } from "services/api"
+import AnimatedComponent
+  from "../../components/animatedComponent/AnimatedComponent"
 
 const tokens = require("../../config/tokens.json")
 
@@ -363,6 +365,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
           <ScrollView>
             {!!coinData && (
               <View>
+                <AnimatedComponent direction={'TOP'}>
                 <View style={styles.COIN_CARD_CONTAINER}>
                   <CoinCard
                     style={styles.COIN_CARD}
@@ -391,7 +394,9 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                 {!!chartData && !!chartData.length && (
                   <PriceChart data={chartData.map((p) => p[1])} />
                 )}
+                </AnimatedComponent>
                 <View style={styles.COIN_DETAILS_CONTAINER}>
+                  <AnimatedComponent direction={'TOP'}>
                   {!!chartData && !!chartData.length && (
                     <View style={styles.TIMEFRAME_BTNS}>
                       {[
@@ -424,6 +429,8 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                       ))}
                     </View>
                   )}
+                  </AnimatedComponent>
+                  <AnimatedComponent direction={'BOTTOM'}>
                   {!!asset && !route.params.fromAddCurrency && (
                     <View>
                       <View style={styles.BALANCE_STAKING_CONTAINER}>
@@ -571,6 +578,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                       })}
                     </View>
                   )}
+                  </AnimatedComponent>
                 </View>
               </View>
             )}
