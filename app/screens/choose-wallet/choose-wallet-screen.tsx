@@ -163,11 +163,14 @@ export const ChooseWalletScreen: FC<
     return load().then(savedData => {
       const parsedWallet = JSON.parse(savedData.password);
       if (savedData && !!savedData.password && Array.isArray(parsedWallet)) {
-        return  savedData;
+        return Promise.resolve(savedData)
       }else{
-        return null;
+        return Promise.resolve(null)
       }
     })
+      .catch(e=>{
+        return Promise.resolve(null)
+      })
   }
 
   useEffect(() => {
