@@ -1,6 +1,14 @@
-import React, { useEffect, useState } from "react"
-import { View, Text, Image, StyleSheet } from "react-native"
-import { TouchableOpacity } from "react-native-gesture-handler"
+import React, { useEffect, useState, useRef } from "react"
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+  Easing,
+} from "react-native"
+// import { TouchableOpacity } from "react-native-gesture-handler"
 import { chainSymbolsToNames } from "../../utils/consts"
 import { color, spacing } from "../../theme"
 import FontAwesomeIcon from "react-native-vector-icons/FontAwesome"
@@ -102,20 +110,68 @@ const styles = StyleSheet.create({
 const CoinBox = ({ assets, title }) => {
   const [isOpen, setIsOpen] = useState(true)
   const [disable, setDisable] = useState(false)
-  const changeIsOpen = () => {
-    if (Array.isArray(assets) && assets.length <= 1) {
-      setDisable(true)
-    } else {
-      setDisable(false)
-      setIsOpen((prev) => !prev)
-    }
+  const animCardBox = useRef(new Animated.Value(0)).current;
+  const shakeAnim = useRef(new Animated.Value(0)).current;
+
+  // const changeIsOpen = () => {
+  //   if (Array.isArray(assets) && assets.length <= 1) {
+  //     setDisable(true)
+  //   } else {
+  //     setDisable(false)
+  //     setIsOpen((prev) => !prev)
+  //   }
+  // }
+
+  const startShake = () => {
+    Animated.sequence([
+      Animated.timing(shakeAnim, { toValue: 1, duration: 100, useNativeDriver: false }),
+      Animated.timing(shakeAnim, { toValue: -1, duration: 100, useNativeDriver: false }),
+      Animated.timing(shakeAnim, { toValue: 1, duration: 100, useNativeDriver: false }),
+      Animated.timing(shakeAnim, { toValue: 0, duration: 100, useNativeDriver: false })
+    ]).start();
   }
+
+  const openCoinBox = () => {
+    setIsOpen((p)=>{
+      if(assets.length < 2){
+        startShake()
+      }else {
+        Animated.timing(animCardBox, {
+          toValue: p ? 1 : 0,
+          duration: 300,
+          useNativeDriver: false,
+        }).start()
+      }
+
+      return !p
+    })
+  }
+
+  const height = animCardBox.interpolate({
+    inputRange:[0, 1],
+    outputRange:[115, (assets.length) * 82 + 33]
+  })
+
+  const rotate = animCardBox.interpolate({
+    inputRange:[0, 1],
+    outputRange:["0deg", "-180deg"]
+  })
+
   return (
-    <View style={[styles.COIN_BOX, { height: isOpen ? "auto" : 115 }]}>
-      <TouchableOpacity style={styles.COIN_EXPAND_CONTAINER}>
-        <Text style={{ color: disable ? color.palette.lightGrey : color.palette.white }}>
-          {title}
-        </Text>
+    <Animated.View style={[styles.COIN_BOX, { height }]}>
+      <TouchableOpacity style={styles.COIN_EXPAND_CONTAINER}
+                        activeOpacity={0.9}
+                        onPress={openCoinBox}
+      >
+          <Text style={{ color: disable ? color.palette.lightGrey : color.palette.white }}>
+            {title}
+          </Text>
+          <Animated.View style={{transform:[{rotate},{translateX:shakeAnim}]}}>
+              <FontAwesomeIcon
+                name={"chevron-down"}
+                color={color.palette.white}
+              />
+          </Animated.View>
       </TouchableOpacity>
 
       <View style={styles.SEPARATOR} />
@@ -123,7 +179,7 @@ const CoinBox = ({ assets, title }) => {
       {assets.map((asset, idx) => {
         return <CoinBoxItem key={idx} asset={asset} />
       })}
-    </View>
+    </Animated.View>
   )
 }
 
