@@ -1,4 +1,4 @@
-import { Instance, SnapshotOut, types, flow } from "mobx-state-tree"
+import { Instance, SnapshotOut, types, flow, destroy } from "mobx-state-tree"
 import { IWalletAsset } from "models/current-wallet/current-wallet"
 import { load, save } from "utils/storage"
 
@@ -60,21 +60,21 @@ export const PendingTransactionsModel = types
       yield save("pendingTxs", self.transactions)
     }),
     update: flow(function* (tx: PendingTransaction, updatedTx: Partial<PendingTransaction>) {
-      const transactions = yield load("pendingTxs")
-      self.transactions = transactions.map((transaction) =>
-        transaction.txId === tx.txId ? { ...tx, ...updatedTx } : tx,
-      )
+      self.transactions.forEach((transaction, index) => {
+        if (transaction.txId === tx.txId) {
+          self.transactions[index].status = updatedTx.status
+        }
+      })
       yield save("pendingTxs", self.transactions)
     }),
     remove: flow(function* (asset: IWalletAsset, tx: PendingTransaction) {
       tx.walletId = `${asset.chain}${asset.symbol}${asset.cid}`
 
-      self.transactions = <any>self.transactions.filter((currentTx) => {
-        if (tx.walletId === currentTx.walletId && tx.txId === currentTx.txId) {
-          return false
-        }
-        return true
-      })
+      self.transactions.replace(
+        self.transactions.filter((currentTx, i) => {
+          return !(tx.walletId === currentTx.walletId && tx.txId === currentTx.txId)
+        }),
+      )
 
       yield save("pendingTxs", self.transactions)
     }),
