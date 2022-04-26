@@ -32,7 +32,7 @@ import { TextInputField } from "components/text-input-field/text-input-field"
 import { BackgroundStyle, CONTAINER, drawerErrorMessage, MainBackground } from "theme/elements"
 import { useNavigation } from "@react-navigation/native"
 import { useStores } from "models"
-import { getBalance, getFees, makeStakeTransaction } from "services/api"
+import { getBalance, getFees, getStakingStats, makeStakeTransaction } from "services/api"
 import { showMessage } from "react-native-flash-message"
 import styles from "./styles"
 import { boolean } from "mobx-state-tree/dist/internal"
@@ -96,10 +96,6 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
       name: "percentage",
       defaultValue: "",
     })
-
-    const truncateRecipient = (hash: string) => {
-      return hash.substring(0, 8) + "..." + hash.substring(hash.length - 8, hash.length)
-    }
 
     // Pull in navigation via hook
     const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
@@ -180,6 +176,14 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
         setStakeing(false)
       }
     }
+
+    useEffect(() => {
+      if (asset) {
+        getStakingStats(asset).then((stats) => {
+          console.log("Got stats", { stats })
+        })
+      }
+    }, [asset])
 
     const goBack = () => navigation.goBack()
 

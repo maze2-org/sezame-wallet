@@ -109,7 +109,6 @@ export const TransactionRow = observer(function TransactionRow(props: Transactio
   const txs = transaction.out ? transaction.to : transaction.from
 
   const myself = `${transaction.from}` === `${transaction.to}`
-  console.log("rowwwwwwwwwwww", transaction)
 
   let rowTitle: any = null
 

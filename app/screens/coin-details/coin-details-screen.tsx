@@ -524,7 +524,6 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                                     }}
                                     transaction={{ ...tx, date: null, out: true, hash: "" }}
                                   />
-                                  <Text>Status:{tx.status}</Text>
                                 </>
                               ))}
                             </View>

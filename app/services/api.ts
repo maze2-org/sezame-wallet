@@ -85,6 +85,11 @@ export const makeUnstakeTransaction = (asset: IWalletAsset, proposal) => {
   return cryptoWallet.unstake(proposal)
 }
 
+export const getStakingStats = (asset: IWalletAsset) => {
+  const cryptoWallet = getWallet(asset)
+  return cryptoWallet.getStakingStats()
+}
+
 export const makeRawTransaction = async (asset: IWalletAsset, data) => {
   const driver = await getTransactionDriver(asset)
   const rawTransaction = await driver.prepareSignedTransaction(data)
