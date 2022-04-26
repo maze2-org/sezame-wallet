@@ -24,7 +24,10 @@ import { CommonActions } from '@react-navigation/native';
 import { btnDefault, btnDisabled, CONTAINER, copyBtn, mnemonicContainer, mnemonicStyle, RootPageStyle, } from "theme/elements"
 import { StoredWallet } from "utils/stored-wallet"
 import { showMessage } from "react-native-flash-message"
-import { reset } from "../../utils/keychain"
+import {
+  load,
+  save,
+} from "../../utils/keychain"
 
 const { height } = Dimensions.get("screen")
 
@@ -189,18 +192,25 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
 
     const deleteWallet = async () => {
       const wallet = currentWalletStore.wallet
+      const currentWalletName = JSON.parse(wallet).walletName
       if (wallet) {
         await currentWalletStore.removeWallet()
         currentWalletStore.close()
-        reset()
-          .then(() => {
-            navigation.navigate("chooseWallet")
-            showMessage({
-              message:"Wallet has been deleted",
-              type:"success"
-            })
+        load()
+          .then((saveData)=>{
+            const parsedWallet = JSON.parse(saveData.password)
+            const newKeyChainData  = parsedWallet.filter((data)=>data.walletName !== currentWalletName)
+            const stringData = JSON.stringify(newKeyChainData)
+            saveData.password = stringData
+
+            save(saveData.username, saveData.password).catch(null)
+                navigation.replace("chooseWallet")
+                showMessage({
+                  message:"Wallet has been deleted",
+                  type:"success"
+                })
           })
-          .catch(null)
+          .catch((error)=>console.log(error))
       }
     }
     const deleteWalletConfirmation = async () => {
