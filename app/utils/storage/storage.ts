@@ -124,8 +124,8 @@ export async function remove(walletName: string): Promise<boolean> {
   try {
     const key = WALLETS_STORE_ID + walletName
 
-    EncryptedStorage.removeItem(key)
-    removeKey(key)
+    await EncryptedStorage.removeItem(key)
+    await removeKey(key)
     return true
   } catch (error) {
     return false

@@ -122,11 +122,13 @@ export const CurrentWalletModel = types
     }),
 
     removeWallet: async () => {
+      let deleted = null;
       try {
-        const deleted = await remove(self.name)
+        deleted = await remove(self.name)
       } catch (error) {
         console.log("Error removing wallet", error)
       }
+      return deleted;
     },
   })) // eslint-disable-line @typescript-eslint/no-unused-vars
 
