@@ -95,10 +95,6 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
       defaultValue: "",
     })
 
-    const truncateRecipient = (hash: string) => {
-      return hash.substring(0, 8) + "..." + hash.substring(hash.length - 8, hash.length)
-    }
-
     // Pull in navigation via hook
     const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
     const asset = getAssetById(route.params.coinId)
@@ -112,7 +108,7 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
     useEffect(() => {
       const _getBalances = async () => {
         const balance = await getBalance(asset)
-        setBalance(asset, balance.confirmedBalance, balance.stakedBalance)
+        setBalance(asset, balance)
       }
       _getBalances()
     }, [])

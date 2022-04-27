@@ -9,7 +9,7 @@ export type PendingTransaction = {
   to: string
   amount: string
   timestamp: number
-  reason?: "transaction" | "staking" | "unstaking"
+  reason?: "transaction" | "staking" | "unstaking" | "withdraw"
   status?: string | null
 }
 

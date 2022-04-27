@@ -15,6 +15,7 @@ import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5"
 import IonIcons from "react-native-vector-icons/Ionicons"
 import copyImg from "../../../assets/svg/copy.svg"
+import stakeIcon from "../../../assets/icons/stake.svg"
 import { NavigatorParamList } from "../../navigators"
 import FlashMessage, { showMessage } from "react-native-flash-message"
 import {
@@ -82,7 +83,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
 
     const _getBalances = async () => {
       // const balance = await getBalance(asset)
-      // setBalance(asset, balance.confirmedBalance, balance.stakedBalance)
+      // setBalance(asset, balance)
       refreshBalances()
     }
 
@@ -442,14 +443,16 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                                 Available balance
                               </Text>
                               <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>
-                                {Number(asset?.balance - asset?.stakedBalance).toFixed(4) +
+                                {Number(asset?.freeBalance).toFixed(4) +
                                   " " +
                                   asset.symbol.toUpperCase()}
                               </Text>
                               <Text style={styles.BALANCE_STAKING_CARD_NOTE}>
                                 {" "}
                                 (~
-                                {`${(exchangeRates.getRate(asset.cid) * asset.balance).toFixed(2)}`}
+                                {`${(exchangeRates.getRate(asset.cid) * asset.freeBalance).toFixed(
+                                  2,
+                                )}`}
                                 $)
                               </Text>
                             </View>
@@ -474,30 +477,49 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                             <View style={styles.BALANCE_STAKING_CARD}>
                               <View style={styles.BALANCE_STAKING_CARD_BODY}>
                                 <Text style={styles.BALANCE_STAKING_CARD_HEADER}>
-                                  {" "}
                                   Staking balance
                                 </Text>
                                 <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>
-                                  {+Number(asset.stakedBalance).toFixed(4)}
+                                  {(
+                                    asset.stakedBalance +
+                                    asset.unlockedBalance +
+                                    asset.unstakedBalance
+                                  ).toFixed(4)}{" "}
+                                  {asset.symbol.toUpperCase()}
                                 </Text>
                                 <Text style={styles.BALANCE_STAKING_CARD_NOTE}>
                                   (~
                                   {`${(
-                                    exchangeRates.getRate(asset.cid) * asset.stakedBalance
+                                    exchangeRates.getRate(asset.cid) *
+                                    (asset.stakedBalance +
+                                      asset.unlockedBalance +
+                                      asset.unstakedBalance)
                                   ).toFixed(2)}`}
                                   $)
                                 </Text>
+                                <View style={styles.BALANCE_STAKING_CARD_BODY_V_SPACING}>
+                                  <Text
+                                    style={styles.BALANCE_STAKING_LITTLE_TEXT}
+                                  >{`Stacked: ${asset.stakedBalance.toFixed(4)}`}</Text>
+                                  <Text
+                                    style={styles.BALANCE_STAKING_LITTLE_TEXT}
+                                  >{`Unlocked: ${asset.unlockedBalance.toFixed(4)}`}</Text>
+                                  <Text
+                                    style={styles.BALANCE_STAKING_LITTLE_TEXT}
+                                  >{`Unstaked: ${asset.unstakedBalance.toFixed(4)}`}</Text>
+                                </View>
                               </View>
+
                               <>
                                 <View style={SEPARATOR} />
                                 <Button
                                   style={styles.BALANCE_STAKING_CARD_BTN}
                                   onPress={navigateStakingBalance}
                                 >
-                                  <FontAwesome5Icon
-                                    size={18}
+                                  <SvgXml
+                                    xml={stakeIcon}
+                                    height={24}
                                     style={styles.BALANCE_STAKING_CARD_BTN_ICON}
-                                    name="database"
                                   />
                                   <Text style={styles.BALANCE_STAKING_CARD_BTN_TEXT}>
                                     MANAGE STAKING

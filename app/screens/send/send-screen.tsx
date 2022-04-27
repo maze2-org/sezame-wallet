@@ -125,7 +125,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
       // setBalance(asset, currentWalletStore.getBalance(asset))
       const _getBalances = async () => {
         const balance = await getBalance(asset)
-        setBalance(asset, balance.confirmedBalance, balance.stakedBalance)
+        setBalance(asset, balance)
       }
       _getBalances()
     }, [])
@@ -186,7 +186,10 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
 
     return (
       <Screen unsafe style={DashboardStyle} preset="fixed" backgroundColor={color.palette.black}>
-        <ScrollView contentContainerStyle={SCROLL_VIEW_CONTAINER}  keyboardShouldPersistTaps={'handled'}>
+        <ScrollView
+          contentContainerStyle={SCROLL_VIEW_CONTAINER}
+          keyboardShouldPersistTaps={"handled"}
+        >
           <KeyboardAvoidingView
             style={[presets.scroll.outer, { backgroundColor: color.palette.black }]}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -197,6 +200,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                 <View style={WALLET_STYLE}>
                   <CurrencyDescriptionBlock
                     icon="transfer"
+                    balance="freeBalance"
                     asset={asset}
                     title="Available balance"
                   />
@@ -210,6 +214,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                         name="recipientAddress"
                         style={textInput}
                         errors={errors}
+                        fieldStyle="alt"
                         label="Recipient's address"
                         value={value}
                         onBlur={onBlur}
@@ -233,6 +238,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                         style={textInput}
                         errors={errors}
                         label="Amount"
+                        fieldStyle="alt"
                         value={value}
                         onBlur={onBlur}
                         onChangeText={(value) => onChange(value)}
@@ -246,6 +252,10 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                         value: true,
                         message: "Field is required!",
                       },
+                      max: {
+                        value: asset.freeBalance,
+                        message: "Insufficient funds",
+                      },
                     }}
                   />
                 </View>
@@ -255,7 +265,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                     text="Preview the transfer"
                     outline={true}
                     disabled={!isValid}
-                    onPress={()=>{
+                    onPress={() => {
                       Keyboard.dismiss()
                       handleSubmit(onSubmit)()
                     }}
@@ -290,7 +300,9 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                   <View style={styles.DRAWER_CARD_ITEM}>
                     <Text style={styles.CARD_ITEM_TITLE}>Transfer</Text>
                     <View style={styles.CARD_ITEM_DESCRIPTION}>
-                      <Text style={styles.AMOUNT_STYLE}>{amount} {asset?.symbol.toUpperCase()}</Text>
+                      <Text style={styles.AMOUNT_STYLE}>
+                        {amount} {asset?.symbol.toUpperCase()}
+                      </Text>
                     </View>
                   </View>
                   <View style={styles.CARD_ITEM_DIVIDER} />

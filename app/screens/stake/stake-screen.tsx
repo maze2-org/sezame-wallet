@@ -32,7 +32,7 @@ import { TextInputField } from "components/text-input-field/text-input-field"
 import { BackgroundStyle, CONTAINER, drawerErrorMessage, MainBackground } from "theme/elements"
 import { useNavigation } from "@react-navigation/native"
 import { useStores } from "models"
-import { getBalance, getFees, getStakingStats, makeStakeTransaction } from "services/api"
+import { getBalance, getFees, getStakingProperties, makeStakeTransaction } from "services/api"
 import { showMessage } from "react-native-flash-message"
 import styles from "./styles"
 import { boolean } from "mobx-state-tree/dist/internal"
@@ -105,12 +105,13 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
     const [stakeing, setStakeing] = useState<boolean>(false)
     const [stakeable, setStakeable] = useState<boolean>(false)
     const [errorMsg, setErrorMsg] = useState<string | null>(null)
+    const [minStake, setMinStake] = useState<number | null>(null)
     const { setBalance } = currentWalletStore
 
     useEffect(() => {
       const _getBalances = async () => {
         const balance = await getBalance(asset)
-        setBalance(asset, balance.confirmedBalance, balance.stakedBalance)
+        setBalance(asset, balance)
       }
       _getBalances()
     }, [])
@@ -141,11 +142,13 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
     useEffect(() => {
       // Percentage changed, adjust the amount to be staked
       const amount = (asset.balance * percentage) / 100
-      setValue(
-        "amount",
-        `${percentage === 100 ? `${asset.balance}` : parseFloat(amount.toFixed(4))}`,
-        { shouldValidate: true },
-      )
+      if (percentage > 0) {
+        setValue(
+          "amount",
+          `${percentage === 100 ? `${asset.balance}` : parseFloat(amount.toFixed(4))}`,
+          { shouldValidate: true },
+        )
+      }
     }, [percentage])
 
     const processTransaction = async () => {
@@ -179,8 +182,8 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
 
     useEffect(() => {
       if (asset) {
-        getStakingStats(asset).then((stats) => {
-          console.log("Got stats", { stats })
+        getStakingProperties(asset).then((stats) => {
+          setMinStake(stats.minStaking)
         })
       }
     }, [asset])
@@ -198,8 +201,14 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
             <ImageBackground source={MainBackground} style={BackgroundStyle}>
               <View style={CONTAINER}>
                 <View style={WALLET_STYLE}>
-                  <CurrencyDescriptionBlock icon="stake" asset={asset} title="Available balance" />
+                  <CurrencyDescriptionBlock
+                    icon="stake"
+                    asset={asset}
+                    title="Available balance"
+                    balance="freeBalance"
+                  />
                 </View>
+
                 <View>
                   <Controller
                     control={control}
@@ -214,7 +223,7 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
                         onBlur={onBlur}
                         onChangeText={(value) => onChange(value)}
                         keyboardType="numeric"
-                        numberOfLines={1}
+                        // numberOfLines={1}
                         returnKeyType="done"
                       />
                     )}
@@ -224,8 +233,10 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
                         message: "Field is required!",
                       },
                       min: {
-                        value: 0.00000001,
-                        message: "Not enough tokens",
+                        value: Math.max(0.1, minStake || 0),
+                        message: `You must stake at least ${Math.max(0.1, minStake || 0)} ${
+                          asset.symbol
+                        }`,
                       },
                     }}
                   />

@@ -46,6 +46,11 @@ const URL: TextStyle = {
   color: color.primary,
   textDecorationLine: "underline",
 }
+
+const WARNING: TextStyle = {
+  color: color.error,
+  textAlign: "center",
+}
 const CARD_ITEM_DESCRIPTION: ViewStyle = {
   alignItems: "flex-end",
 }
@@ -66,5 +71,6 @@ const styles = {
   CARD_ITEM_DESCRIPTION,
   CARD_ITEM_DIVIDER,
   URL,
+  WARNING,
 }
 export default styles

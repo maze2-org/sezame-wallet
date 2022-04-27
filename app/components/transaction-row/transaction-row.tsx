@@ -116,6 +116,8 @@ export const TransactionRow = observer(function TransactionRow(props: Transactio
     rowTitle = <Text>Unstaking</Text>
   } else if (transaction.reason === "staking") {
     rowTitle = <Text>Staking</Text>
+  } else if (transaction.reason === "withdraw") {
+    rowTitle = <Text>Withdrawing</Text>
   } else if (typeof txs === "string") {
     rowTitle = <Text>{truncateText(txs)}</Text>
   } else if (txs.length > 0) {

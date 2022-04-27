@@ -56,6 +56,8 @@ export interface CurrencyDescriptionBlockProps {
   asset?: IWalletAsset
   title?: string
   icon?: "transfer" | "stake"
+  small?: boolean
+  balance?: "freeBalance" | "balance"
 }
 
 /**
@@ -64,7 +66,7 @@ export interface CurrencyDescriptionBlockProps {
 export const CurrencyDescriptionBlock = observer(function CurrencyDescriptionBlock(
   props: CurrencyDescriptionBlockProps,
 ) {
-  const { style, asset, icon, title } = props
+  const { style, asset, icon, title, small } = props
   const styles = Object.assign({}, CONTAINER, style)
 
   const rewardsStyle: TextStyle = {
@@ -79,8 +81,14 @@ export const CurrencyDescriptionBlock = observer(function CurrencyDescriptionBlo
     lineHeight: 37,
   }
 
+  const smallStyle: ViewStyle = {
+    transform: [{ scale: 0.5 }],
+  }
+
+  const balanceType = props.balance || "balance"
+
   return (
-    <View style={{ alignItems: "center" }}>
+    <View style={[{ alignItems: "center" }, small && smallStyle]}>
       <View style={styles}>
         <Image source={{ uri: asset.image }} style={LogoStyle} />
         {icon === "transfer" && (
@@ -96,7 +104,7 @@ export const CurrencyDescriptionBlock = observer(function CurrencyDescriptionBlo
       </View>
       <Text style={rewardsStyle}>{title}</Text>
       <Text style={amountStyle}>
-        {asset.balance.toFixed(4)} {asset.symbol}
+        {asset[balanceType].toFixed(4)} {asset.symbol}
       </Text>
     </View>
   )
