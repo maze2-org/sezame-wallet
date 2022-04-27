@@ -305,7 +305,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                     <Text style={styles.CARD_ITEM_TITLE}>Transaction fees</Text>
                     <View style={styles.CARD_ITEM_DESCRIPTION}>
                       <Text style={styles.AMOUNT_STYLE}>
-                        {fees ? `${fees.regular.settings.feeValue} ${fees.regular.currency}` : ""} {asset?.symbol.toUpperCase()}
+                        {fees ? `${fees.regular.settings.feeValue} ${fees.regular.currency}` : ""}
                       </Text>
                     </View>
                   </View>
