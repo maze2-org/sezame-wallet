@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@el173/react-native-passcode-auth": "^1.0.1",
-    "@maze2/sezame-sdk": "^1.3.18",
+    "@maze2/sezame-sdk": "^1.3.19",
     "@react-native-async-storage/async-storage": "^1.14.1",
     "@react-native-clipboard/clipboard": "^1.8.5",
     "@react-navigation/bottom-tabs": "^6.2.0",
