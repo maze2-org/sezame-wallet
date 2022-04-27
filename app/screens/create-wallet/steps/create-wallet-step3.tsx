@@ -1,44 +1,29 @@
-import React, { useContext, useEffect, useRef, useState } from "react"
-import { ImageStyle, SafeAreaView, View, ViewStyle } from "react-native"
-import { Button, Header, Text, AutoImage as Image, TextField, AppScreen } from "components"
-import { Controller, useForm, useWatch } from "react-hook-form"
-import {
-  btnDisabled,
-  CONTAINER,
-  containerGrowable,
-  headerTitle,
-  NORMAL_TEXT,
-  PRIMARY_BTN,
-  PRIMARY_OUTLINE_BTN,
-  PRIMARY_TEXT,
-  textInput,
-} from "theme/elements"
+import React, { useContext, useEffect, useState } from "react"
+import { ImageStyle, Platform, SafeAreaView, TextInput, TextStyle, View, ViewStyle, } from "react-native"
+import { Button, Header, Text, AutoImage as Image, AppScreen } from "components"
+import { useForm, useWatch } from "react-hook-form"
+import { btnDisabled, CONTAINER, containerGrowable, headerTitle, NORMAL_TEXT, PRIMARY_BTN, PRIMARY_OUTLINE_BTN, PRIMARY_TEXT, } from "theme/elements"
 import { useStores } from "models"
 import { StepProps } from "utils/MultiStepController/Step"
 import { StepsContext } from "utils/MultiStepController/MultiStepController"
 import { WalletCreateContext } from "../create-wallet-screen"
-import { TextInputField } from "components/text-input-field/text-input-field"
-import { spacing } from "theme"
+import { color, spacing, typography, } from "theme"
 import { ScrollView } from "react-native-gesture-handler"
+
+
 export function CreateWalletStep3(props: StepProps) {
+
   const nextIcon = require("../../../../assets/icons/next.png")
   const { seedPhrase } = useContext(WalletCreateContext)
-  const {
-    control,
-    setValue,
-    formState: { errors },
-  } = useForm({ mode: "onChange" })
+  const { control, setValue, formState: { errors }, } = useForm({ mode: "onChange" })
 
-  const pastedSeedPhrase = useWatch({
-    control,
-    name: "pastedSeedPhrase",
-    defaultValue: "",
-  })
+  const pastedSeedPhrase = useWatch({ control, name: "pastedSeedPhrase", defaultValue: "", })
   const {setOverlayLoadingShown, overlayLoadingShown} = useStores()
-  const isSeedPhraseCorrect = seedPhrase === pastedSeedPhrase
   const { onButtonBack, onButtonNext } = useContext(StepsContext)
   const [words, setWords] = useState([])
   const [usedWords, setUsedWords] = useState([])
+  const [valueInput, setValueInput] = useState('');
+  const [validate, setValidate] = useState(false)
 
   const shuffle = (array) => {
     let currentIndex = array.length
@@ -88,6 +73,35 @@ export function CreateWalletStep3(props: StepProps) {
     paddingHorizontal: spacing[3],
     margin: spacing[1],
   }
+  const SEARCH_CONTAINER: ViewStyle = {
+    flexDirection:'row',
+    flexWrap:'wrap',
+    borderBottomWidth: 1,
+    borderColor: color.palette.white,
+    alignItems: 'center',
+  }
+  const SEARCH_WRAPPER: ViewStyle = {
+    marginTop:spacing[4]
+  }
+  const INPUT: TextStyle = {
+    flexGrow:1,
+    minWidth: 100,
+    fontFamily: typography.primary,
+    color: color.text,
+    minHeight: 44,
+    fontSize: 15,
+    lineHeight: 20,
+    backgroundColor: color.transparent,
+    paddingHorizontal: spacing[2],
+    paddingVertical: spacing[0],
+  }
+  const LABEL: TextStyle = {
+    fontSize: 10,
+    lineHeight: 14,
+    color: color.palette.grey,
+    fontWeight: "600",
+    textTransform: "uppercase",
+  }
 
   const renderRemainingWords = () => {
     return words
@@ -97,8 +111,7 @@ export function CreateWalletStep3(props: StepProps) {
           key={w}
           style={whitelistItemStyle}
           onStartShouldSetResponder={() => {
-            usedWords.push(w)
-            setUsedWords(usedWords)
+            setUsedWords([...usedWords,w])
             let phrase = pastedSeedPhrase
             phrase = phrase + " " + w
             phrase = phrase.trim()
@@ -110,6 +123,44 @@ export function CreateWalletStep3(props: StepProps) {
         </View>
       ))
   }
+
+  const renderSelectedWords = () => {
+    return usedWords.map((w, index) => (
+      <View
+        key={index}
+        style={whitelistItemStyle}
+        onStartShouldSetResponder={() => {
+          const updatedSelectedWords = usedWords.filter((_,wordIndex)=> index !== wordIndex);
+          setUsedWords(updatedSelectedWords)
+          return true
+        }}
+      >
+        <Text text={w} style={NORMAL_TEXT} />
+      </View>
+    ))
+  }
+
+  const changeTextHandler = (value) => {
+    if(value.indexOf(' ') !== -1){
+      const wordsArray: string[] = value.split(' ');
+      const validWordsArr = wordsArray.filter(word =>!!word.trim() &&  words.includes(word.trim()));
+      validWordsArr.length > 0 && setUsedWords([...usedWords, ...validWordsArr]);
+      setValueInput('')
+      return
+    }
+    setValueInput(value)
+  }
+
+  useEffect(()=>{
+    if(usedWords.join(' ') === seedPhrase){
+      setValidate(true)
+    }else{
+      setValidate(false)
+    }
+
+
+  },[usedWords, words])
+
   return (
     <AppScreen>
       <ScrollView contentContainerStyle={CONTAINER}>
@@ -124,36 +175,37 @@ export function CreateWalletStep3(props: StepProps) {
           </Text>
         </View>
         <View style={containerGrowable}>
-          <Controller
-            control={control}
-            name="pastedSeedPhrase"
-            render={({ field: { onChange, value, onBlur } }) => (
-              <TextInputField
-                name="pastedSeedPhrase"
-                style={textInput}
-                errors={errors}
-                label="SEED PHRASE"
-                value={value}
-                onBlur={onBlur}
-                multiline={true}
-                onChangeText={(value) => onChange(value)}
-              />
-            )}
-            rules={{
-              required: {
-                value: true,
-                message: "Field is required!",
-              },
-            }}
-          />
-          <View style={whitelistContainerStyle}>{renderRemainingWords()}</View>
+
+          <View style={SEARCH_WRAPPER}>
+             <Text preset="fieldLabel" text={'SEED PHRASE'} style={LABEL}/>
+              <View style={SEARCH_CONTAINER}>
+                  {renderSelectedWords()}
+                  <TextInput
+                    value={valueInput}
+                    secureTextEntry={true}
+                    keyboardType={Platform.select({
+                      ios: 'default',
+                      android: 'visible-password'
+                    })}
+                    autoCorrect={false}
+                    autoCapitalize={'none'}
+                    placeholderTextColor={color.palette.lighterGrey}
+                    underlineColorAndroid={color.transparent}
+                    style={INPUT}
+                    onChangeText={changeTextHandler}
+                  />
+                </View>
+            </View>
+            <View style={whitelistContainerStyle}>
+               {renderRemainingWords()}
+            </View>
         </View>
 
         <SafeAreaView>
 
           <Button
             testID="next-screen-button"
-            style={[PRIMARY_BTN, !isSeedPhraseCorrect && { ...btnDisabled }]}
+            style={[PRIMARY_BTN, !validate && { ...btnDisabled }]}
             textStyle={PRIMARY_TEXT}
             onPress={()=>{
               setOverlayLoadingShown(true)
@@ -161,7 +213,7 @@ export function CreateWalletStep3(props: StepProps) {
                 setOverlayLoadingShown(false)
               })
             }}
-            disabled={!isSeedPhraseCorrect || overlayLoadingShown}
+            disabled={!validate || overlayLoadingShown}
           >
             <Text text={overlayLoadingShown ? "Loading ..." : 'NEXT'}/>
             <Image source={nextIcon} style={buttonIconStyle} />
