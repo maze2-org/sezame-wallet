@@ -62,7 +62,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
       exchangeRates,
       setOverlayLoadingShown,
     } = useStores()
-    const { getAssetById, setBalance, assets, refreshBalances } = currentWalletStore
+    const { getAssetById, getAssetsById, setBalance, assets, refreshBalances } = currentWalletStore
     // const [loading, setLoading] = React.useState({})
     const [updatingWallet, setUpdatingWallet] = React.useState<boolean>(false)
     const [prevPndTsx, setPrevPndTsx] = useState(null)
@@ -71,6 +71,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const [explorerUrl, setExplorerUrl] = useState<string>("")
 
     const asset = getAssetById(route.params.coinId, route.params.chain)
+    const allAssets = getAssetsById(route.params.coinId, route.params.chain)
     const tokenInfo = tokens.find((token) => token.id === route.params.coinId)
 
     const capabilities =
@@ -570,11 +571,12 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                     {!!tokenInfo && route.params.fromAddCurrency && (
                       <View style={styles.TOKEN_CHAINS_CONTAINER}>
                         {tokenInfo.chains.map((chain) => {
+                          const allChains = allAssets ? allAssets.filter(a=>a.cid === asset.cid).map(a=>a.chain) : [];
                           const hasInWallet = currentWalletStore.assets.find(
                             (item) => item.contract === chain.contract,
                           )
                           const showRemoveBtnCondition =
-                            asset && asset.cid === chain.name && asset.chain === chain.id
+                            asset && asset.cid === chain.name && allChains.includes(chain.id)
 
                           return (
                             <View style={styles.TOKEN_CHAIN_ROW} key={chain.id}>
