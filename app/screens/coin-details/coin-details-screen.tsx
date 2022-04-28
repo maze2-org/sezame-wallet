@@ -294,9 +294,9 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
       Linking.openURL(url)
     }
 
-    const copyAddress = () => {
-      if (asset) {
-        Clipboard.setString(asset.address)
+    const copyAddress = (value) => {
+      if (value) {
+        Clipboard.setString(value)
         Clipboard.getString()
           .then((link) => {
             modalFlashRef.current &&
@@ -659,7 +659,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                   </View>
                 )}
 
-                <TouchableOpacity style={styles.RECEIVE_MODAL_COPY_BUTTON} onPress={copyAddress}>
+                <TouchableOpacity style={styles.RECEIVE_MODAL_COPY_BUTTON} onPress={()=>copyAddress(asset?.address)}>
                   <View>
                     <SvgXml
                       stroke={color.palette.gold}
@@ -667,7 +667,18 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                       height={20}
                       style={styles.COPY_ICON}
                     />
-                    <Text style={styles.RECEIVE_MODAL_COPY_TEXT}>COPY</Text>
+                    <Text style={styles.RECEIVE_MODAL_COPY_TEXT}>COPY ADDRESS</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.RECEIVE_MODAL_COPY_BUTTON} onPress={()=>copyAddress(asset?.publicKey)}>
+                  <View>
+                    <SvgXml
+                      stroke={color.palette.gold}
+                      xml={copyImg}
+                      height={20}
+                      style={styles.COPY_ICON}
+                    />
+                    <Text style={styles.RECEIVE_MODAL_COPY_TEXT}>COPY PUBLIC KEY</Text>
                   </View>
                 </TouchableOpacity>
               </View>
