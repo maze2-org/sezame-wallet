@@ -10,6 +10,8 @@ import { Footer, Screen } from "../../components"
 import { IWalletAsset, useStores } from "../../models"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { chainSymbolsToNames } from "../../utils/consts"
+import { showMessage } from "react-native-flash-message"
+import { makeWithdrawal } from "services/api"
 
 export interface StackingBalanceRouteParams {
   image: string
@@ -32,7 +34,7 @@ const StakingBalance = (props: StackingBalanceProps) => {
       params: { image, name, asset },
     },
   } = props
-  const { exchangeRates } = useStores()
+  const { exchangeRates, pendingTransactions, setOverlayLoadingShown } = useStores()
 
   const pressStackIcon = () => {
     navigation.navigate("stake", {
@@ -47,6 +49,34 @@ const StakingBalance = (props: StackingBalanceProps) => {
       chain: asset.chain,
       coinId: asset.cid,
     })
+  }
+
+  const pressWithdrawButton = async () => {
+    try {
+      setOverlayLoadingShown(true)
+      const txId = await makeWithdrawal(asset)
+      if (!txId) {
+        showMessage({ message: "Unable to withdraw", type: "danger" })
+      } else {
+        showMessage({
+          message: "Withdrawal initiated",
+          type: "success",
+        })
+        pendingTransactions.add(asset, {
+          amount: asset.unlockedBalance.toFixed(4),
+          from: asset.address,
+          to: asset.address,
+          timestamp: new Date().getTime(),
+          reason: "withdraw",
+          txId,
+        })
+        navigation.goBack()
+      }
+    } catch (err) {
+      showMessage({ message: err.message, type: "danger" })
+    } finally {
+      setOverlayLoadingShown(false)
+    }
   }
 
   return (
@@ -67,11 +97,9 @@ const StakingBalance = (props: StackingBalanceProps) => {
           <View style={styles.CARD}>
             <View>
               <Text style={styles.GOLD_TEXT}>Available Balance</Text>
-              <Text style={styles.MIDDLE_TEXT}>
-                {+Number(asset?.balance - asset?.stakedBalance).toFixed(4)}
-              </Text>
+              <Text style={styles.MIDDLE_TEXT}>{asset?.freeBalance.toFixed(4)}</Text>
               <Text style={styles.TEXT}>
-                (~{`${(exchangeRates.getRate(asset.cid) * asset.balance).toFixed(2)}`}$)
+                (~{`${(exchangeRates.getRate(asset.cid) * asset.freeBalance).toFixed(2)}`}$)
               </Text>
             </View>
 
@@ -91,8 +119,8 @@ const StakingBalance = (props: StackingBalanceProps) => {
 
           <View style={[styles.CARD, asset.stakedBalance <= 0 && styles.DISABLED]}>
             <View>
-              <Text style={styles.GOLD_TEXT}>Stake</Text>
-              <Text style={styles.MIDDLE_TEXT}>{+Number(asset.stakedBalance).toFixed(4)}</Text>
+              <Text style={styles.GOLD_TEXT}>Staking balance</Text>
+              <Text style={styles.MIDDLE_TEXT}>{asset.stakedBalance.toFixed(4)}</Text>
               <Text style={styles.TEXT}>
                 (~
                 {`${(exchangeRates.getRate(asset.cid) * asset.stakedBalance).toFixed(2)}`}
@@ -113,12 +141,59 @@ const StakingBalance = (props: StackingBalanceProps) => {
                     <Text style={styles.TEXT}>Unstake</Text>
                   </>
                 ) : (
-                  <View>
+                  <>
                     <SvgXml width={24} height={24} xml={icon_unStake} />
                     <Text style={styles.TEXT}>Unstake</Text>
-                  </View>
+                  </>
                 )}
               </View>
+            </View>
+          </View>
+
+          <View style={[styles.CARD, asset.unlockedBalance <= 0 && styles.DISABLED]}>
+            <View>
+              <Text style={styles.GOLD_TEXT}>Unlocked balance</Text>
+              <Text style={styles.MIDDLE_TEXT}>{asset.unlockedBalance.toFixed(4)}</Text>
+              <Text style={styles.TEXT}>
+                (~
+                {`${(exchangeRates.getRate(asset.cid) * asset.unlockedBalance).toFixed(2)}`}
+                $)
+              </Text>
+            </View>
+            <View style={styles.ROW_ALIGN}>
+              <View style={[styles.ICON_CONTAINER]}>
+                {asset.unlockedBalance > 0 ? (
+                  <>
+                    <TouchableOpacity
+                      onPress={pressWithdrawButton}
+                      activeOpacity={0.7}
+                      hitSlop={{ top: 15, bottom: 15, left: 10, right: 15 }}
+                    >
+                      <SvgXml width={24} height={24} xml={icon_unStake} />
+                    </TouchableOpacity>
+                    <Text style={styles.TEXT}>Withdraw</Text>
+                  </>
+                ) : (
+                  <>
+                    <SvgXml width={24} height={24} xml={icon_unStake} />
+                    <Text style={styles.TEXT}>Withdraw</Text>
+                  </>
+                )}
+              </View>
+            </View>
+          </View>
+          <View style={[styles.CARD]}>
+            <View>
+              <Text style={styles.GOLD_TEXT}>Locked</Text>
+              <Text style={styles.INFORMATOIN_TEXT}>
+                Unstaked funds are automatically unlocked after 7 days.
+              </Text>
+              <Text style={styles.MIDDLE_TEXT}>{asset.unstakedBalance.toFixed(4)}</Text>
+              <Text style={styles.TEXT}>
+                (~
+                {`${(exchangeRates.getRate(asset.cid) * asset.unstakedBalance).toFixed(2)}`}
+                $)
+              </Text>
             </View>
           </View>
         </View>

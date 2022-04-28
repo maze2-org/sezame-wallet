@@ -2,8 +2,7 @@ import { NetworkType } from "config/networks"
 import { flow, Instance, SnapshotOut, types, cast } from "mobx-state-tree"
 import { remove } from "utils/storage"
 import { StoredWallet } from "../../utils/stored-wallet"
-import { getBalance } from "services/api"
-import { walletConnectService } from "services/walletconnect"
+import { AssetBalance, getBalance } from "services/api"
 
 const WalletAsset = types.model({
   name: types.string,
@@ -17,6 +16,10 @@ const WalletAsset = types.model({
   contract: types.optional(types.string, ""),
   balance: types.optional(types.number, 0),
   stakedBalance: types.optional(types.number, 0),
+  freeBalance: types.optional(types.number, 0),
+  unconfirmedBalance: types.optional(types.number, 0),
+  unlockedBalance: types.optional(types.number, 0),
+  unstakedBalance: types.optional(types.number, 0),
   value: types.optional(types.number, 0),
   rate: types.optional(types.number, 0),
   version: types.optional(types.number, 0),
@@ -51,6 +54,11 @@ export const CurrentWalletModel = types
         (a) => (!chain && a.cid === cid) || (chain && a.cid === cid && a.chain === chain),
       )
     },
+    getAssetsById: (cid: string, chain?: string) => {
+      return self.assets.filter(
+        (a) => (!chain && a.cid === cid) || (chain && a.cid === cid && a.chain === chain),
+      )
+    },
     getAssetByChain: (chain: string) => {
       return self.assets.find((a) => a.chain === chain)
     },
@@ -80,7 +88,16 @@ export const CurrentWalletModel = types
     resetBalance: () => {
       let wallet = JSON.parse(self.wallet)
 
-      const resetted = self.assets.map((asset) => ({ ...asset, balance: 0, stakedBalance: 0 }))
+      const resetted = self.assets.map((asset) => ({
+        ...asset,
+        balance: 0,
+        stakedBalance: 0,
+        freeBalance: 0,
+        unconfirmedBalance: 0,
+        unlockedBalance: 0,
+        unstakedBalance: 0,
+      }))
+
       self.assets = JSON.parse(JSON.stringify(resetted))
       wallet.assets = self.assets
       self.wallet = JSON.stringify(wallet)
@@ -96,12 +113,16 @@ export const CurrentWalletModel = types
       self.assets.replace([])
       self.name = ""
     },
-    setBalance: (asset, balance: number, stakedBalance: number) => {
+    setBalance: (asset, assetBalance: AssetBalance) => {
       const storedAsset = self.assets.find(
         (a) => a.symbol === asset.symbol && a.chain === asset.chain,
       )
-      storedAsset.balance = balance
-      storedAsset.stakedBalance = stakedBalance
+      storedAsset.balance = assetBalance.confirmedBalance
+      storedAsset.stakedBalance = assetBalance.stakedBalance
+      storedAsset.freeBalance = assetBalance.freeBalance
+      storedAsset.unconfirmedBalance = assetBalance.unconfirmedBalance
+      storedAsset.unlockedBalance = assetBalance.unlockedBalance
+      storedAsset.unstakedBalance = assetBalance.unstakedBalance
     },
     stopLoading: () => {
       self.loadingBalance = false
@@ -112,8 +133,16 @@ export const CurrentWalletModel = types
       for (let asset of self.assets) {
         try {
           const balance = yield getBalance(asset)
+          console.log(
+            "GOT BALANCEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE",
+            JSON.stringify({ asset, balance }, null, 2),
+          )
           asset.balance = balance.confirmedBalance
           asset.stakedBalance = balance.stakedBalance
+          asset.freeBalance = balance.freeBalance
+          asset.unconfirmedBalance = balance.unconfirmedBalance
+          asset.unlockedBalance = balance.unlockedBalance
+          asset.unstakedBalance = balance.unstakedBalance
         } catch (error) {
           console.error({ error })
         }
@@ -122,11 +151,13 @@ export const CurrentWalletModel = types
     }),
 
     removeWallet: async () => {
+      let deleted = null
       try {
-        const deleted = await remove(self.name)
+        deleted = await remove(self.name)
       } catch (error) {
         console.log("Error removing wallet", error)
       }
+      return deleted
     },
   })) // eslint-disable-line @typescript-eslint/no-unused-vars
 

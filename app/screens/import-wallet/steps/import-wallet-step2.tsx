@@ -33,6 +33,9 @@ import {
   PRIMARY_TEXT,
   PRIMARY_OUTLINE_BTN,
 } from "theme/elements"
+import {
+  showMessage
+} from "react-native-flash-message"
 
 const SEARCH_WRAPPER: ViewStyle = {
   marginTop: spacing[4]
@@ -121,7 +124,7 @@ export function ImportWalletStep2(props: StepProps) {
       setOverlayLoadingShown(false)
       onButtonNext();
     }catch (e){
-      console.log(e)
+      showMessage({ message: 'Invalid bip39 mnemonic specified', type: 'danger' })
       setOverlayLoadingShown(false)
     }
   }
@@ -131,7 +134,6 @@ export function ImportWalletStep2(props: StepProps) {
     allowedWords.current.forEach((word) => {
       if (
         value &&
-        selectedWords.indexOf(word) === -1 &&
         word.toLowerCase().substring(0, value.length) === value.toLowerCase()
       )
         availableWords.push(word)
@@ -139,7 +141,7 @@ export function ImportWalletStep2(props: StepProps) {
     setWhitelist(availableWords.slice(0, 20))
     setTimeout(()=>{
       if(contentHeight){
-        scrollViewRef?.current && scrollViewRef.current.scrollTo(contentHeight);
+        scrollViewRef?.current && scrollViewRef.current.scrollTo({x:0,y:contentHeight,animated:false});
       }else {
         scrollViewRef?.current && scrollViewRef.current.scrollToEnd();
       }

@@ -10,10 +10,19 @@ export type CryptoTransaction = {
   to: string[] | string
   amount: string
   status?: string | null
-  reason?: "transaction" | "staking" | "unstaking"
+  reason?: "transaction" | "staking" | "unstaking" | "withdraw"
 }
 
 const tokens = require("../../config/tokens.json")
+
+export type AssetBalance = {
+  confirmedBalance: number
+  unconfirmedBalance: number
+  stakedBalance?: number
+  unlockedBalance?: number
+  unstakedBalance?: number
+  freeBalance?: number
+}
 
 const getWallet = (asset) => {
   const cryptoWallet = WalletFactory.getWallet({
@@ -26,9 +35,7 @@ const getWallet = (asset) => {
 
   return cryptoWallet
 }
-export const getBalance = async (
-  asset: IWalletAsset,
-): Promise<{ confirmedBalance: number; stakedBalance: number }> => {
+export const getBalance = async (asset: IWalletAsset): Promise<AssetBalance> => {
   const tokenInfo = tokens.find((token) => token.id === asset.cid)
   const assetInfo = tokenInfo.chains.find((chain) => chain.id === asset.chain)
   asset.decimals = assetInfo.decimals
@@ -83,6 +90,16 @@ export const makeStakeTransaction = (asset: IWalletAsset, proposal) => {
 export const makeUnstakeTransaction = (asset: IWalletAsset, proposal) => {
   const cryptoWallet = getWallet(asset)
   return cryptoWallet.unstake(proposal)
+}
+
+export const makeWithdrawal = (asset: IWalletAsset) => {
+  const cryptoWallet = getWallet(asset)
+  return cryptoWallet.withdrawUnlocked()
+}
+
+export const getStakingProperties = (asset: IWalletAsset) => {
+  const cryptoWallet = getWallet(asset)
+  return cryptoWallet.getStakingProperties(asset.address)
 }
 
 export const makeRawTransaction = async (asset: IWalletAsset, data) => {

@@ -87,7 +87,7 @@ const BALANCE_STAKING_CARD_HEADER: TextStyle = {
 }
 const BALANCE_STAKING_CARD_AMOUNT: TextStyle = {
   color: color.palette.white,
-  fontSize: 25,
+  fontSize: 18,
   fontWeight: "bold",
 }
 const BALANCE_STAKING_CARD_NOTE: TextStyle = {
@@ -99,7 +99,7 @@ const BALANCE_STAKING_CARD_BTN: ViewStyle = {
   padding: spacing[1],
   display: "flex",
   flexDirection: "row",
-  justifyContent: "space-around",
+  justifyContent: "center",
   height: 59,
 }
 const BALANCE_STAKING_CARD_BTN_ICON: TextStyle = {
@@ -109,7 +109,8 @@ const BALANCE_STAKING_CARD_BTN_ICON: TextStyle = {
 const BALANCE_STAKING_CARD_BTN_TEXT: TextStyle = {
   color: color.palette.white,
   fontSize: 12,
-  flex: 3,
+  marginLeft: spacing[2],
+  // flex: 3,
   textAlign: "center",
 }
 const TRANSACTIONS_HEADER: ViewStyle = {
@@ -235,17 +236,25 @@ const ADD_TO_PORTFOLIO_BTN: TextStyle = {
 }
 
 const PADDING_HORIZONTAL: ViewStyle = {
-paddingHorizontal:spacing[2]
+  paddingHorizontal: spacing[2],
 }
 
 const OVERLAY_BLOCK: ViewStyle = {
-  width:width,
-  height:'100%',
-  backgroundColor:'transparent',
-  position:'absolute',
-  top:0,
-  zIndex:2,
-  elevation:2,
+  width: width,
+  height: "100%",
+  backgroundColor: "transparent",
+  position: "absolute",
+  top: 0,
+  zIndex: 2,
+  elevation: 2,
+}
+
+const BALANCE_STAKING_CARD_BODY_V_SPACING: ViewStyle = {
+  marginTop: spacing[2],
+}
+const BALANCE_STAKING_LITTLE_TEXT: TextStyle = {
+  fontSize: 9,
+  opacity: 0.6,
 }
 
 const styles = {
@@ -265,6 +274,8 @@ const styles = {
   BALANCE_STAKING_CONTAINER,
   BALANCE_STAKING_CARD,
   BALANCE_STAKING_CARD_BODY,
+  BALANCE_STAKING_CARD_BODY_V_SPACING,
+  BALANCE_STAKING_LITTLE_TEXT,
   BALANCE_STAKING_CARD_HEADER,
   BALANCE_STAKING_CARD_AMOUNT,
   BALANCE_STAKING_CARD_NOTE,

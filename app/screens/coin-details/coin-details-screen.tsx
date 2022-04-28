@@ -15,6 +15,7 @@ import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5"
 import IonIcons from "react-native-vector-icons/Ionicons"
 import copyImg from "../../../assets/svg/copy.svg"
+import stakeIcon from "../../../assets/icons/stake.svg"
 import { NavigatorParamList } from "../../navigators"
 import FlashMessage, { showMessage } from "react-native-flash-message"
 import {
@@ -43,6 +44,7 @@ import {
   getTransactionStatus,
   getTransactionsUrl,
 } from "services/api"
+import AnimatedComponent from "../../components/animatedComponent/AnimatedComponent"
 
 const tokens = require("../../config/tokens.json")
 
@@ -60,21 +62,20 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
       exchangeRates,
       setOverlayLoadingShown,
     } = useStores()
-    const { getAssetById, setBalance, assets } = currentWalletStore
-    const [loading, setLoading] = React.useState({})
+    const { getAssetById, getAssetsById, setBalance, assets, refreshBalances } = currentWalletStore
+    // const [loading, setLoading] = React.useState({})
     const [updatingWallet, setUpdatingWallet] = React.useState<boolean>(false)
     const [prevPndTsx, setPrevPndTsx] = useState(null)
-    const pndTsx = pendingTransactions?.transactions;
+    const pndTsx = pendingTransactions?.transactions
 
     const [explorerUrl, setExplorerUrl] = useState<string>("")
 
     const asset = getAssetById(route.params.coinId, route.params.chain)
+    const allAssets = getAssetsById(route.params.coinId, route.params.chain)
     const tokenInfo = tokens.find((token) => token.id === route.params.coinId)
-    console.log(JSON.stringify(tokenInfo, null, 2))
 
     const capabilities =
       tokenInfo.chains.reduce((previous, current) => {
-        console.log({ previous, current })
         if (current.id === route.params.chain) {
           return current.capabilities
         }
@@ -82,8 +83,9 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
       }, []) || []
 
     const _getBalances = async () => {
-      const balance = await getBalance(asset)
-      setBalance(asset, balance.confirmedBalance, balance.stakedBalance)
+      // const balance = await getBalance(asset)
+      // setBalance(asset, balance)
+      refreshBalances()
     }
 
     const _getTransactions = async () => {
@@ -97,6 +99,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
         getTransactionStatus(asset, tx.txId)
           .then((status) => {
             pendingTransactions.update(tx, { status })
+
             if (status === "success") {
               pendingTransactions.remove(asset, tx)
               _getBalances()
@@ -104,7 +107,6 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
             }
           })
           .catch((err) => {
-            console.error("GOT ERROR!!! Removing it...", err)
             // pendingTransactions.remove(asset, tx)
           })
       })
@@ -146,34 +148,34 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     }, [chartDays])
 
     // Every PendingTransaction Update check transaction status and show notification
-    const showTsxMessage = ({success, failed})=>{
-      let type, message;
-      if(success === 1 && failed === 0){
-        message = 'Your pending transaction has succeeded';
-        type = 'success';
-      }else if(failed === 1 && success === 0){
-        message = 'Your pending transaction has failed'
-        type = 'danger';
-      }else if(success > 1 && failed === 0){
-        message = 'Your pending transactions have succeeded';
-        type = 'success';
-      }else if(failed > 1 && success === 0){
-        message = 'Your pending transactions have failed';
-        type = 'danger';
-      }else {
-        message = 'Your pending transactions status have changed'
-        type = 'success';
+    const showTsxMessage = ({ success, failed }) => {
+      let type, message
+      if (success === 1 && failed === 0) {
+        message = "Your pending transaction has succeeded"
+        type = "success"
+      } else if (failed === 1 && success === 0) {
+        message = "Your pending transaction has failed"
+        type = "danger"
+      } else if (success > 1 && failed === 0) {
+        message = "Your pending transactions have succeeded"
+        type = "success"
+      } else if (failed > 1 && success === 0) {
+        message = "Your pending transactions have failed"
+        type = "danger"
+      } else {
+        message = "Your pending transactions status have changed"
+        type = "success"
       }
 
-      showMessage({type , message})
+      showMessage({ type, message })
     }
 
-    useEffect(()=>{
-      const tsxStatuses = {};
-      const statuses = {success:0, failed: 0}
+    useEffect(() => {
+      const tsxStatuses = {}
+      const statuses = { success: 0, failed: 0 }
       if (prevPndTsx) {
         if (Array.isArray(pendingTransactions?.transactions)) {
-          pendingTransactions.transactions.forEach(tsx => {
+          pendingTransactions.transactions.forEach((tsx) => {
             if (tsx.status !== prevPndTsx[tsx.txId]) {
               if (["success"].includes(tsx.status)) {
                 // success
@@ -183,19 +185,19 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                 statuses.failed = statuses.failed + 1
               }
             }
-            tsxStatuses[tsx.txId] = tsx.status;
+            tsxStatuses[tsx.txId] = tsx.status
           })
           showTsxMessage(statuses)
         }
-      }else {
-        pendingTransactions?.transactions?.forEach(tsx => tsxStatuses[tsx.txId] = tsx.status)
+      } else {
+        pendingTransactions?.transactions?.forEach((tsx) => (tsxStatuses[tsx.txId] = tsx.status))
         setPrevPndTsx(tsxStatuses)
       }
-    },[pndTsx])
+    }, [pndTsx])
 
     const addAsset = React.useCallback((chain: any) => {
       setOverlayLoadingShown(true)
-      setLoading((loading) => ({ ...loading, [chain.id]: true }))
+      // setLoading((loading) => ({ ...loading, [chain.id]: true }))
       setUpdatingWallet(true)
       currentWalletStore.getWallet().then((wallet) => {
         wallet
@@ -226,14 +228,14 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
           })
           .finally(() => {
             setOverlayLoadingShown(false)
-            setLoading((loading) => ({ ...loading, [chain.id]: false }))
+            // setLoading((loading) => ({ ...loading, [chain.id]: false }))
             setUpdatingWallet(false)
           })
       })
     }, [])
 
     const removeAsset = React.useCallback((chain: any) => {
-      setLoading((loading) => ({ ...loading, [chain.id]: true }))
+      // setLoading((loading) => ({ ...loading, [chain.id]: true }))
       setUpdatingWallet(true)
 
       currentWalletStore.getWallet().then((wallet) => {
@@ -255,7 +257,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
             })
           })
           .finally(() => {
-            setLoading((loading) => ({ ...loading, [chain.id]: false }))
+            // setLoading((loading) => ({ ...loading, [chain.id]: false }))
             setUpdatingWallet(false)
           })
       })
@@ -292,9 +294,9 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
       Linking.openURL(url)
     }
 
-    const copyAddress = () => {
-      if (asset) {
-        Clipboard.setString(asset.address)
+    const copyAddress = (value) => {
+      if (value) {
+        Clipboard.setString(value)
         Clipboard.getString()
           .then((link) => {
             modalFlashRef.current &&
@@ -363,214 +365,251 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
           <ScrollView>
             {!!coinData && (
               <View>
-                <View style={styles.COIN_CARD_CONTAINER}>
-                  <CoinCard
-                    style={styles.COIN_CARD}
-                    name={coinData.name}
-                    balance={asset?.balance}
-                    imageUrl={coinData.image?.large}
-                    symbol={coinData.symbol}
-                    chain={asset?.chain}
-                  />
-                  {!!asset && (
-                    <View style={styles.BTNS_CONTAINER}>
-                      <Button style={styles.VERTICAL_ICON_BTN} onPress={goToSend}>
-                        <FontAwesome5Icon name="arrow-up" size={18} color={color.palette.white} />
-                        <Text style={styles.VERTICAL_ICON_BTN_TEXT}>Send</Text>
-                      </Button>
-                      <Button
-                        style={styles.VERTICAL_ICON_BTN}
-                        onPress={() => toggleReceiveModal(true)}
-                      >
-                        <FontAwesome5Icon name="arrow-down" size={18} color={color.palette.white} />
-                        <Text style={styles.VERTICAL_ICON_BTN_TEXT}>Receive</Text>
-                      </Button>
-                    </View>
-                  )}
-                </View>
-                {!!chartData && !!chartData.length && (
-                  <PriceChart data={chartData.map((p) => p[1])} />
-                )}
-                <View style={styles.COIN_DETAILS_CONTAINER}>
-                  {!!chartData && !!chartData.length && (
-                    <View style={styles.TIMEFRAME_BTNS}>
-                      {[
-                        { value: 1, label: "24H" },
-                        { value: 7, label: "7D" },
-                        { value: 30, label: "1M" },
-                        { value: 90, label: "3M" },
-                        { value: 180, label: "6M" },
-                        { value: "max", label: "max" },
-                      ].map((frame) => (
+                <AnimatedComponent direction={"TOP"}>
+                  <View style={styles.COIN_CARD_CONTAINER}>
+                    <CoinCard
+                      style={styles.COIN_CARD}
+                      name={coinData.name}
+                      balance={asset?.balance}
+                      imageUrl={coinData.image?.large}
+                      symbol={coinData.symbol}
+                      chain={asset?.chain}
+                    />
+                    {!!asset && (
+                      <View style={styles.BTNS_CONTAINER}>
+                        <Button style={styles.VERTICAL_ICON_BTN} onPress={goToSend}>
+                          <FontAwesome5Icon name="arrow-up" size={18} color={color.palette.white} />
+                          <Text style={styles.VERTICAL_ICON_BTN_TEXT}>Send</Text>
+                        </Button>
                         <Button
-                          key={frame.value}
-                          onPress={() => switchChart(frame.value as number | "max")}
-                          style={
-                            chartDays === frame.value
-                              ? styles.TIMEFRAME_BTN_ACTIVE
-                              : styles.TIMEFRAME_BTN
-                          }
+                          style={styles.VERTICAL_ICON_BTN}
+                          onPress={() => toggleReceiveModal(true)}
                         >
-                          <Text
+                          <FontAwesome5Icon
+                            name="arrow-down"
+                            size={18}
+                            color={color.palette.white}
+                          />
+                          <Text style={styles.VERTICAL_ICON_BTN_TEXT}>Receive</Text>
+                        </Button>
+                      </View>
+                    )}
+                  </View>
+                  {!!chartData && !!chartData.length && (
+                    <PriceChart data={chartData.map((p) => p[1])} />
+                  )}
+                </AnimatedComponent>
+                <View style={styles.COIN_DETAILS_CONTAINER}>
+                  <AnimatedComponent direction={"TOP"}>
+                    {!!chartData && !!chartData.length && (
+                      <View style={styles.TIMEFRAME_BTNS}>
+                        {[
+                          { value: 1, label: "24H" },
+                          { value: 7, label: "7D" },
+                          { value: 30, label: "1M" },
+                          { value: 90, label: "3M" },
+                          { value: 180, label: "6M" },
+                          { value: "max", label: "max" },
+                        ].map((frame) => (
+                          <Button
+                            key={frame.value}
+                            onPress={() => switchChart(frame.value as number | "max")}
                             style={
                               chartDays === frame.value
-                                ? styles.TIMEFRAME_BTN_TEXT_ACTIVE
-                                : styles.TIMEFRAME_BTN_TEXT
+                                ? styles.TIMEFRAME_BTN_ACTIVE
+                                : styles.TIMEFRAME_BTN
                             }
                           >
-                            {frame.label}
-                          </Text>
-                        </Button>
-                      ))}
-                    </View>
-                  )}
-                  {!!asset && !route.params.fromAddCurrency && (
-                    <View>
-                      <View style={styles.BALANCE_STAKING_CONTAINER}>
-                        <View style={styles.BALANCE_STAKING_CARD}>
-                          <View style={styles.BALANCE_STAKING_CARD_BODY}>
-                            <Text style={styles.BALANCE_STAKING_CARD_HEADER}>
-                              Available balance
+                            <Text
+                              style={
+                                chartDays === frame.value
+                                  ? styles.TIMEFRAME_BTN_TEXT_ACTIVE
+                                  : styles.TIMEFRAME_BTN_TEXT
+                              }
+                            >
+                              {frame.label}
                             </Text>
-                            <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>
-                              {Number(asset?.balance - asset?.stakedBalance).toFixed(4)}
-                            </Text>
-                            <Text style={styles.BALANCE_STAKING_CARD_NOTE}>
-                              {" "}
-                              (~{`${(exchangeRates.getRate(asset.cid) * asset.balance).toFixed(2)}`}
-                              $)
-                            </Text>
-                          </View>
-                          {["lifting", "lowering"].some((el) => capabilities.includes(el)) && (
-                            <>
-                              <View style={SEPARATOR} />
-                              <Button
-                                style={styles.BALANCE_STAKING_CARD_BTN}
-                                onPress={navigateSwapping}
-                              >
-                                <IonIcons
-                                  style={styles.BALANCE_STAKING_CARD_BTN_ICON}
-                                  name="swap-horizontal"
-                                  size={23}
-                                />
-                                <Text style={styles.BALANCE_STAKING_CARD_BTN_TEXT}>SWAP</Text>
-                              </Button>
-                            </>
-                          )}
-                        </View>
-                        {capabilities.includes("staking") && (
+                          </Button>
+                        ))}
+                      </View>
+                    )}
+                  </AnimatedComponent>
+                  <AnimatedComponent direction={"BOTTOM"}>
+                    {!!asset && !route.params.fromAddCurrency && (
+                      <View>
+                        <View style={styles.BALANCE_STAKING_CONTAINER}>
                           <View style={styles.BALANCE_STAKING_CARD}>
                             <View style={styles.BALANCE_STAKING_CARD_BODY}>
                               <Text style={styles.BALANCE_STAKING_CARD_HEADER}>
-                                {" "}
-                                Staking balance
+                                Available balance
                               </Text>
                               <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>
-                                {+Number(asset.stakedBalance).toFixed(4)}
+                                {Number(asset?.freeBalance).toFixed(4) +
+                                  " " +
+                                  asset.symbol.toUpperCase()}
                               </Text>
                               <Text style={styles.BALANCE_STAKING_CARD_NOTE}>
+                                {" "}
                                 (~
-                                {`${(
-                                  exchangeRates.getRate(asset.cid) * asset.stakedBalance
-                                ).toFixed(2)}`}
+                                {`${(exchangeRates.getRate(asset.cid) * asset.freeBalance).toFixed(
+                                  2,
+                                )}`}
                                 $)
                               </Text>
                             </View>
-                            <>
-                              <View style={SEPARATOR} />
-                              <Button
-                                style={styles.BALANCE_STAKING_CARD_BTN}
-                                onPress={navigateStakingBalance}
-                              >
-                                <FontAwesome5Icon
-                                  size={18}
-                                  style={styles.BALANCE_STAKING_CARD_BTN_ICON}
-                                  name="database"
-                                />
-                                <Text style={styles.BALANCE_STAKING_CARD_BTN_TEXT}>
-                                  MANAGE STAKING
+                            {["lifting", "lowering"].some((el) => capabilities.includes(el)) && (
+                              <>
+                                <View style={SEPARATOR} />
+                                <Button
+                                  style={styles.BALANCE_STAKING_CARD_BTN}
+                                  onPress={navigateSwapping}
+                                >
+                                  <IonIcons
+                                    style={styles.BALANCE_STAKING_CARD_BTN_ICON}
+                                    name="swap-horizontal"
+                                    size={23}
+                                  />
+                                  <Text style={styles.BALANCE_STAKING_CARD_BTN_TEXT}>SWAP</Text>
+                                </Button>
+                              </>
+                            )}
+                          </View>
+                          {capabilities.includes("staking") && (
+                            <View style={styles.BALANCE_STAKING_CARD}>
+                              <View style={styles.BALANCE_STAKING_CARD_BODY}>
+                                <Text style={styles.BALANCE_STAKING_CARD_HEADER}>
+                                  Staked balance
                                 </Text>
-                              </Button>
-                            </>
+                                <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>
+                                  {(
+                                    asset.stakedBalance +
+                                    asset.unlockedBalance +
+                                    asset.unstakedBalance
+                                  ).toFixed(4)}{" "}
+                                  {asset.symbol.toUpperCase()}
+                                </Text>
+                                <Text style={styles.BALANCE_STAKING_CARD_NOTE}>
+                                  (~
+                                  {`${(
+                                    exchangeRates.getRate(asset.cid) *
+                                    (asset.stakedBalance +
+                                      asset.unlockedBalance +
+                                      asset.unstakedBalance)
+                                  ).toFixed(2)}`}
+                                  $)
+                                </Text>
+                                <View style={styles.BALANCE_STAKING_CARD_BODY_V_SPACING}>
+                                  <Text
+                                    style={styles.BALANCE_STAKING_LITTLE_TEXT}
+                                  >{`Staked: ${asset.stakedBalance.toFixed(4)}`}</Text>
+                                  <Text
+                                    style={styles.BALANCE_STAKING_LITTLE_TEXT}
+                                  >{`Unstaked: ${asset.unstakedBalance.toFixed(4)}`}</Text>
+                                  <Text
+                                    style={styles.BALANCE_STAKING_LITTLE_TEXT}
+                                  >{`Unlocked: ${asset.unlockedBalance.toFixed(4)}`}</Text>
+                                </View>
+                              </View>
+
+                              <>
+                                <View style={SEPARATOR} />
+                                <Button
+                                  style={styles.BALANCE_STAKING_CARD_BTN}
+                                  onPress={navigateStakingBalance}
+                                >
+                                  <SvgXml
+                                    xml={stakeIcon}
+                                    height={24}
+                                    style={styles.BALANCE_STAKING_CARD_BTN_ICON}
+                                  />
+                                  <Text style={styles.BALANCE_STAKING_CARD_BTN_TEXT}>
+                                    MANAGE STAKING
+                                  </Text>
+                                </Button>
+                              </>
+                            </View>
+                          )}
+                        </View>
+
+                        {pendingTransactions.getPendingTxsForAsset(asset).length > 0 && (
+                          <View>
+                            <View style={styles.TRANSACTIONS_HEADER}>
+                              <Text preset="header" text="Pending transactions" />
+                            </View>
+                            <View style={styles.TRANSACTIONS_CONTAINER}>
+                              {pendingTransactions.getPendingTxsForAsset(asset).map((tx, index) => (
+                                <>
+                                  <TransactionRow
+                                    key={tx.txId}
+                                    asset={asset}
+                                    onRemove={() => {
+                                      pendingTransactions.remove(asset, tx)
+                                    }}
+                                    transaction={{ ...tx, date: null, out: true, hash: "" }}
+                                  />
+                                </>
+                              ))}
+                            </View>
+                          </View>
+                        )}
+
+                        {asset.chain !== "AVN" && (
+                          <View>
+                            <View style={styles.TRANSACTIONS_HEADER}>
+                              <Text preset="header" text="Transactions" />
+                            </View>
+                            <View style={styles.TRANSACTIONS_CONTAINER}>
+                              {transactions.map((tx, index) => (
+                                <TransactionRow key={index} asset={asset} transaction={tx} />
+                              ))}
+                            </View>
                           </View>
                         )}
                       </View>
+                    )}
 
-                      {pendingTransactions.getPendingTxsForAsset(asset).length > 0 && (
-                        <View>
-                          <View style={styles.TRANSACTIONS_HEADER}>
-                            <Text preset="header" text="Pending transactions" />
-                          </View>
-                          <View style={styles.TRANSACTIONS_CONTAINER}>
-                            {pendingTransactions.getPendingTxsForAsset(asset).map((tx, index) => (
-                              <TransactionRow
-                                key={tx.txId}
-                                asset={asset}
-                                onRemove={() => {
-                                  pendingTransactions.remove(asset, tx)
+                    {!!tokenInfo && route.params.fromAddCurrency && (
+                      <View style={styles.TOKEN_CHAINS_CONTAINER}>
+                        {tokenInfo.chains.map((chain) => {
+                          const allChains = allAssets ? allAssets.filter(a=>a.cid === asset.cid).map(a=>a.chain) : [];
+                          const hasInWallet = currentWalletStore.assets.find(
+                            (item) => item.contract === chain.contract,
+                          )
+                          const showRemoveBtnCondition =
+                            asset && asset.cid === chain.name && allChains.includes(chain.id)
+
+                          return (
+                            <View style={styles.TOKEN_CHAIN_ROW} key={chain.id}>
+                              <Text>{chain.name}</Text>
+                              <Button
+                                preset="secondary"
+                                disabled={updatingWallet}
+                                onPress={() => {
+                                  if (!!hasInWallet || !!showRemoveBtnCondition) {
+                                    removeAsset(chain)
+                                  } else {
+                                    addAsset(chain)
+                                  }
                                 }}
-                                transaction={{ ...tx, date: null, out: true, hash: "" }}
-                              />
-                            ))}
-                          </View>
-                        </View>
-                      )}
-
-                      {asset.chain !== "AVN" && (
-                        <View>
-                          <View style={styles.TRANSACTIONS_HEADER}>
-                            <Text preset="header" text="Transactions" />
-                          </View>
-                          <View style={styles.TRANSACTIONS_CONTAINER}>
-                            {transactions.map((tx, index) => (
-                              <TransactionRow key={index} asset={asset} transaction={tx} />
-                            ))}
-                          </View>
-                        </View>
-                      )}
-                    </View>
-                  )}
-
-                  {!!tokenInfo && route.params.fromAddCurrency && (
-                    <View style={styles.TOKEN_CHAINS_CONTAINER}>
-                      {tokenInfo.chains.map((chain) => {
-                        const hasInWallet = currentWalletStore.assets.find(
-                          (item) => item.contract === chain.contract,
-                        )
-                        const showRemoveBtnCondition =
-                          asset && asset.cid === chain.name && asset.chain === chain.id
-
-                        return (
-                          <View style={styles.TOKEN_CHAIN_ROW} key={chain.id}>
-                            <Text>{chain.name}</Text>
-                            <Button
-                              preset="secondary"
-                              disabled={updatingWallet}
-                              onPress={() => {
-                                if (!!hasInWallet || !!showRemoveBtnCondition) {
-                                  removeAsset(chain)
-                                } else {
-                                  addAsset(chain)
-                                }
-                              }}
-                            >
-                              {!!hasInWallet || !!showRemoveBtnCondition ? (
-                                <Text
-                                  style={styles.ADD_TO_PORTFOLIO_BTN}
-                                  text={updatingWallet ? "Loading ..." : "Remove from portfolio"}
-                                />
-                              ) : (
-                                <Text
-                                  style={styles.ADD_TO_PORTFOLIO_BTN}
-                                  text={updatingWallet ? "Loading ..." : "Add to portfolio"}
-                                />
-                              )}
-                            </Button>
-                          </View>
-                        )
-                      })}
-                    </View>
-                  )}
+                              >
+                                {!!hasInWallet || !!showRemoveBtnCondition ? (
+                                  <Text
+                                    style={styles.ADD_TO_PORTFOLIO_BTN}
+                                    text={updatingWallet ? "Loading ..." : "Remove from portfolio"}
+                                  />
+                                ) : (
+                                  <Text
+                                    style={styles.ADD_TO_PORTFOLIO_BTN}
+                                    text={updatingWallet ? "Loading ..." : "Add to portfolio"}
+                                  />
+                                )}
+                              </Button>
+                            </View>
+                          )
+                        })}
+                      </View>
+                    )}
+                  </AnimatedComponent>
                 </View>
               </View>
             )}
@@ -620,7 +659,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                   </View>
                 )}
 
-                <TouchableOpacity style={styles.RECEIVE_MODAL_COPY_BUTTON} onPress={copyAddress}>
+                <TouchableOpacity style={styles.RECEIVE_MODAL_COPY_BUTTON} onPress={()=>copyAddress(asset?.address)}>
                   <View>
                     <SvgXml
                       stroke={color.palette.gold}
@@ -628,7 +667,18 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                       height={20}
                       style={styles.COPY_ICON}
                     />
-                    <Text style={styles.RECEIVE_MODAL_COPY_TEXT}>COPY</Text>
+                    <Text style={styles.RECEIVE_MODAL_COPY_TEXT}>COPY ADDRESS</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.RECEIVE_MODAL_COPY_BUTTON} onPress={()=>copyAddress(asset?.publicKey)}>
+                  <View>
+                    <SvgXml
+                      stroke={color.palette.gold}
+                      xml={copyImg}
+                      height={20}
+                      style={styles.COPY_ICON}
+                    />
+                    <Text style={styles.RECEIVE_MODAL_COPY_TEXT}>COPY PUBLIC KEY</Text>
                   </View>
                 </TouchableOpacity>
               </View>

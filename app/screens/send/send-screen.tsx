@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useRef, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import {
   ImageBackground,
@@ -7,6 +7,7 @@ import {
   ViewStyle,
   ScrollView,
   KeyboardAvoidingView,
+  Keyboard,
   Platform,
 } from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
@@ -114,20 +115,27 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
     const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
     const asset = getAssetById(route.params.coinId)
     const [fees, setFees] = useState<any>(null)
+    const [isNumeric, setIsNumeric] = useState<boolean>(false)
     const [isPreview, setIsPreview] = useState<boolean>(false)
     const [sending, setSending] = useState<boolean>(false)
     const [sendable, setSendable] = useState<boolean>(false)
     const [errorMsg, setErrorMsg] = useState<string | null>(null)
+    const numericRegEx = useRef(/^(([1-9]*)|(([1-9]*)(\.|\,)([0-9]*)))$/gi).current
     const { setBalance } = currentWalletStore
 
     useEffect(() => {
       // setBalance(asset, currentWalletStore.getBalance(asset))
       const _getBalances = async () => {
         const balance = await getBalance(asset)
-        setBalance(asset, balance.confirmedBalance, balance.stakedBalance)
+        setBalance(asset, balance)
       }
       _getBalances()
     }, [])
+
+    useEffect(()=>{
+      const isNumeric = numericRegEx.test(amount)
+      setIsNumeric(isNumeric)
+    },[amount])
 
     const onSubmit = async () => {
       setErrorMsg(null)
@@ -185,7 +193,10 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
 
     return (
       <Screen unsafe style={DashboardStyle} preset="fixed" backgroundColor={color.palette.black}>
-        <ScrollView contentContainerStyle={SCROLL_VIEW_CONTAINER}>
+        <ScrollView
+          contentContainerStyle={SCROLL_VIEW_CONTAINER}
+          keyboardShouldPersistTaps={"handled"}
+        >
           <KeyboardAvoidingView
             style={[presets.scroll.outer, { backgroundColor: color.palette.black }]}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -196,6 +207,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                 <View style={WALLET_STYLE}>
                   <CurrencyDescriptionBlock
                     icon="transfer"
+                    balance="freeBalance"
                     asset={asset}
                     title="Available balance"
                   />
@@ -209,6 +221,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                         name="recipientAddress"
                         style={textInput}
                         errors={errors}
+                        fieldStyle="alt"
                         label="Recipient's address"
                         value={value}
                         onBlur={onBlur}
@@ -232,6 +245,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                         style={textInput}
                         errors={errors}
                         label="Amount"
+                        fieldStyle="alt"
                         value={value}
                         onBlur={onBlur}
                         onChangeText={(value) => onChange(value)}
@@ -245,6 +259,14 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                         value: true,
                         message: "Field is required!",
                       },
+                      pattern: {
+                        value: numericRegEx,
+                        message: "Invalid funds",
+                      },
+                      max: {
+                        value: asset.freeBalance,
+                        message: "Insufficient funds",
+                      },
                     }}
                   />
                 </View>
@@ -253,8 +275,11 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                     type="primary"
                     text="Preview the transfer"
                     outline={true}
-                    disabled={!isValid}
-                    onPress={handleSubmit(onSubmit)}
+                    disabled={!isValid || !isNumeric}
+                    onPress={() => {
+                      Keyboard.dismiss()
+                      handleSubmit(onSubmit)()
+                    }}
                   />
                 </View>
               </View>
@@ -286,7 +311,9 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                   <View style={styles.DRAWER_CARD_ITEM}>
                     <Text style={styles.CARD_ITEM_TITLE}>Transfer</Text>
                     <View style={styles.CARD_ITEM_DESCRIPTION}>
-                      <Text style={styles.AMOUNT_STYLE}>{amount}</Text>
+                      <Text style={styles.AMOUNT_STYLE}>
+                        {amount} {asset?.symbol.toUpperCase()}
+                      </Text>
                     </View>
                   </View>
                   <View style={styles.CARD_ITEM_DIVIDER} />

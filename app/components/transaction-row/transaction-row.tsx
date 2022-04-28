@@ -109,7 +109,6 @@ export const TransactionRow = observer(function TransactionRow(props: Transactio
   const txs = transaction.out ? transaction.to : transaction.from
 
   const myself = `${transaction.from}` === `${transaction.to}`
-  console.log("rowwwwwwwwwwww", transaction)
 
   let rowTitle: any = null
 
@@ -117,6 +116,8 @@ export const TransactionRow = observer(function TransactionRow(props: Transactio
     rowTitle = <Text>Unstaking</Text>
   } else if (transaction.reason === "staking") {
     rowTitle = <Text>Staking</Text>
+  } else if (transaction.reason === "withdraw") {
+    rowTitle = <Text>Withdrawing</Text>
   } else if (typeof txs === "string") {
     rowTitle = <Text>{truncateText(txs)}</Text>
   } else if (txs.length > 0) {

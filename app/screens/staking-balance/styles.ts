@@ -18,7 +18,7 @@ const HEADER: ViewStyle = {
 
 const BODY: ViewStyle = {
   paddingHorizontal: spacing[3],
-  marginBottom: spacing[7]
+  marginBottom: spacing[7],
 }
 
 const TEXT: TextStyle = {
@@ -43,6 +43,13 @@ const GOLD_TEXT: TextStyle = {
   fontSize: 10,
   lineHeight: 14,
   textTransform: "uppercase",
+}
+
+const INFORMATOIN_TEXT: TextStyle = {
+  color: color.palette.grey,
+  fontWeight: "100",
+  fontSize: 10,
+  lineHeight: 12,
 }
 
 const BIG_TEXT: TextStyle = {
@@ -116,6 +123,7 @@ const styles = {
   TEXT,
   BOLD_TEXT,
   GOLD_TEXT,
+  INFORMATOIN_TEXT,
   BIG_TEXT,
   MIDDLE_TEXT,
   IMG,
@@ -127,7 +135,7 @@ const styles = {
   ICON_ONE,
   ICON_CONTAINER,
   SCROLL_VIEW,
-  SCROLL_VIEW_CONTAINER
+  SCROLL_VIEW_CONTAINER,
 }
 
 export default styles
