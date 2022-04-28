@@ -54,6 +54,11 @@ export const CurrentWalletModel = types
         (a) => (!chain && a.cid === cid) || (chain && a.cid === cid && a.chain === chain),
       )
     },
+    getAssetsById: (cid: string, chain?: string) => {
+      return self.assets.filter(
+        (a) => (!chain && a.cid === cid) || (chain && a.cid === cid && a.chain === chain),
+      )
+    },
     getAssetByChain: (chain: string) => {
       return self.assets.find((a) => a.chain === chain)
     },
