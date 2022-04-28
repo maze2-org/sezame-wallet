@@ -97,7 +97,7 @@ const StakingBalance = (props: StackingBalanceProps) => {
           <View style={styles.CARD}>
             <View>
               <Text style={styles.GOLD_TEXT}>Available Balance</Text>
-              <Text style={styles.MIDDLE_TEXT}>{+Number(asset?.freeBalance).toFixed(4)}</Text>
+              <Text style={styles.MIDDLE_TEXT}>{asset?.freeBalance.toFixed(4)}</Text>
               <Text style={styles.TEXT}>
                 (~{`${(exchangeRates.getRate(asset.cid) * asset.freeBalance).toFixed(2)}`}$)
               </Text>
@@ -120,7 +120,7 @@ const StakingBalance = (props: StackingBalanceProps) => {
           <View style={[styles.CARD, asset.stakedBalance <= 0 && styles.DISABLED]}>
             <View>
               <Text style={styles.GOLD_TEXT}>Staking balance</Text>
-              <Text style={styles.MIDDLE_TEXT}>{+Number(asset.stakedBalance).toFixed(4)}</Text>
+              <Text style={styles.MIDDLE_TEXT}>{asset.stakedBalance.toFixed(4)}</Text>
               <Text style={styles.TEXT}>
                 (~
                 {`${(exchangeRates.getRate(asset.cid) * asset.stakedBalance).toFixed(2)}`}
@@ -153,7 +153,7 @@ const StakingBalance = (props: StackingBalanceProps) => {
           <View style={[styles.CARD, asset.unlockedBalance <= 0 && styles.DISABLED]}>
             <View>
               <Text style={styles.GOLD_TEXT}>Unlocked balance</Text>
-              <Text style={styles.MIDDLE_TEXT}>{+Number(asset.unlockedBalance).toFixed(4)}</Text>
+              <Text style={styles.MIDDLE_TEXT}>{asset.unlockedBalance.toFixed(4)}</Text>
               <Text style={styles.TEXT}>
                 (~
                 {`${(exchangeRates.getRate(asset.cid) * asset.unlockedBalance).toFixed(2)}`}
@@ -182,24 +182,20 @@ const StakingBalance = (props: StackingBalanceProps) => {
               </View>
             </View>
           </View>
-
-          {asset.unstakedBalance > 0 && (
-            <View style={[styles.CARD]}>
-              <View>
-                <Text style={styles.GOLD_TEXT}>Locked</Text>
-                <Text style={styles.INFORMATOIN_TEXT}>
-                  You recently initiated an "unstake" transaction. These assets are temporarily
-                  locked. Come back and a while to withdraw them.
-                </Text>
-                <Text style={styles.MIDDLE_TEXT}>{+Number(asset.unstakedBalance).toFixed(4)}</Text>
-                <Text style={styles.TEXT}>
-                  (~
-                  {`${(exchangeRates.getRate(asset.cid) * asset.unstakedBalance).toFixed(2)}`}
-                  $)
-                </Text>
-              </View>
+          <View style={[styles.CARD]}>
+            <View>
+              <Text style={styles.GOLD_TEXT}>Locked</Text>
+              <Text style={styles.INFORMATOIN_TEXT}>
+                Unstaked funds are automatically unlocked after 7 days.
+              </Text>
+              <Text style={styles.MIDDLE_TEXT}>{asset.unstakedBalance.toFixed(4)}</Text>
+              <Text style={styles.TEXT}>
+                (~
+                {`${(exchangeRates.getRate(asset.cid) * asset.unstakedBalance).toFixed(2)}`}
+                $)
+              </Text>
             </View>
-          )}
+          </View>
         </View>
       </ScrollView>
 

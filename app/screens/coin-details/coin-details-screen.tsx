@@ -477,7 +477,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                             <View style={styles.BALANCE_STAKING_CARD}>
                               <View style={styles.BALANCE_STAKING_CARD_BODY}>
                                 <Text style={styles.BALANCE_STAKING_CARD_HEADER}>
-                                  Staking balance
+                                  Staked balance
                                 </Text>
                                 <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>
                                   {(
@@ -500,13 +500,13 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                                 <View style={styles.BALANCE_STAKING_CARD_BODY_V_SPACING}>
                                   <Text
                                     style={styles.BALANCE_STAKING_LITTLE_TEXT}
-                                  >{`Stacked: ${asset.stakedBalance.toFixed(4)}`}</Text>
-                                  <Text
-                                    style={styles.BALANCE_STAKING_LITTLE_TEXT}
-                                  >{`Unlocked: ${asset.unlockedBalance.toFixed(4)}`}</Text>
+                                  >{`Staked: ${asset.stakedBalance.toFixed(4)}`}</Text>
                                   <Text
                                     style={styles.BALANCE_STAKING_LITTLE_TEXT}
                                   >{`Unstaked: ${asset.unstakedBalance.toFixed(4)}`}</Text>
+                                  <Text
+                                    style={styles.BALANCE_STAKING_LITTLE_TEXT}
+                                  >{`Unlocked: ${asset.unlockedBalance.toFixed(4)}`}</Text>
                                 </View>
                               </View>
 
