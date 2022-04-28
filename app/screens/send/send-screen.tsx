@@ -41,7 +41,7 @@ import { showMessage } from "react-native-flash-message"
 import styles from "./styles"
 import { boolean } from "mobx-state-tree/dist/internal"
 import { offsets, presets } from "../../components/screen/screen.presets"
-
+import { checkAddress } from "@maze2/sezame-sdk"
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
   flex: 1,
@@ -132,10 +132,10 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
       _getBalances()
     }, [])
 
-    useEffect(()=>{
+    useEffect(() => {
       const isNumeric = numericRegEx.test(amount)
       setIsNumeric(isNumeric)
-    },[amount])
+    }, [amount])
 
     const onSubmit = async () => {
       setErrorMsg(null)
@@ -189,6 +189,10 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
       }
     }
 
+    const validAddress = (address) => {
+      return checkAddress(address, asset.chain as any) || "Invalid address"
+    }
+
     const goBack = () => navigation.goBack()
 
     return (
@@ -232,6 +236,9 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                       required: {
                         value: true,
                         message: "Field is required!",
+                      },
+                      validate: {
+                        validAddress,
                       },
                     }}
                   />
