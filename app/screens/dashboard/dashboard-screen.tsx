@@ -4,10 +4,7 @@ import { StackScreenProps } from "@react-navigation/stack"
 import { View, Animated, StyleSheet, Dimensions } from "react-native"
 
 import { ExchangeRateModel, useStores } from "../../models"
-import {
-  getCoinDetails,
-  getCoinPrices,
-} from "utils/apis"
+import { getCoinDetails, getCoinPrices } from "utils/apis"
 import { color, spacing, typography } from "../../theme"
 import { NavigatorParamList } from "../../navigators"
 import { Text, Button, AppScreen } from "../../components"
@@ -15,12 +12,8 @@ import { chainSymbolsToNames } from "utils/consts"
 import CoinBox from "../../components/CoinBox/CoinBox"
 import axios, { CancelTokenSource } from "axios"
 import { useFocusEffect } from "@react-navigation/native"
-import {
-  CoingeckoCoin
-} from "../../types/coingeckoCoin"
-import {
-  showMessage
-} from "react-native-flash-message"
+import { CoingeckoCoin } from "../../types/coingeckoCoin"
+import { showMessage } from "react-native-flash-message"
 
 const Fonts = [11, 15, 24, 48, 64]
 const MY_STYLE = StyleSheet.create({
@@ -145,7 +138,7 @@ const SORT_TYPES = {
 
 type SortTypeKeys = keyof typeof SORT_TYPES
 type SortTypeValues = typeof SORT_TYPES[SortTypeKeys]
-const { width } = Dimensions.get("screen")
+
 export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard">> = observer(
   function DashboardScreen() {
     const scrollY = useRef(new Animated.Value(0)).current
@@ -154,14 +147,14 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
     const [sortBy, setSortBy] = useState<SortTypeValues>(SORT_TYPES.NETWORK)
     const [groups, setGroups] = useState({})
 
-  useEffect(()=>{
-    if(loadingBalance){
-      showMessage({
-        message:"Loading...",
-        type:"success"
-      })
-    }
-  },[loadingBalance])
+    useEffect(() => {
+      if (loadingBalance) {
+        showMessage({
+          message: "Loading...",
+          type: "success",
+        })
+      }
+    }, [loadingBalance])
 
     useEffect(() => {
       // Load balance and prepare the display of the assets when initializing the dashboard
@@ -298,7 +291,7 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
               <Animated.View style={[styles.PORTFOLIO_OVERLAY, { opacity }]} />
               <Animated.View style={[styles.PORTFOLIO_VALUE, { transform: [{ scale }] }]}>
                 <Text style={styles.PORTFOLIO} adjustsFontSizeToFit numberOfLines={1}>
-                  {+(Number(exchangeRates.getTotal(assets)).toFixed(2))}
+                  {+Number(exchangeRates.getTotal(assets)).toFixed(2)}
                 </Text>
                 <Text style={styles.PORTFOLIO_DOLLAR}> $</Text>
               </Animated.View>

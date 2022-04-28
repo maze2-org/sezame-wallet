@@ -133,10 +133,6 @@ export const CurrentWalletModel = types
       for (let asset of self.assets) {
         try {
           const balance = yield getBalance(asset)
-          console.log(
-            "GOT BALANCEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE",
-            JSON.stringify({ asset, balance }, null, 2),
-          )
           asset.balance = balance.confirmedBalance
           asset.stakedBalance = balance.stakedBalance
           asset.freeBalance = balance.freeBalance

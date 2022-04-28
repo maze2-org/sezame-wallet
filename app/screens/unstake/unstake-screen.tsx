@@ -138,12 +138,14 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
 
     useEffect(() => {
       // Percentage changed, adjust the amount to be unstaked
-      const amount = (asset.balance * percentage) / 100
-      setValue(
-        "amount",
-        `${percentage === 100 ? `${asset.balance}` : parseFloat(amount.toFixed(4))}`,
-        { shouldValidate: true },
-      )
+      if (percentage) {
+        const amount = (asset.balance * percentage) / 100
+        setValue(
+          "amount",
+          `${percentage === 100 ? `${asset.balance}` : parseFloat(amount.toFixed(4))}`,
+          { shouldValidate: true },
+        )
+      }
     }, [percentage])
 
     const processTransaction = async () => {
@@ -271,7 +273,9 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
                   <View style={styles.DRAWER_CARD_ITEM}>
                     <Text style={styles.CARD_ITEM_TITLE}>Amount to unstake</Text>
                     <View style={styles.CARD_ITEM_DESCRIPTION}>
-                      <Text style={styles.AMOUNT_STYLE}>{amount}</Text>
+                      <Text style={styles.AMOUNT_STYLE}>
+                        {amount} {asset.symbol.toUpperCase()}
+                      </Text>
                     </View>
                   </View>
                   <View style={styles.CARD_ITEM_DIVIDER} />

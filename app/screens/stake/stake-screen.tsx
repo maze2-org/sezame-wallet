@@ -317,7 +317,7 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
                   <View style={styles.DRAWER_CARD_ITEM}>
                     <Text style={styles.CARD_ITEM_TITLE}>Amount to stake</Text>
                     <View style={styles.CARD_ITEM_DESCRIPTION}>
-                      <Text style={styles.AMOUNT_STYLE}>{amount}</Text>
+                      <Text style={styles.AMOUNT_STYLE}>{amount} {asset.symbol.toUpperCase()}</Text>
                     </View>
                   </View>
                   <View style={styles.CARD_ITEM_DIVIDER} />
