@@ -33,6 +33,9 @@ import {
   PRIMARY_TEXT,
   PRIMARY_OUTLINE_BTN,
 } from "theme/elements"
+import {
+  showMessage
+} from "react-native-flash-message"
 
 const SEARCH_WRAPPER: ViewStyle = {
   marginTop: spacing[4]
@@ -121,7 +124,7 @@ export function ImportWalletStep2(props: StepProps) {
       setOverlayLoadingShown(false)
       onButtonNext();
     }catch (e){
-      console.log(e)
+      showMessage({ message: 'Invalid bip39 mnemonic specified', type: 'danger' })
       setOverlayLoadingShown(false)
     }
   }
