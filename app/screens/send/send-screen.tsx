@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useRef, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import {
   ImageBackground,
@@ -115,10 +115,12 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
     const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
     const asset = getAssetById(route.params.coinId)
     const [fees, setFees] = useState<any>(null)
+    const [isNumeric, setIsNumeric] = useState<boolean>(false)
     const [isPreview, setIsPreview] = useState<boolean>(false)
     const [sending, setSending] = useState<boolean>(false)
     const [sendable, setSendable] = useState<boolean>(false)
     const [errorMsg, setErrorMsg] = useState<string | null>(null)
+    const numericRegEx = useRef(/^(([1-9]*)|(([1-9]*)(\.|\,)([0-9]*)))$/gi).current
     const { setBalance } = currentWalletStore
 
     useEffect(() => {
@@ -129,6 +131,11 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
       }
       _getBalances()
     }, [])
+
+    useEffect(()=>{
+      const isNumeric = numericRegEx.test(amount)
+      setIsNumeric(isNumeric)
+    },[amount])
 
     const onSubmit = async () => {
       setErrorMsg(null)
@@ -252,6 +259,10 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                         value: true,
                         message: "Field is required!",
                       },
+                      pattern: {
+                        value: numericRegEx,
+                        message: "Invalid funds",
+                      },
                       max: {
                         value: asset.freeBalance,
                         message: "Insufficient funds",
@@ -264,7 +275,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                     type="primary"
                     text="Preview the transfer"
                     outline={true}
-                    disabled={!isValid}
+                    disabled={!isValid || !isNumeric}
                     onPress={() => {
                       Keyboard.dismiss()
                       handleSubmit(onSubmit)()
