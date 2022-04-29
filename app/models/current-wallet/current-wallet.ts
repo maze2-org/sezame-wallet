@@ -3,6 +3,7 @@ import { flow, Instance, SnapshotOut, types, cast } from "mobx-state-tree"
 import { remove } from "utils/storage"
 import { StoredWallet } from "../../utils/stored-wallet"
 import { AssetBalance, getBalance } from "services/api"
+import { Chains, WalletGenerator } from "@maze2/sezame-sdk"
 
 const WalletAsset = types.model({
   name: types.string,
@@ -13,7 +14,7 @@ const WalletAsset = types.model({
   symbol: types.string,
   type: types.string,
   cid: types.optional(types.string, ""),
-  contract: types.optional(types.string, ""),
+  contract: types.maybeNull(types.string),
   balance: types.optional(types.number, 0),
   stakedBalance: types.optional(types.number, 0),
   freeBalance: types.optional(types.number, 0),
@@ -28,6 +29,14 @@ const WalletAsset = types.model({
 })
 export type IWalletAsset = Instance<typeof WalletAsset>
 
+const sleep = async (time) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(true)
+    }, time)
+  })
+}
+
 /**
  * Model description here for TypeScript hints.
  */
@@ -38,6 +47,7 @@ export const CurrentWalletModel = types
     name: types.maybe(types.string),
     assets: types.array(WalletAsset),
     loadingBalance: types.boolean,
+    updatingAssets: types.boolean,
   })
   .views((self) => ({
     getWallet: () => {
@@ -71,12 +81,76 @@ export const CurrentWalletModel = types
     },
   })) // eslint-disable-line @typescript-eslint/no-unused-vars
   .actions((self) => ({
-    setAssets(assets) {
-      self.assets.replace(assets)
-      let wallet = JSON.parse(self.wallet)
-      wallet.assets = assets
-      self.wallet = JSON.stringify(wallet)
-    },
+    addAutoAsset: flow(function* (asset: any) {
+      self.updatingAssets = true
+      const existingAsset: IWalletAsset = self.assets.find((currentAsset) => {
+        return asset.chain === currentAsset.chain
+      })
+
+      yield sleep(100)
+
+      const wallet: StoredWallet = yield StoredWallet.loadFromJson(JSON.parse(self.wallet))
+
+      try {
+        if (
+          existingAsset &&
+          existingAsset.publicKey &&
+          existingAsset.privateKey &&
+          existingAsset.address
+        ) {
+          self.assets.push({
+            ...asset,
+            publicKey: existingAsset.publicKey,
+            privateKey: existingAsset.privateKey,
+            address: existingAsset.address,
+          })
+        } else {
+          const newAsset = yield WalletGenerator.generateKeyPairFromMnemonic(
+            wallet.mnemonic,
+            asset.chain as Chains,
+            0,
+          )
+          self.assets.push({
+            ...asset,
+            publicKey: newAsset.publicKey,
+            privateKey: newAsset.privateKey,
+            address: newAsset.address,
+          })
+        }
+
+        wallet.assets = self.assets
+        self.wallet = JSON.stringify(wallet.toJson())
+        yield wallet.save()
+      } catch (ex) {
+        console.error(ex)
+      } finally {
+        self.updatingAssets = false
+      }
+    }),
+
+    removeAsset: flow(function* (chainId: string, symbol: string) {
+      self.updatingAssets = true
+      yield sleep(50)
+
+      try {
+        self.assets.replace(
+          self.assets.filter((asset) => {
+            return asset.chain !== chainId || asset.symbol !== symbol
+          }),
+        )
+
+        const wallet: StoredWallet = yield StoredWallet.loadFromJson(JSON.parse(self.wallet))
+        wallet.assets = self.assets
+        self.wallet = JSON.stringify(wallet.toJson())
+
+        yield wallet.save()
+      } catch (e) {
+        console.log(e)
+      } finally {
+        self.updatingAssets = false
+      }
+    }),
+
     hasAsset: (network: NetworkType): boolean => {
       return (
         self.assets.filter((asset) => {
@@ -88,29 +162,36 @@ export const CurrentWalletModel = types
     resetBalance: () => {
       let wallet = JSON.parse(self.wallet)
 
-      const resetted = self.assets.map((asset) => ({
-        ...asset,
-        balance: 0,
-        stakedBalance: 0,
-        freeBalance: 0,
-        unconfirmedBalance: 0,
-        unlockedBalance: 0,
-        unstakedBalance: 0,
-      }))
+      for (let asset of self.assets) {
+        asset = {
+          ...asset,
+          balance: 0,
+          stakedBalance: 0,
+          freeBalance: 0,
+          unconfirmedBalance: 0,
+          unlockedBalance: 0,
+          unstakedBalance: 0,
+        }
+      }
 
-      self.assets = JSON.parse(JSON.stringify(resetted))
       wallet.assets = self.assets
       self.wallet = JSON.stringify(wallet)
     },
 
     open: (wallet: StoredWallet) => {
       self.wallet = JSON.stringify(wallet.toJson())
-      self.assets.replace(wallet.toJson().assets as any)
+      self.assets.clear()
+      const assets = wallet.toJson().assets
+
+      for (const asset of assets) {
+        self.assets.push(asset)
+      }
+      // self.assets.replace(wallet.toJson().assets as any)
       self.name = wallet.toJson().walletName
     },
     close: () => {
       self.wallet = undefined
-      self.assets.replace([])
+      self.assets.clear()
       self.name = ""
     },
     setBalance: (asset, assetBalance: AssetBalance) => {
@@ -160,6 +241,7 @@ export const CurrentWalletModel = types
 export const currentWalletStore = CurrentWalletModel.create({
   wallet: undefined, // the type here is different from the type in the actual model
   loadingBalance: false,
+  updatingAssets: false,
 })
 
 type CurrentWalletType = Instance<typeof CurrentWalletModel>
@@ -170,4 +252,5 @@ export const createCurrentWalletDefaultModel = () =>
   types.optional(CurrentWalletModel, {
     wallet: undefined,
     loadingBalance: false,
+    updatingAssets: false,
   })

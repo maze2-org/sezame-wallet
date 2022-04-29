@@ -41,7 +41,6 @@ const StakingBalance = (props: StackingBalanceProps) => {
       chain: asset.chain,
       coinId: asset.cid,
     })
-    console.log("Stack", asset)
   }
 
   const pressUnsStakeIcon = () => {

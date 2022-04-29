@@ -32,8 +32,6 @@ export const PercentageSelector = observer(function PercentageSelector(
     onChange(number)
   }
 
-  console.log("PROPS", props)
-
   return (
     <View style={styles.percentageRow}>
       <Text

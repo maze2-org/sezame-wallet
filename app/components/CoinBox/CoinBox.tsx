@@ -194,25 +194,6 @@ const CoinBoxItem = ({ asset }) => {
           <View style={styles.COIN_CARD_CONTENT_LEFT}>
             <View style={styles.SORT_BTN_CONTAINER}>
               <Text style={styles.BOLD_FONT}>{asset.name}</Text>
-              {/** comment by ob2 refs #4231
-            <View
-              style={[
-                styles.COIN_STAKE,
-                asset.value === 100 && styles.COIN_STAKE_FULL,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.LIGHT_FONT,
-                  asset.value === 100 && styles.LIGHT_FONT_FULL,
-                ]}
-              >
-                { `Staked ${
-                  asset.value === 0 ? asset.value : asset.value.toFixed(2)
-                }%` }
-              </Text>
-            </View>
-            */}
             </View>
             {!asset.contract && <Text style={styles.LIGHT_FONT}>{"Base currency"}</Text>}
           </View>

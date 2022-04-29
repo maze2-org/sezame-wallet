@@ -156,16 +156,18 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
       }
     }, [loadingBalance])
 
-    useEffect(() => {
-      // Load balance and prepare the display of the assets when initializing the dashboard
-      refreshBalances().then(() => {
-        preparingAssets(sortBy)
-      })
-    }, [assets])
+    // useEffect(() => {
+    //   // Load balance and prepare the display of the assets when initializing the dashboard
+    //   refreshBalances().then(() => {
+    //     preparingAssets(sortBy)
+    //   })
+    // }, [assets])
 
     useEffect(() => {
       resetBalance()
-      preparingAssets(sortBy)
+      refreshBalances().then(() => {
+        preparingAssets(sortBy)
+      })
     }, [TESTNET])
 
     useFocusEffect(
