@@ -173,9 +173,7 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
     useFocusEffect(
       // Refresh the list when dashaboard becomes active
       React.useCallback(() => {
-        refreshBalances().then(() => {
-          preparingAssets(sortBy)
-        })
+        preparingAssets(sortBy)
       }, []),
     )
 
