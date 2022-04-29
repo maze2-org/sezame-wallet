@@ -193,7 +193,7 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
                   <CurrencyDescriptionBlock
                     icon="unstake"
                     asset={asset}
-                    title="Staking balance balance"
+                    title="Staking balance"
                     balance="stakedBalance"
                   />
                 </View>
