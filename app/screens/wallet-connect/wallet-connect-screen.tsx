@@ -133,7 +133,7 @@ export const WalletConnectScreen: FC<
       if (!walletConnectService.init(walletConnectStore, data)) {
         // Display error message
         showMessage({
-          message: "Something went wrong",
+          message: "It seems not to be a valid Wallet Connect QR Code.",
           type: "warning",
         })
       }
@@ -156,7 +156,7 @@ export const WalletConnectScreen: FC<
     if (!intiResult) {
       // Display error message
       showMessage({
-        message: "Something went wrong",
+        message: "It seems not to be a valid Wallet Connect QR Code",
         type: "warning",
       })
     }
