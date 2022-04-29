@@ -55,9 +55,9 @@ export interface CurrencyDescriptionBlockProps {
 
   asset?: IWalletAsset
   title?: string
-  icon?: "transfer" | "stake"
+  icon?: "transfer" | "stake" | "unstake"
   small?: boolean
-  balance?: "freeBalance" | "balance"
+  balance?: "freeBalance" | "balance" | "stakedBalance"
 }
 
 /**

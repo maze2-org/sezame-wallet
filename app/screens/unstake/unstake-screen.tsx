@@ -139,10 +139,10 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
     useEffect(() => {
       // Percentage changed, adjust the amount to be unstaked
       if (percentage) {
-        const amount = (asset.balance * percentage) / 100
+        const amount = (asset.stakedBalance * percentage) / 100
         setValue(
           "amount",
-          `${percentage === 100 ? `${asset.balance}` : parseFloat(amount.toFixed(4))}`,
+          `${percentage === 100 ? `${asset.stakedBalance}` : parseFloat(amount.toFixed(4))}`,
           { shouldValidate: true },
         )
       }
@@ -193,7 +193,8 @@ export const UnstakeScreen: FC<StackScreenProps<NavigatorParamList, "unstake">> 
                   <CurrencyDescriptionBlock
                     icon="unstake"
                     asset={asset}
-                    title="Available balance"
+                    title="Staking balance balance"
+                    balance="stakedBalance"
                   />
                 </View>
                 <View>
