@@ -61,27 +61,48 @@ export class StoredWallet {
     const existingAssets = this.assets || []
 
     this.assets = existingAssets.filter((currentAsset) => {
-      return currentAsset.chain !== chain || currentAsset?.symbol?.toLowerCase() !== symbol?.toLowerCase()
+      return (
+        currentAsset.chain !== chain ||
+        currentAsset?.symbol?.toLowerCase() !== symbol?.toLowerCase()
+      )
+    })
+  }
+
+  getExistingAssetForChain(chain: string): IWalletAsset {
+    return this.assets.find((asset) => {
+      return asset.chain === chain
     })
   }
 
   addAutoAsset(asset: IWalletAsset) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        WalletGenerator.generateKeyPairFromMnemonic(this.mnemonic, asset.chain as Chains, 0)
-          .then((wallet) => {
-            this.addAsset({
-              ...asset,
-              publicKey: wallet.publicKey,
-              privateKey: wallet.privateKey,
-              address: wallet.address,
+        const existingAsset: IWalletAsset = this.getExistingAssetForChain(asset.chain)
+
+        if (existingAsset && existingAsset.publicKey && existingAsset.privateKey && existingAsset.address) {
+          this.addAsset({
+            ...asset,
+            publicKey: existingAsset.publicKey,
+            privateKey: existingAsset.privateKey,
+            address: existingAsset.address,
+          })
+          resolve(true)
+        } else {
+          WalletGenerator.generateKeyPairFromMnemonic(this.mnemonic, asset.chain as Chains, 0)
+            .then((wallet) => {
+              this.addAsset({
+                ...asset,
+                publicKey: wallet.publicKey,
+                privateKey: wallet.privateKey,
+                address: wallet.address,
+              })
+              resolve(true)
             })
-            resolve(true)
-          })
-          .catch((err) => {
-            reject(err)
-          })
-      }, 100)
+            .catch((err) => {
+              reject(err)
+            })
+        }
+      }, 1)
     })
   }
 

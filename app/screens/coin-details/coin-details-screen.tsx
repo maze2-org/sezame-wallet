@@ -62,14 +62,11 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
       exchangeRates,
       setOverlayLoadingShown,
     } = useStores()
-    const { getAssetById, getAssetsById, setBalance, assets, refreshBalances } = currentWalletStore
-    // const [loading, setLoading] = React.useState({})
-    const [updatingWallet, setUpdatingWallet] = React.useState<boolean>(false)
-    const [prevPndTsx, setPrevPndTsx] = useState(null)
-    const pndTsx = pendingTransactions?.transactions
-
+    const { getAssetById, getAssetsById, refreshBalances, updatingAssets } = currentWalletStore
     const [explorerUrl, setExplorerUrl] = useState<string>("")
+    const [prevPndTsx, setPrevPndTsx] = useState(null)
 
+    const pndTsx = pendingTransactions?.transactions
     const asset = getAssetById(route.params.coinId, route.params.chain)
     const allAssets = getAssetsById(route.params.coinId, route.params.chain)
     const tokenInfo = tokens.find((token) => token.id === route.params.coinId)
@@ -83,8 +80,6 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
       }, []) || []
 
     const _getBalances = async () => {
-      // const balance = await getBalance(asset)
-      // setBalance(asset, balance)
       refreshBalances()
     }
 
@@ -196,71 +191,55 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     }, [pndTsx])
 
     const addAsset = React.useCallback((chain: any) => {
-      setOverlayLoadingShown(true)
-      // setLoading((loading) => ({ ...loading, [chain.id]: true }))
-      setUpdatingWallet(true)
-      currentWalletStore.getWallet().then((wallet) => {
-        wallet
-          .addAutoAsset({
-            name: tokenInfo.name,
-            chain: chain.id,
-            symbol: tokenInfo.symbol,
-            cid: tokenInfo.id,
-            type: tokenInfo.type,
-            contract: `${chain.contract}`,
-            image: tokenInfo.thumb,
-          } as any)
-          .then(async () => {
-            await currentWalletStore.setAssets(wallet.assets)
-            exchangeRates.addCurrencies([tokenInfo.id])
-            await wallet.save()
-            showMessage({
-              message: "Coin added to wallet",
-              type: "success",
-            })
+      currentWalletStore
+        .addAutoAsset({
+          name: tokenInfo.name,
+          chain: chain.id,
+          symbol: tokenInfo.symbol,
+          cid: tokenInfo.id,
+          type: tokenInfo.type,
+          contract: chain.contract,
+          image: tokenInfo.thumb,
+        })
+        .then(() => {
+          showMessage({
+            message: "Coin added to wallet",
+            type: "success",
           })
-          .catch((e) => {
-            console.log(e)
-            showMessage({
-              message: "Something went wrong",
-              type: "danger",
-            })
+        })
+        .catch((e) => {
+          console.log(e)
+          showMessage({
+            message: "Something went wrong",
+            type: "danger",
           })
-          .finally(() => {
-            setOverlayLoadingShown(false)
-            // setLoading((loading) => ({ ...loading, [chain.id]: false }))
-            setUpdatingWallet(false)
-          })
-      })
+        })
     }, [])
 
-    const removeAsset = React.useCallback((chain: any) => {
-      // setLoading((loading) => ({ ...loading, [chain.id]: true }))
-      setUpdatingWallet(true)
+    useEffect(() => {
+      if (updatingAssets) {
+        setOverlayLoadingShown(true)
+      } else {
+        setOverlayLoadingShown(false)
+      }
+    }, [updatingAssets])
 
-      currentWalletStore.getWallet().then((wallet) => {
-        wallet.removeAsset(chain.id, tokenInfo.symbol)
-        currentWalletStore.setAssets(wallet.assets)
-        wallet
-          .save()
-          .then(() => {
-            showMessage({
-              message: "Coin removed from wallet",
-              type: "success",
-            })
+    const removeAsset = React.useCallback((chain: any) => {
+      currentWalletStore
+        .removeAsset(chain.id, tokenInfo.symbol)
+        .then(() => {
+          showMessage({
+            message: "Coin removed from wallet",
+            type: "success",
           })
-          .catch((err) => {
-            console.log(err)
-            showMessage({
-              message: "Something went wrong",
-              type: "danger",
-            })
+        })
+        .catch((e) => {
+          console.log(e)
+          showMessage({
+            message: "Something went wrong",
+            type: "danger",
           })
-          .finally(() => {
-            // setLoading((loading) => ({ ...loading, [chain.id]: false }))
-            setUpdatingWallet(false)
-          })
-      })
+        })
     }, [])
 
     const getCoinData = async (coin) => {
@@ -356,7 +335,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
         swapToToken,
       }
 
-      navigation.navigate("swap", navigationOptions)
+      // navigation.navigate("swap", navigationOptions)
     }
 
     return (
@@ -571,7 +550,9 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                     {!!tokenInfo && route.params.fromAddCurrency && (
                       <View style={styles.TOKEN_CHAINS_CONTAINER}>
                         {tokenInfo.chains.map((chain) => {
-                          const allChains = allAssets ? allAssets.filter(a=>a.cid === asset.cid).map(a=>a.chain) : [];
+                          const allChains = allAssets
+                            ? allAssets.filter((a) => a.cid === asset.cid).map((a) => a.chain)
+                            : []
                           const hasInWallet = currentWalletStore.assets.find(
                             (item) => item.contract === chain.contract,
                           )
@@ -583,7 +564,6 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                               <Text>{chain.name}</Text>
                               <Button
                                 preset="secondary"
-                                disabled={updatingWallet}
                                 onPress={() => {
                                   if (!!hasInWallet || !!showRemoveBtnCondition) {
                                     removeAsset(chain)
@@ -595,12 +575,12 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                                 {!!hasInWallet || !!showRemoveBtnCondition ? (
                                   <Text
                                     style={styles.ADD_TO_PORTFOLIO_BTN}
-                                    text={updatingWallet ? "Loading ..." : "Remove from portfolio"}
+                                    text={"Remove from portfolio"}
                                   />
                                 ) : (
                                   <Text
                                     style={styles.ADD_TO_PORTFOLIO_BTN}
-                                    text={updatingWallet ? "Loading ..." : "Add to portfolio"}
+                                    text={"Add to portfolio"}
                                   />
                                 )}
                               </Button>
@@ -659,7 +639,10 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                   </View>
                 )}
 
-                <TouchableOpacity style={styles.RECEIVE_MODAL_COPY_BUTTON} onPress={()=>copyAddress(asset?.address)}>
+                <TouchableOpacity
+                  style={styles.RECEIVE_MODAL_COPY_BUTTON}
+                  onPress={() => copyAddress(asset?.address)}
+                >
                   <View>
                     <SvgXml
                       stroke={color.palette.gold}
@@ -670,7 +653,10 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                     <Text style={styles.RECEIVE_MODAL_COPY_TEXT}>COPY ADDRESS</Text>
                   </View>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.RECEIVE_MODAL_COPY_BUTTON} onPress={()=>copyAddress(asset?.publicKey)}>
+                <TouchableOpacity
+                  style={styles.RECEIVE_MODAL_COPY_BUTTON}
+                  onPress={() => copyAddress(asset?.publicKey)}
+                >
                   <View>
                     <SvgXml
                       stroke={color.palette.gold}

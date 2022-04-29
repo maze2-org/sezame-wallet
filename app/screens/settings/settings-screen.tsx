@@ -1,6 +1,16 @@
 import React, { FC } from "react"
 import { observer } from "mobx-react-lite"
-import { TextStyle, View, ViewStyle, StyleSheet, Alert, Modal, ScrollView, Dimensions, Pressable, } from "react-native"
+import {
+  TextStyle,
+  View,
+  ViewStyle,
+  StyleSheet,
+  Alert,
+  Modal,
+  ScrollView,
+  Dimensions,
+  Pressable,
+} from "react-native"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import FontAwesomeIcon from "react-native-vector-icons/FontAwesome"
 import FontAwesomeIcon5 from "react-native-vector-icons/FontAwesome5"
@@ -20,14 +30,19 @@ import { TextInputField } from "components/text-input-field/text-input-field"
 import IonIcons from "react-native-vector-icons/Ionicons"
 import copyIcon from "../../../assets/icons/copy.svg"
 import { SvgXml } from "react-native-svg"
-import { CommonActions } from '@react-navigation/native';
-import { btnDefault, btnDisabled, CONTAINER, copyBtn, mnemonicContainer, mnemonicStyle, RootPageStyle, } from "theme/elements"
+import { CommonActions } from "@react-navigation/native"
+import {
+  btnDefault,
+  btnDisabled,
+  CONTAINER,
+  copyBtn,
+  mnemonicContainer,
+  mnemonicStyle,
+  RootPageStyle,
+} from "theme/elements"
 import { StoredWallet } from "utils/stored-wallet"
 import { showMessage } from "react-native-flash-message"
-import {
-  load,
-  save,
-} from "../../utils/keychain"
+import { load, save } from "../../utils/keychain"
 
 const { height } = Dimensions.get("screen")
 
@@ -125,10 +140,10 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     marginTop: spacing[3],
-    justifyContent: 'center'
+    justifyContent: "center",
   },
   centeredView: {
-    width:'100%',
+    width: "100%",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 20,
@@ -160,11 +175,10 @@ const styles = StyleSheet.create({
   },
 
   closeWrapper: {
-    position:'absolute',
-    top:10,
-    right:10,
+    position: "absolute",
+    top: 10,
+    right: 10,
   },
-
 })
 
 export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">> = observer(
@@ -183,11 +197,9 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
       navigation.dispatch(
         CommonActions.reset({
           index: 0,
-          routes: [
-            { name: 'chooseWallet' },
-          ],
-        })
-      );
+          routes: [{ name: "chooseWallet" }],
+        }),
+      )
     }
 
     const deleteWallet = async () => {
@@ -197,20 +209,22 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
         await currentWalletStore.removeWallet()
         currentWalletStore.close()
         load()
-          .then((saveData)=>{
+          .then((saveData) => {
             const parsedWallet = JSON.parse(saveData.password)
-            const newKeyChainData  = parsedWallet.filter((data)=>data.walletName !== currentWalletName)
+            const newKeyChainData = parsedWallet.filter(
+              (data) => data.walletName !== currentWalletName,
+            )
             const stringData = JSON.stringify(newKeyChainData)
             saveData.password = stringData
 
             save(saveData.username, saveData.password).catch(null)
-                navigation.replace("chooseWallet")
-                showMessage({
-                  message:"Wallet has been deleted",
-                  type:"success"
-                })
+            navigation.replace("chooseWallet")
+            showMessage({
+              message: "Wallet has been deleted",
+              type: "success",
+            })
           })
-          .catch((error)=>console.log(error))
+          .catch((error) => console.log(error))
       }
     }
     const deleteWalletConfirmation = async () => {
@@ -265,8 +279,6 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
 
     const toggleTestnet = () => {
       rootStore.setTestnet(!rootStore.TESTNET)
-      // Reload the balance
-      currentWalletStore.refreshBalances()
       showMessage({
         message: "You're now using " + (rootStore.TESTNET ? "Testnet" : "Mainnet"),
         type: "success",
@@ -371,7 +383,7 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
                     </View>
                   </TouchableOpacity>
                 </View>
-                <Text style={styles.DANGER_ZONE} text="DANGER ZONE"/>
+                <Text style={styles.DANGER_ZONE} text="DANGER ZONE" />
                 <View style={SETTING_ITEM_WRAP}>
                   <TouchableOpacity
                     style={SETTING_ITEM_CONTAINER}
@@ -404,16 +416,12 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
                 visible={showPasswordModal}
                 // onRequestClose={()=>setShowPasswordModal(false)}
               >
-                <Pressable
-                  onPress={() => setShowPasswordModal(false)}
-                >
+                <Pressable onPress={() => setShowPasswordModal(false)}>
                   <View style={RECEIVE_MODAL_WRAPPER}>
                     <Pressable style={styles.centeredView}>
                       {!seedPhrase && (
-                        <View
-                          style={styles.modalView}>
-                          <View
-                            style={styles.closeWrapper}>
+                        <View style={styles.modalView}>
+                          <View style={styles.closeWrapper}>
                             <TouchableOpacity
                               activeOpacity={0.8}
                               hitSlop={{
@@ -427,23 +435,16 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
                               <IonIcons
                                 name={"close-outline"}
                                 size={30}
-                                color={color.palette.white} />
+                                color={color.palette.white}
+                              />
                             </TouchableOpacity>
                           </View>
-                          <Text
-                            style={styles.modalText}>Reveal my seed phrase
-                            </Text>
+                          <Text style={styles.modalText}>Reveal my seed phrase</Text>
                           <Controller
                             control={control}
                             defaultValue=""
                             name="password"
-                            render={({
-                                       field: {
-                                         onChange,
-                                         value,
-                                         onBlur,
-                                       },
-                                     }) => (
+                            render={({ field: { onChange, value, onBlur } }) => (
                               <TextInputField
                                 secureTextEntry={true}
                                 name="password"
@@ -463,12 +464,9 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
                             }}
                           />
                           {errorUnlockingWallet && (
-                            <Text
-                              style={styles.error}
-                              text="Couldn't unlock wallet" />
+                            <Text style={styles.error} text="Couldn't unlock wallet" />
                           )}
-                          <View
-                            style={styles.buttonContainer}>
+                          <View style={styles.buttonContainer}>
                             <Button
                               style={{
                                 zIndex: 10,
@@ -477,7 +475,6 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
                               preset={"secondary"}
                               text="Cancel"
                               onPress={() => {
-                                console.log(123123)
                                 setErrorUnlockingWallet(false)
                                 setShowPasswordModal(!showPasswordModal)
                               }}
@@ -493,19 +490,11 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
                         </View>
                       )}
                       {!!seedPhrase && (
-                        <View
-                          style={styles.modalView}>
-                          <Text
-                            style={styles.modalText}>Unlock
-                            wallet</Text>
-                          <View
-                            style={mnemonicContainer}>
-                            <Text
-                              style={[mnemonicStyle, styles.mnemonicText]}
-                              text={seedPhrase} />
-                            <TouchableOpacity
-                              style={copyBtn}
-                              onPress={copyToClipboard}>
+                        <View style={styles.modalView}>
+                          <Text style={styles.modalText}>Unlock wallet</Text>
+                          <View style={mnemonicContainer}>
+                            <Text style={[mnemonicStyle, styles.mnemonicText]} text={seedPhrase} />
+                            <TouchableOpacity style={copyBtn} onPress={copyToClipboard}>
                               <SvgXml width="20" height="20" xml={copyIcon} />
                             </TouchableOpacity>
                           </View>
@@ -520,14 +509,14 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "settings">
                           />
                         </View>
                       )}
-                  </Pressable>
+                    </Pressable>
                   </View>
                 </Pressable>
               </Modal>
             </View>
           </View>
         </ScrollView>
-        <Footer onLeftButtonPress={goBack}/>
+        <Footer onLeftButtonPress={goBack} />
       </Screen>
     )
   },
