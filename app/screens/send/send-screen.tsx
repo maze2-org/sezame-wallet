@@ -96,7 +96,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
       formState: { errors, isValid },
     } = useForm({ mode: "onChange" })
 
-    const amount = useWatch({
+    const textInputAmount = useWatch({
       control,
       name: "amount",
       defaultValue: "",
@@ -115,16 +115,15 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
     const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
     const asset = getAssetById(route.params.coinId)
     const [fees, setFees] = useState<any>(null)
-    const [isNumeric, setIsNumeric] = useState<boolean>(false)
     const [isPreview, setIsPreview] = useState<boolean>(false)
     const [sending, setSending] = useState<boolean>(false)
     const [sendable, setSendable] = useState<boolean>(false)
     const [errorMsg, setErrorMsg] = useState<string | null>(null)
-    const numericRegEx = useRef(/^(([1-9]*)|(([1-9]*)(\.|\,)([0-9]*)))$/gi).current
+    const [amount, setAmount] = useState<number | null>(0)
+    const numericRegEx = useRef(/^\d+(.\d+)?$/).current
     const { setBalance } = currentWalletStore
 
     useEffect(() => {
-      // setBalance(asset, currentWalletStore.getBalance(asset))
       const _getBalances = async () => {
         const balance = await getBalance(asset)
         setBalance(asset, balance)
@@ -133,9 +132,9 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
     }, [])
 
     useEffect(() => {
-      const isNumeric = numericRegEx.test(amount)
-      setIsNumeric(isNumeric)
-    }, [amount])
+      // Convert the string got from the form into a number (Sdk needs a number and not a string)
+      setAmount(parseFloat(textInputAmount.split(",").join(".")))
+    }, [textInputAmount])
 
     const onSubmit = async () => {
       setErrorMsg(null)
@@ -268,7 +267,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                       },
                       pattern: {
                         value: numericRegEx,
-                        message: "Invalid funds",
+                        message: "Invalid amount",
                       },
                       max: {
                         value: asset.freeBalance,
@@ -282,7 +281,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                     type="primary"
                     text="Preview the transfer"
                     outline={true}
-                    disabled={!isValid || !isNumeric}
+                    disabled={!isValid}
                     onPress={() => {
                       Keyboard.dismiss()
                       handleSubmit(onSubmit)()
