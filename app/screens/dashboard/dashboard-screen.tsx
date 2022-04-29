@@ -11,7 +11,7 @@ import { Text, Button, AppScreen } from "../../components"
 import { chainSymbolsToNames } from "utils/consts"
 import CoinBox from "../../components/CoinBox/CoinBox"
 import axios, { CancelTokenSource } from "axios"
-import { useFocusEffect } from "@react-navigation/native"
+import { useFocusEffect, useIsFocused } from "@react-navigation/native"
 import { CoingeckoCoin } from "../../types/coingeckoCoin"
 import { showMessage } from "react-native-flash-message"
 
@@ -146,15 +146,16 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
     const { wallet, assets, refreshBalances, loadingBalance, resetBalance } = currentWalletStore
     const [sortBy, setSortBy] = useState<SortTypeValues>(SORT_TYPES.NETWORK)
     const [groups, setGroups] = useState({})
+    const isFocused = useIsFocused();
 
-    useEffect(() => {
-      if (loadingBalance) {
-        showMessage({
-          message: "Loading...",
-          type: "success",
-        })
-      }
-    }, [loadingBalance])
+  useEffect(()=>{
+    if(loadingBalance && isFocused){
+      showMessage({
+        message:"Loading...",
+        type:"success"
+      })
+    }
+  },[isFocused, loadingBalance])
 
     // useEffect(() => {
     //   // Load balance and prepare the display of the assets when initializing the dashboard
