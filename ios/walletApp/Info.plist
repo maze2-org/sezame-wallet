@@ -37,6 +37,8 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Sezame Wallet requires Camera access for signing requests with QR Code and Wallet Connect</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Sezame Wallet needs access to your Microphone</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Sezame Wallet requires FaceID access to allows you quick and secure access.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

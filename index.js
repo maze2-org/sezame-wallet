@@ -11,6 +11,7 @@ import "./shim"
 
 import App from "./app/app.tsx"
 import { AppRegistry } from "react-native"
+import 'react-native-reanimated';
 
 AppRegistry.registerComponent("walletApp", () => App)
 export default App

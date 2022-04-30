@@ -1,59 +1,49 @@
 import React, { createRef, FC, useEffect, useState } from "react"
-import { observer } from "mobx-react-lite"
 import {
-  TouchableOpacity,
   View,
-  ViewStyle,
   Image,
-  ActivityIndicator,
-  ScrollView,
-  Dimensions,
-  BackHandler,
+  ViewStyle,
   TextStyle,
   ImageStyle,
+  Dimensions,
+  ScrollView,
+  ActivityIndicator,
 } from "react-native"
-import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
-import * as Animatable from "react-native-animatable"
 import ActionSheet from "react-native-actions-sheet"
-import QRCodeScanner from "react-native-qrcode-scanner"
-import { RNCamera } from "react-native-camera"
-
-import { NavigatorParamList } from "../../navigators"
-import { AppScreen, Button, Footer, Screen, Text } from "../../components"
-// import { useNavigation } from "@react-navigation/native"
-// import { useStores } from "../../models"
-import { color, spacing } from "../../theme"
-import { SEPARATOR } from "theme/elements"
-import { walletConnectService, WALLET_CONNECT_STATUS } from "services/walletconnect"
+import * as Animatable from "react-native-animatable"
+import { Camera } from 'react-native-vision-camera';
+import { observer } from "mobx-react-lite"
 import { useStores } from "models"
-import { chainSymbolsToNames, CHAIN_ID_TYPE_MAP } from "utils/consts"
+import { showMessage } from "react-native-flash-message"
 import { useNavigation } from "@react-navigation/native"
 import { WalletFactory } from "@maze2/sezame-sdk"
-import { showMessage } from "react-native-flash-message"
-const shortenAddress = (address: string) => {
-  return `${address.slice(0, 6)}...${address.slice(address.length - 4, address.length)}`
-}
+import { useCameraDevices } from 'react-native-vision-camera';
+import { useScanBarcodes, BarcodeFormat } from 'vision-camera-code-scanner';
+import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
+
+import { color, spacing } from "../../theme"
+import { NavigatorParamList } from "../../navigators"
+import { AppScreen, Button, Footer, Screen, Text } from "../../components"
+import { chainSymbolsToNames, CHAIN_ID_TYPE_MAP } from "utils/consts"
+import { walletConnectService, WALLET_CONNECT_STATUS } from "services/walletconnect"
+
 const ROOT: ViewStyle = {
   padding: spacing[4],
 }
-
 const cameracontainer: ViewStyle = {
   height: Dimensions.get("window").height / 1.1,
   margin: 10,
   backgroundColor: "black",
 }
-
 const CONNECT_BTNS_CONTAINER: ViewStyle = {
   display: "flex",
   flexDirection: "row",
   justifyContent: "center",
 }
-
 const AUTH_CONTAINER: ViewStyle = {
   display: "flex",
   flexDirection: "column",
 }
-
 const ACCEPT_BTN: ViewStyle = {
   margin: spacing[2],
   width: 120,
@@ -63,7 +53,6 @@ const REJECT_BTN: ViewStyle = {
   backgroundColor: color.palette.darkBlack,
   width: 120,
 }
-
 const ACCEPT_BTN_TEXT: TextStyle = {
   color: color.palette.white,
   fontWeight: "bold",
@@ -77,22 +66,18 @@ const WC_LOGO_CONTAINER: ViewStyle = {
   alignItems: "center",
   marginVertical: spacing[4],
 }
-
 const WC_LOGO: ImageStyle = {
   width: 80,
   height: 80,
 }
-
 const DO_YOU_ACCEPT_TEXT: TextStyle = {
   fontSize: 16,
   fontWeight: "bold",
   marginBottom: spacing[2],
 }
-
 const DISCONNECT_BTN: ViewStyle = {
   backgroundColor: color.error,
 }
-
 const NETWORK_DETAILS: ViewStyle = {
   display: "flex",
   alignContent: "center",
@@ -100,9 +85,7 @@ const NETWORK_DETAILS: ViewStyle = {
   justifyContent: "center",
   marginVertical: spacing[2],
 }
-
 const TRANSACTION_DETAILS: ViewStyle = {}
-
 const TRANSACTION_DETAILS_TEXT: TextStyle = {
   textAlign: "center",
 }
@@ -110,14 +93,23 @@ const PEER_NAME: TextStyle = {
   textAlign: "center",
   fontWeight: "bold",
 }
+
 const actionCamera: React.RefObject<any> = createRef()
 
 export const WalletConnectScreen: FC<
   StackScreenProps<NavigatorParamList, "walletConnect">
 > = observer(function WalletConnectScreen({ route }) {
   const { walletConnectStore, currentWalletStore } = useStores()
-  const [success, setSuccess] = useState(false)
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
+  const devices = useCameraDevices();
+  const device = { ...devices.back };
+
+  const [success, setSuccess] = useState(false)
+  const [hasPermission, setHasPermission] = React.useState(false);
+  const [frameProcessor, barcodes] = useScanBarcodes([BarcodeFormat.QR_CODE], {
+    checkInverted: true,
+  });
+
   const handleCloseActionSheet = () => {
     if (!success) {
       navigation.goBack()
@@ -125,6 +117,11 @@ export const WalletConnectScreen: FC<
   }
 
   useEffect((): any => {
+    (async () => {
+      const status = await Camera.requestCameraPermission();
+      setHasPermission(status === 'authorized');
+    })();
+
     if (route.params && route.params.uri) {
       const uri = route.params.uri
       const data: any = { uri }
@@ -144,10 +141,8 @@ export const WalletConnectScreen: FC<
     return walletConnectService.closeSession
   }, [])
 
-  const onSuccess = (e) => {
-    console.log("success ", e)
+  const onSuccess = (uri) => {
     setSuccess(true)
-    const uri = e.data
     const data: any = { uri }
     data.redirect = ""
     data.autosign = false
@@ -381,6 +376,12 @@ export const WalletConnectScreen: FC<
     )
   }
 
+  useEffect(()=>{
+    if(barcodes?.length && !success){
+      onSuccess(barcodes[0].displayValue)
+    }
+  },[barcodes])
+
   return (
     <AppScreen>
       <ScrollView style={ROOT}>
@@ -394,7 +395,19 @@ export const WalletConnectScreen: FC<
         containerStyle={cameracontainer}
         onClose={handleCloseActionSheet}
       >
-        <QRCodeScanner onRead={onSuccess} flashMode={RNCamera.Constants.FlashMode.auto} />
+        {
+            !success &&
+            !!device &&
+            !!hasPermission && (
+              <Camera
+                style={{width: '100%', height: '100%'}}
+                device={device}
+                isActive={true}
+                frameProcessor={frameProcessor}
+                frameProcessorFps={1}
+              />
+            )
+        }
       </ActionSheet>
       <Footer onLeftButtonPress={() => navigation.goBack()}> </Footer>
     </AppScreen>
