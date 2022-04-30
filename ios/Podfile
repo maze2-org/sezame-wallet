@@ -25,13 +25,6 @@ target 'walletApp' do
     :hermes_enabled => podfile_properties['expo.jsEngine'] == 'hermes'
   )
 
-#  pod 'RNSmartCode', :path => '../node_modules/react-native-smart-code'
-#  pod 'react-native-mmkv', :path => '../node_modules/react-native-mmkv'
-#  pod 'react-native-blur', :path => '../node_modules/@react-native-community/blur'
-
-  pod 'react-native-camera', :path => '../node_modules/react-native-camera'
-  pod 'RNPermissions', :path => '../node_modules/react-native-permissions'
-
   target 'walletAppTests' do
     inherit! :complete
     # Pods for testing
