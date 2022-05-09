@@ -2164,10 +2164,10 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@maze2/sezame-sdk@^1.3.21":
-  version "1.3.21"
-  resolved "https://registry.yarnpkg.com/@maze2/sezame-sdk/-/sezame-sdk-1.3.21.tgz#3c55b660775c8947343a61d4ef1ee75df34616ec"
-  integrity sha512-ug6LRo9WIxybkVCBjMJD9CnbVe+EceE/faF2N0QKAlnQcqiE69XNEHTTJRhQDfkTXhAmTGwRXcsjpWh/D4CAsw==
+"@maze2/sezame-sdk@^1.3.22":
+  version "1.3.22"
+  resolved "https://registry.yarnpkg.com/@maze2/sezame-sdk/-/sezame-sdk-1.3.22.tgz#001b04968f3e09efc0302c609197cb7227a9ae39"
+  integrity sha512-OoLi8IIiTnHjRl5m2ArhMOx4hLZPHThVEzxX2OZaoBZUc39g/7PIXSrVmUAOLE5f/7p7KPVK/rke3XATwe0Mtg==
   dependencies:
     "@metamask/eth-sig-util" "^4.0.0"
     "@polkadot/keyring" "5.9.2"
