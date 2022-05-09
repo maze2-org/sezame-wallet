@@ -264,7 +264,7 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
                             <Text style={{ paddingHorizontal: spacing[1] }}>
                               <Text>I have read the </Text>
                               <Text
-                                onPress={() => Linking.openURL("https://www.aventus.io/")}
+                                onPress={() => Linking.openURL("https://www.aventus.io/wp-content/uploads/2021/01/aventus-staker-TCs.pdf")}
                                 style={styles.URL}
                               >
                                 terms and conditions
