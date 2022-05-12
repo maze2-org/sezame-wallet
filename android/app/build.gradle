@@ -137,8 +137,8 @@ android {
         applicationId "org.maze2.sezamewallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 11
-        versionName "0.9.9"
+        versionCode 12
+        versionName "0.9.10"
         missingDimensionStrategy 'react-native-camera', 'general'
         multiDexEnabled true
     }
