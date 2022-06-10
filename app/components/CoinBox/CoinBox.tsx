@@ -1,13 +1,14 @@
-import React, { useEffect, useState, useRef } from "react"
-import { View, Text, Image, StyleSheet, TouchableOpacity, Animated, Easing } from "react-native"
-// import { TouchableOpacity } from "react-native-gesture-handler"
-import { chainSymbolsToNames } from "../../utils/consts"
-import { color, spacing } from "../../theme"
-import FontAwesomeIcon from "react-native-vector-icons/FontAwesome"
+import React, { useState, useRef } from "react"
 import { useNavigation } from "@react-navigation/native"
+import FontAwesomeIcon from "react-native-vector-icons/FontAwesome"
+import SkeletonPlaceholder from "react-native-skeleton-placeholder";
 import { StackNavigationProp } from "@react-navigation/stack"
-import { NavigatorParamList } from "../../navigators"
+import { View, Text, Image, StyleSheet, TouchableOpacity, Animated, } from "react-native"
+
 import { useStores } from "models"
+import { color, spacing } from "../../theme"
+import { NavigatorParamList } from "../../navigators"
+
 
 const Fonts = [11, 15, 24, 48, 64]
 const MY_STYLE = StyleSheet.create({
@@ -97,9 +98,25 @@ const styles = StyleSheet.create({
   SORT_BTN_CONTAINER: {
     ...MY_STYLE.common,
   },
+ SKELETON_ITEM: {
+  width: 60,
+  height: 10,
+  borderRadius: 4,
+  marginBottom:5
+},
+  SKELETON_WRAPPER:{
+    alignItems:"flex-end"
+  },
+  SKELETON_ITEM_TWO:{
+  width: 50,
+  height:8,
+  borderRadius: 4,
+  }
 })
 
 const CoinBox = ({ assets, title }) => {
+  const { currentWalletStore } = useStores()
+  const { loadingBalance } = currentWalletStore
   const [isOpen, setIsOpen] = useState(true)
   const [disable, setDisable] = useState(false)
   const animCardBox = useRef(new Animated.Value(0)).current
@@ -167,7 +184,7 @@ const CoinBox = ({ assets, title }) => {
       <View style={styles.SEPARATOR} />
 
       {assets.map((asset, idx) => {
-        return <CoinBoxItem key={idx} asset={asset} />
+        return <CoinBoxItem key={idx} asset={asset} loadingBalance={loadingBalance}/>
       })}
     </Animated.View>
   )
@@ -175,7 +192,7 @@ const CoinBox = ({ assets, title }) => {
 
 export default CoinBox
 
-const CoinBoxItem = ({ asset }) => {
+const CoinBoxItem = ({ asset, loadingBalance }) => {
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
   const { exchangeRates } = useStores()
 
@@ -198,11 +215,21 @@ const CoinBoxItem = ({ asset }) => {
             {!asset.contract && <Text style={styles.LIGHT_FONT}>{"Base currency"}</Text>}
           </View>
           <View style={styles.COIN_CARD_CONTENT_RIGHT}>
+            {loadingBalance ?
+              <SkeletonPlaceholder speed={1200} backgroundColor={color.palette.lightGrey}>
+                  <View style={styles.SKELETON_ITEM}/>
+                  <View style={styles.SKELETON_WRAPPER}>
+                    <View style={styles.SKELETON_ITEM_TWO}/>
+                  </View>
+              </SkeletonPlaceholder>
+            :<>
             <Text style={styles.BOLD_FONT}>{Number(asset?.balance).toFixed(4)}</Text>
-
             <Text style={styles.LIGHT_FONT}>{`${(
               exchangeRates.getRate(asset?.cid) * asset.balance
             ).toFixed(2)}$`}</Text>
+              </>
+            }
+
           </View>
         </View>
       </TouchableOpacity>
