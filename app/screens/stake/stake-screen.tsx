@@ -254,7 +254,7 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
                     rules={{
                       required: {
                         value: true,
-                        message: "Please accept the terms and conditions",
+                        message: "Please accept the last version of our terms of services",
                       },
                     }}
                     render={({ field: { onChange, value, onBlur } }) => (
@@ -264,10 +264,10 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
                             <Text style={{ paddingHorizontal: spacing[1] }}>
                               <Text>I have read the </Text>
                               <Text
-                                onPress={() => Linking.openURL("https://www.aventus.io/wp-content/uploads/2021/01/aventus-staker-TCs.pdf")}
+                                onPress={() => Linking.openURL("https://github.com/maze2-org/sezame-wallet/wiki/Terms-of-Services")}
                                 style={styles.URL}
                               >
-                                terms and conditions
+                                terms of services
                               </Text>
                             </Text>
                           </View>
