@@ -1,19 +1,20 @@
 import React, { FC, useCallback, useEffect, useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { StackScreenProps } from "@react-navigation/stack"
-import { View, Animated, StyleSheet, Dimensions } from "react-native"
-
-import { ExchangeRateModel, useStores } from "../../models"
-import { getCoinDetails, getCoinPrices } from "utils/apis"
-import { color, spacing, typography } from "../../theme"
-import { NavigatorParamList } from "../../navigators"
-import { Text, Button, AppScreen } from "../../components"
-import { chainSymbolsToNames } from "utils/consts"
-import CoinBox from "../../components/CoinBox/CoinBox"
-import axios, { CancelTokenSource } from "axios"
-import { useFocusEffect, useIsFocused } from "@react-navigation/native"
-import { CoingeckoCoin } from "../../types/coingeckoCoin"
 import { showMessage } from "react-native-flash-message"
+import SkeletonPlaceholder from "react-native-skeleton-placeholder";
+import { StackScreenProps } from "@react-navigation/stack"
+import { useFocusEffect, useIsFocused } from "@react-navigation/native"
+import { View, Animated, StyleSheet, ViewStyle, } from "react-native"
+
+import CoinBox from "../../components/CoinBox/CoinBox"
+import { NavigatorParamList } from "../../navigators"
+import { chainSymbolsToNames } from "utils/consts"
+import { Text, Button, AppScreen } from "../../components"
+import { color, spacing, typography } from "../../theme"
+import { ExchangeRateModel, useStores } from "../../models"
+import { CoingeckoCoin } from "../../types/coingeckoCoin"
+import axios, { CancelTokenSource } from "axios"
+import { getCoinDetails, getCoinPrices } from "utils/apis"
 
 const Fonts = [11, 15, 24, 48, 64]
 const MY_STYLE = StyleSheet.create({
@@ -134,6 +135,26 @@ const styles = StyleSheet.create({
 const SORT_TYPES = {
   NETWORK: "NETWORK",
   CURRENCIES: "CURRENCIES",
+}
+
+const SKELETON_WRAPPER :ViewStyle = {
+  alignItems:'center',
+  justifyContent:"center",
+  minHeight:200,
+  marginBottom:13
+}
+const SKELETON_ITEM :ViewStyle = {
+  width: 60,
+  height: 60,
+  marginTop:20,
+  marginRight:2,
+  borderRadius: 50
+}
+const SKELETON_LINE: ViewStyle = {
+  width:60,
+  height:5,
+  borderRadius:4,
+  marginTop:10,
 }
 
 type SortTypeKeys = keyof typeof SORT_TYPES
@@ -288,7 +309,17 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
       >
         <AppScreen unsafe>
           <View style={styles.PORTFOLIO_WRAPPER}>
-            <Animated.View style={[styles.PORTFOLIO_CONTAINER, { transform: [{ translateY }] }]}>
+            {loadingBalance ?
+              <SkeletonPlaceholder speed={1200}
+                                   backgroundColor={color.palette.lightGrey}
+              >
+                <View style={SKELETON_WRAPPER}>
+                  <View style={SKELETON_ITEM}/>
+                  <View style={SKELETON_LINE}/>
+                </View>
+              </SkeletonPlaceholder>
+              :
+              <Animated.View style={[styles.PORTFOLIO_CONTAINER, { transform: [{ translateY }] }]}>
               <Animated.View style={[styles.PORTFOLIO_OVERLAY, { opacity }]} />
               <Animated.View style={[styles.PORTFOLIO_VALUE, { transform: [{ scale }] }]}>
                 <Text style={styles.PORTFOLIO} adjustsFontSizeToFit numberOfLines={1}>
@@ -302,6 +333,8 @@ export const DashboardScreen: FC<StackScreenProps<NavigatorParamList, "dashboard
                 </Animated.Text>
               )}
             </Animated.View>
+            }
+
             <Animated.View
               style={[styles.SORT_CONTAINER, { transform: [{ translateY: translateY2 }] }]}
             >

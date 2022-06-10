@@ -4,7 +4,11 @@
  * Generally speaking, it will contain an auth flow (registration, login, forgot password)
  * and a "main" flow which the user will use once logged in.
  */
-import React, { useEffect, useState } from "react"
+import React, {
+  useEffect,
+  useRef,
+  useState,
+} from "react"
 import {
   TextStyle,
   TouchableOpacity,
@@ -14,6 +18,7 @@ import {
   StyleSheet,
   Text,
   ImageStyle,
+  Dimensions,
 } from "react-native"
 import {
   NavigationContainer,
@@ -303,11 +308,44 @@ const BottomTabNavigator = () => {
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createNativeStackNavigator<NavigatorParamList>()
 
+const {width} = Dimensions.get("screen")
+
+const TestNetWarning = () => {
+
+  const TESTNET_WRAPPER:ViewStyle = {
+    height:50,
+    width:width,
+    padding: 10,
+    marginBottom:5,
+    justifyContent:"flex-end",
+    borderBottomLeftRadius:12,
+    borderBottomRightRadius:12,
+    backgroundColor:color.palette.errorToast,
+  }
+
+  const TESTNET_MESSAGE:TextStyle = {
+    color:color.palette.white,
+    fontWeight: "bold",
+  }
+  return(
+    <View style={TESTNET_WRAPPER}>
+      <Text style={TESTNET_MESSAGE}>Warning, you are currently using testnet</Text>
+    </View>
+  )
+}
+
 const AppStackHeader = (props: NativeStackHeaderProps & { backArrow: boolean }) => {
+  const rootStore = useStores();
+
   return (
-    <View style={NAV_HEADER_CONTAINER}>
-      {props.backArrow ? <BackArrow navigation={props.navigation} /> : <Logo />}
-      <SettingsBtn />
+    <View style={{backgroundColor:color.palette.black}}>
+      <View style={NAV_HEADER_CONTAINER}>
+        {props.backArrow ? <BackArrow navigation={props.navigation} /> : <Logo />}
+        <SettingsBtn />
+      </View>
+      {rootStore?.TESTNET &&
+      <TestNetWarning />
+      }
     </View>
   )
 }
