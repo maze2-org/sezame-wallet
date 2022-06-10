@@ -133,7 +133,7 @@ const Logo = () => (
   <View style={NAV_HEADER_BTN_CONTAINER}>
     <Image source={SesameSmallLogo} style={LOGO_STYLE} />
     <View style={NAV_HEADER_TITLE_CONTAINER}>
-      <Text style={LOGO}>SESAME</Text>
+      <Text style={LOGO}>SEZAME</Text>
       <Text style={{ color: color.palette.offWhite }}>WALLET</Text>
     </View>
   </View>
