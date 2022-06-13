@@ -264,7 +264,7 @@ export const StakeScreen: FC<StackScreenProps<NavigatorParamList, "stake">> = ob
                             <Text style={{ paddingHorizontal: spacing[1] }}>
                               <Text>I have read the </Text>
                               <Text
-                                onPress={() => Linking.openURL("https://github.com/maze2-org/sezame-wallet/wiki/Terms-of-Services")}
+                                onPress={() => Linking.openURL("https://sezame.app/terms-and-conditions/")}
                                 style={styles.URL}
                               >
                                 terms of services
