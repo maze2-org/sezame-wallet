@@ -160,7 +160,7 @@ export const CurrentWalletModel = types
     },
 
     resetBalance: () => {
-      let wallet = JSON.parse(self.wallet)
+      const wallet = JSON.parse(self.wallet)
 
       for (let asset of self.assets) {
         asset = {
