@@ -2178,17 +2178,17 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@maze2/sezame-sdk@^1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@maze2/sezame-sdk/-/sezame-sdk-1.4.0.tgz#7c781d5cab12622e8b1ca9c62186133276cc6cf2"
-  integrity sha512-MFULyxL2IR4R509UGVgtrCpzmvsHD8KnGKdvUjiZh4juzlVe60OBNxepwdL6bkXB0+9YkImzmSY4IaVl6oSDOg==
+"@maze2/sezame-sdk@^1.5.0":
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/@maze2/sezame-sdk/-/sezame-sdk-1.5.0.tgz#93ddafbb9e52c7fe670c3f601d93c6a1ae572460"
+  integrity sha512-7MOFAE+/6qF9iC1GYT991+1jU4XrC2WuaHFchAGfly3QB2Jwy8aw+n+ov9mW705bdpt2On1y+a522xGPG2yN0A==
   dependencies:
     "@alephium/sdk" "0.2.2"
     "@metamask/eth-sig-util" "^4.0.0"
     "@polkadot/keyring" "5.9.2"
     "@polkadot/util" "5.9.2"
     "@polkadot/util-crypto" "5.9.2"
-    avn-api "0.6.0"
+    avn-api "0.8.2"
     axios "0.21.1"
     bignumber "^1.1.0"
     bignumber.js "9.0.1"
@@ -4948,10 +4948,10 @@ available-typed-arrays@^1.0.5:
   resolved "https://registry.yarnpkg.com/available-typed-arrays/-/available-typed-arrays-1.0.5.tgz#92f95616501069d07d10edb2fc37d3e1c65123b7"
   integrity sha512-DMD0KiN46eipeziST1LPP/STfDU0sufISXmjSgvVsoU2tqxctQeASejWcfNtxYKqETM1UxQ8sp2OrSBWpHY6sw==
 
-avn-api@0.6.0:
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/avn-api/-/avn-api-0.6.0.tgz#983d60e9db5228df9021eae8c849b6a463618e56"
-  integrity sha512-zUXieAk6HwrZO06VoeZAOUdn/sZQto0zD0kmi9phXLwAiIAG/zX5lwdUGQHNkGDp2UdMwlp9J9ruSigp4EJvaQ==
+avn-api@0.8.2:
+  version "0.8.2"
+  resolved "https://registry.yarnpkg.com/avn-api/-/avn-api-0.8.2.tgz#f60e897c994c8038a4e3c16aea737d384efcfc44"
+  integrity sha512-ZfAFGydJWuYkLafLjpglTg3VujpwkCKhzO2TGUgzBzl5JtVDBXl5IPT3dCoIZl2vlibAudJTPLByD8P49epMWA==
   dependencies:
     "@polkadot/keyring" "5.9.2"
     "@polkadot/types" "^3.0.1"
