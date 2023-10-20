@@ -334,7 +334,22 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                     <Text style={styles.CARD_ITEM_TITLE}>Transaction fees</Text>
                     <View style={styles.CARD_ITEM_DESCRIPTION}>
                       <Text style={styles.AMOUNT_STYLE}>
-                        {fees ? `${fees.regular.settings.feeValue} ${fees.regular.currency}` : ""}
+                        {fees && (
+                          <>
+                            {fees
+                              ? `${fees.regular.settings.feeValue.toFixed(6)} ${
+                                  fees.regular.currency
+                                }`
+                              : ""}{" "}
+                            <Text style={styles.EQUIVALENT_USD_STYLE}>
+                              (~
+                              {`${(
+                                exchangeRates.getRate(asset.cid) * fees.regular.settings.feeValue
+                              ).toFixed(2)}`}
+                              $)
+                            </Text>
+                          </>
+                        )}
                       </Text>
                     </View>
                   </View>
