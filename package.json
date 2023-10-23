@@ -28,6 +28,7 @@
     "clean-all": "npx react-native clean-project-auto"
   },
   "dependencies": {
+    "@alephium/sdk": "0.2.2",
     "@el173/react-native-passcode-auth": "^1.0.1",
     "@maze2/sezame-sdk": "^1.5.0",
     "@react-native-async-storage/async-storage": "^1.14.1",
@@ -94,8 +95,7 @@
     "readable-stream": "^1.0.33",
     "stream-browserify": "^3.0.0",
     "validate.js": "0.13.1",
-    "vision-camera-code-scanner": "^0.2.0",
-    "@alephium/sdk": "0.2.2"
+    "vision-camera-code-scanner": "^0.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
