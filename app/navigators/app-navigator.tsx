@@ -4,18 +4,13 @@
  * Generally speaking, it will contain an auth flow (registration, login, forgot password)
  * and a "main" flow which the user will use once logged in.
  */
-import React, {
-  useEffect,
-  useRef,
-  useState,
-} from "react"
+import React, { useEffect, useRef, useState } from "react"
 import {
   TextStyle,
   TouchableOpacity,
   useColorScheme,
   View,
   ViewStyle,
-  StyleSheet,
   Text,
   ImageStyle,
   Dimensions,
@@ -39,12 +34,10 @@ import {
   AddCurrencyScreen,
 } from "../screens"
 import { navigationRef, useBackButtonHandler } from "./navigation-utilities"
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 // import Icon from "react-native-vector-icons/Ionicons"
 
 import { color, spacing } from "../theme"
 import { WalletReadyScreen } from "../screens/wallet-ready/wallet-ready-screen"
-import { NftsScreen } from "../screens/nfts/nfts-screen"
 import { CoinDetailsScreen } from "../screens/coin-details/coin-details-screen"
 import { ChooseWalletScreen } from "../screens/choose-wallet/choose-wallet-screen"
 import { getListOfWallets } from "../utils/storage"
@@ -53,29 +46,17 @@ import { useStores } from "../models"
 
 import { StackNavigationProp } from "@react-navigation/stack"
 import { AutoImage as Image } from "../components"
-import {
-  SesameSmallLogo,
-  tabBarItem,
-  tabBarItemBorderRightStyle,
-  tabBarItemFocused,
-  tabBarItemStyle,
-  tabBarLabel,
-  tabBarLabelFocused,
-  tabBarStyle,
-} from "theme/elements"
+import { SesameSmallLogo } from "theme/elements"
 import { icons } from "../components/icon/icons/index"
 
 import ReloadIcon from "../../assets/svg/reload.svg"
-import QRCodeIcon from "../../assets/svg/qr_code.svg"
+// import QRCodeIcon from "../../assets/svg/qr_code.svg"
 import UserIcon from "../../assets/svg/user.svg"
 import PlusIcon from "../../assets/svg/plus.svg"
 import { SvgXml } from "react-native-svg"
-import TabNft from "../components/svg/TabNft"
-import Ready from "../components/svg/Ready"
 
 import { WalletConnectScreen } from "screens/wallet-connect/wallet-connect-screen"
 import StakingBalance, {
-  StackingBalanceProps,
   StackingBalanceRouteParams,
 } from "../screens/staking-balance/StakingBalance"
 import { UnstakeScreen } from "screens/unstake/unstake-screen"
@@ -174,7 +155,7 @@ function SettingsBtn() {
       >
         <SvgXml style={BTN_ICON} xml={ReloadIcon} />
       </TouchableOpacity>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         key="btn_scan"
         style={NAV_HEADER_BTN}
         onPress={() => {
@@ -183,7 +164,7 @@ function SettingsBtn() {
         }}
       >
         <SvgXml style={BTN_ICON} xml={QRCodeIcon} />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <TouchableOpacity
         key="btn_plus"
         style={NAV_HEADER_BTN}
@@ -256,78 +237,77 @@ export type NavigatorParamList = {
   // 🔥 Your screens go here
 }
 
-const Tab = createBottomTabNavigator()
-const BottomTabNavigator = () => {
-  return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarStyle: tabBarStyle,
-        tabBarActiveTintColor: color.palette.white,
-        // eslint-disable-next-line react/display-name
-        tabBarIcon: ({ focused }) => {
-          return (
-            <View>
-              {route.name === "home" && (
-                <View
-                  style={[
-                    tabBarItem,
-                    tabBarItemBorderRightStyle,
-                    focused && { ...tabBarItemFocused },
-                  ]}
-                >
-                  <Ready isActive={focused} />
-                  <Text style={focused ? tabBarLabelFocused : tabBarLabel}>WALLET</Text>
-                </View>
-              )}
-              {route.name === "nfts" && (
-                <View style={[tabBarItem, focused && { ...tabBarItemFocused }]}>
-                  <TabNft isActive={focused} />
-                  <Text style={focused ? tabBarLabelFocused : tabBarLabel}>NFT</Text>
-                </View>
-              )}
-            </View>
-          )
-        },
-      })}
-    >
-      <Tab.Screen
-        name="home"
-        component={DashboardScreen}
-        options={{ tabBarShowLabel: false, tabBarStyle: tabBarItemStyle }}
-      />
-      <Tab.Screen
-        name="nfts"
-        component={NftsScreen}
-        options={{ tabBarShowLabel: false, tabBarStyle: tabBarItemStyle }}
-      />
-    </Tab.Navigator>
-  )
-}
+// const Tab = createBottomTabNavigator()
+// const BottomTabNavigator = () => {
+//   return (
+//     <Tab.Navigator
+//       screenOptions={({ route }) => ({
+//         headerShown: false,
+//         tabBarStyle: tabBarStyle,
+//         tabBarActiveTintColor: color.palette.white,
+//         // eslint-disable-next-line react/display-name
+//         tabBarIcon: ({ focused }) => {
+//           return (
+//             <View>
+//               {route.name === "home" && (
+//                 <View
+//                   style={[
+//                     tabBarItem,
+//                     tabBarItemBorderRightStyle,
+//                     focused && { ...tabBarItemFocused },
+//                   ]}
+//                 >
+//                   <Ready isActive={focused} />
+//                   <Text style={focused ? tabBarLabelFocused : tabBarLabel}>WALLET</Text>
+//                 </View>
+//               )}
+//               {route.name === "nfts" && (
+//                 <View style={[tabBarItem, focused && { ...tabBarItemFocused }]}>
+//                   <TabNft isActive={focused} />
+//                   <Text style={focused ? tabBarLabelFocused : tabBarLabel}>NFT</Text>
+//                 </View>
+//               )}
+//             </View>
+//           )
+//         },
+//       })}
+//     >
+//       <Tab.Screen
+//         name="home"
+//         component={DashboardScreen}
+//         options={{ tabBarShowLabel: false, tabBarStyle: tabBarItemStyle }}
+//       />
+//       <Tab.Screen
+//         name="nfts"
+//         component={NftsScreen}
+//         options={{ tabBarShowLabel: false, tabBarStyle: tabBarItemStyle }}
+//       />
+//     </Tab.Navigator>
+//   )
+// }
 
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createNativeStackNavigator<NavigatorParamList>()
 
-const {width} = Dimensions.get("screen")
+const { width } = Dimensions.get("screen")
 
 const TestNetWarning = () => {
-
-  const TESTNET_WRAPPER:ViewStyle = {
-    height:50,
-    width:width,
+  const TESTNET_WRAPPER: ViewStyle = {
+    height: 50,
+    width: width,
     padding: 10,
-    marginBottom:5,
-    justifyContent:"flex-end",
-    borderBottomLeftRadius:12,
-    borderBottomRightRadius:12,
-    backgroundColor:color.palette.errorToast,
+    marginBottom: 5,
+    justifyContent: "flex-end",
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+    backgroundColor: color.palette.errorToast,
   }
 
-  const TESTNET_MESSAGE:TextStyle = {
-    color:color.palette.white,
+  const TESTNET_MESSAGE: TextStyle = {
+    color: color.palette.white,
     fontWeight: "bold",
   }
-  return(
+  return (
     <View style={TESTNET_WRAPPER}>
       <Text style={TESTNET_MESSAGE}>Warning, you are currently using testnet</Text>
     </View>
@@ -335,17 +315,15 @@ const TestNetWarning = () => {
 }
 
 const AppStackHeader = (props: NativeStackHeaderProps & { backArrow: boolean }) => {
-  const rootStore = useStores();
+  const rootStore = useStores()
 
   return (
-    <View style={{backgroundColor:color.palette.black}}>
+    <View style={{ backgroundColor: color.palette.black }}>
       <View style={NAV_HEADER_CONTAINER}>
         {props.backArrow ? <BackArrow navigation={props.navigation} /> : <Logo />}
         <SettingsBtn />
       </View>
-      {rootStore?.TESTNET &&
-      <TestNetWarning />
-      }
+      {rootStore?.TESTNET && <TestNetWarning />}
     </View>
   )
 }
@@ -391,9 +369,10 @@ const AppStack = () => {
           <Stack.Screen name="welcome" component={WelcomeScreen} />
           <Stack.Screen name="importWallet" component={ImportWalletScreen} />
           <Stack.Screen name="createWallet" component={CreateWalletScreen} />
+          {/* <Stack.Screen name="dashboard" component={DashboardScreen} /> */}
           <Stack.Screen
             name="dashboard"
-            component={BottomTabNavigator}
+            component={DashboardScreen}
             options={{
               title: null,
               headerShown: true,
@@ -516,7 +495,7 @@ interface NavigationProps extends Partial<React.ComponentProps<typeof Navigation
 
 export const AppNavigator = observer((props: NavigationProps) => {
   const colorScheme = useColorScheme()
-  const { overlayLoadingShown } = useStores();
+  const { overlayLoadingShown } = useStores()
 
   useBackButtonHandler(canExit)
   return (
