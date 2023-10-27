@@ -135,7 +135,11 @@ export const CurrentWalletModel = types
       try {
         self.assets.replace(
           self.assets.filter((asset) => {
-            return asset.chain !== chainId || asset.symbol !== symbol
+            console.log("SHOULD BE KEPT ??", asset.chain, chainId, asset.symbol, symbol)
+            return (
+              asset.chain?.toLowerCase() !== chainId?.toLowerCase() ||
+              asset.symbol?.toLowerCase() !== symbol?.toLowerCase()
+            )
           }),
         )
 
@@ -154,7 +158,7 @@ export const CurrentWalletModel = types
     hasAsset: (network: NetworkType): boolean => {
       return (
         self.assets.filter((asset) => {
-          return asset.name === network.name && asset.chain === asset.chain
+          return asset.name === network.name
         }).length > 0
       )
     },

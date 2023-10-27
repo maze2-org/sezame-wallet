@@ -101,7 +101,7 @@ const TRANSACTIONS_REMOVE_BTN: ViewStyle = {
  * Describe your component here
  */
 export const TransactionRow = observer(function TransactionRow(props: TransactionRowProps) {
-  const { transaction, asset, onRemove = () => {} } = props || {}
+  const { transaction } = props || {}
   const truncateText = (text: string) => {
     return text.substring(0, 8) + "..." + text.substring(text.length - 8, text.length)
   }
@@ -112,6 +112,7 @@ export const TransactionRow = observer(function TransactionRow(props: Transactio
 
   let rowTitle: any = null
 
+  console.log(transaction)
   if (transaction.reason === "unstaking") {
     rowTitle = <Text>Unstaking</Text>
   } else if (transaction.reason === "staking") {
@@ -119,11 +120,11 @@ export const TransactionRow = observer(function TransactionRow(props: Transactio
   } else if (transaction.reason === "withdraw") {
     rowTitle = <Text>Withdrawing</Text>
   } else if (typeof txs === "string") {
-    rowTitle = <Text>{truncateText(txs)}</Text>
+    rowTitle = <Text>{truncateText(txs as string)}</Text>
   } else if (txs.length > 0) {
-    txs.map((tx) => <Text>{truncateText(tx)}</Text>)
+    rowTitle = (txs as string[]).map((tx) => <Text key={tx}>{truncateText(tx)}</Text>)
   } else if (txs.length < 1) {
-    ;<Text>None</Text>
+    rowTitle = <Text>None</Text>
   }
 
   return (
@@ -133,9 +134,6 @@ export const TransactionRow = observer(function TransactionRow(props: Transactio
           <View style={TRANSACTION_STATUS_WRAPPER}>
             <Text style={TRANSACTION_STATUS}>Failed</Text>
           </View>
-          <Button style={TRANSACTIONS_REMOVE_BTN} onPress={onRemove}>
-            <FontAwesome5Icon name={"trash"} size={10} color={color.palette.white} />
-          </Button>
         </View>
       )}
       <View style={TRANSACTION_ITEM}>

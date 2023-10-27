@@ -215,6 +215,7 @@ export type NavigatorParamList = {
   }
   send: {
     coinId: string
+    chain: string
   }
   stake: {
     chain: string

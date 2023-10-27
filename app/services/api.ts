@@ -53,6 +53,7 @@ export const getTransactionsUrl = (asset: IWalletAsset) => {
 }
 
 export const getTransactionStatus = (asset: IWalletAsset, txId: string) => {
+  console.log("Starting to get transaction status of", asset, txId)
   const cryptoWallet = getWallet(asset)
   return cryptoWallet.getTransactionStatus(txId)
 }

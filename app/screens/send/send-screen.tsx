@@ -89,7 +89,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
     const walletLogo = require("../../../assets/images/avt.png")
     // Pull in one of our MST stores
     const { currentWalletStore, pendingTransactions, exchangeRates } = useStores()
-    const { getAssetById } = currentWalletStore
+    const { getAssetById, assets } = currentWalletStore
     const {
       control,
       handleSubmit,
@@ -113,7 +113,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
 
     // Pull in navigation via hook
     const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
-    const asset = getAssetById(route.params.coinId)
+    const asset = getAssetById(route.params.coinId, route.params.chain)
     const [fees, setFees] = useState<any>(null)
     const [isPreview, setIsPreview] = useState<boolean>(false)
     const [sending, setSending] = useState<boolean>(false)
@@ -241,7 +241,6 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, "send">> = obse
                       },
                     }}
                   />
-
                   <Controller
                     control={control}
                     name="amount"

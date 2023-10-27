@@ -91,7 +91,7 @@ export function useNavigationPersistence(storage: any, persistenceKey: string) {
   // in production, remove the __DEV__ and set the state to true
   const [isRestored, setIsRestored] = useState(true)
 
-  const routeNameRef = useRef<string | undefined>()
+  const routeNameRef = useRef<string | undefined | null>()
 
   const onNavigationStateChange = (state) => {
     const previousRouteName = routeNameRef.current

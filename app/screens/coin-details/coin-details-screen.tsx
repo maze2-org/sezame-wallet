@@ -91,6 +91,7 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     const updateTransactions = () => {
       const txList = pendingTransactions.getPendingTxsForAsset(asset)
       txList.forEach((tx) => {
+        console.log("GET TX STATUS OF", tx)
         getTransactionStatus(asset, tx.txId)
           .then((status) => {
             pendingTransactions.update(tx, { status })
@@ -225,6 +226,11 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
     }, [updatingAssets])
 
     const removeAsset = React.useCallback((chain: any) => {
+      console.log(
+        "REMOVEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEeE ASSET",
+        chain.id,
+        tokenInfo.symbol,
+      )
       currentWalletStore
         .removeAsset(chain.id, tokenInfo.symbol)
         .then(() => {
@@ -264,7 +270,8 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
 
     // Pull in navigation via hook
     const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
-    const goToSend = () => navigation.navigate("send", { coinId: route.params.coinId })
+    const goToSend = () =>
+      navigation.navigate("send", { coinId: route.params.coinId, chain: route.params.chain })
     const toggleReceiveModal = (value: boolean) => {
       setReceiveIsVisible(value)
     }
@@ -553,9 +560,10 @@ export const CoinDetailsScreen: FC<StackScreenProps<NavigatorParamList, "coinDet
                           const allChains = allAssets
                             ? allAssets.filter((a) => a.cid === asset.cid).map((a) => a.chain)
                             : []
-                          const hasInWallet = currentWalletStore.assets.find(
-                            (item) => item.contract === chain.contract,
-                          )
+                          const hasInWallet = currentWalletStore.assets.find((item) => {
+                            return item.contract === chain.contract && item.chain === chain.id
+                          })
+
                           const showRemoveBtnCondition =
                             asset && asset.cid === chain.name && allChains.includes(chain.id)
 
