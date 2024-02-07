@@ -229,9 +229,6 @@ export type NavigatorParamList = {
   alphChooseAddress: undefined;
   addCurrency: undefined;
   stakingBalance: StackingBalanceRouteParams;
-  walletConnect: {
-    uri: string;
-  };
 };
 
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
