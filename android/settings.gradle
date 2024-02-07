@@ -1,30 +1,4 @@
-
-include ':@react-native-community_blur'
-project(':@react-native-community_blur').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-community/blur/android')
-include ':@react-native-community_blur'
-project(':@react-native-community_blur').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-community/blur/android')
-include ':react-native-splash-screen'
-project(':react-native-splash-screen').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-splash-screen/android')
-include ':react-native-mmkv'
-project(':react-native-mmkv').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-mmkv/android')
-include ':react-native-smart-code'
-project(':react-native-smart-code').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-smart-code/android')
-// React Native Colo Loco autolinks native files colocated next to your JS files
-// More info here: https://github.com/jamonholmgren/react-native-colo-loco
-apply from: '../node_modules/react-native-colo-loco/scripts/android.groovy'
-linkColocatedNativeFiles([
-  appName: "WalletApp",
-  appPath: "../app",
-  appPackageName: "org.maze2.sezamewallet",
-  androidPath: "./android/app/src/main/java/com/walletapp"
-])
-
-
-rootProject.name = 'walletApp'
-apply from: new File(["node", "--print", "require.resolve('expo/package.json')"].execute().text.trim(), "../scripts/autolinking.gradle");
-useExpoModules()
-
-apply from: new File(["node", "--print", "require.resolve('@react-native-community/cli-platform-android/package.json')"].execute().text.trim(), "../native_modules.gradle");
-applyNativeModulesSettingsGradle(settings)
-
+rootProject.name = 'AwesomeProject'
+apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
 include ':app'
+includeBuild('../node_modules/@react-native/gradle-plugin')

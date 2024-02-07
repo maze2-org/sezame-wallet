@@ -1,37 +1,33 @@
 module.exports = {
-  presets: ["module:metro-react-native-babel-preset"],
-  env: {
-    production: {},
-  },
+  presets: ['module:@react-native/babel-preset'],
   plugins: [
-    [
-      "module-resolver",
-      {
-        extensions: [
-          ".js",
-          ".jsx",
-          ".ts",
-          ".tsx",
-          ".android.js",
-          ".android.tsx",
-          ".ios.js",
-          ".ios.tsx",
-        ],
-        root: ["./app"],
-      },
-    ],
-    [
-      "@babel/plugin-proposal-decorators",
-      {
-        legacy: true,
-      },
-    ],
-    ["@babel/plugin-proposal-optional-catch-binding"],
+
     [
       "babel-plugin-inline-import",
       {
         "extensions": [".svg"]
       }
     ],
+
+    [
+      'module-resolver',
+      {
+        root: ['./src'],
+        extensions: ['.ios.js', '.android.js', '.js', '.ts', '.tsx', '.json', '.svg'],
+        alias: {
+          '@components': './src/components',
+          '@config': './src/config',
+          '@assets': './src/assets',
+          '@models': './src/models',
+          '@theme': './src/theme',
+          '@screens': './src/screens',
+          '@i18n': './src/i18n',
+          '@services': './src/services',
+          '@types': './src/types',
+          '@utils': './src/utils',
+          '@navigators': './src/navigators'
+        },
+      },
+    ],
   ],
-}
+};

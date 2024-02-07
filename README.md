@@ -1,132 +1,79 @@
-# Welcome to your Wallet app!
+This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
+# Getting Started
 
+>**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
 
-## The latest and greatest boilerplate for Infinite Red opinions
+## Step 1: Start the Metro Server
 
-This app has been generated using Ignite boilerplate
+First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
 
-## Quick Start
+To start Metro, run the following command from the _root_ of your React Native project:
 
-The Ignite boilerplate project's structure will look similar to this:
+```bash
+# using npm
+npm start
 
-```
-ignite-project
-├── app
-│   ├── components
-│   ├── i18n
-│   ├── utils
-│   ├── models
-│   ├── navigators
-│   ├── screens
-│   ├── services
-│   ├── theme
-│   ├── app.tsx
-├── storybook
-│   ├── views
-│   ├── index.ts
-│   ├── storybook-registry.ts
-│   ├── storybook.ts
-│   ├── toggle-storybook.tsx
-├── test
-│   ├── __snapshots__
-│   ├── storyshots.test.ts.snap
-│   ├── mock-i18n.ts
-│   ├── mock-reactotron.ts
-│   ├── setup.ts
-│   ├── storyshots.test.ts
-├── README.md
-├── android
-│   ├── app
-│   ├── build.gradle
-│   ├── gradle
-│   ├── gradle.properties
-│   ├── gradlew
-│   ├── gradlew.bat
-│   ├── keystores
-│   └── settings.gradle
-├── ignite
-│   ├── ignite.json
-│   └── plugins
-├── index.js
-├── ios
-│   ├── IgniteProject
-│   ├── IgniteProject-tvOS
-│   ├── IgniteProject-tvOSTests
-│   ├── IgniteProject.xcodeproj
-│   └── IgniteProjectTests
-├── .env
-└── package.json
-
+# OR using Yarn
+yarn start
 ```
 
-### ./app directory
+## Step 2: Start your Application
 
-Included in an Ignite boilerplate project is the `app` directory. This is a directory you would normally have to create when using vanilla React Native.
+Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
 
-The inside of the src directory looks similar to the following:
+### For Android
 
-```
-app
-│── components
-│── i18n
-├── models
-├── navigators
-├── screens
-├── services
-├── theme
-├── utils
-└── app.tsx
+```bash
+# using npm
+npm run android
+
+# OR using Yarn
+yarn android
 ```
 
-**components**
-This is where your React components will live. Each component will have a directory containing the `.tsx` file, along with a story file, and optionally `.presets`, and `.props` files for larger components. The app will come with some commonly used components like Button.
+### For iOS
 
-**i18n**
-This is where your translations will live if you are using `react-native-i18n`.
+```bash
+# using npm
+npm run ios
 
-**models**
-This is where your app's models will live. Each model has a directory which will contain the `mobx-state-tree` model file, test file, and any other supporting files like actions, types, etc.
+# OR using Yarn
+yarn ios
+```
 
-**navigators**
-This is where your `react-navigation` navigators will live.
+If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
 
-**screens**
-This is where your screen components will live. A screen is a React component which will take up the entire screen and be part of the navigation hierarchy. Each screen will have a directory containing the `.tsx` file, along with any assets or other helper files.
+This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
 
-**services**
-Any services that interface with the outside world will live here (think REST APIs, Push Notifications, etc.).
+## Step 3: Modifying your App
 
-**theme**
-Here lives the theme for your application, including spacing, colors, and typography.
+Now that you have successfully run the app, let's modify it.
 
-**utils**
-This is a great place to put miscellaneous helpers and utilities. Things like date helpers, formatters, etc. are often found here. However, it should only be used for things that are truely shared across your application. If a helper or utility is only used by a specific component or model, consider co-locating your helper with that component or model.
+1. Open `App.tsx` in your text editor of choice and edit some lines.
+2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
 
-**app.tsx** This is the entry point to your app. This is where you will find the main App component which renders the rest of the application.
+   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
 
-### ./ignite directory
+## Congratulations! :tada:
 
-The `ignite` directory stores all things Ignite, including CLI and boilerplate items. Here you will find generators, plugins and examples to help you get started with React Native.
+You've successfully run and modified your React Native App. :partying_face:
 
-### ./storybook directory
+### Now what?
 
-This is where your stories will be registered and where the Storybook configs will live.
+- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
+- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
 
-### ./test directory
+# Troubleshooting
 
-This directory will hold your Jest configs and mocks, as well as your [storyshots](https://github.com/storybooks/storybook/tree/master/addons/storyshots) test file. This is a file that contains the snapshots of all your component storybooks.
+If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
 
-## Running Storybook
+# Learn More
 
-From the command line in your generated app's root directory, enter `yarn run storybook`
-This starts up the storybook server and opens a story navigator in your browser. With your app
-running, choose Toggle Storybook from the developer menu to switch to Storybook; you can then
-use the story navigator in your browser to change stories.
+To learn more about React Native, take a look at the following resources:
 
-For Visual Studio Code users, there is a handy extension that makes it easy to load Storybook use cases into a running emulator via tapping on items in the editor sidebar. Install the `React Native Storybook` extension by `Orta`, hit `cmd + shift + P` and select "Reconnect Storybook to VSCode". Expand the STORYBOOK section in the sidebar to see all use cases for components that have `.story.tsx` files in their directories.
-
-## Running e2e tests
-
-Read [e2e setup instructions](./e2e/README.md).
-
+- [React Native Website](https://reactnative.dev) - learn more about React Native.
+- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
+- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
+- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
+- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.

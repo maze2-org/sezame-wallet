@@ -1,24 +1,33 @@
-/**
- * We're using a custom metro config because we want to support symlinks
- * out of the box. This allows you to use pnpm and/or play better in a monorepo.
- *
- * You can safely delete this file and remove @rnx-kit/metro-* if you're not
- * using PNPM or monorepo or symlinks at all.
- *
- * However, it doesn't hurt to have it either.
- */
-const { makeMetroConfig } = require("@rnx-kit/metro-config")
-const MetroSymlinksResolver = require("@rnx-kit/metro-resolver-symlinks")
-const { getDefaultConfig } = require("metro-config")
+const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
+const defaultConfig = getDefaultConfig(__dirname);
+const { assetExts, sourceExts } = defaultConfig.resolver;
 
-module.exports = (async () => {
-  const defaultConfig = await getDefaultConfig()
-  return makeMetroConfig({
-    projectRoot: __dirname,
-    resolver: {
-      resolveRequest: MetroSymlinksResolver(),
-      assetExts: [...defaultConfig.resolver.assetExts, "bin"],
-      sourceExts: [...defaultConfig.resolver.sourceExts, "mjs"],
+/**
+ * Metro configuration
+ * https://facebook.github.io/metro/docs/configuration
+ *
+ * @type {import('metro-config').MetroConfig}
+ */
+const cfg = getDefaultConfig(__dirname);
+cfg.resolver.extraNodeModules = {
+    'crypto': `${__dirname}/node_modules/react-native-quick-crypto`,
+    'stream': `${__dirname}/node_modules/stream-browserify`,
+    'buffer': `${__dirname}/node_modules/@craftzdog/react-native-buffer`,
+    'path': `${__dirname}/node_modules/path-browserify`,
+    'os': `${__dirname}/node_modules/react-native-os`,
+    'http': `${__dirname}/node_modules/@tradle/react-native-http`,
+    'https': `${__dirname}/node_modules/https-browserify`,
+};
+
+const svgConfig = {
+    transformer: {
+      babelTransformerPath: require.resolve('react-native-svg-transformer'),
     },
-  })
-})()
+    resolver: {
+      assetExts: assetExts.filter((ext) => ext !== 'svg'),
+      sourceExts: [...sourceExts, 'svg'],
+    },
+  };
+
+console.warn(cfg);
+module.exports = mergeConfig(cfg, svgConfig);

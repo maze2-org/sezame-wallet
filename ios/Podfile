@@ -1,51 +1,55 @@
+# Resolve react_native_pods.rb with node to allow for hoisting
+require Pod::Executable.execute_command('node', ['-p',
+  'require.resolve(
+    "react-native/scripts/react_native_pods.rb",
+    {paths: [process.argv[1]]},
+  )', __dir__]).strip
 
-# React Native Colo Loco autolinks native files colocated next to your JS files
-# More info here: https://github.com/jamonholmgren/react-native-colo-loco
-require_relative '../node_modules/react-native-colo-loco/scripts/ios.rb'
-link_colocated_native_files(app_name: 'WalletApp', app_path: "../app")
+platform :ios, min_ios_version_supported
+prepare_react_native_project!
 
+# If you are using a `react-native-flipper` your iOS build will fail when `NO_FLIPPER=1` is set.
+# because `react-native-flipper` depends on (FlipperKit,...) that will be excluded
+#
+# To fix this you can also exclude `react-native-flipper` using a `react-native.config.js`
+# ```js
+# module.exports = {
+#   dependencies: {
+#     ...(process.env.NO_FLIPPER ? { 'react-native-flipper': { platforms: { ios: null } } } : {}),
+# ```
+flipper_config = ENV['NO_FLIPPER'] == "1" ? FlipperConfiguration.disabled : FlipperConfiguration.enabled
 
-pod_folder = Pathname.new(__FILE__).dirname.realpath
+linkage = ENV['USE_FRAMEWORKS']
+if linkage != nil
+  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
+  use_frameworks! :linkage => linkage.to_sym
+end
 
-require File.join(File.dirname(`cd #{pod_folder} && node --print "require.resolve('expo/package.json')"`), "scripts/autolinking")
-require File.join(File.dirname(`cd #{pod_folder} && node --print "require.resolve('react-native/package.json')"`), "scripts/react_native_pods")
-require File.join(File.dirname(`cd #{pod_folder} && node --print "require.resolve('@react-native-community/cli-platform-ios/package.json')"`), "native_modules")
-
-platform :ios, '12.0'
-
-require 'json'
-podfile_properties = JSON.parse(File.read('./Podfile.properties.json')) rescue {}
-
-target 'walletApp' do
-  use_expo_modules!
+target 'AwesomeProject' do
   config = use_native_modules!
 
   use_react_native!(
     :path => config[:reactNativePath],
-    :hermes_enabled => podfile_properties['expo.jsEngine'] == 'hermes'
+    # Enables Flipper.
+    #
+    # Note that if you have use_frameworks! enabled, Flipper will not work and
+    # you should disable the next line.
+    :flipper_configuration => flipper_config,
+    # An absolute path to your application root.
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-#   pod 'RNSmartCode', :path => '../node_modules/react-native-smart-code'
-
-#   pod 'react-native-mmkv', :path => '../node_modules/react-native-mmkv'
-
-
-#   pod 'react-native-blur', :path => '../node_modules/@react-native-community/blur'
-
-  target 'walletAppTests' do
+  target 'AwesomeProjectTests' do
     inherit! :complete
     # Pods for testing
   end
 
-  # Enables Flipper.
-  #
-  # Note that if you have use_frameworks! enabled, Flipper will not work and
-  # you should disable these next few lines.
-  use_flipper!()
-
   post_install do |installer|
-    flipper_post_install(installer)
-    react_native_post_install(installer)
-    __apply_Xcode_12_5_M1_post_install_workaround(installer)
+    # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
+    react_native_post_install(
+      installer,
+      config[:reactNativePath],
+      :mac_catalyst_enabled => false
+    )
   end
 end

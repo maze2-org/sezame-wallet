@@ -1,0 +1,27 @@
+diff --git a/node_modules/randombytes/browser.js b/node_modules/randombytes/browser.js
+index 0fb0b71..918e394 100644
+--- a/node_modules/randombytes/browser.js
++++ b/node_modules/randombytes/browser.js
+@@ -4,11 +4,12 @@
+ // https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues
+ var MAX_BYTES = 65536
+ 
++global.crypto = require("react-native-quick-crypto")
+ // Node supports requesting up to this number of bytes
+ // https://github.com/nodejs/node/blob/master/lib/internal/crypto/random.js#L48
+ var MAX_UINT32 = 4294967295
+ 
+-function oldBrowser () {
++function oldBrowser() {
+   throw new Error('Secure random number generation is not supported by this browser.\nUse Chrome, Firefox or Internet Explorer 11')
+ }
+ 
+@@ -21,7 +22,7 @@ if (crypto && crypto.getRandomValues) {
+   module.exports = oldBrowser
+ }
+ 
+-function randomBytes (size, cb) {
++function randomBytes(size, cb) {
+   // phantomjs needs to throw
+   if (size > MAX_UINT32) throw new RangeError('requested too many random bytes')
+ 

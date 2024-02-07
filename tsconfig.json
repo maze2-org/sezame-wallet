@@ -1,24 +1,22 @@
 {
+  "extends": "@react-native/typescript-config/tsconfig.json",
   "compilerOptions": {
-    "allowJs": false,
-    "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
-    "esModuleInterop": true,
-    "jsx": "react-native",
-    "module": "es2015",
-    "moduleResolution": "node",
-    "noImplicitAny": false,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noUnusedLocals": false,
-    "sourceMap": true,
-    "target": "esnext",
-    "lib": ["esnext", "dom"],
-    "skipLibCheck": true,
+    "jsx": "react",
     "resolveJsonModule": true,
-    "baseUrl": "./app"
-  },
-  "exclude": ["node_modules"],
-  "include": ["index.js", "app", "test", "storybook", "app/custom.d.ts"],
-  "extends": "expo/tsconfig.base"
+    "baseUrl": ".",
+    "paths": {
+      "*": ["src/*"],
+      "@components": ["src/components/*"],
+      "@config": ["src/config/*"],
+      "@assets": ["src/assets/*"],
+      "@models": ["models/*"],
+      "@theme": ["src/theme/*"],
+      "@screens": ["src/screens/*"],
+      "@i18n": ["src/i18n/*"],
+      "@services": ["src/services/*"],
+      "@types": ["src/types/*"],
+      "@utils": ["src/utils/*"],
+      "@navigators": ["src/navigators/*"],
+    }
+  }
 }
