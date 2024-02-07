@@ -13,7 +13,7 @@
   "dependencies": {
     "@alephium/sdk": "^0.7.6",
     "@el173/react-native-passcode-auth": "^1.0.1",
-    "@maze2/sezame-sdk": "^1.5.2",
+    "@maze2/sezame-sdk": "1.6.1",
     "@react-native-async-storage/async-storage": "^1.21.0",
     "@react-native-clipboard/clipboard": "^1.13.2",
     "@react-native-community/netinfo": "^11.2.1",
