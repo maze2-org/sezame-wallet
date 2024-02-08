@@ -15,9 +15,11 @@ import {
 } from '@mgcrea/vision-camera-barcode-scanner';
 
 import {useCameraDevice, useCameraPermission} from 'react-native-vision-camera';
+
 import {Camera} from 'react-native-vision-camera';
 
 import {color} from 'theme';
+import {Button} from 'components';
 
 type WalletConnectScannerModalProps = {
   visible: boolean;
@@ -51,8 +53,6 @@ export function WalletConnectScannerModal({
   const {setWalletConnectSscannerShown} = useStores();
   const {hasPermission, requestPermission} = useCameraPermission();
 
-  const [scannedCode, setScannedCode] = useState<string>('');
-
   const onClose = () => {
     setWalletConnectSscannerShown(false);
   };
@@ -65,13 +65,15 @@ export function WalletConnectScannerModal({
     });
   }
 
+  const [scannedCode, setScannedCode] = useState<string>('');
+  const setScannedCodeJs = Worklets.createRunInJsFn(setScannedCode);
   const {props: cameraProps, highlights} = useBarcodeScanner({
     fps: 20,
     barcodeTypes: ['qr'],
     onBarcodeScanned: barcodes => {
       'worklet';
       if (barcodes[0].value) {
-        setScannedCode(barcodes[0].value);
+        setScannedCodeJs(barcodes[0].value);
       }
     },
   });
@@ -89,8 +91,17 @@ export function WalletConnectScannerModal({
               Scan the QRCode
             </Text>
 
-            <Text>Code scanned : {scannedCode}</Text>
-            {!false && (
+            {scannedCode && (
+              <>
+                <Text style={{color: color.palette.white}}>
+                  Code scanned : {scannedCode}
+                </Text>
+                <Button onPress={() => setScannedCode('')}>
+                  <Text>Scan a new bar code</Text>
+                </Button>
+              </>
+            )}
+            {!scannedCode && (
               <View style={{flex: 1, width: '100%', marginTop: 20}}>
                 {device ? (
                   <>
