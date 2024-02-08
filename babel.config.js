@@ -1,14 +1,12 @@
 module.exports = {
   presets: ['module:@react-native/babel-preset'],
   plugins: [
-
     [
       "babel-plugin-inline-import",
       {
         "extensions": [".svg"]
       }
     ],
-
     [
       'module-resolver',
       {
@@ -27,6 +25,12 @@ module.exports = {
           '@utils': './src/utils',
           '@navigators': './src/navigators'
         },
+      },
+    ],
+    [
+      'react-native-reanimated/plugin',
+      {
+        globals: ['__scanCodes'],
       },
     ],
   ],

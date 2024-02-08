@@ -37,7 +37,7 @@ import {
   AddCurrencyScreen,
 } from '../screens';
 import {navigationRef, useBackButtonHandler} from './navigation-utilities';
-// import Icon from "react-native-vector-icons/Ionicons"
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import {color, spacing} from '../theme';
 import {WalletReadyScreen} from '../screens/wallet-ready/wallet-ready-screen';
@@ -67,6 +67,7 @@ import {OverlayLoading} from '../components/overlay-loading/overlay-loading';
 import {observer} from 'mobx-react-lite';
 import {AlphChooseAddressScreen} from 'screens/alph-choose-address/alph-choose-address-screen';
 import AlephiumAddressSelector from 'components/alephium/alephium-address-selector.component';
+import {WalletConnectScannerModal} from 'components/wallet-connect-scanner/wallet-connect-scanner-modal';
 const NAV_HEADER_CONTAINER: ViewStyle = {
   flexDirection: 'row',
   justifyContent: 'space-between',
@@ -142,7 +143,8 @@ const MODAL_CONTAINER: TextStyle = {
 };
 
 function SettingsBtn({hideOpitonals = false}: {hideOpitonals: boolean}) {
-  const {currentWalletStore, exchangeRates} = useStores();
+  const {currentWalletStore, exchangeRates, setWalletConnectSscannerShown} =
+    useStores();
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>();
   const route = navigationRef.current?.getCurrentRoute();
 
@@ -156,6 +158,18 @@ function SettingsBtn({hideOpitonals = false}: {hideOpitonals: boolean}) {
           exchangeRates.refreshCurrencies();
         }}>
         <SvgXml style={BTN_ICON} xml={reloadIcon} />
+      </TouchableOpacity>
+      <TouchableOpacity
+        key="btn_scan_qr"
+        style={NAV_HEADER_BTN}
+        onPress={() => {
+          setWalletConnectSscannerShown(true);
+        }}>
+        <MaterialIcons
+          style={{fontSize: 24}}
+          name={'qr-code-scanner'}
+          color={color.palette.white}
+        />
       </TouchableOpacity>
       {!hideOpitonals && (
         <>
@@ -464,7 +478,7 @@ interface NavigationProps
 
 export const AppNavigator = observer((props: NavigationProps) => {
   const colorScheme = useColorScheme();
-  const {overlayLoadingShown} = useStores();
+  const {overlayLoadingShown, walletConnectSscannerShown} = useStores();
 
   useBackButtonHandler(canExit);
   return (
@@ -476,6 +490,7 @@ export const AppNavigator = observer((props: NavigationProps) => {
         <AppStack />
       </NavigationContainer>
       <OverlayLoading visible={overlayLoadingShown} />
+      <WalletConnectScannerModal visible={walletConnectSscannerShown} />
     </>
   );
 });

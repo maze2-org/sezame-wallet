@@ -19,6 +19,7 @@ export const RootStoreModel = types.model("RootStore").props({
   exchangeRates: createExchangeRateDefaultModel(),
   TESTNET: types.optional(types.boolean, CONFIG.TESTNET),
   overlayLoadingShown: types.optional(types.boolean, false),
+  walletConnectSscannerShown: types.optional(types.boolean, false),
 }).actions(self => ({
   setTestnet(value: boolean) {
     self.TESTNET = value;
@@ -26,6 +27,9 @@ export const RootStoreModel = types.model("RootStore").props({
   },
   setOverlayLoadingShown(value: boolean) {
     self.overlayLoadingShown = value;
+  },
+  setWalletConnectSscannerShown(value: boolean) {
+    self.walletConnectSscannerShown = value;
   }
 }))
 
