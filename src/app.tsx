@@ -38,7 +38,7 @@ export const NAVIGATION_PERSISTENCE_KEY = 'NAVIGATION_STATE';
 function App() {
   WalletGenerator.generateMnemonic(128);
   // @TODO : Remove this line in order not to run the wallet in testmode by default
-  if (CONFIG) CONFIG.setTESTNET(true);
+  // if (CONFIG) CONFIG.setTESTNET(true);
 
   const [rootStore, setRootStore] = useState<RootStore | undefined>(undefined);
   const {

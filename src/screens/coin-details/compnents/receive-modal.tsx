@@ -86,6 +86,7 @@ const ReceiveModal = ({visible, asset, onClose}: ReceiveModalProps) => {
           )}
 
           <View style={styles.RECEIVE_MODAL_COPY_WRAPPER}>
+            {console.log({currentAddressGroup})}
             {!!asset && (
               <View style={styles.RECEIVE_MODAL_ADDRESS}>
                 <TextRn style={styles.RECEIVE_MODAL_ADDRESS_TEXT}>
@@ -95,7 +96,7 @@ const ReceiveModal = ({visible, asset, onClose}: ReceiveModalProps) => {
                 </TextRn>
               </View>
             )}
-            {currentAddressGroup && (
+            {currentAddressGroup !== null && (
               <View style={styles.GROUP_BLOCK}>
                 <Text style={styles.GROUP_LABEL}>
                   Group {currentAddressGroup}

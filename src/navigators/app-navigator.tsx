@@ -68,6 +68,7 @@ import {observer} from 'mobx-react-lite';
 import {AlphChooseAddressScreen} from 'screens/alph-choose-address/alph-choose-address-screen';
 import AlephiumAddressSelector from 'components/alephium/alephium-address-selector.component';
 import {WalletConnectScannerModal} from 'components/wallet-connect-scanner/wallet-connect-scanner-modal';
+
 const NAV_HEADER_CONTAINER: ViewStyle = {
   flexDirection: 'row',
   justifyContent: 'space-between',
@@ -81,6 +82,7 @@ const NAV_HEADER_CONTAINER: ViewStyle = {
   marginHorizontal: -1,
   marginTop: -1,
   backgroundColor: color.palette.black,
+  width: '100%',
 };
 
 const NAV_HEADER_BTN_CONTAINER: ViewStyle = {
@@ -301,6 +303,7 @@ const AppStackHeader = (
             flexDirection: 'row',
             gap: 10,
             justifyContent: 'flex-end',
+            flexGrow: 1,
           }}>
           {displayAlphSelector && <AlephiumAddressSelector />}
           <SettingsBtn hideOpitonals={!showButtons} />
