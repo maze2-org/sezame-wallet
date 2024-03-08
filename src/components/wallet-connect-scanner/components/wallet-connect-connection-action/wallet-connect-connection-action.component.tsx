@@ -13,6 +13,16 @@ import {addDerivedAddress} from 'utils/wallet-utils';
 import walletConnectStyles from '../../wallet-connect-scanner.styles';
 import WalletConnectModal from '../wallet-connect-modal/wallet-connect-modal.component';
 import {observer} from 'mobx-react-lite';
+import { KeyValueStorage } from "@walletconnect/keyvaluestorage"
+import {
+  CORE_STORAGE_OPTIONS,
+  CORE_STORAGE_PREFIX,
+  HISTORY_CONTEXT,
+  HISTORY_STORAGE_VERSION, MESSAGES_CONTEXT, MESSAGES_STORAGE_VERSION, STORE_STORAGE_VERSION,
+} from "@walletconnect/core"
+import { JsonRpcRecord, MessageRecord, PendingRequestTypes, SessionTypes } from "@walletconnect/types"
+import SignClient, { REQUEST_CONTEXT, SESSION_CONTEXT, SIGN_CLIENT_STORAGE_PREFIX } from "@walletconnect/sign-client"
+import { mapToObj, objToMap } from "@walletconnect/utils"
 
 type WalletConnectConnectionActionProps = {
   walletAction: IWalletConnectAction;
@@ -27,7 +37,7 @@ const WalletConnectConnectionAction = observer(function ({
     currentWalletStore;
   const alphWallet = getAssetById('alephium', 'ALPH');
   const alphSelectedAddress = getSelectedAddressForAsset('alephium', 'ALPH');
-  const {removeAction, approveConnection} = walletConnectStore;
+  const {removeAction, approveConnection, client} = walletConnectStore;
 
   const handleAddDerivedAddress = async (group?: 1 | 2 | 3 | 0) => {
     if (alphWallet && currentWalletStore.mnemonic) {
@@ -35,12 +45,25 @@ const WalletConnectConnectionAction = observer(function ({
     }
   };
 
+  const getActiveWalletConnectSessions = (walletConnectClient?: SignClient) => {
+    if (!walletConnectClient) return []
+
+    const activePairings = walletConnectClient.core.pairing.getPairings().filter((pairing) => pairing.active)
+
+    return walletConnectClient.session.values.filter((session) =>
+      activePairings.some((pairing) => pairing.topic === session.pairingTopic)
+    )
+  }
+
   const handleConnect = async (
     pendingSessionApproval: IWalletConnectAction,
   ) => {
     try {
       if (alphSelectedAddress) {
-        await approveConnection(pendingSessionApproval, alphSelectedAddress);
+        const activeSessions = getActiveWalletConnectSessions(client);
+
+        // await cleanBeforeInit();
+        await approveConnection(pendingSessionApproval, alphSelectedAddress, activeSessions);
       }
     } catch (err) {
       // ignore error...

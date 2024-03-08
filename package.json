@@ -11,7 +11,9 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
+    "@alephium/token-list": "^0.0.15",
     "@alephium/walletconnect-provider": "0.27.5",
+    "@alephium/web3": "^0.35.0",
     "@el173/react-native-passcode-auth": "^1.0.1",
     "@maze2/sezame-sdk": "1.6.1",
     "@mgcrea/vision-camera-barcode-scanner": "^0.9.0",
@@ -40,6 +42,7 @@
     "expo-localization": "^14.5.0",
     "expo-modules-core": "^1.5.12",
     "fast-text-encoding": "^1.0.6",
+    "fetch-retry": "^5.0.6",
     "https-browserify": "^1.0.0",
     "i18n-js": "^4.3.2",
     "install": "^0.13.0",
@@ -118,6 +121,7 @@
     "@types/react-test-renderer": "^18.0.7",
     "@typescript-eslint/eslint-plugin": "^6.18.0",
     "@typescript-eslint/parser": "^6.18.0",
+    "@walletconnect/types": "^2.11.2",
     "asyncstorage-down": "^4.2.0",
     "babel-jest": "^29.7.0",
     "babel-loader": "^9.1.3",

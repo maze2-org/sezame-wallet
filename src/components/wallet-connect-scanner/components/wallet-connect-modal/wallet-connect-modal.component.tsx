@@ -7,18 +7,20 @@ import FlashMessage from 'react-native-flash-message';
 
 type WalletConnectModalProps = PropsWithChildren & {
   title: string;
+  visible?: boolean;
   onClose: () => any;
   flashMessageRef?: React.MutableRefObject<FlashMessage | undefined>;
 };
 
 function WalletConnectModal({
+  visible,
   title,
   children,
   onClose,
   flashMessageRef,
 }: WalletConnectModalProps) {
   return (
-    <Modal transparent animationType={'fade'} visible={true}>
+    <Modal transparent animationType={'fade'} visible={visible}>
       <TouchableOpacity
         activeOpacity={1}
         style={walletConnectStyles.WALLETCONNECT_CONTAINER}
