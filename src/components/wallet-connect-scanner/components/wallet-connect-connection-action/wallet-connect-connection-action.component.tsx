@@ -2,27 +2,15 @@ import {Button, Text} from 'components';
 import {useStores} from 'models';
 import {IWalletConnectAction} from 'models/wallet-connect/wallet-connect.model';
 import React, {useRef} from 'react';
-import {Image, Modal, View, TouchableOpacity} from 'react-native';
+import {Image, View} from 'react-native';
 import FlashMessage from 'react-native-flash-message';
-import {ScrollView} from 'react-native-gesture-handler';
 import AddAddress from 'screens/alph-choose-address/components/add-address/add-address.component';
 import AddressEntry from 'screens/alph-choose-address/components/address-entry/address-entry.component';
 import {color} from 'theme';
 import {addDerivedAddress} from 'utils/wallet-utils';
-
-import walletConnectStyles from '../../wallet-connect-scanner.styles';
 import WalletConnectModal from '../wallet-connect-modal/wallet-connect-modal.component';
 import {observer} from 'mobx-react-lite';
-import { KeyValueStorage } from "@walletconnect/keyvaluestorage"
-import {
-  CORE_STORAGE_OPTIONS,
-  CORE_STORAGE_PREFIX,
-  HISTORY_CONTEXT,
-  HISTORY_STORAGE_VERSION, MESSAGES_CONTEXT, MESSAGES_STORAGE_VERSION, STORE_STORAGE_VERSION,
-} from "@walletconnect/core"
-import { JsonRpcRecord, MessageRecord, PendingRequestTypes, SessionTypes } from "@walletconnect/types"
-import SignClient, { REQUEST_CONTEXT, SESSION_CONTEXT, SIGN_CLIENT_STORAGE_PREFIX } from "@walletconnect/sign-client"
-import { mapToObj, objToMap } from "@walletconnect/utils"
+import SignClient from "@walletconnect/sign-client"
 
 type WalletConnectConnectionActionProps = {
   walletAction: IWalletConnectAction;
@@ -61,8 +49,6 @@ const WalletConnectConnectionAction = observer(function ({
     try {
       if (alphSelectedAddress) {
         const activeSessions = getActiveWalletConnectSessions(client);
-
-        // await cleanBeforeInit();
         await approveConnection(pendingSessionApproval, alphSelectedAddress, activeSessions);
       }
     } catch (err) {

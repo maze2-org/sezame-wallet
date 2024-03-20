@@ -60,9 +60,12 @@ export const WalletConnectModel = types
   .views(self => ({}))
   .actions(self => ({
     init: flow(function* connect() {
+      console.log('----------------------------------------initinitinitinitinitinitinitinitinitinitinit----------------------------------------')
       if (self.client) {
+      console.log('----------------------------------------SELF CLIENT EXISTS----------------------------------------')
         return;
       }
+      console.log('----------------------------------------SELF CLIENT NOT EXISTS----------------------------------------')
 
       const walletConnectClient: SignClient = yield SignClient.init({
         projectId: '2a084aa1d7e09af2b9044a524f39afbe',
@@ -81,8 +84,18 @@ export const WalletConnectModel = types
       console.log(walletConnectClient,'INITIALIZED A NEW WALLET CONNECTION.................');
     }),
     connect: flow(function* connect(uri: string, topic?: string) {
+      console.log('----------------------------------------CONNECTCONNECTCONNECTCONNECTCONNECTCONNECTCONNECTCONNECTCONNECTCONNECTCONNECT----------------------------------------')
       const walletConnectClient = self.client;
 
+      try {
+        for (const pairing of walletConnectClient.core.pairing.getPairings()) {
+          yield walletConnectClient.disconnect({ topic: pairing.topic, reason: getSdkError("USER_DISCONNECTED") })
+        }
+      } catch (e){
+        console.log('E',e)
+      }
+
+      console.log('self.onSessionRequest', self.onSessionRequest)
       walletConnectClient.on('session_proposal', self.onSessionProposal);
       walletConnectClient.on('session_request', self.onSessionRequest);
       walletConnectClient.on('session_delete', self.onSessionDelete);
@@ -114,20 +127,23 @@ export const WalletConnectModel = types
             try {
               yield walletConnectClient.core.pairing.activate({
                 topic: existingPairing.topic,
-              })
+              });
               console.log("✅ ACTIVATING PAIRING: DONE!")
             } catch (e) {
               console.log("❌ ERROR ACTIVATING PAIRING!")
             }
           }
-          console.log('✅ CONNECTING: DONE!');
+
           console.log('⏳ LOOKING FOR PENDING PROPOSAL REQUEST...');
+
+          console.log('✅ CONNECTING: DONE!')
+
           const pendingProposal = walletConnectClient.core.history.pending.find(
-            ({ topic, request }:any) => topic === existingPairing.topic && request.method === 'wc_sessionPropose'
+            ({ topic, request }) => topic === existingPairing.topic && request.method === 'wc_sessionPropose'
           )
           if (pendingProposal) {
             console.log('👉 FOUND PENDING PROPOSAL REQUEST!')
-            self.onSessionProposal({
+            onSessionProposal({
               ...pendingProposal.request,
               params: {
                 id: pendingProposal.request.id,
@@ -135,11 +151,18 @@ export const WalletConnectModel = types
               }
             })
           } else {
-            console.error(`❌ This WalletConnect session is not valid anymore. Try to refresh the dApp and connect again. Session topic: ${existingPairing.topic}`);
+            console.error('❌ This WalletConnect session is not valid anymore. Try to refresh the dApp and connect again. Session topic: ' +
+              existingPairing.topic);
           }
-        } else {
-          console.log('⏳ PAIRING WITH WALLET CONNECT USING URI:', uri);
-          console.log('✅ PAIRING: DONE!');
+
+        }  else {
+          try {
+            yield walletConnectClient.core.pairing.pair({ uri })
+
+          } catch (e) {
+            console.error('❌ COULD NOT PAIR WITH: ', uri, e);
+          }
+          console.log('✅ PAIRING: DONE!')
         }
       } catch (e) {
         console.error('❌ COULD NOT PAIR WITH: ', uri, e);
@@ -242,7 +265,7 @@ export const WalletConnectModel = types
     toggleTxModal: flow(function* (action: boolean) {
       self.openTxModal = action
     }),
-    acceptAlphTx: flow(function* (action: IWalletConnectAction, sessionRequestData) {
+    acceptAlphTx: flow(function* (action: IWalletConnectAction, sessionRequestData, currentWalletStore) {
 
       const requestEvent = action.eventData;
       const client: SignClient = self.client;
@@ -250,7 +273,8 @@ export const WalletConnectModel = types
         const data = yield signAndSendTransaction(
           sessionRequestData.wcData.fromAddress,
           sessionRequestData.unsignedTxData.txId,
-          sessionRequestData.unsignedTxData.unsignedTx
+          sessionRequestData.unsignedTxData.unsignedTx,
+          currentWalletStore
         )
 
         const { attoAlphAmount, tokens } = sessionRequestData.wcData.assetAmounts
@@ -286,6 +310,7 @@ export const WalletConnectModel = types
         console.log(e, 'ee')
       }
       finally {
+        self.nextActions.remove(action);
         self.openTxModal = false;
       }
       console.log('accept alph tx', JSON.stringify(action, null, 2));
@@ -318,14 +343,23 @@ export const WalletConnectModel = types
       const rawEvent =
         action.eventData as SignClientTypes.EventArguments['session_request'];
 
-      yield client.respond({
-        topic: rawEvent.topic,
-        response: {
-          id: rawEvent.id,
-          jsonrpc: '2.0',
-          result: result
-        },
-      });
+      try {
+        yield client.respond({
+          topic: rawEvent.topic,
+          response: {
+            id: rawEvent.id,
+            jsonrpc: '2.0',
+            result: result
+          },
+        });
+
+      } catch (err) {
+        console.error('❌ requireExplorerApi' + 'err');
+      }
+      finally {
+        self.nextActions.remove(action);
+        self.openTxModal = false;
+      }
     }),
     approveConnection: flow(function* (
       action: IWalletConnectAction,

@@ -2,7 +2,6 @@ import { DUST_AMOUNT, transactionSign } from "@alephium/web3"
 import { CallContractTxData } from "types/transactions.ts"
 import { ALPH } from "@alephium/token-list"
 import { client } from "../../packages/shared/src/api/client.ts"
-import { useStores } from "models"
 import SignClient from "@walletconnect/sign-client"
 
 
@@ -32,8 +31,7 @@ export const buildCallContractTransaction = async ({
   assetAmounts,
   gasAmount,
   gasPrice
-}: CallContractTxData) => {
-  const { currentWalletStore } = useStores()
+}: CallContractTxData, currentWalletStore: any) => {
   const { attoAlphAmount, tokens } = getOptionalTransactionAssetAmounts(assetAmounts)
   const { getAssetById } = currentWalletStore;
   const asset = getAssetById('alephium', 'ALPH');
@@ -52,8 +50,7 @@ export const buildCallContractTransaction = async ({
 }
 
 
-export const signAndSendTransaction = async (fromAddress: any, txId: string, unsignedTx: string) => {
-  const { currentWalletStore } = useStores()
+export const signAndSendTransaction = async (fromAddress: any, txId: string, unsignedTx: string, currentWalletStore: any) => {
   const { getAssetById } = currentWalletStore;
   const asset = getAssetById('alephium', 'ALPH');
   const address = asset?.derivedAddresses?.find((add) => add.address === fromAddress);

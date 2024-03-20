@@ -16,14 +16,14 @@ function WalletConnectExecuteTxAction({
                                         walletAction,
                                         sessionRequestData,
                                       }: WalletConnectExecuteTxActionProps) {
-  const { walletConnectStore } = useStores()
+  const { walletConnectStore, currentWalletStore } = useStores()
   const { acceptAlphTx, refuseAlphTx } = walletConnectStore
 
   const onCancel = () => {
     refuseAlphTx(walletAction)
   }
   const onClickAccept = async (action: any) => {
-    acceptAlphTx(action, sessionRequestData)
+    acceptAlphTx(action, sessionRequestData, currentWalletStore)
   }
 
   return (

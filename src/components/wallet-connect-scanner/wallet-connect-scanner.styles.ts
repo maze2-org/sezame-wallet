@@ -10,6 +10,8 @@ const WALLETCONNECT_CONTAINER_INNER: ViewStyle = {
   flex: 1,
   alignItems: 'center',
   justifyContent: 'center',
+  position: 'relative',
+  zIndex: 10,
 };
 
 const WALLETCONNECT_BOX: ViewStyle = {

@@ -1,5 +1,5 @@
 import {useStores} from 'models';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Modal,
   View,
@@ -8,7 +8,6 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
-  Image,
 } from 'react-native';
 
 import {
@@ -23,19 +22,10 @@ import {Camera} from 'react-native-vision-camera';
 import {color} from 'theme';
 import {Button} from 'components';
 import {
-  IWalletConnectAction,
   WalletConnectActionType,
-  WalletConnectModel,
 } from 'models/wallet-connect/wallet-connect.model';
 import {observer} from 'mobx-react-lite';
-import AlephiumAddressSelector from 'components/alephium/alephium-address-selector.component';
-import {ScrollView} from 'react-native-gesture-handler';
-import AddressEntry from 'screens/alph-choose-address/components/address-entry/address-entry.component';
-import FlashMessage from 'react-native-flash-message';
-import AddAddress from 'screens/alph-choose-address/components/add-address/add-address.component';
-import {addDerivedAddress} from 'utils/wallet-utils';
 import WalletConnectConnectionAction from './components/wallet-connect-connection-action/wallet-connect-connection-action.component';
-import WalletConnectExecuteTxAction from './components/wallet-connect-execute-tx-action/wallet-connect-execute-tx-action.component';
 import { JsonRpcRecord, MessageRecord, PendingRequestTypes, SessionTypes } from "@walletconnect/types"
 import { KeyValueStorage } from "@walletconnect/keyvaluestorage"
 import {
@@ -80,18 +70,11 @@ export const WalletConnectScannerModal = observer(
     const {
       walletConnectStore,
       setWalletConnectSscannerShown,
-      currentWalletStore,
     } = useStores();
     const {hasPermission, requestPermission} = useCameraPermission();
     const [scannedCode, setScannedCode] = useState<string>('');
     const device = useCameraDevice('back');
 
-    const {getSelectedAddressForAsset} = currentWalletStore;
-
-    const alphSelectedAddress = getSelectedAddressForAsset('alephium', 'ALPH');
-    // const [pendingSessionApproval, setPendingSessionApproval] = useState<any[]>(
-    //   [],
-    // );
 
     const {
       client,
@@ -133,7 +116,6 @@ export const WalletConnectScannerModal = observer(
 
 
     const MaxRequestNumToKeep = 10
-    const FOUR_HOURS_IN_SECONDS = 60 * 60 * 4
 
     function getWCStorageKey(prefix: string, version: string, name: string): string {
       return prefix + version + '//' + name
@@ -186,7 +168,6 @@ export const WalletConnectScannerModal = observer(
       await cleanPendingRequest(storage)
 
       const topics = await getSessionTopics(storage);
-      console.log(topics, 'topics')
       if (topics.length > 0) {
         const messageStorageKey = getWCStorageKey(CORE_STORAGE_PREFIX, MESSAGES_STORAGE_VERSION, MESSAGES_CONTEXT)
         const messages = await storage.getItem<Record<string, MessageRecord>>(messageStorageKey)
@@ -240,7 +221,6 @@ export const WalletConnectScannerModal = observer(
           return <WalletConnectConnectionAction walletAction={nextAction} />;
       }
     }
-    console.log(client,'client');
     return (
       <Modal
         transparent

@@ -490,127 +490,124 @@ interface NavigationProps
 
 export const AppNavigator = observer((props: NavigationProps) => {
   const colorScheme = useColorScheme()
-  const { overlayLoadingShown, walletConnectSscannerShown, walletConnectStore } = useStores()
+  const { overlayLoadingShown, walletConnectSscannerShown, walletConnectStore, currentWalletStore } = useStores()
   const [sessionRequestData, setSessionRequestData] = useState<any>(null)
 
   const {
     client: walletClient,
     init: initWalletConnect,
+    connect,
     nextActions,
     requireExplorerApi,
     toggleTxModal,
     openTxModal,
   } = walletConnectStore
-  const nextAction = Array.isArray(nextActions) ? nextActions?.[0] : nextActions
+  const nextAction = nextActions.toJSON()[nextActions.toJSON().length - 1]
+  const currentWallet = currentWalletStore.wallet;
+  console.log("[openTxModal]:", openTxModal)
+  console.log("[Next Action]:", nextAction)
+  console.log("[Next Actions]:", nextActions.toJSON())
 
   useEffect(() => {
-    if (walletClient) {
-      const activeSessions = getActiveWalletConnectSessions(walletClient)
-      console.log('activeSessions', activeSessions)
-      switch (nextAction?.action) {
-        case "alph_signAndSubmitExecuteScriptTx": {
-          const requestEvent = nextAction.eventData
-          const { tokens, bytecode, gasAmount, gasPrice, signerAddress, attoAlphAmount } = requestEvent.params.request
-            .params as SignExecuteScriptTxParams
+    if (walletClient && currentWallet) {
+      (new Promise<void>(async (resolve, reject) => {
+        // for (const pairing of walletClient.core.pairing.getPairings()) {
+        //   await walletClient.disconnect({ topic: pairing.topic, reason: getSdkError("USER_DISCONNECTED") })
+        // }
+        const firstPairing = walletClient.core.pairing.getPairings().reverse()[0]
+        console.log("firstPairing.topic", firstPairing.topic)
+        // await initWalletConnect()
+        // await connect("", firstPairing.topic)
+        resolve()
+      }))
+        .then(res => {
+          const activeSessions = getActiveWalletConnectSessions(walletClient)
+          console.log("[Active Sessions]:", activeSessions)
+          console.log("[nextAction?.action]:", nextAction?.action)
 
-          let assetAmounts: any[] = []
-          let allAlphAssets: any[] = attoAlphAmount ? [{ id: ALPH.id, amount: BigInt(attoAlphAmount) }] : []
+          switch (nextAction?.action) {
+            case "alph_signAndSubmitExecuteScriptTx": {
+              const requestEvent = nextAction.eventData
+              const {
+                tokens,
+                bytecode,
+                gasAmount,
+                gasPrice,
+                signerAddress,
+                attoAlphAmount,
+              } = requestEvent.params.request.params as SignExecuteScriptTxParams
 
-          // const fromAddress = addressIds.find((address) => address === signerAddress)
-          const fromAddress = signerAddress
+              let assetAmounts: any[] = []
+              let allAlphAssets: any[] = attoAlphAmount ? [{ id: ALPH.id, amount: BigInt(attoAlphAmount) }] : []
 
-          if (!fromAddress) {
-            console.log("404")
-            // return respondToWalletConnectWithError(requestEvent, {
-            //   message: "Signer address doesn't exist",
-            //   code: 404
-            // })
-          }
-          if (tokens) {
-            const assets = tokens.map((token) => ({ id: token.id, amount: BigInt(token.amount) }))
-            const [alphAssets, tokenAssets] = partition(assets, (asset) => asset.id === ALPH.id)
-            assetAmounts = tokenAssets
-            allAlphAssets = [...allAlphAssets, ...alphAssets]
-          }
+              // const fromAddress = addressIds.find((address) => address === signerAddress)
+              const fromAddress = signerAddress
 
-          if (allAlphAssets.length > 0) {
-            assetAmounts.push({
-              id: ALPH.id,
-              amount: allAlphAssets.reduce((total, asset) => total + (asset.amount ?? BigInt(0)), BigInt(0)),
-            })
-          }
-
-          const wcTxData: CallContractTxData = {
-            fromAddress,
-            bytecode,
-            assetAmounts,
-            gasAmount,
-            gasPrice: gasPrice?.toString(),
-          }
-
-          try {
-            buildCallContractTransaction(wcTxData).then((buildCallContractTxResult) => {
-              const sessionRequestData = {
-                type: "call-contract",
-                wcData: wcTxData,
-                unsignedTxData: buildCallContractTxResult,
+              if (!fromAddress) {
+                console.log("404")
+                // return respondToWalletConnectWithError(requestEvent, {
+                //   message: "Signer address doesn't exist",
+                //   code: 404
+                // })
               }
-              console.log("✅ BUILDING TX: DONE!", sessionRequestData)
-              setSessionRequestData(sessionRequestData)
-              toggleTxModal(true)
-            }).catch((err) => {
+              if (tokens) {
+                const assets = tokens.map((token) => ({ id: token.id, amount: BigInt(token.amount) }))
+                const [alphAssets, tokenAssets] = partition(assets, (asset) => asset.id === ALPH.id)
+                assetAmounts = tokenAssets
+                allAlphAssets = [...allAlphAssets, ...alphAssets]
+              }
 
-            })
+              if (allAlphAssets.length > 0) {
+                assetAmounts.push({
+                  id: ALPH.id,
+                  amount: allAlphAssets.reduce((total, asset) => total + (asset.amount ?? BigInt(0)), BigInt(0)),
+                })
+              }
 
-          } catch (e) {
-            console.log(e, "eee")
+              const wcTxData: CallContractTxData = {
+                fromAddress,
+                bytecode,
+                assetAmounts,
+                gasAmount,
+                gasPrice: gasPrice?.toString(),
+              }
+
+              try {
+                console.log("✅ BUILDING TX!")
+                buildCallContractTransaction(wcTxData, currentWalletStore).then((buildCallContractTxResult) => {
+                  const sessionRequestData = {
+                    type: "call-contract",
+                    wcData: wcTxData,
+                    unsignedTxData: buildCallContractTxResult,
+                  }
+                  console.log("✅ BUILDING TX: DONE!", sessionRequestData)
+                  setSessionRequestData(sessionRequestData)
+                  toggleTxModal(true)
+                }).catch((err) => {
+                  console.log("❌ BUILDING TX! ERROR", err)
+                })
+
+              } catch (e) {
+                console.log(e, "BUILDING TX! ERROR")
+              }
+              break
+            }
+            case "alph_requestExplorerApi": {
+              console.log(nextAction,"👉 WALLET CONNECT ASKED FOR THE EXPLORER API")
+              walletClient.core.expirer.set(nextAction?.eventData.id, calcExpiry(5))
+              const p = nextAction?.eventData.params.request.params as ApiRequestArguments
+              client.explorer.request(p).then((res: any) => {
+                requireExplorerApi(nextAction, res)
+              }).catch((err: any) => {
+                console.log("err", err)
+              })
+              return
+
+            }
           }
-          // setLoading('')
-          return;
-        }
-        case "alph_requestExplorerApi": {
-          walletClient.core.expirer.set(nextAction?.eventData.id, calcExpiry(5))
-          const p = nextAction?.eventData.params.request.params as ApiRequestArguments
-          client.explorer.request(p).then((klir: any) => {
-            requireExplorerApi(nextAction, klir)
-          }).catch((err: any) => {
-            console.log("garlax", err)
-          })
-          console.log("👉 WALLET CONNECT ASKED FOR THE EXPLORER API")
-          break
-
-        }
-      }
-      // reactivate existing pairing
-      // AsyncStorage.removeItem('uri').catch(null)
-      // AsyncStorage.getItem("uri").then((uri) => {
-      //   if (uri) {
-      //     walletConnectStore.connect('', uri)
-      //       .then(r => {
-      //         if(activeSessions.length) {
-      //           console.log("✅ Connected to existing session successfully!")
-      //         }else{
-      //           throw new Error('NO_ACTIVE_SESSIONS')
-      //         }
-      //       }).catch(e => {
-      //       AsyncStorage.removeItem('uri').catch(null)
-      //       console.log('NO_ACTIVE_SESSIONS')
-      //       // Remove all sessions
-      //       for (let existingSession of activeSessions) {
-      //         walletClient.disconnect({
-      //           topic: existingSession.topic,
-      //           reason: getSdkError("USER_DISCONNECTED"),
-      //         }).then((res: any) => {
-      //           console.log("end", res)
-      //         })
-      //       }
-      //     })
-      //   }
-      // }).catch(e => {
-      //   console.log("❌ Can't find exisitin active session")
-      // })
+        })
     }
-  }, [walletClient, nextActions])
+  }, [walletClient, nextAction, currentWallet])
 
 
   useBackButtonHandler(canExit)
