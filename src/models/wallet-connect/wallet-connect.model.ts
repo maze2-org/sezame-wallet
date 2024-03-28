@@ -1,6 +1,6 @@
 import {flow, Instance, SnapshotOut, types} from 'mobx-state-tree';
 import SignClient from '@walletconnect/sign-client';
-import {getSdkError} from '@walletconnect/utils';
+import { buildApprovedNamespaces, getSdkError } from "@walletconnect/utils"
 import {
   extractBlockchainDetailsFromProposal,
   extractBlockchainDetailsFromRequest,
@@ -25,7 +25,7 @@ const WalletConnectAction = types.model({
     types.frozen<
       SignClientTypes.EventArguments['session_proposal' | 'session_request']
     >(),
-  blockchain: types.enumeration(['alephium', 'ethereum']),
+  blockchain: types.enumeration(['alephium', 'eip155']),
   alephiumGroup: types.maybe(types.string),
   status: types.enumeration([
     'pending',
@@ -81,10 +81,8 @@ export const WalletConnectModel = types
       });
       self.client = walletConnectClient;
 
-      console.log(walletConnectClient,'INITIALIZED A NEW WALLET CONNECTION.................');
     }),
     connect: flow(function* connect(uri: string, topic?: string) {
-      console.log('----------------------------------------CONNECTCONNECTCONNECTCONNECTCONNECTCONNECTCONNECTCONNECTCONNECTCONNECTCONNECT----------------------------------------')
       const walletConnectClient = self.client;
 
       try {
@@ -92,10 +90,9 @@ export const WalletConnectModel = types
           yield walletConnectClient.disconnect({ topic: pairing.topic, reason: getSdkError("USER_DISCONNECTED") })
         }
       } catch (e){
-        console.log('E',e)
+        console.log("❌ connect ERROR", e)
       }
 
-      console.log('self.onSessionRequest', self.onSessionRequest)
       walletConnectClient.on('session_proposal', self.onSessionProposal);
       walletConnectClient.on('session_request', self.onSessionRequest);
       walletConnectClient.on('session_delete', self.onSessionDelete);
@@ -175,7 +172,7 @@ export const WalletConnectModel = types
     ) {
       console.log('onSessionProposal', data);
       const blockchain = extractBlockchainDetailsFromProposal(data);
-      if (!['ethereum', 'alephium'].includes(blockchain)) {
+      if (!['eip155', 'alephium'].includes(blockchain)) {
         console.log('Incompatible blockchain', blockchain);
         return;
       }
@@ -200,7 +197,7 @@ export const WalletConnectModel = types
         return;
       }
 
-      if (!['ethereum', 'alephium'].includes(blockchain)) {
+      if (!['eip155', 'alephium'].includes(blockchain)) {
         console.log('Incompatible blockchain', blockchain);
         return;
       }
@@ -265,8 +262,29 @@ export const WalletConnectModel = types
     toggleTxModal: flow(function* (action: boolean) {
       self.openTxModal = action
     }),
-    acceptAlphTx: flow(function* (action: IWalletConnectAction, sessionRequestData, currentWalletStore) {
 
+    acceptEthTx: flow(function* (action: IWalletConnectAction) {
+      const requestEvent = action.eventData;
+      const client: SignClient = self.client;
+      /*try {
+        yield client.respond({
+          topic: requestEvent.topic,
+          response: {
+            id: requestEvent.id,
+            jsonrpc: '2.0',
+            result: signResult
+          },
+        });
+      } catch (err) {
+        console.log('Error while refusing the transaction...');
+      } finally {
+        self.openTxModal = false;
+        self.nextActions.remove(action);
+      }*/
+      console.log(action, 'action')
+    }),
+
+    acceptAlphTx: flow(function* (action: IWalletConnectAction, sessionRequestData, currentWalletStore) {
       const requestEvent = action.eventData;
       const client: SignClient = self.client;
       try {
@@ -276,11 +294,9 @@ export const WalletConnectModel = types
           sessionRequestData.unsignedTxData.unsignedTx,
           currentWalletStore
         )
-
         const { attoAlphAmount, tokens } = sessionRequestData.wcData.assetAmounts
           ? getTransactionAssetAmounts(sessionRequestData.wcData.assetAmounts)
           : { attoAlphAmount: undefined, tokens: undefined }
-
         const signResult = {
           groupIndex: sessionRequestData.unsignedTxData.fromGroup,
           unsignedTx: sessionRequestData.unsignedTxData.unsignedTx,
@@ -289,7 +305,6 @@ export const WalletConnectModel = types
           gasAmount: sessionRequestData.unsignedTxData.gasAmount,
           gasPrice: BigInt(sessionRequestData.unsignedTxData.gasPrice)
         };
-
         try {
           yield client.respond({
             topic: requestEvent.topic,
@@ -361,71 +376,124 @@ export const WalletConnectModel = types
         self.openTxModal = false;
       }
     }),
+    requireNodeApi: flow(function* (action: IWalletConnectAction,result: any) {
+      const client: SignClient = self.client;
+      const rawEvent =
+        action.eventData as SignClientTypes.EventArguments['session_request'];
+
+      try {
+        yield client.respond({
+          topic: rawEvent.topic,
+          response: {
+            id: rawEvent.id,
+            jsonrpc: '2.0',
+            result: result
+          },
+        });
+
+      } catch (err) {
+        console.error('❌ requireExplorerApi' + 'err');
+      }
+      finally {
+        self.nextActions.remove(action);
+        self.openTxModal = false;
+      }
+    }),
     approveConnection: flow(function* (
       action: IWalletConnectAction,
       walletToBeUsed: BaseWalletDescription,
-      activeSessions: SessionTypes.Struct[]
+      activeSessions: SessionTypes.Struct[],
+      ethWalletToBeUsed: BaseWalletDescription,
     ) {
       const proposalEvent = action.eventData;
       console.log('Approving session...', proposalEvent);
 
-      const {id, requiredNamespaces, relays} = proposalEvent.params;
-      const nameSpaceName = Object.keys(requiredNamespaces)[0];
-      const requiredNamespace = requiredNamespaces[nameSpaceName];
-      const requiredChains = requiredNamespace.chains;
-      const requiredChainInfo = requiredChains
-        ? parseChain(requiredChains[0])
-        : undefined;
-
-      console.log('passse1');
-      if (
-        walletToBeUsed.group !== requiredChainInfo?.addressGroup?.toString()
-      ) {
-        action.status = 'require_alph_group_switch';
-        console.log('passse2');
-        return null;
-      }
-
-      try {
-        if (!requiredChainInfo) {
-          return false;
+      let blockchainType = 'ethereum'; // 'alephium' or 'ethereum'
+        const {id, requiredNamespaces, relays} = proposalEvent.params || {};
+        const nameSpaceName = Object.keys(requiredNamespaces)[0];
+        const requiredNamespace = requiredNamespaces[nameSpaceName];
+        const requiredChains = requiredNamespace.chains;
+        if (requiredChains[0].includes('alephium')) {
+          blockchainType = 'alephium'
         }
 
-        const namespaces: SessionTypes.Namespaces = {
-          [nameSpaceName]: {
-            methods: requiredNamespace.methods,
-            events: requiredNamespace.events,
-            accounts: [
-              `${formatChain(requiredChainInfo.networkId, requiredChainInfo.addressGroup)}:${walletToBeUsed.publicKey}/default`,
-            ],
-          },
-        };
+      if (blockchainType === 'alephium') {
+        const requiredChainInfo = requiredChains
+          ? parseChain(requiredChains[0])
+          : undefined;
 
-        const { metadata } = parseSessionProposalEvent(proposalEvent)
+        if (
+          walletToBeUsed.group !== requiredChainInfo?.addressGroup?.toString()
+        ) {
+          action.status = 'require_alph_group_switch';
+          return null;
+        }
 
-        const existingSession = activeSessions.find((session) => session.peer.metadata.url === metadata.url)
-
-        if (existingSession) {
-          try {
-            yield self.client.disconnect({ topic: existingSession.topic, reason: getSdkError('USER_DISCONNECTED') })
-
-          } catch (e) {
-            console.log(e, 'disconnect');
+        try {
+          if (!requiredChainInfo) {
+            return false;
           }
+
+          const namespaces: SessionTypes.Namespaces = {
+            [nameSpaceName]: {
+              methods: requiredNamespace.methods,
+              events: requiredNamespace.events,
+              accounts: [
+                `${formatChain(requiredChainInfo.networkId, requiredChainInfo.addressGroup)}:${walletToBeUsed.publicKey}/default`,
+              ],
+            },
+          };
+
+          const { metadata } = parseSessionProposalEvent(proposalEvent)
+
+          const existingSession = activeSessions.find((session) => session.peer.metadata.url === metadata.url)
+
+          if (existingSession) {
+            try {
+              yield self.client.disconnect({ topic: existingSession.topic, reason: getSdkError('USER_DISCONNECTED') })
+
+            } catch (e) {
+              console.log(e, 'disconnect');
+            }
+          }
+
+          const { topic, acknowledged } = yield self.client.approve({
+            id,
+            relayProtocol: relays[0].protocol,
+            namespaces,
+          });
+        } catch (error) {
+          console.error('❌ approveConnection', error);
+          return false;
+        } finally {
+          console.log('FINALLLLLLLLLLLLLLLLLLLLLLLLLY');
+          self.nextActions.remove(action);
         }
-        const {topic, acknowledged} = yield self.client.approve({
-          id,
-          relayProtocol: relays[0].protocol,
-          namespaces,
-        });
-      } catch (error) {
-        console.log(error, 'errror')
-        return false;
-      } finally {
-        console.log('FINALLLLLLLLLLLLLLLLLLLLLLLLLY');
-        self.nextActions.remove(action);
+        return true;
+      } else {
+
+        try {
+          const approvedNamespaces = buildApprovedNamespaces({
+            proposal: proposalEvent.params,
+            supportedNamespaces: {
+              eip155: { ...requiredNamespaces.eip155, accounts: [
+                  `eip155:1:${ethWalletToBeUsed.address}`,
+                  `eip155:137:${ethWalletToBeUsed.address}`
+                ] }
+            }
+          })
+
+          yield self.client.approve({
+            id,
+            namespaces: approvedNamespaces
+          })
+        } catch (e) {
+          console.error('❌ approveConnection', e);
+        } finally {
+          console.log('FINALLLLLLLLLLLLLLLLLLLLLLLLLY');
+          self.nextActions.remove(action);
+        }
       }
-      return true;
     }),
   }));
 

@@ -46,12 +46,12 @@ export const extractBlockchainDetailsFromProposal = (
 
 export const extractBlockchainDetailsFromRequest = (
   data: SignClientTypes.EventArguments['session_request'],
-): 'ethereum' | 'alephium' | null => {
+): 'eip155' | 'alephium' | null => {
   try {
     const blockchain = data.params.chainId.split(':')?.[0]?.toLowerCase() as
-      | 'ethereum'
+      | 'eip155'
       | 'alephium';
-    if (!['ethereum', 'alephium'].includes(blockchain)) return null;
+    if (!['eip155', 'alephium'].includes(blockchain)) return null;
 
     return blockchain;
   } catch (error) {

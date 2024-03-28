@@ -25,6 +25,7 @@ const WalletConnectConnectionAction = observer(function ({
     currentWalletStore;
   const alphWallet = getAssetById('alephium', 'ALPH');
   const alphSelectedAddress = getSelectedAddressForAsset('alephium', 'ALPH');
+  const ethSelectedAddress = getSelectedAddressForAsset('alephium', 'ETH');
   const {removeAction, approveConnection, client} = walletConnectStore;
 
   const handleAddDerivedAddress = async (group?: 1 | 2 | 3 | 0) => {
@@ -47,9 +48,9 @@ const WalletConnectConnectionAction = observer(function ({
     pendingSessionApproval: IWalletConnectAction,
   ) => {
     try {
-      if (alphSelectedAddress) {
+      if (alphSelectedAddress || ethSelectedAddress) {
         const activeSessions = getActiveWalletConnectSessions(client);
-        await approveConnection(pendingSessionApproval, alphSelectedAddress, activeSessions);
+        await approveConnection(pendingSessionApproval, alphSelectedAddress, activeSessions, ethSelectedAddress);
       }
     } catch (err) {
       // ignore error...

@@ -17,13 +17,17 @@ function WalletConnectExecuteTxAction({
                                         sessionRequestData,
                                       }: WalletConnectExecuteTxActionProps) {
   const { walletConnectStore, currentWalletStore } = useStores()
-  const { acceptAlphTx, refuseAlphTx } = walletConnectStore
+  const { acceptAlphTx,acceptEthTx, refuseAlphTx } = walletConnectStore
 
   const onCancel = () => {
     refuseAlphTx(walletAction)
   }
   const onClickAccept = async (action: any) => {
-    acceptAlphTx(action, sessionRequestData, currentWalletStore)
+    if (sessionRequestData?.type === 'eth_sendTransaction') {
+      acceptEthTx(action)
+    } else {
+      acceptAlphTx(action, sessionRequestData, currentWalletStore)
+    }
   }
 
   return (
@@ -31,18 +35,18 @@ function WalletConnectExecuteTxAction({
       <View style={{ display: "flex", flexDirection: "column" }}>
         {(sessionRequestData?.type === "deploy-contract" || sessionRequestData?.type === "call-contract") && (
           <View style={styles.infoWrapper}>
-            <View style={styles.infoItem}>
+            {sessionRequestData?.unsignedTxData?.txId && <View style={styles.infoItem}>
               <Text>TxId:</Text>
               <Text>{sessionRequestData.unsignedTxData.txId}</Text>
-            </View>
-            <View style={styles.infoItem}>
+            </View>}
+            {sessionRequestData?.unsignedTxData?.gasAmount && <View style={styles.infoItem}>
               <Text>GasAmount:</Text>
               <Text>{sessionRequestData.unsignedTxData.gasAmount}</Text>
-            </View>
-            <View style={styles.infoItem}>
+            </View>}
+            {sessionRequestData?.unsignedTxData?.gasPrice && <View style={styles.infoItem}>
               <Text>GasPrice:</Text>
               <Text>{sessionRequestData.unsignedTxData.gasPrice}</Text>
-            </View>
+            </View>}
           </View>
 
         )}

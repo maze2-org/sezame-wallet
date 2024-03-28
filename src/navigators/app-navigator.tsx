@@ -4,7 +4,7 @@
  * Generally speaking, it will contain an auth flow (registration, login, forgot password)
  * and a "main" flow which the user will use once logged in.
  */
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useState } from "react"
 import {
   TextStyle,
   TouchableOpacity,
@@ -76,6 +76,7 @@ import { ALPH } from "@alephium/token-list"
 import { partition } from "lodash"
 import { CallContractTxData } from "types/transactions.ts"
 import { buildCallContractTransaction, getActiveWalletConnectSessions } from "api/transactions.ts"
+import SignClient from "@walletconnect/sign-client"
 
 const NAV_HEADER_CONTAINER: ViewStyle = {
   flexDirection: "row",
@@ -496,17 +497,32 @@ export const AppNavigator = observer((props: NavigationProps) => {
   const {
     client: walletClient,
     init: initWalletConnect,
-    connect,
     nextActions,
     requireExplorerApi,
+    requireNodeApi,
     toggleTxModal,
     openTxModal,
   } = walletConnectStore
+
+  const {
+    getAssets
+  }  = currentWalletStore
+
+  //
+  console.log(getAssets().then((res) => {
+    console.log(res.toJSON(), 'res')
+  }), 'log')
+
   const nextAction = nextActions.toJSON()[nextActions.toJSON().length - 1]
   const currentWallet = currentWalletStore.wallet;
-  console.log("[openTxModal]:", openTxModal)
-  console.log("[Next Action]:", nextAction)
-  console.log("[Next Actions]:", nextActions.toJSON())
+
+  function hexToUtf8(hex: string) {
+    let bytes = [];
+    for (let i = 0; i < hex.length; i += 2) {
+      bytes.push(parseInt(hex.substr(i, 2), 16));
+    }
+    return new TextDecoder().decode(new Uint8Array(bytes));
+  }
 
   useEffect(() => {
     if (walletClient && currentWallet) {
@@ -520,10 +536,8 @@ export const AppNavigator = observer((props: NavigationProps) => {
         // await connect("", firstPairing.topic)
         resolve()
       }))
-        .then(res => {
+        .then(async res => {
           const activeSessions = getActiveWalletConnectSessions(walletClient)
-          console.log("[Active Sessions]:", activeSessions)
-          console.log("[nextAction?.action]:", nextAction?.action)
 
           switch (nextAction?.action) {
             case "alph_signAndSubmitExecuteScriptTx": {
@@ -588,9 +602,34 @@ export const AppNavigator = observer((props: NavigationProps) => {
                 })
 
               } catch (e) {
-                console.log(e, "BUILDING TX! ERROR")
+                console.log("❌ BUILDING TX! E", e)
               }
               break
+            }
+            case "eth_sendTransaction": {
+              console.log(nextAction,"👉 WALLET CONNECT ASKED FOR THE eth_sendTransaction")
+              console.log(nextAction.eventData, 'nextAction.eventData')
+              const sessionRequestData = {
+                type: "eth_sendTransaction",
+              }
+              setSessionRequestData(sessionRequestData)
+
+              try {
+                if(walletClient instanceof SignClient) {
+                  const result = await walletClient.request({
+                    topic: nextAction.eventData.topic,
+                    chainId: 'eip155:1',
+                    request: {
+                      method: 'eth_sendTransaction',
+                      params: nextAction.eventData.params.request.params
+                    }
+                  })
+                  toggleTxModal(true)
+                }
+              } catch (e) {
+                console.log("❌ eth_sendTransaction ERROR", e)
+              }
+              return;
             }
             case "alph_requestExplorerApi": {
               console.log(nextAction,"👉 WALLET CONNECT ASKED FOR THE EXPLORER API")
@@ -599,10 +638,41 @@ export const AppNavigator = observer((props: NavigationProps) => {
               client.explorer.request(p).then((res: any) => {
                 requireExplorerApi(nextAction, res)
               }).catch((err: any) => {
-                console.log("err", err)
+                console.log("❌ alph_requestExplorerApi ERROR", err)
               })
-              return
+              return;
+            }
+            case "signMessage": {
+              // const { topic, params, id } = nextAction.eventData
+              // const { request } = params
+              // const requestParamsMessage = request.params[0]
+              // const message = hexToUtf8(requestParamsMessage)
+              // walletClient.signMessage(message).then((signedMessage) => {
+              //   const response = { id, result: signedMessage, jsonrpc: '2.0' }
+              //
+              //   walletClient.respondSessionRequest({ topic, response }).then((res) => {
+              //     console.log(res, 'resss')
+              //   }).catch((err) => {
+              //     console.log(err, 'errr')
+              //   })
+              //
+              // }).catch((err) => {
+              //   console.log(err, 'err')
+              // })
 
+              break;
+            }
+
+            case "alph_requestNodeApi": {
+              console.log(nextAction,"👉 WALLET CONNECT ASKED FOR THE NODE API")
+              walletClient.core.expirer.set(nextAction?.eventData.id, calcExpiry(5))
+              const p = nextAction?.eventData.params.request.params as ApiRequestArguments
+              client.node.request(p).then((res: any) => {
+                requireNodeApi(nextAction, res)
+              }).catch((err: any) => {
+                console.log("❌ alph_requestNodeApi ERROR", err)
+              })
+              return;
             }
           }
         })
