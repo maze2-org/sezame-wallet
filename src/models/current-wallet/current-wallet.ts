@@ -98,7 +98,6 @@ export const CurrentWalletModel = types
       return null;
     },
     getAssets: async () => {
-      console.log(self.assets, 'self.assets')
       return self.assets;
     },
     getAssetById: (cid: string, chain?: string) => {

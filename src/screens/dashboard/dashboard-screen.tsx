@@ -137,7 +137,7 @@ const SORT_TYPES = {
 const SKELETON_WRAPPER: ViewStyle = {
   alignItems: 'center',
   justifyContent: 'center',
-  minHeight: 200,
+  minHeight: 100,
   marginBottom: 13,
 };
 const SKELETON_ITEM: ViewStyle = {
@@ -318,14 +318,18 @@ export const DashboardScreen: FC<
       <AppScreen unsafe>
         <View style={styles.PORTFOLIO_WRAPPER}>
           {loadingBalance ? (
-            <SkeletonPlaceholder
-              speed={1200}
-              backgroundColor={color.palette.lightGrey}>
-              <View style={SKELETON_WRAPPER}>
-                <View style={SKELETON_ITEM} />
-                <View style={SKELETON_LINE} />
-              </View>
-            </SkeletonPlaceholder>
+            <Animated.View
+              style={[styles.PORTFOLIO_CONTAINER, {transform: [{translateY}]}]}>
+              <Animated.View style={[styles.PORTFOLIO_OVERLAY, {opacity}]} />
+              <SkeletonPlaceholder
+                speed={1200}
+                backgroundColor={color.palette.lightGrey}>
+                <View style={SKELETON_WRAPPER}>
+                  <View style={SKELETON_ITEM} />
+                  <View style={SKELETON_LINE} />
+                </View>
+              </SkeletonPlaceholder>
+            </Animated.View>
           ) : (
             <Animated.View
               style={[styles.PORTFOLIO_CONTAINER, {transform: [{translateY}]}]}>
