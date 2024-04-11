@@ -48,7 +48,9 @@ export const CoinDetailsScreen: FC<
     route.params.chain,
   );
   const mainAsset = getAssetById(route.params.coinId, route.params.chain);
-  const seelctedAsset = getSelectedAddressForAsset('alephium', 'ALPH');
+  const seelctedAsset = getSelectedAddressForAsset(
+    route.params.coinId,
+    route.params.chain);
 
   const allAssets = getAssetsById(route.params.coinId, route.params.chain);
   const tokenInfo = tokens.find(
@@ -154,6 +156,7 @@ export const CoinDetailsScreen: FC<
       const data = await getCoinDetails(coin);
       setCoinData(data);
     } catch (error) {
+      showMessage({ message: error?.message || 'Something went wrong', type: "danger" })
       console.log('error Getting coin data', error);
     }
   };
