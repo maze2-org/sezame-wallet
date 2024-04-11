@@ -36,7 +36,7 @@ export const buildCallContractTransaction = async ({
   const { getAssetById } = currentWalletStore;
   const asset = getAssetById('alephium', 'ALPH');
 
-  const address = asset?.derivedAddresses?.find((add) => add.address === fromAddress);
+  const address = asset?.derivedAddresses?.find((add: any) => add.address === fromAddress);
   const fromPublicKey = address?.publicKey;
 
   return await client.node.contracts.postContractsUnsignedTxExecuteScript({
@@ -53,7 +53,7 @@ export const buildCallContractTransaction = async ({
 export const signAndSendTransaction = async (fromAddress: any, txId: string, unsignedTx: string, currentWalletStore: any) => {
   const { getAssetById } = currentWalletStore;
   const asset = getAssetById('alephium', 'ALPH');
-  const address = asset?.derivedAddresses?.find((add) => add.address === fromAddress);
+  const address = asset?.derivedAddresses?.find((add: any) => add.address === fromAddress);
   const fromPublicKey = address?.privateKey;
 
   const signature = transactionSign(txId, fromPublicKey || '')

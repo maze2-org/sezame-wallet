@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from "react"
 import {
-  Text,
   View,
-  Alert,
-  Linking,
   Platform,
   TouchableOpacity,
 } from "react-native"
 import PasscodeAuth from '@el173/react-native-passcode-auth';
-import ReactNativeBiometrics from 'react-native-biometrics'
+import ReactNativeBiometrics,  { BiometryTypes } from 'react-native-biometrics'
 import { useNavigation } from "@react-navigation/native";
 
 import fingerIcon from "@assets/svg/finger.svg"
 import faceIdIcon from "@assets/svg/faceid.svg"
 import { showMessage } from "react-native-flash-message";
-import { load, IKeychainData } from "../../utils/keychain"
-import { SvgXml } from "react-native-svg";
+import { load, IKeychainData } from "utils/keychain.ts"
+import { SvgXml } from "react-native-svg"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 interface IBiometrics {
   walletName: string,
@@ -29,12 +27,13 @@ export function Biometrics({ walletName, onLoad }: IBiometrics) {
   const navigation = useNavigation();
   const [biometricType, setBiometricType] = useState<string>('');
   const [keyChainData, setKeyChainData] = useState<IKeychainData | null>(null);
+  const [isBiometricEnabled, setIsBiometricEnabled] = useState(false);
 
   useEffect(() => {
     focusHandler()
   }, [walletName])
 
-  const showError = (error) => {
+  const showError = (error: string) => {
     showMessage({ message: error, type: "danger", })
   }
 
@@ -52,7 +51,7 @@ export function Biometrics({ walletName, onLoad }: IBiometrics) {
 
   const getKCData = () => {
     return load().then(savedData => {
-      const parsedWallet = savedData ? JSON.parse(savedData.password) : [];
+      const parsedWallet = savedData ? JSON.parse(savedData.password as string) : [];
       if (savedData && !!savedData.password && Array.isArray(parsedWallet)) {
         if (parsedWallet.length) {
           let newSaveData = parsedWallet.find((wallet) => wallet.walletName === walletName)
@@ -78,15 +77,17 @@ export function Biometrics({ walletName, onLoad }: IBiometrics) {
       })
   }
 
-  const authenticate = (savedData: IKeychainData | null) => {
-    ReactNativeBiometrics.isSensorAvailable().then(resultObject => {
+  const authenticate = async (savedData: IKeychainData | null) => {
+    const rnBiometrics = new ReactNativeBiometrics();
+
+    rnBiometrics.isSensorAvailable().then(resultObject => {
       if (Platform.OS === 'ios' || Platform.OS === 'android' && resultObject.available) {
-        setBiometricType(resultObject.biometryType || ReactNativeBiometrics.TouchID)
+        setBiometricType(resultObject.biometryType || BiometryTypes.TouchID)
       }
     })
       .catch(error => {
         if (Platform.OS === 'ios') {
-          setBiometricType(ReactNativeBiometrics.TouchID)
+          setBiometricType(BiometryTypes.TouchID)
         }
         console.log('ReactNativeBiometrics[isSensorAvailable]: ', error)
       })
@@ -96,34 +97,38 @@ export function Biometrics({ walletName, onLoad }: IBiometrics) {
           android: promptPassCodeAndroid
         })
 
-        if (savedData) prompt(savedData);
+        if (savedData) if (prompt) {
+          prompt(savedData)
+        }
       })
   }
 
-  const promptPassCodeIOS = (savedData) => {
+  const promptPassCodeIOS = (savedData: IKeychainData) => {
     PasscodeAuth.isSupported()
-      .then(supported => {
+      .then((supported: any) => {
         if (supported) {
           PasscodeAuth.authenticate('Please Authenticate')
             .then(() => {
               onLoad(keyChainData || savedData)
             })
-            .catch(error => {
+            .catch((error: { message: string; }) => {
               showError(error.message)
             });
         }
       })
-      .catch(error => {
+      .catch((error: { message: string; }) => {
         showError(error.message)
       });
 
   }
 
-  const promptPassCodeAndroid = (savedData) => {
-    ReactNativeBiometrics.isSensorAvailable().then(resultObject => {
+  const promptPassCodeAndroid = (savedData: IKeychainData) => {
+    const rnBiometrics = new ReactNativeBiometrics()
+
+    rnBiometrics.isSensorAvailable().then(resultObject => {
       const { available } = resultObject;
       if (available) {
-        ReactNativeBiometrics.simplePrompt({
+        rnBiometrics.simplePrompt({
           promptMessage: 'Please Authenticate'
         })
           .then(({ success }) => {
@@ -152,12 +157,23 @@ export function Biometrics({ walletName, onLoad }: IBiometrics) {
     }
   }, [])
 
+  const fetchBiometricPreference = async () => {
+    const enabled = await AsyncStorage.getItem('biometricEnabled');
+    const isEnabled = enabled === 'true' || !enabled;
+    setIsBiometricEnabled(isEnabled);
+  };
+
+
+  useEffect(() => {
+    fetchBiometricPreference();
+  }, []);
+
   return (
     <View>
-      {!!keyChainData &&
+      {(!!keyChainData && isBiometricEnabled) &&
         <TouchableOpacity onPress={() => keyChainData && pressHandler()}>
           {
-            biometricType === ReactNativeBiometrics.FaceID ?
+            biometricType === BiometryTypes.FaceID ?
               <SvgXml width={64} height={64} xml={faceIdIcon} /> :
               (!!biometricType && <SvgXml width={64} height={64} xml={fingerIcon} />)
           }

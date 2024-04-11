@@ -1,5 +1,5 @@
-import React, {FC} from 'react';
-import {observer} from 'mobx-react-lite';
+import React, { FC, useEffect, useState } from "react"
+import { observer } from "mobx-react-lite"
 import {
   TextStyle,
   View,
@@ -10,121 +10,128 @@ import {
   ScrollView,
   Dimensions,
   Pressable,
-} from 'react-native';
-import {StackNavigationProp, StackScreenProps} from '@react-navigation/stack';
-import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
-import FontAwesomeIcon5 from 'react-native-vector-icons/FontAwesome5';
-import IonIcon from 'react-native-vector-icons/Ionicons';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {useForm, Controller} from 'react-hook-form';
-import Clipboard from '@react-native-clipboard/clipboard';
+} from "react-native"
+import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
+import FontAwesomeIcon from "react-native-vector-icons/FontAwesome"
+import FontAwesomeIcon5 from "react-native-vector-icons/FontAwesome5"
+import IonIcon from "react-native-vector-icons/Ionicons"
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
+import { useForm, Controller } from "react-hook-form"
+import Clipboard from "@react-native-clipboard/clipboard"
 
-import {NavigatorParamList} from '../../navigators';
-import {Button, Footer, Screen, Text} from '../../components';
-import {color, spacing, typography} from '../../theme';
-import {TouchableOpacity} from 'react-native-gesture-handler';
-import {useStores} from 'models';
-import {Fonts} from 'theme/fonts';
-import {useNavigation} from '@react-navigation/native';
-import {TextInputField} from 'components/text-input-field/text-input-field';
-import IonIcons from 'react-native-vector-icons/Ionicons';
-import copyIcon from '@assets/icons/copy.svg';
-import {SvgXml} from 'react-native-svg';
-import {CommonActions} from '@react-navigation/native';
+import { NavigatorParamList } from "navigators"
+import { Button, Footer, Screen, Switch, Text } from "components"
+import { color, spacing, typography } from "theme"
+import { TouchableOpacity } from "react-native-gesture-handler"
+import { useStores } from "models"
+import { Fonts } from "theme/fonts"
+import { useNavigation } from "@react-navigation/native"
+import { TextInputField } from "components/text-input-field/text-input-field"
+import IonIcons from "react-native-vector-icons/Ionicons"
+import copyIcon from "@assets/icons/copy.svg"
+import { SvgXml } from "react-native-svg"
+import { CommonActions } from "@react-navigation/native"
 import {
+  copyBtn,
+  CONTAINER,
   btnDefault,
   btnDisabled,
-  CONTAINER,
-  copyBtn,
-  mnemonicContainer,
   mnemonicStyle,
   RootPageStyle,
-} from 'theme/elements';
-import {StoredWallet} from 'utils/stored-wallet';
-import {showMessage} from 'react-native-flash-message';
-import {load, save} from '../../utils/keychain';
+  mnemonicContainer,
+} from "theme/elements"
+import { StoredWallet } from "utils/stored-wallet"
+import { showMessage } from "react-native-flash-message"
+import { load, save } from "utils/keychain.ts"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
-const {height} = Dimensions.get('screen');
+const { height } = Dimensions.get("screen")
 
 const ROOT: ViewStyle = {
   ...RootPageStyle,
 
   flex: 1,
-};
+}
 const SCROLL_VIEW_CONTAINER: ViewStyle = {
   flexGrow: 1,
-  justifyContent: 'space-between',
+  justifyContent: "space-between",
   backgroundColor: color.palette.black,
-};
+}
 const MAIN_CONTAINER: ViewStyle = {
   ...CONTAINER,
   paddingVertical: spacing[4],
   paddingHorizontal: spacing[3],
-};
+}
 const SETTING_HEADER_CONTAINER: ViewStyle = {
   marginVertical: spacing[6],
-};
+}
 
 const SETTING_HEADER: TextStyle = {
   fontSize: 24,
   fontFamily: typography.primaryBold,
-  fontWeight: '700',
-};
+  fontWeight: "700",
+}
 const WALLET_NAME: TextStyle = {
   fontSize: 14,
   color: color.palette.gold,
-};
+}
 const SETTING_ITEM_WRAP: ViewStyle = {
   backgroundColor: color.palette.darkblack,
   borderRadius: 10,
-};
+}
 const SETTING_ITEM_CONTAINER: ViewStyle = {
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
   paddingHorizontal: spacing[2],
   paddingVertical: spacing[3],
-};
+}
 const SETTING_ICON_CONTAINER: ViewStyle = {
-  justifyContent: 'center',
-  display: 'flex',
+  justifyContent: "center",
+  display: "flex",
   flex: 1,
-  alignItems: 'center',
-};
+  alignItems: "center",
+}
+const SETTING_SWITCHER_CONTAINER: ViewStyle = {
+  justifyContent: "center",
+  display: "flex",
+  flex: 2,
+  alignItems: "center",
+}
 const RECEIVE_MODAL_WRAPPER: ViewStyle = {
-  alignItems: 'center',
-  justifyContent: 'center',
+  alignItems: "center",
+  justifyContent: "center",
   height: height,
-  backgroundColor: 'rgba(0,0,0,0.3)',
-};
+  backgroundColor: "rgba(0,0,0,0.3)",
+}
 const SETTING_ICON: TextStyle = {
   fontSize: Fonts[1],
-};
+}
 const SETTING_ITEM_BODY: ViewStyle = {
-  display: 'flex',
+  display: "flex",
   flex: 6,
-};
+}
 const SETTING_ITEM_TITLE: TextStyle = {
   fontSize: Fonts[1],
-  fontWeight: 'bold',
-};
+  fontWeight: "bold",
+}
 
 const NETWORK_TO_TESTNET: TextStyle = {
   padding: spacing[2],
   backgroundColor: color.success,
-};
+}
 
 const NETWORK_TO_MAINNET: TextStyle = {
   padding: spacing[2],
   backgroundColor: color.error,
-};
+}
 const SETTING_ITEM_SUBTITLE: TextStyle = {
   fontSize: Fonts[0],
-};
+}
 
 const DashboardStyle: ViewStyle = {
   ...ROOT,
-};
+}
 
 const styles = StyleSheet.create({
   DANGER_ZONE: {
@@ -137,15 +144,15 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   buttonContainer: {
-    display: 'flex',
-    flexDirection: 'row',
+    display: "flex",
+    flexDirection: "row",
     marginTop: spacing[3],
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   centeredView: {
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: 20,
   },
   error: {
@@ -157,7 +164,7 @@ const styles = StyleSheet.create({
   modalText: {
     color: color.palette.white,
     marginBottom: 15,
-    textAlign: 'center',
+    textAlign: "center",
   },
   modalView: {
     width: 317,
@@ -175,120 +182,140 @@ const styles = StyleSheet.create({
   },
 
   closeWrapper: {
-    position: 'absolute',
+    position: "absolute",
     top: 10,
     right: 10,
   },
-});
+})
 
 export const SettingsScreen: FC<
-  StackScreenProps<NavigatorParamList, 'settings'>
+  StackScreenProps<NavigatorParamList, "settings">
 > = observer(function SettingsScreen() {
   // Pull in one of our MST stores
-  const rootStore = useStores();
-  const {currentWalletStore} = rootStore;
+  const rootStore = useStores()
+  const { currentWalletStore } = rootStore
 
   // Pull in navigation via hook
-  const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>();
-  const [showPasswordModal, setShowPasswordModal] = React.useState(false);
-  const [errorUnlockingWallet, setErrorUnlockingWallet] = React.useState(false);
-  const [seedPhrase, setSeedPhrase] = React.useState('');
+  const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
+  const [showPasswordModal, setShowPasswordModal] = React.useState(false)
+  const [errorUnlockingWallet, setErrorUnlockingWallet] = React.useState(false)
+  const [seedPhrase, setSeedPhrase] = React.useState("")
+  const [isBiometricEnabled, setIsBiometricEnabled] = useState(false)
+
   const lockWallet = () => {
-    currentWalletStore.close();
+    currentWalletStore.close()
     navigation.dispatch(
       CommonActions.reset({
         index: 0,
-        routes: [{name: 'chooseWallet'}],
+        routes: [{ name: "chooseWallet" }],
       }),
-    );
-  };
+    )
+  }
 
   const deleteWallet = async () => {
-    const wallet = currentWalletStore.wallet;
-    const currentWalletName = JSON.parse(wallet).walletName;
+    const wallet = currentWalletStore.wallet
+    const currentWalletName = JSON.parse(wallet).walletName
     if (wallet) {
-      await currentWalletStore.removeWallet();
-      currentWalletStore.close();
+      await currentWalletStore.removeWallet()
+      currentWalletStore.close()
       load()
         .then(saveData => {
-          const parsedWallet = JSON.parse(saveData.password);
+          const parsedWallet = JSON.parse(saveData.password)
           const newKeyChainData = parsedWallet.filter(
             data => data.walletName !== currentWalletName,
-          );
-          const stringData = JSON.stringify(newKeyChainData);
-          saveData.password = stringData;
+          )
+          const stringData = JSON.stringify(newKeyChainData)
+          saveData.password = stringData
 
-          save(saveData.username, saveData.password).catch(null);
-          navigation.replace('chooseWallet');
+          save(saveData.username, saveData.password).catch(null)
+          navigation.replace("chooseWallet")
           showMessage({
-            message: 'Wallet has been deleted',
-            type: 'success',
-          });
+            message: "Wallet has been deleted",
+            type: "success",
+          })
         })
-        .catch(error => console.log(error));
+        .catch(error => console.log(error))
     }
-  };
+  }
+
   const deleteWalletConfirmation = async () => {
     Alert.alert(
-      'Delete wallet',
-      'Are you sure you want to delete this wallet?',
+      "Delete wallet",
+      "Are you sure you want to delete this wallet?",
       [
         {
-          text: 'Cancel',
-          onPress: () => console.log('Cancel Pressed'),
-          style: 'cancel',
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
         },
         {
-          text: 'Yes',
+          text: "Yes",
           onPress: async () => {
-            await deleteWallet();
+            await deleteWallet()
           },
         },
       ],
-    );
-  };
+    )
+  }
 
   const {
     control,
     handleSubmit,
-    formState: {errors, isValid},
-  } = useForm({mode: 'onChange'});
+    formState: { errors, isValid },
+  } = useForm({ mode: "onChange" })
 
   const onPasswordSubmit = async (data: any) => {
     try {
       const storeWallet = await StoredWallet.loadFromStorage(
         currentWalletStore.name,
         data.password,
-      );
-      setErrorUnlockingWallet(false);
-      setSeedPhrase(storeWallet.mnemonic);
+      )
+      setErrorUnlockingWallet(false)
+      setSeedPhrase(storeWallet.mnemonic)
     } catch (error) {
-      setErrorUnlockingWallet(true);
-      setSeedPhrase('');
+      setErrorUnlockingWallet(true)
+      setSeedPhrase("")
     }
-  };
+  }
 
   const copyToClipboard = () => {
     if (seedPhrase) {
-      Clipboard.setString(seedPhrase);
+      Clipboard.setString(seedPhrase)
     }
     showMessage({
-      message: 'seed phrase copied to clipboard',
-      type: 'success',
-    });
-  };
+      message: "seed phrase copied to clipboard",
+      type: "success",
+    })
+  }
 
-  const goBack = () => navigation.goBack();
-  const goToChangePassword = () => navigation.navigate('changePassword');
+  const goBack = () => navigation.goBack()
+
+  const goToChangePassword = () => navigation.navigate("changePassword")
 
   const toggleTestnet = () => {
-    rootStore.setTestnet(!rootStore.TESTNET);
+    rootStore.setTestnet(!rootStore.TESTNET)
     showMessage({
       message:
-        "You're now using " + (rootStore.TESTNET ? 'Testnet' : 'Mainnet'),
-      type: 'success',
-    });
-  };
+        "You're now using " + (rootStore.TESTNET ? "Testnet" : "Mainnet"),
+      type: "success",
+    })
+  }
+
+  const loadBiometricPreference = async () => {
+    const enabled = await AsyncStorage.getItem("biometricEnabled")
+    setIsBiometricEnabled(enabled === "true" || !enabled)
+  }
+
+  useEffect(() => {
+    loadBiometricPreference()
+  }, [])
+
+  const toggleBiometric = async () => {
+    const newPreference = !isBiometricEnabled;
+    setIsBiometricEnabled(newPreference)
+    await AsyncStorage.setItem("biometricEnabled", newPreference.toString())
+  }
+
   return (
     <Screen unsafe={true} style={DashboardStyle} preset="fixed">
       <ScrollView contentContainerStyle={SCROLL_VIEW_CONTAINER}>
@@ -402,7 +429,7 @@ export const SettingsScreen: FC<
                             ? NETWORK_TO_MAINNET
                             : NETWORK_TO_TESTNET
                         }
-                        text={rootStore.TESTNET ? 'Mainnet' : 'Testnet'}
+                        text={rootStore.TESTNET ? "Mainnet" : "Testnet"}
                       />
                     </Text>
                     <Text
@@ -417,6 +444,40 @@ export const SettingsScreen: FC<
                     />
                   </View>
                 </TouchableOpacity>
+
+
+                <View style={styles.SEPARATOR} />
+
+
+                <View
+                  style={SETTING_ITEM_CONTAINER}>
+                  <View style={SETTING_ICON_CONTAINER}>
+                    <FontAwesomeIcon
+                      style={SETTING_ICON}
+                      name="finger-print"
+                      color={color.palette.white}
+                    />
+                  </View>
+                  <View style={SETTING_ITEM_BODY}>
+                    <Text
+                      style={SETTING_ITEM_TITLE}
+                      text="Biometric authentication"
+                    />
+                    <Text
+                      style={SETTING_ITEM_SUBTITLE}
+                      text="Enable / disable Biometric authentication use to unlock all wallets"
+                    />
+                  </View>
+                  <View style={SETTING_SWITCHER_CONTAINER}>
+                    <Switch
+                      style={SETTING_ICON}
+                      value={isBiometricEnabled}
+                      onToggle={toggleBiometric}>
+                    </Switch>
+                  </View>
+                </View>
+
+
               </View>
               <Text style={styles.DANGER_ZONE} text="DANGER ZONE" />
               <View style={SETTING_ITEM_WRAP}>
@@ -472,7 +533,7 @@ export const SettingsScreen: FC<
                             }}
                             onPress={() => setShowPasswordModal(false)}>
                             <IonIcons
-                              name={'close-outline'}
+                              name={"close-outline"}
                               size={30}
                               color={color.palette.white}
                             />
@@ -485,7 +546,7 @@ export const SettingsScreen: FC<
                           control={control}
                           defaultValue=""
                           name="password"
-                          render={({field: {onChange, value, onBlur}}) => (
+                          render={({ field: { onChange, value, onBlur } }) => (
                             <TextInputField
                               secureTextEntry={true}
                               name="password"
@@ -500,7 +561,7 @@ export const SettingsScreen: FC<
                           rules={{
                             required: {
                               value: true,
-                              message: 'Field is required!',
+                              message: "Field is required!",
                             },
                           }}
                         />
@@ -516,16 +577,16 @@ export const SettingsScreen: FC<
                               zIndex: 10,
                               marginRight: 10,
                             }}
-                            preset={'secondary'}
+                            preset={"secondary"}
                             text="Cancel"
                             onPress={() => {
-                              setErrorUnlockingWallet(false);
-                              setShowPasswordModal(!showPasswordModal);
+                              setErrorUnlockingWallet(false)
+                              setShowPasswordModal(!showPasswordModal)
                             }}
                           />
                           <Button
-                            style={[!isValid && {...btnDisabled}]}
-                            preset={'secondary'}
+                            style={[!isValid && { ...btnDisabled }]}
+                            preset={"secondary"}
                             disabled={!isValid}
                             text="Continue"
                             onPress={handleSubmit(onPasswordSubmit)}
@@ -551,9 +612,9 @@ export const SettingsScreen: FC<
                           style={btnDefault}
                           text="Close"
                           onPress={() => {
-                            setErrorUnlockingWallet(false);
-                            setSeedPhrase('');
-                            setShowPasswordModal(!showPasswordModal);
+                            setErrorUnlockingWallet(false)
+                            setSeedPhrase("")
+                            setShowPasswordModal(!showPasswordModal)
                           }}
                         />
                       </View>
@@ -567,5 +628,5 @@ export const SettingsScreen: FC<
       </ScrollView>
       <Footer onLeftButtonPress={goBack} />
     </Screen>
-  );
-});
+  )
+})

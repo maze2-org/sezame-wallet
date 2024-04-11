@@ -6,11 +6,11 @@ import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import IonIcons from 'react-native-vector-icons/Ionicons';
 
 import stakeIcon from '@assets/icons/stake.svg';
-import {NavigatorParamList} from '../../navigators';
+import {NavigatorParamList} from "navigators";
 import {showMessage} from 'react-native-flash-message';
-import {Button, CoinCard, PriceChart, Screen, Text} from '../../components';
+import {Button, CoinCard, PriceChart, Screen, Text} from "components";
 
-import {color} from '../../theme';
+import {color} from "theme";
 import {useNavigation} from '@react-navigation/native';
 import {getCoinDetails, getMarketChart} from 'utils/apis';
 import {CoingeckoCoin} from 'types/coingeckoCoin';
@@ -18,7 +18,7 @@ import {useStores} from 'models';
 import {BackgroundStyle, MainBackground, SEPARATOR} from 'theme/elements';
 import styles from './styles';
 import {SvgXml} from 'react-native-svg';
-import {getTransactionsUrl} from 'services/api';
+import { getBalance, getTransactionsUrl } from "services/api"
 import AnimatedComponent from '../../components/animatedComponent/AnimatedComponent';
 import CoinDetailsFooter from './compnents/coin-details-footer';
 import ReceiveModal from './compnents/receive-modal';
@@ -39,9 +39,14 @@ export const CoinDetailsScreen: FC<
     getSelectedAddressForAsset,
     getAssetsById,
     updatingAssets,
+    setBalance
   } = currentWalletStore;
   const [explorerUrl, setExplorerUrl] = useState<string>('');
 
+  const asset = getSelectedAddressForAsset(
+    route.params.coinId,
+    route.params.chain,
+  );
   const mainAsset = getAssetById(route.params.coinId, route.params.chain);
   const seelctedAsset = getSelectedAddressForAsset('alephium', 'ALPH');
 
@@ -61,6 +66,17 @@ export const CoinDetailsScreen: FC<
   const updateChart = () => {
     getChartData();
   };
+
+  useEffect(() => {
+    const _getBalances = async () => {
+
+      if (asset) {
+        const balance = await getBalance(asset);
+        setBalance(asset, balance);
+      }
+    };
+    _getBalances();
+  }, []);
 
   useEffect(() => {
     // Get graph data once then once every 60secs
@@ -222,7 +238,7 @@ export const CoinDetailsScreen: FC<
                   <CoinCard
                     style={styles.COIN_CARD}
                     name={coinData.name}
-                    balance={mainAsset?.balance}
+                    balance={asset?.balance}
                     imageUrl={coinData.image?.large}
                     symbol={coinData.symbol}
                     chain={`${mainAsset?.chain}`}

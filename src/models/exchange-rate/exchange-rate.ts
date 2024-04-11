@@ -30,7 +30,7 @@ export const ExchangeRateModel = types
       let total = 0
       for (const asset of assets) {
         const usd = self.currencyPairs.get(asset.cid)?.usdEquivalent || 0
-        total += asset.balance * usd
+        total += asset.balanceWithDerivedAddresses * usd
       }
       return total
     },

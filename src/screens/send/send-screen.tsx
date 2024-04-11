@@ -11,36 +11,37 @@ import {
   Platform,
 } from 'react-native';
 import {StackNavigationProp, StackScreenProps} from '@react-navigation/stack';
-import {NavigatorParamList} from '../../navigators';
+import {NavigatorParamList} from "navigators";
 import BigNumber from 'bignumber.js';
 
 import {
+  Text,
   Button,
-  CurrencyDescriptionBlock,
   Drawer,
   Footer,
   Screen,
-  Text,
   WalletButton,
-} from '../../components';
+  CurrencyDescriptionBlock,
+} from "components";
 
-import {color, spacing} from '../../theme';
+import {color, spacing} from "theme";
 import {Controller, useForm, useWatch} from 'react-hook-form';
 import {TextInputField} from 'components/text-input-field/text-input-field';
 import {
-  BackgroundStyle,
-  CONTAINER,
-  drawerErrorMessage,
-  MainBackground,
   textInput,
+  CONTAINER,
+  MainBackground,
+  BackgroundStyle,
+  drawerErrorMessage,
 } from 'theme/elements';
 import {useNavigation} from '@react-navigation/native';
 import {useStores} from 'models';
 import {getBalance, getFees, makeSendTransaction} from 'services/api';
 import {showMessage} from 'react-native-flash-message';
 import styles from './styles';
-import {presets} from '../../components/screen/screen.presets';
+import {presets} from "components/screen/screen.presets.ts";
 import {checkAddress} from '@maze2/sezame-sdk';
+
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
   flex: 1,

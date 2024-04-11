@@ -202,7 +202,7 @@ export const WalletConnectModel = types
         return;
       }
 
-      // TODO commented for handling explorarApi request
+      // TODO commented for handling explorerApi request
       // if (
       //   !(walletConnectActionTypes as unknown as string[]).includes(
       //     data.params.request.method,
@@ -215,14 +215,25 @@ export const WalletConnectModel = types
       //   return;
       // }
 
-      self.nextActions.push({
+      const existingActionIndex = self.nextActions.findIndex((action) =>
+        action.action === data.params.request.method && action.blockchain === blockchain,
+      );
+
+      const newAction = {
         action: data.params.request.method,
         blockchain,
         description: '',
         eventData: data,
         status: 'pending',
         title: walletConnectRequestToTitle(data.params.request.method),
-      });
+      };
+
+      if (existingActionIndex !== -1) {
+        console.log('Action already exists for this method and blockchain:', data.params.request.method);
+      } else {
+        // Action does not exist, add it
+        self.nextActions.push(newAction);
+      }
     }),
     onSessionDelete: flow(function* onSessionDelete(data) {
       console.log('onSessionDelete', data);
@@ -488,9 +499,9 @@ export const WalletConnectModel = types
             namespaces: approvedNamespaces
           })
         } catch (e) {
+          self.nextActions.remove(action);
           console.error('❌ approveConnection', e);
         } finally {
-          console.log('FINALLLLLLLLLLLLLLLLLLLLLLLLLY');
           self.nextActions.remove(action);
         }
       }

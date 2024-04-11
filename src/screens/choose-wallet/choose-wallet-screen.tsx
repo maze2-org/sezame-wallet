@@ -1,44 +1,43 @@
 import React, {FC, useEffect, useState, useMemo} from 'react';
 import {observer} from 'mobx-react-lite';
 import {
-  ImageBackground,
-  ImageStyle,
-  ScrollView,
-  TextStyle,
   View,
   ViewStyle,
+  TextStyle,
+  ImageStyle,
+  ScrollView,
+  ImageBackground,
 } from 'react-native';
 import {StackNavigationProp, StackScreenProps} from '@react-navigation/stack';
-import SplashScreen from 'react-native-splash-screen';
-import {NavigatorParamList} from '../../navigators';
-import {AppScreen, Button, Header, Screen, Text} from '../../components';
-import {color, spacing, typography} from '../../theme';
-import {getListOfWallets} from '../../utils/storage';
-import {useForm, Controller} from 'react-hook-form';
 import {SvgXml} from 'react-native-svg';
-import {Biometrics} from '../../components/biometrics/biometrics';
+import SplashScreen from 'react-native-splash-screen';
+import {NavigatorParamList} from 'navigators';
+import {color, spacing, typography} from 'theme';
+import {getListOfWallets} from 'utils/storage';
+import {useForm, Controller} from 'react-hook-form';
+import {Biometrics} from 'components/biometrics/biometrics';
+import {AppScreen, Button, Header, Screen, Text} from 'components';
 import {
-  BackgroundStyle,
+  textInput,
   CONTAINER,
-  DropdownArrowStyle,
-  DropdownContainerStyle,
-  DropdownListStyle,
-  DropdownTextStyle,
-  MainBackground,
+  SMALL_TEXT,
   NORMAL_TEXT,
   PRIMARY_BTN,
-  PRIMARY_OUTLINE_BTN,
+  TEXT_CENTTER,
   PRIMARY_TEXT,
   RootPageStyle,
-  SMALL_TEXT,
-  textInput,
-  TEXT_CENTTER,
-} from '../../theme/elements';
+  MainBackground,
+  BackgroundStyle,
+  DropdownTextStyle,
+  DropdownListStyle,
+  DropdownContainerStyle,
+  PRIMARY_OUTLINE_BTN,
+} from "theme/elements.ts";
 import DropDownPicker from 'react-native-dropdown-picker';
-import {TextInputField} from '../../components/text-input-field/text-input-field';
-import {StoredWallet} from '../../utils/stored-wallet';
+import {TextInputField} from "components/text-input-field/text-input-field.tsx";
+import {StoredWallet} from "utils/stored-wallet.ts";
 import {showMessage} from 'react-native-flash-message';
-import {reset, save, IKeychainData, load} from '../../utils/keychain';
+import {save, IKeychainData, load} from "utils/keychain.ts";
 
 import {useNavigation} from '@react-navigation/native';
 import {useStores} from 'models';
@@ -89,10 +88,10 @@ export const ChooseWalletScreen: FC<
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [itemValue, setItemValue] = useState(null);
   const [walletNames, setWalletNames] = useState<string[]>([]);
 
   const {
+    watch,
     control,
     handleSubmit,
     setValue,
@@ -151,7 +150,6 @@ export const ChooseWalletScreen: FC<
   };
 
   const onGetKeychainData = (keychainData: IKeychainData) => {
-    setItemValue(keychainData.username);
     setValue('walletName', keychainData.username);
     // setValue('walletPassword',keychainData.password)
     const data = {
@@ -182,17 +180,18 @@ export const ChooseWalletScreen: FC<
     getListOfWallets().then(walletNames => {
       setWalletNames(walletNames);
       if (walletNames.length === 1) {
-        setItemValue(walletNames[0]);
+        setValue('walletName', walletNames[0]);
       }
       // onSubmit({ walletName: "test", walletPassword: "testtest" })
     });
   }, []);
+
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       getListOfWallets().then(walletNames => {
         setWalletNames(walletNames);
         if (walletNames.length === 1) {
-          setItemValue(walletNames[0]);
+          setValue('walletName', walletNames[0]);
         }
       });
     });
@@ -229,31 +228,32 @@ export const ChooseWalletScreen: FC<
                 <Controller
                   control={control}
                   name="walletName"
-                  render={({field: {onChange, value, onBlur}}) => (
-                    <>
-                      <Text style={SMALL_TEXT}>WALLETS</Text>
-                      <DropDownPicker
-                        style={DropdownContainerStyle}
-                        textStyle={DropdownTextStyle}
-                        // arrowIconStyle={DropdownArrowStyle}
-                        listItemContainerStyle={DropdownListStyle}
-                        theme={'DARK'}
-                        open={open}
-                        value={itemValue}
-                        items={walletNames.map(item => ({
-                          label: item,
-                          value: item,
-                        }))}
-                        setOpen={setOpen}
-                        setValue={setItemValue}
-                        placeholder="Select a wallet"
-                        onChangeValue={val => {
-                          onChange(val);
-                          setValue('walletName', val);
-                        }}
-                      />
-                    </>
-                  )}
+                  render={({field: {onChange, value}}) => {
+                    return (
+                      <>
+                        <Text style={SMALL_TEXT}>WALLETS</Text>
+                        <DropDownPicker
+                          style={DropdownContainerStyle}
+                          textStyle={DropdownTextStyle}
+                          // arrowIconStyle={DropdownArrowStyle}
+                          listItemContainerStyle={DropdownListStyle}
+                          theme={'DARK'}
+                          open={open}
+                          value={value}
+                          items={walletNames.map(item => ({
+                            label: item,
+                            value: item,
+                          }))}
+                          setValue={(e)=>{
+                            const newValue = e(value);
+                            onChange(newValue)
+                          }}
+                          setOpen={setOpen}
+                          placeholder="Select a wallet"
+                        />
+                      </>
+                    )
+                  }}
                   rules={{
                     required: {
                       value: true,
@@ -308,7 +308,7 @@ export const ChooseWalletScreen: FC<
                 />
               </View>
               <View style={footerStyle}>
-                <Biometrics walletName={itemValue} onLoad={onGetKeychainData} />
+                <Biometrics walletName={watch('walletName')} onLoad={onGetKeychainData} />
               </View>
             </View>
           </AppScreen>

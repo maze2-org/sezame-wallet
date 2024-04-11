@@ -515,7 +515,6 @@ export const AppNavigator = observer((props: NavigationProps) => {
 
   const nextAction = nextActions.toJSON()[nextActions.toJSON().length - 1]
   const currentWallet = currentWalletStore.wallet;
-
   function hexToUtf8(hex: string) {
     let bytes = [];
     for (let i = 0; i < hex.length; i += 2) {
@@ -531,7 +530,6 @@ export const AppNavigator = observer((props: NavigationProps) => {
         //   await walletClient.disconnect({ topic: pairing.topic, reason: getSdkError("USER_DISCONNECTED") })
         // }
         const firstPairing = walletClient.core.pairing.getPairings().reverse()[0]
-        console.log("firstPairing.topic", firstPairing.topic)
         // await initWalletConnect()
         // await connect("", firstPairing.topic)
         resolve()
