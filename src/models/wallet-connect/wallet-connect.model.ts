@@ -1,11 +1,12 @@
-import {flow, Instance, SnapshotOut, types} from 'mobx-state-tree';
+import { flow, getRoot, Instance, SnapshotOut, types } from "mobx-state-tree"
 import SignClient from '@walletconnect/sign-client';
 import { buildApprovedNamespaces, getSdkError } from "@walletconnect/utils"
 import {
-  extractBlockchainDetailsFromProposal,
-  extractBlockchainDetailsFromRequest,
-  getWalletConnectProposalAlephiumGroup, parseSessionProposalEvent,
+  parseSessionProposalEvent,
   walletConnectRequestToTitle,
+  extractBlockchainDetailsFromRequest,
+  extractBlockchainDetailsFromProposal,
+  getWalletConnectProposalAlephiumGroup,
 } from "utils/wallet-connect"
 import {SessionTypes} from '@walletconnect/types';
 import {parseChain, formatChain} from '@alephium/walletconnect-provider';
@@ -15,6 +16,7 @@ import {
   getTransactionAssetAmounts,
   signAndSendTransaction,
 } from "api/transactions.ts"
+import { showMessage } from "react-native-flash-message"
 
 const WalletConnectAction = types.model({
   action: types.string,
@@ -325,8 +327,16 @@ export const WalletConnectModel = types
               result: signResult
             },
           });
+          showMessage({
+            message: 'Success!',
+            type: 'success',
+          })
         } catch (err) {
-          console.log('Error while refusing the transaction...');
+          showMessage({
+            message: err?.message || 'Error',
+            type: 'danger',
+          })
+          console.log(err,'Error while refusing the transaction...');
         } finally {
           self.openTxModal = false;
           self.nextActions.remove(action);
@@ -357,7 +367,15 @@ export const WalletConnectModel = types
             error: getSdkError('USER_REJECTED'),
           },
         });
+        showMessage({
+          message: 'Success!',
+          type: 'success',
+        })
       } catch (err) {
+        showMessage({
+          message: err?.message || 'Error!',
+          type: 'danger',
+        })
         console.log('Error while refusing the transaction...');
       } finally {
         self.nextActions.remove(action);
@@ -464,7 +482,11 @@ export const WalletConnectModel = types
               yield self.client.disconnect({ topic: existingSession.topic, reason: getSdkError('USER_DISCONNECTED') })
 
             } catch (e) {
-              console.log(e, 'disconnect');
+              showMessage({
+                message: e?.message || 'Error!',
+                type: 'danger',
+              })
+              console.log(e, '❌ error');
             }
           }
 
@@ -473,11 +495,20 @@ export const WalletConnectModel = types
             relayProtocol: relays[0].protocol,
             namespaces,
           });
+          showMessage({
+            message: 'Success!',
+            type: 'success',
+          })
         } catch (error) {
+          showMessage({
+            message: error?.message || 'Error!',
+            type: 'danger',
+          })
           console.error('❌ approveConnection', error);
           return false;
         } finally {
-          console.log('FINALLLLLLLLLLLLLLLLLLLLLLLLLY');
+          const root = getRoot(self);
+          root.setWalletConnectSscannerShown(false);
           self.nextActions.remove(action);
         }
         return true;
@@ -498,8 +529,18 @@ export const WalletConnectModel = types
             id,
             namespaces: approvedNamespaces
           })
+          showMessage({
+            message: 'Success!',
+            type: 'success',
+          })
         } catch (e) {
           self.nextActions.remove(action);
+          const root = getRoot(self);
+          root.setWalletConnectSscannerShown(false);
+          showMessage({
+            message: e?.message,
+            type: 'danger',
+          })
           console.error('❌ approveConnection', e);
         } finally {
           self.nextActions.remove(action);
@@ -510,6 +551,8 @@ export const WalletConnectModel = types
       action: IWalletConnectAction,
     ) {
       self.nextActions.remove(action);
+      const root = getRoot(self);
+      root.setWalletConnectSscannerShown(false);
     }),
   }));
 
