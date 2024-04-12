@@ -54,6 +54,7 @@ import { icons } from "components/icon/icons"
 
 import reloadIcon from "@assets/svg/reload.svg"
 import userIcon from "@assets/svg/user.svg"
+import walletConnectIcon from "@assets/svg/walletconnect.svg"
 import plusIcon from "@assets/svg/plus.svg"
 import { SvgXml } from "react-native-svg"
 
@@ -112,6 +113,10 @@ const NAV_HEADER_BTN: ViewStyle = {
 }
 const BTN_ICON: TextStyle = {
   color: color.palette.white,
+  width: 24,
+  height: 24,
+}
+const WALLET_CONNECT_ICON: TextStyle = {
   width: 24,
   height: 24,
 }
@@ -176,11 +181,7 @@ function SettingsBtn({ hideOpitonals = false }: { hideOpitonals: boolean }) {
         onPress={() => {
           setWalletConnectSscannerShown(true)
         }}>
-        <MaterialIcons
-          style={{ fontSize: 24 }}
-          name={"qr-code-scanner"}
-          color={color.palette.white}
-        />
+        <SvgXml style={WALLET_CONNECT_ICON} xml={walletConnectIcon} />
       </TouchableOpacity>
       {!hideOpitonals && (
         <>
@@ -514,6 +515,7 @@ export const AppNavigator = observer((props: NavigationProps) => {
   }), 'log')
 
   const nextAction = nextActions.toJSON()[nextActions.toJSON().length - 1]
+  console.log(nextAction, 'nextAction')
   const currentWallet = currentWalletStore.wallet;
   function hexToUtf8(hex: string) {
     let bytes = [];

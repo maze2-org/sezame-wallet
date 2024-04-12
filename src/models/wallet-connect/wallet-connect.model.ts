@@ -506,6 +506,11 @@ export const WalletConnectModel = types
         }
       }
     }),
+    rejectConnection: flow(function* (
+      action: IWalletConnectAction,
+    ) {
+      self.nextActions.remove(action);
+    }),
   }));
 
 type WalletConnectType = Instance<typeof WalletConnectModel>;

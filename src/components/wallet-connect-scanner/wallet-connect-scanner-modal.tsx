@@ -7,8 +7,8 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  TextInput,
-} from 'react-native';
+  TextInput, TextStyle,
+} from "react-native"
 
 import {
   CameraHighlights,
@@ -36,6 +36,8 @@ import {
 } from "@walletconnect/core"
 import { mapToObj, objToMap } from "@walletconnect/utils"
 import { REQUEST_CONTEXT, SESSION_CONTEXT, SIGN_CLIENT_STORAGE_PREFIX } from "@walletconnect/sign-client"
+import { SvgXml } from "react-native-svg"
+import walletConnectIcon from "@assets/svg/walletconnect.svg"
 
 type WalletConnectScannerModalProps = {
   visible: boolean;
@@ -52,6 +54,17 @@ const CONTAINER_INNER: ViewStyle = {
   alignItems: 'center',
   justifyContent: 'center',
 };
+
+const WALLET_CONNECT_ICON = {
+  width: 45,
+  height: 45,
+}
+const SCAN_TEXT: TextStyle = {
+  fontSize: 18,
+  marginTop: 12,
+  marginBottom: 12,
+  color: color.palette.white,
+}
 
 const WALLETCONNECT_BOX: ViewStyle = {
   width: '90%',
@@ -230,11 +243,9 @@ export const WalletConnectScannerModal = observer(
         <TouchableOpacity activeOpacity={1} style={CONTAINER} onPress={onClose}>
           <View style={CONTAINER_INNER}>
             <TouchableOpacity activeOpacity={1} style={WALLETCONNECT_BOX}>
-              <Text style={{fontSize: 18, color: color.palette.white}}>
-                Scan the QRCode
-              </Text>
-              <Text style={{color: color.palette.white}}>
-                {nextActions.length} actions remaining
+              <SvgXml style={WALLET_CONNECT_ICON} xml={walletConnectIcon} />
+              <Text style={SCAN_TEXT}>
+                Scan the wallet connect QR code
               </Text>
               <TextInput
                 style={{width: '100%', height: 80, backgroundColor: 'white'}}

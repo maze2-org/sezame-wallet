@@ -2,11 +2,11 @@ import {Button, Text} from 'components';
 import {useStores} from 'models';
 import {IWalletConnectAction} from 'models/wallet-connect/wallet-connect.model';
 import React, {useRef} from 'react';
-import {Image, View} from 'react-native';
+import { Image, View, ViewStyle } from "react-native"
 import FlashMessage from 'react-native-flash-message';
 import AddAddress from 'screens/alph-choose-address/components/add-address/add-address.component';
 import AddressEntry from 'screens/alph-choose-address/components/address-entry/address-entry.component';
-import {color} from 'theme';
+import { color } from "theme"
 import {addDerivedAddress} from 'utils/wallet-utils';
 import WalletConnectModal from '../wallet-connect-modal/wallet-connect-modal.component';
 import {observer} from 'mobx-react-lite';
@@ -26,7 +26,7 @@ const WalletConnectConnectionAction = observer(function ({
   const alphWallet = getAssetById('alephium', 'ALPH');
   const alphSelectedAddress = getSelectedAddressForAsset('alephium', 'ALPH');
   const ethSelectedAddress = getSelectedAddressForAsset('alephium', 'ETH');
-  const {removeAction, approveConnection, client} = walletConnectStore;
+  const {removeAction, approveConnection, rejectConnection, client} = walletConnectStore;
 
   const handleAddDerivedAddress = async (group?: 1 | 2 | 3 | 0) => {
     if (alphWallet && currentWalletStore.mnemonic) {
@@ -52,6 +52,18 @@ const WalletConnectConnectionAction = observer(function ({
         const activeSessions = getActiveWalletConnectSessions(client);
         await approveConnection(pendingSessionApproval, alphSelectedAddress, activeSessions, ethSelectedAddress);
       }
+    } catch (err) {
+      // ignore error...
+    } finally {
+    }
+  };
+
+
+  const handleReject = async (
+    pendingSessionApproval: IWalletConnectAction,
+  ) => {
+    try {
+        await rejectConnection(pendingSessionApproval);
     } catch (err) {
       // ignore error...
     } finally {
@@ -156,9 +168,14 @@ const WalletConnectConnectionAction = observer(function ({
             {walletAction.description}
           </Text>
 
-          <Button onPress={() => handleConnect(walletAction)}>
-            <Text>Approve...</Text>
-          </Button>
+          <View style={BUTTONS_WRAPPER}>
+            <Button style={APPROVE_BUTTON} onPress={() => handleConnect(walletAction)}>
+              <Text>Approve</Text>
+            </Button>
+            <Button style={DANGER_BUTTON} onPress={() => handleReject(walletAction)}>
+              <Text>Reject</Text>
+            </Button>
+          </View>
         </View>
       </WalletConnectModal>
     );
@@ -168,3 +185,20 @@ const WalletConnectConnectionAction = observer(function ({
 });
 
 export default WalletConnectConnectionAction;
+
+const BUTTONS_WRAPPER: ViewStyle = {
+  gap: 10,
+  width: '100%',
+  display: 'flex',
+  flexDirection: 'row',
+  justifyContent:'center',
+}
+
+const DANGER_BUTTON: ViewStyle = {
+  width: '50%',
+  backgroundColor: '#cc0100',
+}
+
+const APPROVE_BUTTON: ViewStyle = {
+  width: '50%'
+}
