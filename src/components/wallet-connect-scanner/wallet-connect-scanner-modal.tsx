@@ -105,7 +105,7 @@ export const WalletConnectScannerModal = observer(
       });
     }
 
-    const setScannedCodeJs = Worklets.createRunInJsFn(setScannedCode);
+    const setScannedCodeJs = Worklets.createRunOnJS(setScannedCode);
     const {props: cameraProps, highlights} = useBarcodeScanner({
       fps: 20,
       barcodeTypes: ['qr'],

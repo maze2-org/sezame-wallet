@@ -9,6 +9,8 @@
  * The app navigation resides in ./app/navigators, so head over there
  * if you're interested in adding screens and navigators.
  */
+
+global.Buffer = require('buffer').Buffer;
 import './i18n';
 import './utils/ignore-warnings';
 import React, {useState, useEffect} from 'react';
