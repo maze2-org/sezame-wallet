@@ -1,0 +1,3 @@
+TxScript DestroyUnexecutedSequenceContracts(tokenBridge: TokenBridge, vaa: ByteVec) {
+  tokenBridge.destroyUnexecutedSequenceContracts(vaa)
+}

@@ -1,7 +1,7 @@
-import { withRootStore } from "models"
-import { ImageStyle, TextStyle, ViewStyle, Dimensions } from "react-native"
-import { capitalize } from "validate.js"
-import { color, spacing, typography } from "."
+import {withRootStore} from 'models';
+import {ImageStyle, TextStyle, ViewStyle, Dimensions} from 'react-native';
+import {capitalize} from 'validate.js';
+import {color, spacing, typography} from '.';
 
 /**
  * Roles for colors.  Prefer using these over the palette.  It makes it easier
@@ -12,20 +12,31 @@ import { color, spacing, typography } from "."
  * If you have a specific use-case, like a spinner color.  It makes more sense to
  * put that in the <Spinner /> component.
  */
-const { width } = Dimensions.get("screen")
+const {width} = Dimensions.get('screen');
+
+export const INPUT: TextStyle = {
+  fontFamily: typography.primary,
+  color: color.text,
+  paddingVertical: spacing[2],
+  fontSize: 15,
+  lineHeight: 20,
+  backgroundColor: color.transparent,
+  borderBottomWidth: 1,
+  borderColor: color.palette.white,
+};
 
 export const BackgroundStyle: ImageStyle = {
   flex: 1,
-  justifyContent: "space-between",
+  justifyContent: 'space-between',
   backgroundColor: color.palette.black,
-}
+};
 
 export const RootPageStyle: ViewStyle = {
   backgroundColor: color.palette.black,
   flex: 1,
   padding: spacing[0],
-  display: "flex",
-}
+  display: 'flex',
+};
 
 export const textInput: TextStyle = {
   color: color.palette.white,
@@ -34,127 +45,127 @@ export const textInput: TextStyle = {
   borderRadius: 4,
   padding: spacing[2],
   margin: spacing[4],
-}
+};
 
 export const textInputStyle: TextStyle = {
   borderWidth: 1,
   borderColor: color.palette.white,
   color: color.palette.white,
-}
+};
 
 export const textInputStyleAlt: TextStyle = {
-  backgroundColor: "#111111",
+  backgroundColor: '#111111',
   borderRadius: 8,
   borderWidth: 1,
-  borderColor: "#111111",
-  borderTopColor: "#333333",
+  borderColor: '#111111',
+  borderTopColor: '#333333',
   marginTop: spacing[2],
   paddingHorizontal: spacing[2],
-}
+};
 
 export const textInputErrorMessage: TextStyle = {
   color: color.palette.orange,
   paddingTop: spacing[2],
-}
+};
 
 export const drawerErrorMessage: TextStyle = {
   color: color.error,
   paddingTop: spacing[2],
-  textAlign: "center",
+  textAlign: 'center',
   fontSize: 12,
-}
+};
 
 export const textInputError: TextStyle = {
   borderBottomColor: color.palette.orange,
   borderBottomWidth: 1,
   color: color.palette.gold,
-}
+};
 
 export const checkboxLabelError: TextStyle = {
   color: color.palette.gold,
-}
+};
 
 export const text: TextStyle = {
   color: color.palette.white,
   fontFamily: typography.primary,
-}
+};
 
-export const bold: TextStyle = { fontWeight: "bold" }
+export const bold: TextStyle = {fontWeight: 'bold'};
 export const headerTitle: TextStyle = {
   ...bold,
   fontSize: 22,
-  justifyContent: "center",
+  justifyContent: 'center',
   // lineHeight: 15,
-}
+};
 
 export const createBtn: ViewStyle = {
   paddingVertical: spacing[4],
   paddingHorizontal: spacing[4],
   backgroundColor: color.palette.deepPurple,
   margin: spacing[4],
-}
+};
 
 export const btnDisabled: ViewStyle = {
   backgroundColor: color.palette.lightGrey,
-}
+};
 
 export const demoText: TextStyle = {
   ...bold,
   fontSize: 13,
   letterSpacing: 2,
-}
+};
 
 export const footBtn: ViewStyle = {
-  display: "flex",
-  flexDirection: "row",
-  justifyContent: "space-around",
-}
+  display: 'flex',
+  flexDirection: 'row',
+  justifyContent: 'space-around',
+};
 
-export const conditionsCheckbox: ViewStyle = {}
+export const conditionsCheckbox: ViewStyle = {};
 
 export const checkboxContainer: ViewStyle = {
-  display: "flex",
-  flexDirection: "row",
+  display: 'flex',
+  flexDirection: 'row',
   padding: spacing[2],
 
   flexShrink: 1,
-}
+};
 export const label: TextStyle = {
   fontSize: 14,
   flexShrink: 1,
-}
-export const checkbox: ViewStyle = {}
+};
+export const checkbox: ViewStyle = {};
 export const pager: ViewStyle = {
   flex: 1,
   marginHorizontal: spacing[4],
-}
+};
 
 export const mnemonicContainer: ViewStyle = {
-  display: "flex",
-  flexDirection: "row",
+  display: 'flex',
+  flexDirection: 'row',
   paddingVertical: spacing[4],
 
-  justifyContent: "space-around",
-  alignItems: "center",
-}
+  justifyContent: 'space-around',
+  alignItems: 'center',
+};
 export const mnemonicStyle: TextStyle = {
   fontSize: 16,
   padding: spacing[3],
   flexShrink: 1,
-}
+};
 
 export const copyBtn: ViewStyle = {
   padding: spacing[3],
-}
+};
 
 export const warning: TextStyle = {
   padding: spacing[2],
-}
+};
 
 export const btn: ViewStyle = {
   paddingVertical: spacing[4],
   paddingHorizontal: spacing[4],
-}
+};
 export const btnDefault: TextStyle = {
   ...btn,
   ...text,
@@ -162,121 +173,121 @@ export const btnDefault: TextStyle = {
   fontSize: 15,
   letterSpacing: 2,
   backgroundColor: color.palette.gold,
-}
+};
 
 export const LogoStyle: ImageStyle = {
-  alignSelf: "center",
+  alignSelf: 'center',
   marginVertical: spacing[5],
-  maxWidth: "100%",
+  maxWidth: '100%',
   width: 247,
   height: 51,
-}
+};
 
 export const CONTAINER: ViewStyle = {
-  display: "flex",
-  justifyContent: "space-between",
+  display: 'flex',
+  justifyContent: 'space-between',
   paddingVertical: spacing[5],
   paddingHorizontal: spacing[7],
-  flexDirection: "column",
+  flexDirection: 'column',
   flexGrow: 1,
-}
+};
 
 export const containerGrowable: ViewStyle = {
   flexGrow: 1,
-}
+};
 
 export const PRIMARY_BTN: ViewStyle = {
-  width: "100%",
+  width: '100%',
   borderRadius: 80,
   height: 47,
   backgroundColor: color.palette.gold,
   marginVertical: spacing[2],
-}
+};
 
 export const PRIMARY_TEXT: TextStyle = {
   color: color.palette.white,
   fontSize: 13,
   lineHeight: 18,
-  fontWeight: "600",
-  textTransform: "uppercase",
-}
+  fontWeight: '600',
+  textTransform: 'uppercase',
+};
 
 export const PRIMARY_OUTLINE_BTN: TextStyle = {
   backgroundColor: color.transparent,
-  width: "100%",
-}
+  width: '100%',
+};
 
 export const TEXT_CENTTER: TextStyle = {
-  textAlign: "center",
-}
+  textAlign: 'center',
+};
 
 export const NORMAL_TEXT: TextStyle = {
   fontSize: 12,
   lineHeight: 16,
-  fontWeight: "400",
-}
+  fontWeight: '400',
+};
 
 export const SMALL_TEXT: TextStyle = {
   fontSize: 10,
   lineHeight: 14,
-  fontWeight: "400",
-  color: "#C9C9C9",
-}
+  fontWeight: '400',
+  color: '#C9C9C9',
+};
 
 export const tabBarStyle: ViewStyle = {
   borderRadius: 12,
-  overflow: "hidden",
-  position: "absolute",
+  overflow: 'hidden',
+  position: 'absolute',
   bottom: 0,
   left: 0,
   right: 0,
-}
+};
 
 export const tabBarItemStyle: ViewStyle = {
   backgroundColor: color.palette.black,
   elevation: 0,
-  position: "absolute",
+  position: 'absolute',
   bottom: 0,
   left: 0,
   right: 0,
   borderTopWidth: 0,
-  display: "flex",
+  display: 'flex',
   flexGrow: 1,
-}
+};
 
 export const tabBarItem: ViewStyle = {
   flex: 1,
-  justifyContent: "center",
-  alignItems: "center",
-  flexDirection: "row",
+  justifyContent: 'center',
+  alignItems: 'center',
+  flexDirection: 'row',
   borderTopWidth: 6,
   borderTopColor: color.palette.black,
   width: width / 2,
-}
+};
 
 export const tabBarItemFocused: ViewStyle = {
   flex: 1,
-  justifyContent: "center",
-  alignItems: "center",
-  flexDirection: "row",
+  justifyContent: 'center',
+  alignItems: 'center',
+  flexDirection: 'row',
   borderTopWidth: 6,
   borderTopColor: color.palette.gold,
-}
+};
 
 export const tabBarLabel: TextStyle = {
   color: color.palette.lightGrey,
   marginLeft: spacing[1],
-}
+};
 
 export const tabBarLabelFocused: TextStyle = {
   color: color.palette.white,
   marginLeft: spacing[1],
-}
+};
 
 export const tabBarItemBorderRightStyle: ViewStyle = {
   borderRightColor: color.palette.lineColor,
   borderRightWidth: 0.3,
-}
+};
 
 export const DropdownContainerStyle: ViewStyle = {
   backgroundColor: color.transparent,
@@ -287,34 +298,34 @@ export const DropdownContainerStyle: ViewStyle = {
   borderLeftWidth: 0,
   paddingHorizontal: 0,
   marginBottom: spacing[3],
-}
+};
 
 export const DropdownTextStyle: TextStyle = {
   color: color.palette.white,
   fontSize: 15,
   lineHeight: 20,
-  fontWeight: "400",
+  fontWeight: '400',
   height: 40,
-  textAlignVertical: "center",
-}
+  textAlignVertical: 'center',
+};
 
 export const DropdownListStyle: ViewStyle = {
   borderColor: color.palette.white,
   backgroundColor: color.transparent,
-}
+};
 export const DropdownArrowStyle: TextStyle = {
   // color: color.palette.gold,
-}
+};
 
-export const SesameLogo = require("@assets/images/Logo.png")
-export const SesameSmallLogo = require("@assets/images/Group.png")
+export const SesameLogo = require('@assets/images/Logo.png');
+export const SesameSmallLogo = require('@assets/images/Group.png');
 
-export const MainBackground = require("@assets/images/bg-noise.png")
+export const MainBackground = require('@assets/images/bg-noise.png');
 
 export const SEPARATOR: ViewStyle = {
   borderBottomColor: color.palette.lightGrey,
   borderBottomWidth: 0.5,
-}
+};
 
 export const buttons = {
   DRAWER_BTN_CANCEL: {
@@ -329,19 +340,19 @@ export const buttons = {
     lineHeight: 17.7,
     fontFamily: typography.primary,
     paddingVertical: spacing[2],
-    fontWeight: "600" as any,
+    fontWeight: '600' as any,
   },
-}
+};
 export const LABEL: TextStyle = {
   paddingLeft: spacing[4],
   fontSize: 12,
   lineHeight: 16.34,
-  fontWeight: "600",
-}
+  fontWeight: '600',
+};
 
 export const TERMS_TXT: TextStyle = {
   ...LABEL,
   fontSize: 13,
   paddingLeft: 0,
   color: color.primary,
-}
+};

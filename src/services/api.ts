@@ -80,7 +80,13 @@ export const getFees = async (
   asset: BaseWalletDescription,
   address: string,
   amount: number,
-  reason?: 'transfer' | 'staking' | 'unstaking' | 'lowering' | 'lifting',
+  reason?:
+    | 'transfer'
+    | 'staking'
+    | 'unstaking'
+    | 'lowering'
+    | 'lifting'
+    | 'bridge',
 ) => {
   const cryptoWallet = getWallet(asset);
   const fees = await cryptoWallet.getTxSendProposals(address, amount, reason);

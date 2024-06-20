@@ -1,0 +1,8 @@
+TxScript CreateRemoteTokenPool(
+    payer: Address,
+    attestTokenHandler: AttestTokenHandler,
+    vaa: ByteVec,
+    alphAmount: U256
+) {
+    attestTokenHandler.createRemoteTokenPool{payer -> ALPH: alphAmount}(vaa, payer, alphAmount)
+}

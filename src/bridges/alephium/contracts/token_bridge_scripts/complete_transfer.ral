@@ -1,0 +1,6 @@
+TxScript CompleteTransfer(
+    tokenBridgeForChain: TokenBridgeForChain,
+    vaa: ByteVec
+) {
+    tokenBridgeForChain.completeTransfer{callerAddress!() -> ALPH: dustAmount!()}(vaa, callerAddress!())
+}

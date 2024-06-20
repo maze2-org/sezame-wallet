@@ -1,0 +1,11 @@
+TxScript CreateLocalTokenPool(
+    payer: Address,
+    attestTokenHandler: AttestTokenHandler,
+    localTokenId: ByteVec,
+    vaa: ByteVec,
+    alphAmount: U256
+) {
+    attestTokenHandler.createLocalTokenPool{
+        payer -> ALPH: alphAmount, localTokenId: 1
+    }(vaa, payer, alphAmount, 1)
+}

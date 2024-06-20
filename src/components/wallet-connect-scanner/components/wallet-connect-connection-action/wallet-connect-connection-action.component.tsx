@@ -1,16 +1,16 @@
 import {Button, Text} from 'components';
 import {useStores} from 'models';
 import {IWalletConnectAction} from 'models/wallet-connect/wallet-connect.model';
-import React, {useRef} from 'react';
-import { Image, View, ViewStyle } from "react-native"
+import React, {useEffect, useRef} from 'react';
+import {Image, View, ViewStyle} from 'react-native';
 import FlashMessage from 'react-native-flash-message';
 import AddAddress from 'screens/alph-choose-address/components/add-address/add-address.component';
 import AddressEntry from 'screens/alph-choose-address/components/address-entry/address-entry.component';
-import { color } from "theme"
+import {color} from 'theme';
 import {addDerivedAddress} from 'utils/wallet-utils';
 import WalletConnectModal from '../wallet-connect-modal/wallet-connect-modal.component';
 import {observer} from 'mobx-react-lite';
-import SignClient from "@walletconnect/sign-client"
+import SignClient from '@walletconnect/sign-client';
 
 type WalletConnectConnectionActionProps = {
   walletAction: IWalletConnectAction;
@@ -26,7 +26,8 @@ const WalletConnectConnectionAction = observer(function ({
   const alphWallet = getAssetById('alephium', 'ALPH');
   const alphSelectedAddress = getSelectedAddressForAsset('alephium', 'ALPH');
   const ethSelectedAddress = getSelectedAddressForAsset('alephium', 'ETH');
-  const {removeAction, approveConnection, rejectConnection, client} = walletConnectStore;
+  const {removeAction, approveConnection, rejectConnection, client} =
+    walletConnectStore;
 
   const handleAddDerivedAddress = async (group?: 1 | 2 | 3 | 0) => {
     if (alphWallet && currentWalletStore.mnemonic) {
@@ -35,14 +36,16 @@ const WalletConnectConnectionAction = observer(function ({
   };
 
   const getActiveWalletConnectSessions = (walletConnectClient?: SignClient) => {
-    if (!walletConnectClient) return []
+    if (!walletConnectClient) return [];
 
-    const activePairings = walletConnectClient.core.pairing.getPairings().filter((pairing) => pairing.active)
+    const activePairings = walletConnectClient.core.pairing
+      .getPairings()
+      .filter(pairing => pairing.active);
 
-    return walletConnectClient.session.values.filter((session) =>
-      activePairings.some((pairing) => pairing.topic === session.pairingTopic)
-    )
-  }
+    return walletConnectClient.session.values.filter(session =>
+      activePairings.some(pairing => pairing.topic === session.pairingTopic),
+    );
+  };
 
   const handleConnect = async (
     pendingSessionApproval: IWalletConnectAction,
@@ -50,22 +53,26 @@ const WalletConnectConnectionAction = observer(function ({
     try {
       if (alphSelectedAddress || ethSelectedAddress) {
         const activeSessions = getActiveWalletConnectSessions(client);
-        await approveConnection(pendingSessionApproval, alphSelectedAddress, activeSessions, ethSelectedAddress);
+        await approveConnection(
+          pendingSessionApproval,
+          alphSelectedAddress,
+          activeSessions,
+          ethSelectedAddress,
+        );
       }
     } catch (err) {
+      console.log('handleConnect error ----------------', error);
       // ignore error...
     } finally {
     }
   };
 
-
-  const handleReject = async (
-    pendingSessionApproval: IWalletConnectAction,
-  ) => {
+  const handleReject = async (pendingSessionApproval: IWalletConnectAction) => {
     try {
-        await rejectConnection(pendingSessionApproval);
+      await rejectConnection(pendingSessionApproval);
     } catch (err) {
       // ignore error...
+      console.log('unable to reject', err);
     } finally {
     }
   };
@@ -78,9 +85,14 @@ const WalletConnectConnectionAction = observer(function ({
     removeAction(walletAction);
   };
 
-  console.log('STATUS', walletAction?.status);
+  useEffect(() => {
+    if (walletAction.status === 'require_alph_group_switch') {
+      handleConnect(walletAction);
+    }
+  }, [alphSelectedAddress]);
+
   if (
-    walletAction?.status == 'require_alph_group_switch' &&
+    walletAction?.status === 'require_alph_group_switch' &&
     walletAction?.alephiumGroup !== undefined &&
     alphSelectedAddress?.group !== walletAction.alephiumGroup
   ) {
@@ -132,7 +144,7 @@ const WalletConnectConnectionAction = observer(function ({
   if (walletAction?.action == 'sessionProposal') {
     return (
       <WalletConnectModal
-        title=" Wallet connect connextion requested"
+        title="Wallet connect connection requested"
         onClose={onCancel}
         flashMessageRef={modalFlashRef}>
         <View
@@ -169,10 +181,14 @@ const WalletConnectConnectionAction = observer(function ({
           </Text>
 
           <View style={BUTTONS_WRAPPER}>
-            <Button style={APPROVE_BUTTON} onPress={() => handleConnect(walletAction)}>
+            <Button
+              style={APPROVE_BUTTON}
+              onPress={() => handleConnect(walletAction)}>
               <Text>Approve</Text>
             </Button>
-            <Button style={DANGER_BUTTON} onPress={() => handleReject(walletAction)}>
+            <Button
+              style={DANGER_BUTTON}
+              onPress={() => handleReject(walletAction)}>
               <Text>Reject</Text>
             </Button>
           </View>
@@ -191,14 +207,14 @@ const BUTTONS_WRAPPER: ViewStyle = {
   width: '100%',
   display: 'flex',
   flexDirection: 'row',
-  justifyContent:'center',
-}
+  justifyContent: 'center',
+};
 
 const DANGER_BUTTON: ViewStyle = {
   width: '50%',
   backgroundColor: '#cc0100',
-}
+};
 
 const APPROVE_BUTTON: ViewStyle = {
-  width: '50%'
-}
+  width: '50%',
+};

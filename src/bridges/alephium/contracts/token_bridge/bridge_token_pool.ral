@@ -1,0 +1,54 @@
+Abstract Contract BridgeTokenPool(
+    tokenBridge: TokenBridge,
+    tokenChainId: U256,
+    bridgeTokenId: ByteVec,
+    mut totalBridged: U256,
+    decimals_: U256
+) extends Math(), Constants(), TokenBridgeConstants() implements TokenPool {
+    fn prepareTransfer(
+        callerContractId: ByteVec,
+        toAddress: ByteVec,
+        amount: U256,
+        arbiterFee: U256,
+        nonce: ByteVec
+    ) -> (ByteVec, U256) {
+        checkCaller!(callerContractId == contractId!(tokenBridge), ErrorCodes.InvalidCaller)
+        assert!(size!(nonce) == 4, ErrorCodes.InvalidNonceSize)
+
+        let normalizedAmount = normalizeAmount(amount, decimals_)
+        let normalizedFee = normalizeAmount(arbiterFee, decimals_)
+        assert!(normalizedFee < normalizedAmount, ErrorCodes.ArbiterFeeLessThanAmount)
+
+        let payload = PayloadId.Transfer ++
+            u256To32Byte!(normalizedAmount) ++
+            bridgeTokenId ++
+            u256To2Byte!(tokenChainId) ++
+            u256To2Byte!(size!(toAddress)) ++
+            toAddress ++
+            u256To32Byte!(normalizedFee)
+        let totalAmount = deNormalizeAmount(normalizedAmount, decimals_)
+        
+        return payload, totalAmount
+    }
+
+    fn prepareCompleteTransfer(
+        callerContractId: ByteVec,
+        emitterChainId: U256,
+        amount: U256,
+        vaaTokenId: ByteVec,
+        vaaTokenChainId: U256,
+        normalizedArbiterFee: U256
+    ) -> (U256, U256) {
+        let expectedCallerContractId = subContractIdOf!(tokenBridge, Path.TokenBridgeForChain ++ u256To2Byte!(emitterChainId))
+        checkCaller!(expectedCallerContractId == callerContractId, ErrorCodes.InvalidCaller)
+        assert!(vaaTokenId == bridgeTokenId, ErrorCodes.InvalidTransferMessage)
+        assert!(vaaTokenChainId == tokenChainId, ErrorCodes.InvalidTransferMessage)
+
+        let totalAmount = deNormalizeAmount(amount, decimals_)
+        let arbiterFee = deNormalizeAmount(normalizedArbiterFee, decimals_)
+        assert!(totalAmount > arbiterFee, ErrorCodes.ArbiterFeeLessThanAmount)
+        let transferAmount = totalAmount - arbiterFee
+
+        return transferAmount, arbiterFee
+    }
+}

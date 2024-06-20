@@ -1,0 +1,81 @@
+Contract TokenBridgeForChain(
+    governance: Governance,
+    localChainId: U256,
+    localTokenBridge: TokenBridge, // local chain token bridge contract
+    remoteChainId: U256,
+    remoteTokenBridgeId: ByteVec, // remote chain token bridge contract id
+    mut start: U256,
+    mut firstNext256: U256,
+    mut secondNext256: U256,
+    unexecutedSequenceTemplateId: ByteVec, // used for create contract by copyCreateContract
+    mut sendSequence: U256
+) extends Sequence(start, firstNext256, secondNext256, unexecutedSequenceTemplateId), Constants(), TokenBridgeConstants() {
+    @using(updateFields = true)
+    pub fn nextSendSequence() -> U256 {
+        checkCaller!(callerContractId!() == contractId!(localTokenBridge), ErrorCodes.InvalidCaller)
+        let msgSequence = sendSequence
+        sendSequence = sendSequence + 1
+        return msgSequence
+    }
+
+    fn checkCompleteTransfer(vaa: ByteVec) -> (Bool, ByteVec) {
+        let (emitterChainId, targetChainId, emitterAddress, msgSequence, payload) = governance.parseAndVerifyVAA(vaa, false)
+        assert!(emitterChainId == remoteChainId, ErrorCodes.InvalidEmitChainId)
+        assert!(emitterAddress == remoteTokenBridgeId, ErrorCodes.InvalidEmitAddress)
+        assert!(targetChainId == localChainId, ErrorCodes.InvalidTargetChainId)
+        return checkSequence(msgSequence), payload
+    }
+
+    fn parseCompleteTransfer(payload: ByteVec) -> (U256, ByteVec, U256, Address, U256) {
+        assert!(byteVecSlice!(payload, 0, 1) == PayloadId.Transfer, ErrorCodes.InvalidPayloadId)
+        let amount = u256From32Byte!(byteVecSlice!(payload, 1, 33))
+        let vaaTokenId = byteVecSlice!(payload, 33, 65)
+        let vaaTokenChainId = u256From2Byte!(byteVecSlice!(payload, 65, 67))
+        let toAddressSize = u256From2Byte!(byteVecSlice!(payload, 67, 69))
+        let toAddressEndOffset = 69 + toAddressSize
+        let toAddress = byteVecSlice!(payload, 69, toAddressEndOffset)
+        let payloadSize = toAddressEndOffset + 32
+        let normalizedArbiterFee = u256From32Byte!(byteVecSlice!(payload, toAddressEndOffset, payloadSize))
+        assert!(size!(payload) == payloadSize, ErrorCodes.InvalidMessageSize)
+        let recipient = byteVecToAddress!(toAddress)
+        return amount, vaaTokenId, vaaTokenChainId, recipient, normalizedArbiterFee
+    }
+
+    @using(preapprovedAssets = true, checkExternalCaller = false)
+    pub fn completeTransfer(vaa: ByteVec, caller: Address) -> () {
+        let (sequenceReady, payload) = checkCompleteTransfer(vaa)
+        if (!sequenceReady) { // too many unexecuted sequences in between, compact those sequences first
+            return
+        }
+
+        let (amount, vaaTokenId, vaaTokenChainId, recipient, normalizedArbiterFee) = parseCompleteTransfer(payload)
+        let path = Path.TokenPool ++ u256To2Byte!(vaaTokenChainId) ++ vaaTokenId
+        let tokenPoolId = subContractIdOf!(localTokenBridge, path)
+        let tokenPool = TokenPool(tokenPoolId)
+        tokenPool.completeTransfer{caller -> ALPH: dustAmount!()}(
+            remoteChainId, amount, vaaTokenId, vaaTokenChainId, recipient, normalizedArbiterFee, caller
+        )
+    }
+
+    @using(assetsInContract = true)
+    pub fn destroyUnexecutedSequenceContracts(paths: ByteVec) -> () {
+        checkCaller!(callerContractId!() == contractId!(localTokenBridge), ErrorCodes.InvalidCaller)
+        let length = size!(paths)
+        for (let mut index = 0; index < length; index = index + 8) {
+            let unexecutedSequenceId = subContractId!(byteVecSlice!(paths, index, index + 8))
+            UnexecutedSequence(unexecutedSequenceId).destroy(selfAddress!())
+        }
+    }
+
+    @using(assetsInContract = true, preapprovedAssets = true, checkExternalCaller = false)
+    pub fn deposit(from: Address, alphAmount: U256) -> () {
+        transferTokenToSelf!(from, ALPH, alphAmount)
+    }
+
+    @using(assetsInContract = true, checkExternalCaller = false)
+    pub fn withdraw(alphAmount: U256) -> () {
+        let refundAddress = localTokenBridge.getRefundAddress()
+        assert!(callerAddress!() == refundAddress, ErrorCodes.InvalidCaller)
+        transferTokenFromSelf!(refundAddress, ALPH, alphAmount)
+    }
+}

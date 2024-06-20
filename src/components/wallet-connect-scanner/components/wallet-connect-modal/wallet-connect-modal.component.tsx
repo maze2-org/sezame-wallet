@@ -25,7 +25,7 @@ function WalletConnectModal({
         // activeOpacity={1}
         style={walletConnectStyles.WALLETCONNECT_CONTAINER}
         onPress={() => {
-          // onClose && onClose();
+          onClose && onClose();
         }}>
         <View style={walletConnectStyles.WALLETCONNECT_CONTAINER_INNER}>
           <TouchableOpacity

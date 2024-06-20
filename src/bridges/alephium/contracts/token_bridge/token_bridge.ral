@@ -1,0 +1,148 @@
+Contract TokenBridge(
+    governance: Governance,
+    localChainId: U256,
+    mut receivedSequence: U256,
+    mut sendSequence: U256,     // the sequence of next message published by self
+    tokenBridgeFactory: TokenBridgeFactory,
+    mut minimalConsistencyLevel: U256,
+    mut refundAddress: Address
+) extends TokenBridgeGovernance(governance, localChainId, receivedSequence, sendSequence, tokenBridgeFactory, minimalConsistencyLevel, refundAddress) {
+    pub fn getMessageFee() -> U256 {
+        return governance.getMessageFee()
+    }
+
+    @using(preapprovedAssets = true, checkExternalCaller = false)
+    pub fn attestToken(
+        payer: Address,
+        localTokenId: ByteVec,
+        decimals: U256,
+        symbol: ByteVec,
+        name: ByteVec,
+        nonce: ByteVec,
+        consistencyLevel: U256
+    ) -> () {
+        assert!(size!(symbol) == 32, ErrorCodes.InvalidAttestTokenArg)
+        assert!(size!(name) == 32, ErrorCodes.InvalidAttestTokenArg)
+        assert!(size!(localTokenId) == 32, ErrorCodes.InvalidTokenId)
+        assert!(size!(nonce) == 4, ErrorCodes.InvalidNonceSize)
+        assert!(tokenRemaining!(payer, localTokenId) > 0, ErrorCodes.TokenNotExist) // make sure that the token exists
+
+        let payload = PayloadId.AttestToken ++
+            localTokenId ++
+            u256To2Byte!(localChainId) ++
+            u256To1Byte!(decimals) ++
+            symbol ++
+            name
+
+        governance.publishWormholeMessage{payer -> ALPH: governance.getMessageFee()}(payer, 0, nextSendSequence(), nonce, payload, consistencyLevel)
+    }
+
+    @using(updateFields = true)
+    fn nextSendSequence() -> (U256) {
+        let current = sendSequence
+        sendSequence = sendSequence + 1
+        return current
+    }
+
+    @using(preapprovedAssets = true)
+    pub fn createLocalTokenPool(
+        localTokenId: ByteVec,
+        decimals: U256,
+        payer: Address,
+        createContractAlphAmount: U256
+    ) -> () {
+        let expectedCaller = subContractId!(Path.AttestTokenHandler ++ u256To2Byte!(localChainId))
+        checkCaller!(callerContractId!() == expectedCaller, ErrorCodes.InvalidCaller)
+        assert!(tokenRemaining!(payer, localTokenId) > 0, ErrorCodes.TokenNotExist) // make sure that the token exists
+        let (encodedImmutableFields, encodedMutableFields) = LocalTokenPool.encodeFields!(
+            selfContract!(),
+            localChainId,
+            localTokenId,
+            0,
+            decimals
+        )
+        let path = Path.TokenPool ++ u256To2Byte!(localChainId) ++ localTokenId
+        copyCreateSubContract!{payer -> ALPH: createContractAlphAmount}(
+            path,
+            tokenBridgeFactory.getLocalTokenPoolTemplateId(),
+            encodedImmutableFields,
+            encodedMutableFields
+        )
+    }
+
+    @using(preapprovedAssets = true)
+    pub fn createRemoteTokenPool(
+        bridgeTokenId: ByteVec,
+        tokenChainId: U256,
+        decimals: U256,
+        symbol: ByteVec,
+        name: ByteVec,
+        msgSequence: U256,
+        payer: Address,
+        createContractAlphAmount: U256
+    ) -> () {
+        let expectedCaller = subContractId!(Path.AttestTokenHandler ++ u256To2Byte!(tokenChainId))
+        checkCaller!(callerContractId!() == expectedCaller, ErrorCodes.InvalidCaller)
+        let (encodedImmutableFields, encodedMutableFields) = RemoteTokenPool.encodeFields!(
+            selfContract!(),
+            tokenChainId,
+            bridgeTokenId,
+            0,
+            symbol,
+            name,
+            decimals,
+            msgSequence
+        )
+        let path = Path.TokenPool ++ u256To2Byte!(tokenChainId) ++ bridgeTokenId
+        copyCreateSubContractWithToken!{payer -> ALPH: createContractAlphAmount}(
+            path,
+            tokenBridgeFactory.getRemoteTokenPoolTemplateId(),
+            encodedImmutableFields,
+            encodedMutableFields,
+            u256Max!()
+        )
+    }
+
+    pub fn updateRemoteTokenPool(
+        bridgeTokenId: ByteVec,
+        tokenChainId: U256,
+        symbol: ByteVec,
+        name: ByteVec,
+        msgSequence: U256
+    ) -> () {
+        let expectedCaller = subContractId!(Path.AttestTokenHandler ++ u256To2Byte!(tokenChainId))
+        checkCaller!(callerContractId!() == expectedCaller, ErrorCodes.InvalidCaller)
+        let path = Path.TokenPool ++ u256To2Byte!(tokenChainId) ++ bridgeTokenId
+        let remoteTokenPool = RemoteTokenPool(subContractId!(path))
+        remoteTokenPool.updateDetails(symbol, name, msgSequence)
+    }
+
+    @using(preapprovedAssets = true, checkExternalCaller = false)
+    pub fn transferToken(
+        fromAddress: Address,
+        bridgeTokenId: ByteVec,
+        tokenChainId: U256,
+        toChainId: U256,
+        toAddress: ByteVec,
+        tokenAmount: U256,
+        messageFee: U256,
+        arbiterFee: U256,
+        nonce: ByteVec,
+        consistencyLevel: U256
+    ) -> () {
+        assert!(consistencyLevel >= minimalConsistencyLevel, ErrorCodes.InvalidConsistencyLevel)
+        assert!(toChainId != localChainId, ErrorCodes.InvalidTransferTargetChain)
+        let isLocalToken = tokenChainId == localChainId
+        let tokenPoolId = subContractId!(Path.TokenPool ++ u256To2Byte!(tokenChainId) ++ bridgeTokenId)
+
+        let payload =
+            if (isLocalToken) LocalTokenPool(tokenPoolId).transfer{fromAddress -> bridgeTokenId: tokenAmount}(fromAddress, toAddress, tokenAmount, arbiterFee, nonce)
+            else RemoteTokenPool(tokenPoolId).transfer{fromAddress -> tokenPoolId: tokenAmount}(fromAddress, toAddress, tokenAmount, arbiterFee, nonce)
+
+        let tokenBridgeForChainId = subContractId!(Path.TokenBridgeForChain ++ u256To2Byte!(toChainId))
+        let tokenBridgeForChain = TokenBridgeForChain(tokenBridgeForChainId)
+        governance.publishWormholeMessage{fromAddress -> ALPH: messageFee}(
+            fromAddress, toChainId, tokenBridgeForChain.nextSendSequence(), nonce, payload, consistencyLevel
+        )
+    }
+}

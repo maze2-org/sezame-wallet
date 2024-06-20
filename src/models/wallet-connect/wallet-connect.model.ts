@@ -1,13 +1,13 @@
-import { flow, getRoot, Instance, SnapshotOut, types } from "mobx-state-tree"
+import {flow, getRoot, Instance, SnapshotOut, types} from 'mobx-state-tree';
 import SignClient from '@walletconnect/sign-client';
-import { buildApprovedNamespaces, getSdkError } from "@walletconnect/utils"
+import {buildApprovedNamespaces, getSdkError} from '@walletconnect/utils';
 import {
   parseSessionProposalEvent,
   walletConnectRequestToTitle,
   extractBlockchainDetailsFromRequest,
   extractBlockchainDetailsFromProposal,
   getWalletConnectProposalAlephiumGroup,
-} from "utils/wallet-connect"
+} from 'utils/wallet-connect';
 import {SessionTypes} from '@walletconnect/types';
 import {parseChain, formatChain} from '@alephium/walletconnect-provider';
 import {SignClientTypes} from '@walletconnect/types';
@@ -15,8 +15,8 @@ import {BaseWalletDescription} from 'models';
 import {
   getTransactionAssetAmounts,
   signAndSendTransaction,
-} from "api/transactions.ts"
-import { showMessage } from "react-native-flash-message"
+} from 'api/transactions.ts';
+import {showMessage} from 'react-native-flash-message';
 
 const WalletConnectAction = types.model({
   action: types.string,
@@ -62,12 +62,18 @@ export const WalletConnectModel = types
   .views(self => ({}))
   .actions(self => ({
     init: flow(function* connect() {
-      console.log('----------------------------------------initinitinitinitinitinitinitinitinitinitinit----------------------------------------')
+      console.log(
+        '----------------------------------------initinitinitinitinitinitinitinitinitinitinit----------------------------------------',
+      );
       if (self.client) {
-      console.log('----------------------------------------SELF CLIENT EXISTS----------------------------------------')
+        console.log(
+          '----------------------------------------SELF CLIENT EXISTS----------------------------------------',
+        );
         return;
       }
-      console.log('----------------------------------------SELF CLIENT NOT EXISTS----------------------------------------')
+      console.log(
+        '----------------------------------------SELF CLIENT NOT EXISTS----------------------------------------',
+      );
 
       const walletConnectClient: SignClient = yield SignClient.init({
         projectId: '2a084aa1d7e09af2b9044a524f39afbe',
@@ -82,17 +88,19 @@ export const WalletConnectModel = types
         },
       });
       self.client = walletConnectClient;
-
     }),
     connect: flow(function* connect(uri: string, topic?: string) {
       const walletConnectClient = self.client;
 
       try {
         for (const pairing of walletConnectClient.core.pairing.getPairings()) {
-          yield walletConnectClient.disconnect({ topic: pairing.topic, reason: getSdkError("USER_DISCONNECTED") })
+          yield walletConnectClient.disconnect({
+            topic: pairing.topic,
+            reason: getSdkError('USER_DISCONNECTED'),
+          });
         }
-      } catch (e){
-        console.log("❌ connect ERROR", e)
+      } catch (e) {
+        console.log('❌ connect ERROR', e);
       }
 
       walletConnectClient.on('session_proposal', self.onSessionProposal);
@@ -105,7 +113,9 @@ export const WalletConnectModel = types
       walletConnectClient.on('session_extend', self.onSessionExtend);
       walletConnectClient.on('proposal_expire', self.onProposalExpire);
 
-      const pairingTopic = topic ? topic : uri.substring('wc:'.length, uri.indexOf('@'));
+      const pairingTopic = topic
+        ? topic
+        : uri.substring('wc:'.length, uri.indexOf('@'));
       try {
         const pairings = walletConnectClient.core.pairing.pairings;
         let existingPairing = pairings.values.find(
@@ -127,41 +137,43 @@ export const WalletConnectModel = types
               yield walletConnectClient.core.pairing.activate({
                 topic: existingPairing.topic,
               });
-              console.log("✅ ACTIVATING PAIRING: DONE!")
+              console.log('✅ ACTIVATING PAIRING: DONE!');
             } catch (e) {
-              console.log("❌ ERROR ACTIVATING PAIRING!")
+              console.log('❌ ERROR ACTIVATING PAIRING!');
             }
           }
 
           console.log('⏳ LOOKING FOR PENDING PROPOSAL REQUEST...');
 
-          console.log('✅ CONNECTING: DONE!')
+          console.log('✅ CONNECTING: DONE!');
 
           const pendingProposal = walletConnectClient.core.history.pending.find(
-            ({ topic, request }) => topic === existingPairing.topic && request.method === 'wc_sessionPropose'
-          )
+            ({topic, request}) =>
+              topic === existingPairing.topic &&
+              request.method === 'wc_sessionPropose',
+          );
           if (pendingProposal) {
-            console.log('👉 FOUND PENDING PROPOSAL REQUEST!')
+            console.log('👉 FOUND PENDING PROPOSAL REQUEST!');
             onSessionProposal({
               ...pendingProposal.request,
               params: {
                 id: pendingProposal.request.id,
-                ...pendingProposal.request.params
-              }
-            })
+                ...pendingProposal.request.params,
+              },
+            });
           } else {
-            console.error('❌ This WalletConnect session is not valid anymore. Try to refresh the dApp and connect again. Session topic: ' +
-              existingPairing.topic);
+            console.error(
+              '❌ This WalletConnect session is not valid anymore. Try to refresh the dApp and connect again. Session topic: ' +
+                existingPairing.topic,
+            );
           }
-
-        }  else {
+        } else {
           try {
-            yield walletConnectClient.core.pairing.pair({ uri })
-
+            yield walletConnectClient.core.pairing.pair({uri});
           } catch (e) {
             console.error('❌ COULD NOT PAIR WITH: ', uri, e);
           }
-          console.log('✅ PAIRING: DONE!')
+          console.log('✅ PAIRING: DONE!');
         }
       } catch (e) {
         console.error('❌ COULD NOT PAIR WITH: ', uri, e);
@@ -217,8 +229,10 @@ export const WalletConnectModel = types
       //   return;
       // }
 
-      const existingActionIndex = self.nextActions.findIndex((action) =>
-        action.action === data.params.request.method && action.blockchain === blockchain,
+      const existingActionIndex = self.nextActions.findIndex(
+        action =>
+          action.action === data.params.request.method &&
+          action.blockchain === blockchain,
       );
 
       const newAction = {
@@ -231,9 +245,16 @@ export const WalletConnectModel = types
       };
 
       if (existingActionIndex !== -1) {
-        console.log('Action already exists for this method and blockchain:', data.params.request.method);
+        console.log(
+          'Action already exists for this method and blockchain:',
+          data.params.request.method,
+        );
       } else {
         // Action does not exist, add it
+        console.log(
+          '--------------------------- ADD SESSION_REQUEST ---------------------------',
+          newAction,
+        );
         self.nextActions.push(newAction);
       }
     }),
@@ -269,11 +290,10 @@ export const WalletConnectModel = types
       self.nextActions.remove(action);
     }),
 
-    requestExplorerApi: flow(function* (action: IWalletConnectAction) {
-    }),
+    requestExplorerApi: flow(function* (action: IWalletConnectAction) {}),
 
     toggleTxModal: flow(function* (action: boolean) {
-      self.openTxModal = action
+      self.openTxModal = action;
     }),
 
     acceptEthTx: flow(function* (action: IWalletConnectAction) {
@@ -294,10 +314,14 @@ export const WalletConnectModel = types
         self.openTxModal = false;
         self.nextActions.remove(action);
       }*/
-      console.log(action, 'action')
+      console.log(action, 'action');
     }),
 
-    acceptAlphTx: flow(function* (action: IWalletConnectAction, sessionRequestData, currentWalletStore) {
+    acceptAlphTx: flow(function* (
+      action: IWalletConnectAction,
+      sessionRequestData,
+      currentWalletStore,
+    ) {
       const requestEvent = action.eventData;
       const client: SignClient = self.client;
       try {
@@ -305,18 +329,18 @@ export const WalletConnectModel = types
           sessionRequestData.wcData.fromAddress,
           sessionRequestData.unsignedTxData.txId,
           sessionRequestData.unsignedTxData.unsignedTx,
-          currentWalletStore
-        )
-        const { attoAlphAmount, tokens } = sessionRequestData.wcData.assetAmounts
+          currentWalletStore,
+        );
+        const {attoAlphAmount, tokens} = sessionRequestData.wcData.assetAmounts
           ? getTransactionAssetAmounts(sessionRequestData.wcData.assetAmounts)
-          : { attoAlphAmount: undefined, tokens: undefined }
+          : {attoAlphAmount: undefined, tokens: undefined};
         const signResult = {
           groupIndex: sessionRequestData.unsignedTxData.fromGroup,
           unsignedTx: sessionRequestData.unsignedTxData.unsignedTx,
           txId: sessionRequestData.unsignedTxData.txId,
           signature: data.signature,
           gasAmount: sessionRequestData.unsignedTxData.gasAmount,
-          gasPrice: BigInt(sessionRequestData.unsignedTxData.gasPrice)
+          gasPrice: BigInt(sessionRequestData.unsignedTxData.gasPrice),
         };
         try {
           yield client.respond({
@@ -324,28 +348,26 @@ export const WalletConnectModel = types
             response: {
               id: requestEvent.id,
               jsonrpc: '2.0',
-              result: signResult
+              result: signResult,
             },
           });
           showMessage({
             message: 'Success!',
             type: 'success',
-          })
+          });
         } catch (err) {
           showMessage({
             message: err?.message || 'Error',
             type: 'danger',
-          })
-          console.log(err,'Error while refusing the transaction...');
+          });
+          console.log(err, 'Error while refusing the transaction...');
         } finally {
           self.openTxModal = false;
           self.nextActions.remove(action);
         }
-
       } catch (e) {
-        console.log(e, 'ee')
-      }
-      finally {
+        console.log(e, 'ee');
+      } finally {
         self.nextActions.remove(action);
         self.openTxModal = false;
       }
@@ -370,19 +392,22 @@ export const WalletConnectModel = types
         showMessage({
           message: 'Success!',
           type: 'success',
-        })
+        });
       } catch (err) {
         showMessage({
           message: err?.message || 'Error!',
           type: 'danger',
-        })
+        });
         console.log('Error while refusing the transaction...');
       } finally {
         self.nextActions.remove(action);
         self.openTxModal = false;
       }
     }),
-    requireExplorerApi: flow(function* (action: IWalletConnectAction,result: any) {
+    requireExplorerApi: flow(function* (
+      action: IWalletConnectAction,
+      result: any,
+    ) {
       const client: SignClient = self.client;
       const rawEvent =
         action.eventData as SignClientTypes.EventArguments['session_request'];
@@ -393,19 +418,17 @@ export const WalletConnectModel = types
           response: {
             id: rawEvent.id,
             jsonrpc: '2.0',
-            result: result
+            result: result,
           },
         });
-
       } catch (err) {
         console.error('❌ requireExplorerApi' + 'err');
-      }
-      finally {
+      } finally {
         self.nextActions.remove(action);
         self.openTxModal = false;
       }
     }),
-    requireNodeApi: flow(function* (action: IWalletConnectAction,result: any) {
+    requireNodeApi: flow(function* (action: IWalletConnectAction, result: any) {
       const client: SignClient = self.client;
       const rawEvent =
         action.eventData as SignClientTypes.EventArguments['session_request'];
@@ -416,14 +439,12 @@ export const WalletConnectModel = types
           response: {
             id: rawEvent.id,
             jsonrpc: '2.0',
-            result: result
+            result: result,
           },
         });
-
       } catch (err) {
         console.error('❌ requireExplorerApi' + 'err');
-      }
-      finally {
+      } finally {
         self.nextActions.remove(action);
         self.openTxModal = false;
       }
@@ -438,13 +459,19 @@ export const WalletConnectModel = types
       console.log('Approving session...', proposalEvent);
 
       let blockchainType = 'ethereum'; // 'alephium' or 'ethereum'
-        const {id, requiredNamespaces, relays} = proposalEvent.params || {};
-        const nameSpaceName = Object.keys(requiredNamespaces)[0];
-        const requiredNamespace = requiredNamespaces[nameSpaceName];
-        const requiredChains = requiredNamespace.chains;
-        if (requiredChains[0].includes('alephium')) {
-          blockchainType = 'alephium'
-        }
+      const {id, requiredNamespaces, relays} = proposalEvent.params || {};
+      const nameSpaceName = Object.keys(requiredNamespaces)[0];
+      const requiredNamespace = requiredNamespaces[nameSpaceName];
+      const requiredChains = requiredNamespace.chains;
+
+      if (requiredChains[0].includes('alephium')) {
+        blockchainType = 'alephium';
+      }
+      console.log('approving session ------------------------------------', {
+        blockchainType,
+        group: walletToBeUsed.group,
+        address: walletToBeUsed.address,
+      });
 
       if (blockchainType === 'alephium') {
         const requiredChainInfo = requiredChains
@@ -473,24 +500,33 @@ export const WalletConnectModel = types
             },
           };
 
-          const { metadata } = parseSessionProposalEvent(proposalEvent)
+          const {metadata} = parseSessionProposalEvent(proposalEvent);
 
-          const existingSession = activeSessions.find((session) => session.peer.metadata.url === metadata.url)
+          const existingSession = activeSessions.find(
+            session => session.peer.metadata.url === metadata.url,
+          );
+
+          console.log(
+            'existingSession -----------------------',
+            JSON.stringify(existingSession, null, 2),
+          );
 
           if (existingSession) {
             try {
-              yield self.client.disconnect({ topic: existingSession.topic, reason: getSdkError('USER_DISCONNECTED') })
-
+              yield self.client.disconnect({
+                topic: existingSession.topic,
+                reason: getSdkError('USER_DISCONNECTED'),
+              });
             } catch (e) {
               showMessage({
                 message: e?.message || 'Error!',
                 type: 'danger',
-              })
+              });
               console.log(e, '❌ error');
             }
           }
 
-          const { topic, acknowledged } = yield self.client.approve({
+          const {topic, acknowledged} = yield self.client.approve({
             id,
             relayProtocol: relays[0].protocol,
             namespaces,
@@ -498,12 +534,12 @@ export const WalletConnectModel = types
           showMessage({
             message: 'Success!',
             type: 'success',
-          })
+          });
         } catch (error) {
           showMessage({
             message: error?.message || 'Error!',
             type: 'danger',
-          })
+          });
           console.error('❌ approveConnection', error);
           return false;
         } finally {
@@ -513,26 +549,28 @@ export const WalletConnectModel = types
         }
         return true;
       } else {
-
         try {
           const approvedNamespaces = buildApprovedNamespaces({
             proposal: proposalEvent.params,
             supportedNamespaces: {
-              eip155: { ...requiredNamespaces.eip155, accounts: [
+              eip155: {
+                ...requiredNamespaces.eip155,
+                accounts: [
                   `eip155:1:${ethWalletToBeUsed.address}`,
-                  `eip155:137:${ethWalletToBeUsed.address}`
-                ] }
-            }
-          })
+                  `eip155:137:${ethWalletToBeUsed.address}`,
+                ],
+              },
+            },
+          });
 
           yield self.client.approve({
             id,
-            namespaces: approvedNamespaces
-          })
+            namespaces: approvedNamespaces,
+          });
           showMessage({
             message: 'Success!',
             type: 'success',
-          })
+          });
         } catch (e) {
           self.nextActions.remove(action);
           const root = getRoot(self);
@@ -540,16 +578,14 @@ export const WalletConnectModel = types
           showMessage({
             message: e?.message,
             type: 'danger',
-          })
+          });
           console.error('❌ approveConnection', e);
         } finally {
           self.nextActions.remove(action);
         }
       }
     }),
-    rejectConnection: flow(function* (
-      action: IWalletConnectAction,
-    ) {
+    rejectConnection: flow(function* (action: IWalletConnectAction) {
       self.nextActions.remove(action);
       const root = getRoot(self);
       root.setWalletConnectSscannerShown(false);

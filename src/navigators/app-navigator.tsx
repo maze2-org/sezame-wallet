@@ -4,7 +4,7 @@
  * Generally speaking, it will contain an auth flow (registration, login, forgot password)
  * and a "main" flow which the user will use once logged in.
  */
-import React, { useEffect, useState } from "react"
+import React, {useEffect, useState} from 'react';
 import {
   TextStyle,
   TouchableOpacity,
@@ -14,17 +14,17 @@ import {
   Text,
   ImageStyle,
   Dimensions,
-} from "react-native"
+} from 'react-native';
 import {
   NavigationContainer,
   DefaultTheme,
   DarkTheme,
   useNavigation,
-} from "@react-navigation/native"
+} from '@react-navigation/native';
 import {
   createNativeStackNavigator,
   NativeStackHeaderProps,
-} from "@react-navigation/native-stack"
+} from '@react-navigation/native-stack';
 import {
   WelcomeScreen,
   ImportWalletScreen,
@@ -35,134 +35,137 @@ import {
   SettingsScreen,
   ChangePasswordScreen,
   AddCurrencyScreen,
-} from "screens"
-import { navigationRef, useBackButtonHandler } from "./navigation-utilities"
-import MaterialIcons from "react-native-vector-icons/MaterialIcons"
+} from 'screens';
+import {navigationRef, useBackButtonHandler} from './navigation-utilities';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-import { color, spacing } from "theme"
-import { WalletReadyScreen } from "../screens/wallet-ready/wallet-ready-screen"
-import { CoinDetailsScreen } from "../screens/coin-details/coin-details-screen"
-import { ChooseWalletScreen } from "screens"
-import { getListOfWallets } from "utils/storage"
-import { ReceiveScreen } from "screens/receive/receive-screen"
-import { useStores } from "models"
+import {color, spacing} from 'theme';
+import {WalletReadyScreen} from '../screens/wallet-ready/wallet-ready-screen';
+import {CoinDetailsScreen} from '../screens/coin-details/coin-details-screen';
+import {ChooseWalletScreen} from 'screens';
+import {getListOfWallets} from 'utils/storage';
+import {ReceiveScreen} from 'screens/receive/receive-screen';
+import {useStores} from 'models';
 
-import { StackNavigationProp } from "@react-navigation/stack"
-import { AutoImage as Image } from "../components"
-import { SesameSmallLogo } from "theme/elements"
-import { icons } from "components/icon/icons"
+import {StackNavigationProp} from '@react-navigation/stack';
+import {AutoImage as Image} from '../components';
+import {SesameSmallLogo} from 'theme/elements';
+import {icons} from 'components/icon/icons';
 
-import reloadIcon from "@assets/svg/reload.svg"
-import userIcon from "@assets/svg/user.svg"
-import walletConnectIcon from "@assets/svg/walletconnect.svg"
-import plusIcon from "@assets/svg/plus.svg"
-import { SvgXml } from "react-native-svg"
+import reloadIcon from '@assets/svg/reload.svg';
+import userIcon from '@assets/svg/user.svg';
+import walletConnectIcon from '@assets/svg/walletconnect.svg';
+import plusIcon from '@assets/svg/plus.svg';
+import {SvgXml} from 'react-native-svg';
 
 import StakingBalance, {
   StackingBalanceRouteParams,
-} from "../screens/staking-balance/StakingBalance"
-import { UnstakeScreen } from "screens/unstake/unstake-screen"
+} from '../screens/staking-balance/StakingBalance';
+import {UnstakeScreen} from 'screens/unstake/unstake-screen';
 
-import { OverlayLoading } from "../components/overlay-loading/overlay-loading"
-import { observer } from "mobx-react-lite"
-import { AlphChooseAddressScreen } from "screens/alph-choose-address/alph-choose-address-screen"
-import AlephiumAddressSelector from "components/alephium/alephium-address-selector.component"
-import { WalletConnectScannerModal } from "components/wallet-connect-scanner/wallet-connect-scanner-modal"
-import WalletConnectExecuteTxAction
-  from "components/wallet-connect-scanner/components/wallet-connect-execute-tx-action/wallet-connect-execute-tx-action.component.tsx"
-import { calcExpiry } from "@walletconnect/utils"
-import { ApiRequestArguments, SignExecuteScriptTxParams } from "@alephium/web3"
-import { client } from "../../packages/shared/src/api/client.ts"
-import { ALPH } from "@alephium/token-list"
-import { partition } from "lodash"
-import { CallContractTxData } from "types/transactions.ts"
-import { buildCallContractTransaction, getActiveWalletConnectSessions } from "api/transactions.ts"
-import SignClient from "@walletconnect/sign-client"
+import {OverlayLoading} from '../components/overlay-loading/overlay-loading';
+import {observer} from 'mobx-react-lite';
+import {AlphChooseAddressScreen} from 'screens/alph-choose-address/alph-choose-address-screen';
+import AlephiumAddressSelector from 'components/alephium/alephium-address-selector.component';
+import {WalletConnectScannerModal} from 'components/wallet-connect-scanner/wallet-connect-scanner-modal';
+import WalletConnectExecuteTxAction from 'components/wallet-connect-scanner/components/wallet-connect-execute-tx-action/wallet-connect-execute-tx-action.component.tsx';
+import {calcExpiry} from '@walletconnect/utils';
+import {ApiRequestArguments, SignExecuteScriptTxParams} from '@alephium/web3';
+import {client} from '../../packages/shared/src/api/client.ts';
+import {ALPH} from '@alephium/token-list';
+import {partition} from 'lodash';
+import {CallContractTxData} from 'types/transactions.ts';
+import {
+  buildCallContractTransaction,
+  getActiveWalletConnectSessions,
+} from 'api/transactions.ts';
+import SignClient from '@walletconnect/sign-client';
+import {BridgeScreen} from 'screens/bridge/bridge-screen.tsx';
 
 const NAV_HEADER_CONTAINER: ViewStyle = {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
   paddingTop: spacing[7],
   paddingBottom: spacing[2],
   paddingHorizontal: spacing[4],
   borderColor: color.palette.lineColor,
-  borderStyle: "dashed",
+  borderStyle: 'dashed',
   borderWidth: 1,
   marginHorizontal: -1,
   marginTop: -1,
   backgroundColor: color.palette.black,
-  width: "100%",
-}
+  width: '100%',
+};
 
 const NAV_HEADER_BTN_CONTAINER: ViewStyle = {
-  flexDirection: "row",
-  alignItems: "center",
-}
+  flexDirection: 'row',
+  alignItems: 'center',
+};
 const NAV_HEADER_TITLE_CONTAINER: TextStyle = {
-  flexDirection: "row",
-  alignItems: "center",
-}
+  flexDirection: 'row',
+  alignItems: 'center',
+};
 const LOGO_STYLE: ImageStyle = {
   width: 32,
   height: 32,
   marginRight: spacing[2],
-}
+};
 const NAV_HEADER_BTN: ViewStyle = {
   padding: spacing[2],
-}
+};
 const BTN_ICON: TextStyle = {
   color: color.palette.white,
   width: 24,
   height: 24,
-}
+};
 const WALLET_CONNECT_ICON: TextStyle = {
   width: 24,
   height: 24,
-}
+};
 const LOGO: TextStyle = {
   color: color.palette.white,
-  fontFamily: "Open Sans",
-  fontWeight: "700",
+  fontFamily: 'Open Sans',
+  fontWeight: '700',
   paddingRight: spacing[1],
-}
+};
 const BACK_ARROW_ICON: ImageStyle = {
   width: 16,
   height: 16,
-}
+};
 
 const Logo = () => (
   <View style={NAV_HEADER_BTN_CONTAINER}>
     <Image source={SesameSmallLogo} style={LOGO_STYLE} />
     <View style={NAV_HEADER_TITLE_CONTAINER}>
       <Text style={LOGO}>SEZAME</Text>
-      <Text style={{ color: color.palette.offWhite }}>WALLET</Text>
+      <Text style={{color: color.palette.offWhite}}>WALLET</Text>
     </View>
   </View>
-)
-const BackArrow = ({ navigation }) => (
+);
+const BackArrow = ({navigation}) => (
   <TouchableOpacity
     activeOpacity={0.7}
-    hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+    hitSlop={{top: 15, bottom: 15, left: 15, right: 15}}
     onPress={() => navigation.goBack()}>
     <Image source={icons.back} style={BACK_ARROW_ICON} />
   </TouchableOpacity>
-)
+);
 
 const MODAL_CONTAINER: TextStyle = {
   flex: 1,
-  backgroundColor: "white",
+  backgroundColor: 'white',
   borderRadius: 4,
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-}
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+};
 
-function SettingsBtn({ hideOpitonals = false }: { hideOpitonals: boolean }) {
-  const { currentWalletStore, exchangeRates, setWalletConnectSscannerShown } =
-    useStores()
-  const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
-  const route = navigationRef.current?.getCurrentRoute()
+function SettingsBtn({hideOpitonals = false}: {hideOpitonals: boolean}) {
+  const {currentWalletStore, exchangeRates, setWalletConnectSscannerShown} =
+    useStores();
+  const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>();
+  const route = navigationRef.current?.getCurrentRoute();
 
   return (
     <View style={[NAV_HEADER_BTN_CONTAINER]}>
@@ -170,8 +173,8 @@ function SettingsBtn({ hideOpitonals = false }: { hideOpitonals: boolean }) {
         key="btn_reload"
         style={NAV_HEADER_BTN}
         onPress={() => {
-          currentWalletStore.refreshBalances()
-          exchangeRates.refreshCurrencies()
+          currentWalletStore.refreshBalances();
+          exchangeRates.refreshCurrencies();
         }}>
         <SvgXml style={BTN_ICON} xml={reloadIcon} />
       </TouchableOpacity>
@@ -179,7 +182,7 @@ function SettingsBtn({ hideOpitonals = false }: { hideOpitonals: boolean }) {
         key="btn_scan_qr"
         style={NAV_HEADER_BTN}
         onPress={() => {
-          setWalletConnectSscannerShown(true)
+          setWalletConnectSscannerShown(true);
         }}>
         <SvgXml style={WALLET_CONNECT_ICON} xml={walletConnectIcon} />
       </TouchableOpacity>
@@ -189,7 +192,7 @@ function SettingsBtn({ hideOpitonals = false }: { hideOpitonals: boolean }) {
             key="btn_plus"
             style={NAV_HEADER_BTN}
             onPress={() => {
-              navigation.navigate("addCurrency")
+              navigation.navigate('addCurrency');
             }}>
             <SvgXml style={BTN_ICON} xml={plusIcon} />
           </TouchableOpacity>
@@ -197,16 +200,16 @@ function SettingsBtn({ hideOpitonals = false }: { hideOpitonals: boolean }) {
             key="btn_settings"
             style={NAV_HEADER_BTN}
             onPress={() => {
-              route.name === "settings"
+              route.name === 'settings'
                 ? navigation.goBack()
-                : navigation.navigate("settings")
+                : navigation.navigate('settings');
             }}>
             <SvgXml style={BTN_ICON} xml={userIcon} />
           </TouchableOpacity>
         </>
       )}
     </View>
-  )
+  );
 }
 
 /**
@@ -239,6 +242,10 @@ export type NavigatorParamList = {
     coinId: string;
     chain: string;
   };
+  bridge: {
+    coinId: string;
+    chain: string;
+  };
   stake: {
     chain: string;
     coinId: string;
@@ -258,9 +265,9 @@ export type NavigatorParamList = {
 };
 
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
-const Stack = createNativeStackNavigator<NavigatorParamList>()
+const Stack = createNativeStackNavigator<NavigatorParamList>();
 
-const { width } = Dimensions.get("screen")
+const {width} = Dimensions.get('screen');
 
 const TestNetWarning = () => {
   const TESTNET_WRAPPER: ViewStyle = {
@@ -268,39 +275,39 @@ const TestNetWarning = () => {
     width: width,
     padding: 10,
     marginBottom: 5,
-    justifyContent: "flex-end",
+    justifyContent: 'flex-end',
     borderBottomLeftRadius: 12,
     borderBottomRightRadius: 12,
     backgroundColor: color.palette.errorToast,
-  }
+  };
 
   const TESTNET_MESSAGE: TextStyle = {
     color: color.palette.white,
-    fontWeight: "bold",
-  }
+    fontWeight: 'bold',
+  };
   return (
     <View style={TESTNET_WRAPPER}>
       <Text style={TESTNET_MESSAGE}>
         Warning, you are currently using testnet
       </Text>
     </View>
-  )
-}
+  );
+};
 
 const AppStackHeader = (
-  props: NativeStackHeaderProps & { backArrow: boolean },
+  props: NativeStackHeaderProps & {backArrow: boolean},
 ) => {
-  const rootStore = useStores()
-  let showButtons = true
+  const rootStore = useStores();
+  let showButtons = true;
   let displayAlphSelector =
-    props.route.name === "coinDetails" &&
-    props.route.params?.chain === "ALPH" &&
-    props.route.params?.fromAddCurrency !== true
-  if (props.route.name === "coinDetails") {
-    showButtons = false
+    props.route.name === 'coinDetails' &&
+    props.route.params?.chain === 'ALPH' &&
+    props.route.params?.fromAddCurrency !== true;
+  if (props.route.name === 'coinDetails') {
+    showButtons = false;
   }
   return (
-    <View style={{ backgroundColor: color.palette.black }}>
+    <View style={{backgroundColor: color.palette.black}}>
       <View style={NAV_HEADER_CONTAINER}>
         {props.backArrow ? (
           <BackArrow navigation={props.navigation} />
@@ -309,10 +316,10 @@ const AppStackHeader = (
         )}
         <View
           style={{
-            display: "flex",
-            flexDirection: "row",
+            display: 'flex',
+            flexDirection: 'row',
             gap: 10,
-            justifyContent: "flex-end",
+            justifyContent: 'flex-end',
             flexGrow: 1,
           }}>
           {displayAlphSelector && <AlephiumAddressSelector />}
@@ -321,36 +328,36 @@ const AppStackHeader = (
       </View>
       {rootStore?.TESTNET && <TestNetWarning />}
     </View>
-  )
-}
+  );
+};
 
 const AppStackHeaderWithBackArrow = props => {
-  return <AppStackHeader {...props} backArrow />
-}
+  return <AppStackHeader {...props} backArrow />;
+};
 
 const AppStack = () => {
-  const [initialRouteName, setInitialRouteName] = useState<any>(null)
-  const { exchangeRates } = useStores()
+  const [initialRouteName, setInitialRouteName] = useState<any>(null);
+  const {exchangeRates} = useStores();
   useEffect(() => {
     getListOfWallets().then(walletNames => {
       if (walletNames.length) {
-        setInitialRouteName("chooseWallet")
+        setInitialRouteName('chooseWallet');
       } else {
-        setInitialRouteName("welcome")
+        setInitialRouteName('welcome');
       }
-    })
-  }, [])
+    });
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
       // Automatically refresh exchange rates every 2min
-      exchangeRates.refreshCurrencies()
-    }, 120000)
+      exchangeRates.refreshCurrencies();
+    }, 120000);
 
     return () => {
-      clearInterval(interval)
-    }
-  }, [exchangeRates])
+      clearInterval(interval);
+    };
+  }, [exchangeRates]);
 
   return (
     <>
@@ -372,7 +379,7 @@ const AppStack = () => {
               title: null,
               headerShown: true,
               header: AppStackHeader,
-              headerStyle: { backgroundColor: color.palette.black },
+              headerStyle: {backgroundColor: color.palette.black},
             }}
           />
           <Stack.Screen name="walletReady" component={WalletReadyScreen} />
@@ -383,57 +390,68 @@ const AppStack = () => {
               title: null,
               headerShown: true,
               header: AppStackHeaderWithBackArrow,
-              headerStyle: { backgroundColor: color.palette.black },
+              headerStyle: {backgroundColor: color.palette.black},
             }}
           />
           <Stack.Screen
             options={{
-              presentation: "modal",
+              presentation: 'modal',
               headerShown: true,
               header: AppStackHeader,
-              headerStyle: { backgroundColor: color.palette.black },
-              title: "",
+              headerStyle: {backgroundColor: color.palette.black},
+              title: '',
             }}
             name="send"
             component={SendScreen}
           />
           <Stack.Screen
             options={{
-              presentation: "modal",
+              presentation: 'modal',
+              headerShown: true,
+              header: AppStackHeader,
+              headerStyle: {backgroundColor: color.palette.black},
+              title: '',
+            }}
+            name="bridge"
+            component={BridgeScreen}
+          />
+          <Stack.Screen
+            options={{
+              presentation: 'modal',
               headerShown: false,
-              headerStyle: { backgroundColor: color.palette.black },
-              title: "",
+              headerStyle: {backgroundColor: color.palette.black},
+              title: '',
             }}
             name="alphChooseAddress"
             component={AlphChooseAddressScreen}
           />
           <Stack.Screen
             options={{
-              presentation: "modal",
+              presentation: 'modal',
               headerShown: true,
               header: AppStackHeader,
-              headerStyle: { backgroundColor: color.palette.black },
-              title: "",
+              headerStyle: {backgroundColor: color.palette.black},
+              title: '',
             }}
             name="stake"
             component={StakeScreen}
           />
           <Stack.Screen
             options={{
-              presentation: "modal",
+              presentation: 'modal',
               headerShown: true,
               header: AppStackHeader,
-              headerStyle: { backgroundColor: color.palette.black },
-              title: "",
+              headerStyle: {backgroundColor: color.palette.black},
+              title: '',
             }}
             name="unstake"
             component={UnstakeScreen}
           />
           <Stack.Screen
             options={{
-              presentation: "modal",
+              presentation: 'modal',
               headerShown: true,
-              title: "",
+              title: '',
             }}
             name="receive"
             component={ReceiveScreen}
@@ -444,8 +462,8 @@ const AppStack = () => {
             options={{
               headerShown: true,
               header: AppStackHeader,
-              headerStyle: { backgroundColor: color.palette.black },
-              title: "",
+              headerStyle: {backgroundColor: color.palette.black},
+              title: '',
             }}
           />
           <Stack.Screen
@@ -454,8 +472,8 @@ const AppStack = () => {
             options={{
               headerShown: true,
               header: AppStackHeader,
-              headerStyle: { backgroundColor: color.palette.black },
-              title: "",
+              headerStyle: {backgroundColor: color.palette.black},
+              title: '',
             }}
           />
           <Stack.Screen
@@ -464,8 +482,8 @@ const AppStack = () => {
             options={{
               headerShown: true,
               header: AppStackHeader,
-              headerStyle: { backgroundColor: color.palette.black },
-              title: "",
+              headerStyle: {backgroundColor: color.palette.black},
+              title: '',
             }}
           />
 
@@ -475,25 +493,29 @@ const AppStack = () => {
             options={{
               headerShown: true,
               header: AppStackHeader,
-              headerStyle: { backgroundColor: color.palette.black },
-              title: "",
+              headerStyle: {backgroundColor: color.palette.black},
+              title: '',
             }}
           />
           {/** 🔥 Your screens go here */}
         </Stack.Navigator>
       )}
     </>
-  )
-}
+  );
+};
 
 interface NavigationProps
-  extends Partial<React.ComponentProps<typeof NavigationContainer>> {
-}
+  extends Partial<React.ComponentProps<typeof NavigationContainer>> {}
 
 export const AppNavigator = observer((props: NavigationProps) => {
-  const colorScheme = useColorScheme()
-  const { overlayLoadingShown, walletConnectSscannerShown, walletConnectStore, currentWalletStore } = useStores()
-  const [sessionRequestData, setSessionRequestData] = useState<any>(null)
+  const colorScheme = useColorScheme();
+  const {
+    overlayLoadingShown,
+    walletConnectSscannerShown,
+    walletConnectStore,
+    currentWalletStore,
+  } = useStores();
+  const [sessionRequestData, setSessionRequestData] = useState<any>(null);
 
   const {
     client: walletClient,
@@ -503,19 +525,20 @@ export const AppNavigator = observer((props: NavigationProps) => {
     requireNodeApi,
     toggleTxModal,
     openTxModal,
-  } = walletConnectStore
+  } = walletConnectStore;
 
-  const {
-    getAssets
-  }  = currentWalletStore
+  const {getAssets} = currentWalletStore;
 
   //
-  console.log(getAssets().then((res) => {
-    console.log(res.toJSON(), 'res')
-  }), 'log')
+  console.log(
+    getAssets().then(res => {
+      console.log(res.toJSON(), 'res');
+    }),
+    'log',
+  );
 
-  const nextAction = nextActions.toJSON()[nextActions.toJSON().length - 1]
-  console.log(nextAction, 'nextAction')
+  const nextAction = nextActions.toJSON()[nextActions.toJSON().length - 1];
+  console.log(nextAction, 'nextAction');
   const currentWallet = currentWalletStore.wallet;
   function hexToUtf8(hex: string) {
     let bytes = [];
@@ -527,177 +550,212 @@ export const AppNavigator = observer((props: NavigationProps) => {
 
   useEffect(() => {
     if (walletClient && currentWallet) {
-      (new Promise<void>(async (resolve, reject) => {
+      new Promise<void>(async (resolve, reject) => {
         // for (const pairing of walletClient.core.pairing.getPairings()) {
         //   await walletClient.disconnect({ topic: pairing.topic, reason: getSdkError("USER_DISCONNECTED") })
         // }
-        const firstPairing = walletClient.core.pairing.getPairings().reverse()[0]
+        const firstPairing = walletClient.core.pairing
+          .getPairings()
+          .reverse()[0];
         // await initWalletConnect()
         // await connect("", firstPairing.topic)
-        resolve()
-      }))
-        .then(async res => {
-          const activeSessions = getActiveWalletConnectSessions(walletClient)
+        resolve();
+      }).then(async res => {
+        const activeSessions = getActiveWalletConnectSessions(walletClient);
 
-          switch (nextAction?.action) {
-            case "alph_signAndSubmitExecuteScriptTx": {
-              const requestEvent = nextAction.eventData
-              const {
-                tokens,
-                bytecode,
-                gasAmount,
-                gasPrice,
-                signerAddress,
-                attoAlphAmount,
-              } = requestEvent.params.request.params as SignExecuteScriptTxParams
+        switch (nextAction?.action) {
+          case 'alph_signAndSubmitExecuteScriptTx': {
+            const requestEvent = nextAction.eventData;
+            const {
+              tokens,
+              bytecode,
+              gasAmount,
+              gasPrice,
+              signerAddress,
+              attoAlphAmount,
+            } = requestEvent.params.request.params as SignExecuteScriptTxParams;
 
-              let assetAmounts: any[] = []
-              let allAlphAssets: any[] = attoAlphAmount ? [{ id: ALPH.id, amount: BigInt(attoAlphAmount) }] : []
+            let assetAmounts: any[] = [];
+            let allAlphAssets: any[] = attoAlphAmount
+              ? [{id: ALPH.id, amount: BigInt(attoAlphAmount)}]
+              : [];
 
-              // const fromAddress = addressIds.find((address) => address === signerAddress)
-              const fromAddress = signerAddress
+            // const fromAddress = addressIds.find((address) => address === signerAddress)
+            const fromAddress = signerAddress;
 
-              if (!fromAddress) {
-                console.log("404")
-                // return respondToWalletConnectWithError(requestEvent, {
-                //   message: "Signer address doesn't exist",
-                //   code: 404
-                // })
-              }
-              if (tokens) {
-                const assets = tokens.map((token) => ({ id: token.id, amount: BigInt(token.amount) }))
-                const [alphAssets, tokenAssets] = partition(assets, (asset) => asset.id === ALPH.id)
-                assetAmounts = tokenAssets
-                allAlphAssets = [...allAlphAssets, ...alphAssets]
-              }
+            if (!fromAddress) {
+              console.log('404');
+              // return respondToWalletConnectWithError(requestEvent, {
+              //   message: "Signer address doesn't exist",
+              //   code: 404
+              // })
+            }
+            if (tokens) {
+              const assets = tokens.map(token => ({
+                id: token.id,
+                amount: BigInt(token.amount),
+              }));
+              const [alphAssets, tokenAssets] = partition(
+                assets,
+                asset => asset.id === ALPH.id,
+              );
+              assetAmounts = tokenAssets;
+              allAlphAssets = [...allAlphAssets, ...alphAssets];
+            }
 
-              if (allAlphAssets.length > 0) {
-                assetAmounts.push({
-                  id: ALPH.id,
-                  amount: allAlphAssets.reduce((total, asset) => total + (asset.amount ?? BigInt(0)), BigInt(0)),
-                })
-              }
+            if (allAlphAssets.length > 0) {
+              assetAmounts.push({
+                id: ALPH.id,
+                amount: allAlphAssets.reduce(
+                  (total, asset) => total + (asset.amount ?? BigInt(0)),
+                  BigInt(0),
+                ),
+              });
+            }
 
-              const wcTxData: CallContractTxData = {
-                fromAddress,
-                bytecode,
-                assetAmounts,
-                gasAmount,
-                gasPrice: gasPrice?.toString(),
-              }
+            const wcTxData: CallContractTxData = {
+              fromAddress,
+              bytecode,
+              assetAmounts,
+              gasAmount,
+              gasPrice: gasPrice?.toString(),
+            };
 
-              try {
-                console.log("✅ BUILDING TX!")
-                buildCallContractTransaction(wcTxData, currentWalletStore).then((buildCallContractTxResult) => {
+            try {
+              console.log('✅ BUILDING TX!');
+              buildCallContractTransaction(wcTxData, currentWalletStore)
+                .then(buildCallContractTxResult => {
                   const sessionRequestData = {
-                    type: "call-contract",
+                    type: 'call-contract',
                     wcData: wcTxData,
                     unsignedTxData: buildCallContractTxResult,
-                  }
-                  console.log("✅ BUILDING TX: DONE!", sessionRequestData)
-                  setSessionRequestData(sessionRequestData)
-                  toggleTxModal(true)
-                }).catch((err) => {
-                  console.log("❌ BUILDING TX! ERROR", err)
+                  };
+                  console.log('✅ BUILDING TX: DONE!', sessionRequestData);
+                  setSessionRequestData(sessionRequestData);
+                  toggleTxModal(true);
                 })
-
-              } catch (e) {
-                console.log("❌ BUILDING TX! E", e)
-              }
-              break
+                .catch(err => {
+                  console.log('❌ BUILDING TX! ERROR', err);
+                });
+            } catch (e) {
+              console.log('❌ BUILDING TX! E', e);
             }
-            case "eth_sendTransaction": {
-              console.log(nextAction,"👉 WALLET CONNECT ASKED FOR THE eth_sendTransaction")
-              console.log(nextAction.eventData, 'nextAction.eventData')
-              const sessionRequestData = {
-                type: "eth_sendTransaction",
-              }
-              setSessionRequestData(sessionRequestData)
-
-              try {
-                if(walletClient instanceof SignClient) {
-                  const result = await walletClient.request({
-                    topic: nextAction.eventData.topic,
-                    chainId: 'eip155:1',
-                    request: {
-                      method: 'eth_sendTransaction',
-                      params: nextAction.eventData.params.request.params
-                    }
-                  })
-                  toggleTxModal(true)
-                }
-              } catch (e) {
-                console.log("❌ eth_sendTransaction ERROR", e)
-              }
-              return;
-            }
-            case "alph_requestExplorerApi": {
-              console.log(nextAction,"👉 WALLET CONNECT ASKED FOR THE EXPLORER API")
-              walletClient.core.expirer.set(nextAction?.eventData.id, calcExpiry(5))
-              const p = nextAction?.eventData.params.request.params as ApiRequestArguments
-              client.explorer.request(p).then((res: any) => {
-                requireExplorerApi(nextAction, res)
-              }).catch((err: any) => {
-                console.log("❌ alph_requestExplorerApi ERROR", err)
-              })
-              return;
-            }
-            case "signMessage": {
-              // const { topic, params, id } = nextAction.eventData
-              // const { request } = params
-              // const requestParamsMessage = request.params[0]
-              // const message = hexToUtf8(requestParamsMessage)
-              // walletClient.signMessage(message).then((signedMessage) => {
-              //   const response = { id, result: signedMessage, jsonrpc: '2.0' }
-              //
-              //   walletClient.respondSessionRequest({ topic, response }).then((res) => {
-              //     console.log(res, 'resss')
-              //   }).catch((err) => {
-              //     console.log(err, 'errr')
-              //   })
-              //
-              // }).catch((err) => {
-              //   console.log(err, 'err')
-              // })
-
-              break;
-            }
-
-            case "alph_requestNodeApi": {
-              console.log(nextAction,"👉 WALLET CONNECT ASKED FOR THE NODE API")
-              walletClient.core.expirer.set(nextAction?.eventData.id, calcExpiry(5))
-              const p = nextAction?.eventData.params.request.params as ApiRequestArguments
-              client.node.request(p).then((res: any) => {
-                requireNodeApi(nextAction, res)
-              }).catch((err: any) => {
-                console.log("❌ alph_requestNodeApi ERROR", err)
-              })
-              return;
-            }
+            break;
           }
-        })
+          case 'eth_sendTransaction': {
+            console.log(
+              nextAction,
+              '👉 WALLET CONNECT ASKED FOR THE eth_sendTransaction',
+            );
+            console.log(nextAction.eventData, 'nextAction.eventData');
+            const sessionRequestData = {
+              type: 'eth_sendTransaction',
+            };
+            setSessionRequestData(sessionRequestData);
+
+            try {
+              if (walletClient instanceof SignClient) {
+                const result = await walletClient.request({
+                  topic: nextAction.eventData.topic,
+                  chainId: 'eip155:1',
+                  request: {
+                    method: 'eth_sendTransaction',
+                    params: nextAction.eventData.params.request.params,
+                  },
+                });
+                toggleTxModal(true);
+              }
+            } catch (e) {
+              console.log('❌ eth_sendTransaction ERROR', e);
+            }
+            return;
+          }
+          case 'alph_requestExplorerApi': {
+            console.log(
+              nextAction,
+              '👉 WALLET CONNECT ASKED FOR THE EXPLORER API',
+            );
+            walletClient.core.expirer.set(
+              nextAction?.eventData.id,
+              calcExpiry(5),
+            );
+            const p = nextAction?.eventData.params.request
+              .params as ApiRequestArguments;
+            client.explorer
+              .request(p)
+              .then((res: any) => {
+                requireExplorerApi(nextAction, res);
+              })
+              .catch((err: any) => {
+                console.log('❌ alph_requestExplorerApi ERROR', err);
+              });
+            return;
+          }
+          case 'signMessage': {
+            // const { topic, params, id } = nextAction.eventData
+            // const { request } = params
+            // const requestParamsMessage = request.params[0]
+            // const message = hexToUtf8(requestParamsMessage)
+            // walletClient.signMessage(message).then((signedMessage) => {
+            //   const response = { id, result: signedMessage, jsonrpc: '2.0' }
+            //
+            //   walletClient.respondSessionRequest({ topic, response }).then((res) => {
+            //     console.log(res, 'resss')
+            //   }).catch((err) => {
+            //     console.log(err, 'errr')
+            //   })
+            //
+            // }).catch((err) => {
+            //   console.log(err, 'err')
+            // })
+
+            break;
+          }
+
+          case 'alph_requestNodeApi': {
+            console.log(nextAction, '👉 WALLET CONNECT ASKED FOR THE NODE API');
+            walletClient.core.expirer.set(
+              nextAction?.eventData.id,
+              calcExpiry(5),
+            );
+            const p = nextAction?.eventData.params.request
+              .params as ApiRequestArguments;
+            client.node
+              .request(p)
+              .then((res: any) => {
+                requireNodeApi(nextAction, res);
+              })
+              .catch((err: any) => {
+                console.log('❌ alph_requestNodeApi ERROR', err);
+              });
+            return;
+          }
+        }
+      });
     }
-  }, [walletClient, nextAction, currentWallet])
+  }, [walletClient, nextAction, currentWallet]);
 
-
-  useBackButtonHandler(canExit)
+  useBackButtonHandler(canExit);
   return (
     <>
       <NavigationContainer
         ref={navigationRef}
-        theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+        theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
         {...props}>
         <AppStack />
       </NavigationContainer>
       <OverlayLoading visible={overlayLoadingShown} />
       <WalletConnectScannerModal visible={walletConnectSscannerShown} />
-      <WalletConnectExecuteTxAction sessionRequestData={sessionRequestData} visible={openTxModal}
-                                    walletAction={nextAction} />
+      <WalletConnectExecuteTxAction
+        sessionRequestData={sessionRequestData}
+        visible={openTxModal}
+        walletAction={nextAction}
+      />
     </>
-  )
-})
+  );
+});
 
-AppNavigator.displayName = "AppNavigator"
+AppNavigator.displayName = 'AppNavigator';
 
 /**
  * A list of routes from which we're allowed to leave the app when
@@ -708,5 +766,5 @@ AppNavigator.displayName = "AppNavigator"
  *
  * `canExit` is used in ./app/app.tsx in the `useBackButtonHandler` hook.
  */
-const exitRoutes = ["welcome"]
-export const canExit = (routeName: string) => exitRoutes.includes(routeName)
+const exitRoutes = ['welcome'];
+export const canExit = (routeName: string) => exitRoutes.includes(routeName);

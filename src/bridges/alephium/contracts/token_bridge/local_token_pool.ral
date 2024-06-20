@@ -1,0 +1,64 @@
+@std(enabled = false)
+Contract LocalTokenPool(
+    tokenBridge: TokenBridge,
+    tokenChainId: U256, // local chain id
+    bridgeTokenId: ByteVec, // local token id
+    mut totalBridged: U256,
+    decimals_: U256
+) extends BridgeTokenPool(tokenBridge, tokenChainId, bridgeTokenId, totalBridged, decimals_) {
+    pub fn getSymbol() -> ByteVec {
+        panic!(ErrorCodes.NotSupported)
+    }
+
+    pub fn getName() -> ByteVec {
+        panic!(ErrorCodes.NotSupported)
+    }
+
+    pub fn getDecimals() -> U256 {
+        panic!(ErrorCodes.NotSupported)
+    }
+
+    pub fn getTotalSupply() -> U256 {
+        panic!(ErrorCodes.NotSupported)
+    }
+
+    @using(preapprovedAssets = true, assetsInContract = true, updateFields = true)
+    pub fn transfer(
+        fromAddress: Address,
+        toAddress: ByteVec,
+        amount: U256,
+        arbiterFee: U256,
+        nonce: ByteVec
+    ) -> ByteVec {
+        let (payload, totalAmount) = prepareTransfer(callerContractId!(), toAddress, amount, arbiterFee, nonce)
+
+        transferTokenToSelf!(fromAddress, bridgeTokenId, totalAmount)
+        totalBridged = totalBridged + totalAmount
+
+        return payload
+    }
+
+    @using(preapprovedAssets = true, assetsInContract = true, updateFields = true)
+    pub fn completeTransfer(
+        emitterChainId: U256,
+        amount: U256,
+        vaaTokenId: ByteVec,
+        vaaTokenChainId: U256,
+        recipient: Address,
+        normalizedArbiterFee: U256,
+        caller: Address
+    ) -> () {
+        let (transferAmount, arbiterFee) = prepareCompleteTransfer(
+            callerContractId!(), emitterChainId, amount, vaaTokenId, vaaTokenChainId, normalizedArbiterFee
+        )
+
+        if (caller != recipient) {
+            transferToken!(caller, recipient, ALPH, dustAmount!())
+        }
+        transferTokenFromSelf!(recipient, bridgeTokenId, transferAmount)
+        if (arbiterFee > 0) {
+            transferTokenFromSelf!(caller, bridgeTokenId, arbiterFee)
+        }
+        totalBridged = totalBridged - transferAmount - arbiterFee
+    }
+}

@@ -1,0 +1,63 @@
+// sequence started from 0, set `start = 0` when init contract state
+Abstract Contract Sequence(
+    mut start: U256,
+    mut firstNext256: U256,
+    mut secondNext256: U256,
+    unexecutedSequenceTemplateId: ByteVec
+) extends Constants() {
+    fn setExecuted(offset: U256, current: U256) -> U256 {
+        let flag = 1 << offset
+        assert!(current & flag == 0, ErrorCodes.InvalidSequence)
+        return current | flag
+    }
+
+    @using(assetsInContract = true, updateFields = true)
+    fn compact() -> () {
+        if (firstNext256 != u256Max!()) {
+            let (encodedImmutableFields, encodedMutableFields) = UnexecutedSequence.encodeFields!(
+                selfContractId!(), start, firstNext256
+            )
+            copyCreateSubContract!{selfAddress!() -> ALPH: 1 alph}(
+                u256To8Byte!(start / 256),
+                unexecutedSequenceTemplateId,
+                encodedImmutableFields,
+                encodedMutableFields
+            )
+        }
+        start = start + 256
+        firstNext256 = secondNext256
+        secondNext256 = 0
+    }
+
+    @using(assetsInContract = true)
+    fn checkSequenceInSubContract(seq: U256) -> () {
+        let unexecutedSequenceId = subContractId!(u256To8Byte!(seq / 256))
+        UnexecutedSequence(unexecutedSequenceId).checkSequence(seq, selfAddress!())
+    }
+
+    @using(updateFields = true)
+    fn checkSequence(seq: U256) -> Bool {
+        if (seq < start) {
+            checkSequenceInSubContract(seq)
+            return true
+        }
+
+        if (seq >= (start + 768)) {
+            compact()
+            return false
+        }
+
+        if (seq >= (start + 512)) {
+            compact()
+        }
+
+        assert!(seq < (start + 512), ErrorCodes.InvalidSequence)
+        let offset = seq - start
+        if (offset < 256) {
+            firstNext256 = setExecuted(offset, firstNext256)
+        } else {
+            secondNext256 = setExecuted(offset - 256, secondNext256)
+        }
+        return true
+    }
+}

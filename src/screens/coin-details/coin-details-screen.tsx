@@ -6,11 +6,11 @@ import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import IonIcons from 'react-native-vector-icons/Ionicons';
 
 import stakeIcon from '@assets/icons/stake.svg';
-import {NavigatorParamList} from "navigators";
+import {NavigatorParamList} from 'navigators';
 import {showMessage} from 'react-native-flash-message';
-import {Button, CoinCard, PriceChart, Screen, Text} from "components";
+import {Button, CoinCard, PriceChart, Screen, Text} from 'components';
 
-import {color} from "theme";
+import {color} from 'theme';
 import {useNavigation} from '@react-navigation/native';
 import {getCoinDetails, getMarketChart} from 'utils/apis';
 import {CoingeckoCoin} from 'types/coingeckoCoin';
@@ -18,11 +18,12 @@ import {useStores} from 'models';
 import {BackgroundStyle, MainBackground, SEPARATOR} from 'theme/elements';
 import styles from './styles';
 import {SvgXml} from 'react-native-svg';
-import { getBalance, getTransactionsUrl } from "services/api"
+import {getBalance, getTransactionsUrl} from 'services/api';
 import AnimatedComponent from '../../components/animatedComponent/AnimatedComponent';
 import CoinDetailsFooter from './compnents/coin-details-footer';
 import ReceiveModal from './compnents/receive-modal';
 import TransactionsHistory from './compnents/transactions-history';
+import {BridgeCard} from 'components/bridge-card/bridge-card.component';
 const tokens = require('@config/tokens.json');
 
 export const CoinDetailsScreen: FC<
@@ -39,7 +40,7 @@ export const CoinDetailsScreen: FC<
     getSelectedAddressForAsset,
     getAssetsById,
     updatingAssets,
-    setBalance
+    setBalance,
   } = currentWalletStore;
   const [explorerUrl, setExplorerUrl] = useState<string>('');
 
@@ -48,9 +49,10 @@ export const CoinDetailsScreen: FC<
     route.params.chain,
   );
   const mainAsset = getAssetById(route.params.coinId, route.params.chain);
-  const seelctedAsset = getSelectedAddressForAsset(
+  const selectedAsset = getSelectedAddressForAsset(
     route.params.coinId,
-    route.params.chain);
+    route.params.chain,
+  );
 
   const allAssets = getAssetsById(route.params.coinId, route.params.chain);
   const tokenInfo = tokens.find(
@@ -71,7 +73,6 @@ export const CoinDetailsScreen: FC<
 
   useEffect(() => {
     const _getBalances = async () => {
-
       if (asset) {
         const balance = await getBalance(asset);
         setBalance(asset, balance);
@@ -156,7 +157,10 @@ export const CoinDetailsScreen: FC<
       const data = await getCoinDetails(coin);
       setCoinData(data);
     } catch (error) {
-      showMessage({ message: error?.message || 'Something went wrong', type: "danger" })
+      showMessage({
+        message: error?.message || 'Something went wrong',
+        type: 'danger',
+      });
       console.log('error Getting coin data', error);
     }
   };
@@ -357,6 +361,7 @@ export const CoinDetailsScreen: FC<
                             </>
                           )}
                         </View>
+
                         {capabilities.includes('staking') && (
                           <View style={styles.BALANCE_STAKING_CARD}>
                             <View style={styles.BALANCE_STAKING_CARD_BODY}>
@@ -425,8 +430,11 @@ export const CoinDetailsScreen: FC<
                           </View>
                         )}
                       </View>
-                      {seelctedAsset && (
-                        <TransactionsHistory asset={seelctedAsset} />
+                      {selectedAsset && (
+                        <>
+                          <BridgeCard from={selectedAsset} />
+                          <TransactionsHistory asset={selectedAsset} />
+                        </>
                       )}
                     </View>
                   )}
@@ -489,17 +497,17 @@ export const CoinDetailsScreen: FC<
         </ScrollView>
       </ImageBackground>
 
-      {seelctedAsset && (
+      {selectedAsset && (
         <CoinDetailsFooter
-          asset={seelctedAsset}
+          asset={selectedAsset}
           explorerUrl={explorerUrl}
           onClickBack={goBack}
         />
       )}
 
-      {seelctedAsset && (
+      {selectedAsset && (
         <ReceiveModal
-          asset={seelctedAsset}
+          asset={selectedAsset}
           visible={receiveIsVisible}
           onClose={() => toggleReceiveModal(false)}
         />

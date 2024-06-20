@@ -1,0 +1,25 @@
+Contract UnexecutedSequence(
+    parentId: ByteVec,
+    begin: U256,
+    mut sequences: U256
+) extends Constants() {
+    @using(assetsInContract = true, updateFields = true)
+    pub fn checkSequence(seq: U256, refundAddress: Address) -> () {
+        checkCaller!(callerContractId!() == parentId, ErrorCodes.InvalidCaller)
+        assert!(seq >= begin, ErrorCodes.InvalidSequence)
+        let offset = seq - begin
+        assert!(offset < 256, ErrorCodes.InvalidSequence)
+        let flag = 1 << offset
+        assert!((sequences & flag) == 0, ErrorCodes.InvalidSequence)
+        sequences = sequences | flag
+        if (sequences == u256Max!()) {
+            destroySelf!(refundAddress)
+        }
+    }
+
+    @using(assetsInContract = true, updateFields = false)
+    pub fn destroy(refundAddress: Address) -> () {
+        checkCaller!(callerContractId!() == parentId, ErrorCodes.InvalidCaller)
+        destroySelf!(refundAddress)
+    }
+}

@@ -1,0 +1,12 @@
+Abstract Contract TokenBridgeConstants() {
+  enum Path {
+    AttestTokenHandler  = #00
+    TokenBridgeForChain = #01
+    TokenPool           = #02
+  }
+
+  enum PayloadId {
+    Transfer    = #01
+    AttestToken = #02
+  }
+}

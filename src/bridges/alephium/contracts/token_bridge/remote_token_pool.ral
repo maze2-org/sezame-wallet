@@ -1,0 +1,78 @@
+Contract RemoteTokenPool(
+    tokenBridge: TokenBridge,
+    tokenChainId: U256, // remote token chain id
+    bridgeTokenId: ByteVec, // remote token id
+    mut totalBridged: U256,
+    mut symbol_: ByteVec,
+    mut name_: ByteVec,
+    decimals_: U256,
+    mut sequence_: U256
+) extends BridgeTokenPool(tokenBridge, tokenChainId, bridgeTokenId, totalBridged, decimals_) {
+    const AlphBridgePostfix = #2028416c706842726964676529 // ' (AlphBridge)'
+
+    pub fn getSymbol() -> ByteVec {
+        return symbol_
+    }
+
+    pub fn getName() -> ByteVec {
+        return name_ ++ AlphBridgePostfix
+    }
+
+    pub fn getDecimals() -> U256 {
+        return decimals_
+    }
+
+    pub fn getTotalSupply() -> U256 {
+        return totalBridged
+    }
+
+    @using(updateFields = true)
+    pub fn updateDetails(symbol: ByteVec, name: ByteVec, sequence: U256) -> () {
+        checkCaller!(callerContractId!() == contractId!(tokenBridge), ErrorCodes.InvalidCaller)
+        assert!(sequence_ < sequence, ErrorCodes.InvalidSequence)
+        symbol_ = symbol
+        name_ = name
+        sequence_ = sequence
+    }
+
+    @using(preapprovedAssets = true, assetsInContract = true, updateFields = true)
+    pub fn transfer(
+        fromAddress: Address,
+        toAddress: ByteVec,
+        amount: U256,
+        arbiterFee: U256,
+        nonce: ByteVec
+    ) -> ByteVec {
+        let (payload, totalAmount) = prepareTransfer(callerContractId!(), toAddress, amount, arbiterFee, nonce)
+
+        transferTokenToSelf!(fromAddress, selfTokenId!(), totalAmount)
+        totalBridged = totalBridged - totalAmount
+
+        return payload
+    }
+
+    @using(preapprovedAssets = true, assetsInContract = true, updateFields = true)
+    pub fn completeTransfer(
+        emitterChainId: U256,
+        amount: U256,
+        vaaTokenId: ByteVec,
+        vaaTokenChainId: U256,
+        recipient: Address,
+        normalizedArbiterFee: U256,
+        caller: Address
+    ) -> () {
+        let (transferAmount, arbiterFee) = prepareCompleteTransfer(
+            callerContractId!(), emitterChainId, amount, vaaTokenId, vaaTokenChainId, normalizedArbiterFee
+        )
+
+        if (caller != recipient) {
+            transferToken!(caller, recipient, ALPH, dustAmount!())
+        }
+        let tokenId = selfTokenId!()
+        transferTokenFromSelf!(recipient, tokenId, transferAmount)
+        if (arbiterFee > 0) {
+            transferTokenFromSelf!(caller, tokenId, arbiterFee)
+        }
+        totalBridged = totalBridged + transferAmount + arbiterFee
+    }
+}
