@@ -44,7 +44,7 @@
 		9E91C98E5709933FE47DA822 /* Pods-SezameWallet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SezameWallet.release.xcconfig"; path = "Target Support Files/Pods-SezameWallet/Pods-SezameWallet.release.xcconfig"; sourceTree = "<group>"; };
 		A5E9D8B0418B6F8B0C72BD1A /* Pods-SezameWallet-SezamewalletTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SezameWallet-SezamewalletTests.release.xcconfig"; path = "Target Support Files/Pods-SezameWallet-SezamewalletTests/Pods-SezameWallet-SezamewalletTests.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		F27EF8F91B20EF86B2D8258E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = SezameWallet/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		F27EF8F91B20EF86B2D8258E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = SezameWallet/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		FFA26CAFF7315240F396119E /* libPods-SezameWallet-SezamewalletTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SezameWallet-SezamewalletTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -471,7 +471,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = ZS538TTSL7;
+				DEVELOPMENT_TEAM = 4Y275GR53C;
 				ENABLE_BITCODE = NO;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = SezameWallet/Info.plist;
@@ -485,7 +485,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.iabsis.sezame-wallet";
+				PRODUCT_BUNDLE_IDENTIFIER = org.maze2.sezamewallet;
 				PRODUCT_NAME = SezameWallet;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -500,7 +500,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = ZS538TTSL7;
+				DEVELOPMENT_TEAM = 4Y275GR53C;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = SezameWallet/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -513,7 +513,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.iabsis.sezame-wallet";
+				PRODUCT_BUNDLE_IDENTIFIER = org.maze2.sezamewallet;
 				PRODUCT_NAME = SezameWallet;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";

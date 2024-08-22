@@ -30,5 +30,4 @@ const svgConfig = {
   },
 };
 
-console.warn(cfg);
 module.exports = mergeConfig(cfg, svgConfig);
