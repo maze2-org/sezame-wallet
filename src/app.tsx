@@ -27,6 +27,9 @@ import FlashMessage from 'react-native-flash-message';
 import {WalletGenerator} from '@maze2/sezame-sdk';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {CONFIG} from '@maze2/sezame-sdk';
+import {install} from 'react-native-quick-crypto';
+
+install();
 
 // This puts screens in a native ViewController or Activity. If you want fully native
 // stack navigation, use `createNativeStackNavigator` in place of `createStackNavigator`:

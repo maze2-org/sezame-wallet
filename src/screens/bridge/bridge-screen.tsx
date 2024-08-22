@@ -1,4 +1,4 @@
-import React, {FC, useRef, useEffect, useState} from 'react';
+import React, {FC, useRef, useEffect, useState, useCallback} from 'react';
 import {observer} from 'mobx-react-lite';
 import {
   ImageBackground,
@@ -35,26 +35,33 @@ import {
   drawerErrorMessage,
 } from 'theme/elements';
 import {useNavigation} from '@react-navigation/native';
-import {useStores} from 'models';
-import {getBalance, getFees, makeSendTransaction} from 'services/api';
-import {showMessage} from 'react-native-flash-message';
+import {BaseWalletDescription, useStores} from 'models';
+import {getBalance, getFees} from 'services/api';
 import styles from './styles';
 import {presets} from 'components/screen/screen.presets';
-import {checkAddress} from '@maze2/sezame-sdk';
+import {CONFIG, Chains, NodeProviderGenerator} from '@maze2/sezame-sdk';
 
-// import {
-//   transferLocalTokenFromAlph,
-//   CHAIN_ID_ETH,
-//   MAINNET_ALPH_MINIMAL_CONSISTENCY_LEVEL,
-// } from '@alephium/wormhole-sdk';
+import {
+  transferLocalTokenFromAlph,
+  CHAIN_ID_ETH,
+  MAINNET_ALPH_MINIMAL_CONSISTENCY_LEVEL,
+} from '@alephium/wormhole-sdk';
 
-// import * as alephiumMainnetConfig from '../../bridges/alephium/artifacts/.deployments.mainnet.json';
-// import config from '../../bridges/alephium/alephium.config';
-// import {PrivateKeyWallet} from '@alephium/web3-wallet';
+import * as alephiumMainnetConfig from '../../bridges/alephium/artifacts/.deployments.mainnet.json';
+import {PrivateKeyWallet} from '@alephium/web3-wallet';
+import {ALPH_TOKEN_ID, NodeProvider, ONE_ALPH} from '@alephium/web3';
+import {BridgeSettings} from '@maze2/sezame-sdk/dist/utils/config';
+import {showMessage} from 'react-native-flash-message';
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
   flex: 1,
+};
+
+type BridgeDetails = {
+  nodeProvider?: NodeProvider | null;
+  signer?: PrivateKeyWallet | null;
+  bridgeConfig?: BridgeSettings | null;
 };
 
 export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, 'bridge'>> =
@@ -99,53 +106,59 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, 'bridge'>> =
       name: 'amount',
       defaultValue: '',
     });
-    const recipientAddress = useWatch({
-      control,
-      name: 'recipientAddress',
-      defaultValue: '',
-    });
 
-    const truncateRecipient = (hash: string) => {
-      return (
-        hash.substring(0, 8) +
-        '...' +
-        hash.substring(hash.length - 8, hash.length)
-      );
-    };
+    const [bridgeDetails, setBridgeDetails] = useState<BridgeDetails>({
+      nodeProvider: null,
+      signer: null,
+      bridgeConfig: null,
+    });
 
     const transferToBridge = async (amount: number) => {
       if (!asset || !amount) {
         return;
       }
 
-      // const wallet = new PrivateKeyWallet({privateKey: asset.privateKey});
+      const nodeProvider = await NodeProviderGenerator.getNodeProvider(
+        asset.chain as Chains,
+      );
 
-      // console.log(
-      //   'Will send',
-      //   wallet as any,
-      //   alephiumMainnetConfig.contracts.TokenBridge.contractInstance.contractId,
-      //   wallet.account.address,
-      //   'alph',
-      //   CHAIN_ID_ETH,
-      //   alephiumMainnetConfig.contracts.TokenBridge.contractInstance.address,
-      //   BigInt(amount),
-      //   config.networks.mainnet.settings.messageFee,
-      //   BigInt('0'),
-      //   MAINNET_ALPH_MINIMAL_CONSISTENCY_LEVEL,
-      // );
+      const wallet = new PrivateKeyWallet({
+        privateKey: asset.privateKey,
+        nodeProvider,
+      });
 
-      // const result = await transferLocalTokenFromAlph(
-      //   wallet,
-      //   alephiumMainnetConfig.contracts.TokenBridge.contractInstance.contractId,
-      //   wallet.account.address,
-      //   'alph',
-      //   CHAIN_ID_ETH,
-      //   alephiumMainnetConfig.contracts.TokenBridge.contractInstance.address,
-      //   BigInt(amount),
-      //   config.networks.mainnet.settings.messageFee,
-      //   BigInt('0'),
-      //   MAINNET_ALPH_MINIMAL_CONSISTENCY_LEVEL,
-      // );
+      const bridgeConfig: BridgeSettings | null =
+        (CONFIG.getConfigFor(asset.chain, 'bridge') as BridgeSettings) || null;
+
+      if (!bridgeConfig) {
+        return false;
+      }
+      const bAmount = BigInt(Number(amount) * 1000000000000000000);
+
+      try {
+        console.log('MESSAGEFEEEEEEEEEEEEEEEE', bridgeConfig.config.messageFee);
+        const result = await transferLocalTokenFromAlph(
+          wallet,
+          alephiumMainnetConfig.contracts.TokenBridge.contractInstance
+            .contractId,
+          wallet.account.address,
+          ALPH_TOKEN_ID,
+          CHAIN_ID_ETH,
+          bridgeConfig.config.contracts.nativeTokenBridge,
+          bAmount,
+          BigInt(bridgeConfig.config.messageFee),
+          0n,
+          MAINNET_ALPH_MINIMAL_CONSISTENCY_LEVEL,
+        );
+
+        console.log('result', {result});
+      } catch (err) {
+        console.log('THERE WAS AN ERROR IN transferLocalTokenFromAlph', err);
+      } finally {
+        console.log('Done...');
+      }
+
+      console.log('TRANSFER DONEEEEEEEEEEEEE');
 
       // console.log({result});
     };
@@ -180,6 +193,42 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, 'bridge'>> =
       setAmount(parseFloat(textInputAmount.split(',').join('.')));
     }, [textInputAmount]);
 
+    const init = useCallback(async (asset: BaseWalletDescription) => {
+      const nodeProvider = await NodeProviderGenerator.getNodeProvider(
+        asset.chain as Chains,
+      );
+
+      const signer = new PrivateKeyWallet({
+        privateKey: asset.privateKey,
+        nodeProvider,
+      });
+
+      const bridgeConfig =
+        (CONFIG?.getConfigFor &&
+          (CONFIG.getConfigFor(
+            asset.chain as Chains,
+            'bridge',
+          ) as BridgeSettings)) ||
+        null;
+
+      console.log('Define provider');
+      setBridgeDetails({nodeProvider, signer, bridgeConfig});
+    }, []);
+
+    useEffect(() => {
+      if (asset) {
+        init(asset);
+      }
+    }, [asset?.address, asset?.chain, init]);
+
+    const truncateRecipient = (hash: string) => {
+      return (
+        hash.substring(0, 8) +
+        '...' +
+        hash.substring(hash.length - 8, hash.length)
+      );
+    };
+
     const onSubmit = async () => {
       setErrorMsg(null);
       try {
@@ -187,18 +236,27 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, 'bridge'>> =
           return;
         }
 
+        const {bridgeConfig} = bridgeDetails;
+
+        if (!bridgeConfig) {
+          return;
+        }
+
         setIsPreview(true);
         setSendable(false);
-        // const response = await getFees(
-        //   asset,
-        //   recipientAddress,
-        //   amount,
-        //   'bridge',
-        // );
-        // setFees(response);
-        transferToBridge(amount);
+        const response = await getFees(
+          asset,
+          bridgeConfig.config.contracts.nativeTokenBridge,
+          amount,
+          'bridge',
+        );
+        console.log(response);
+        setFees(response);
+        console.log('SUBMITTING ---------------------->', {asset, amount});
+        // transferToBridge(amount);
         setSendable(true);
       } catch (error: any) {
+        console.log('THERE IS AN ERROR IN THE TRANSFER');
         console.log(error);
         switch (error.message) {
           case 'INSUFFICIENT_FUNDS':
@@ -214,46 +272,52 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, 'bridge'>> =
     };
 
     const processTransaction = async () => {
-      // if (!asset) {
-      //   return;
-      // }
-      // setSending(true);
-      // try {
-      //   const txId = await makeSendTransaction(
-      //     asset,
-      //     fees ? fees.regular : null,
-      //   );
-      //   if (!txId) {
-      //     showMessage({message: 'Unable to Send', type: 'danger'});
-      //   } else {
-      //     if (amount === null) {
-      //       showMessage({message: 'No amount specified', type: 'danger'});
-      //       return;
-      //     }
-      //     showMessage({message: 'Transaction sent', type: 'success'});
-      //     pendingTransactions.add(asset, {
-      //       amount: `-${new BigNumber(amount)
-      //         .plus(
-      //           fees.regular.settings.feeValue
-      //             ? fees.regular.settings.feeValue
-      //             : '0',
-      //         )
-      //         .toString()}`,
-      //       from: asset.address,
-      //       to: recipientAddress,
-      //       timestamp: new Date().getTime(),
-      //       reason: 'transaction',
-      //       txId,
-      //     });
-      //     setFees(null);
-      //     setIsPreview(false);
-      //     goBack();
-      //   }
-      // } catch (err) {
-      //   showMessage({message: err.message, type: 'danger'});
-      // } finally {
-      //   setSending(false);
-      // }
+      if (!asset) {
+        return;
+      }
+
+      if (!amount) {
+        return;
+      }
+
+      setSending(true);
+      try {
+        transferToBridge(amount);
+        // const txId = await makeSendTransaction(
+        //   asset,
+        //   fees ? fees.regular : null,
+        // );
+        // if (!txId) {
+        //   showMessage({message: 'Unable to Send', type: 'danger'});
+        // } else {
+        //   if (amount === null) {
+        //     showMessage({message: 'No amount specified', type: 'danger'});
+        //     return;
+        //   }
+        //   showMessage({message: 'Transaction sent', type: 'success'});
+        //   pendingTransactions.add(asset, {
+        //     amount: `-${new BigNumber(amount)
+        //       .plus(
+        //         fees.regular.settings.feeValue
+        //           ? fees.regular.settings.feeValue
+        //           : '0',
+        //       )
+        //       .toString()}`,
+        //     from: asset.address,
+        //     to: recipientAddress,
+        //     timestamp: new Date().getTime(),
+        //     reason: 'transaction',
+        //     txId,
+        //   });
+        setFees(null);
+        setIsPreview(false);
+        goBack();
+        // }
+      } catch (err: any) {
+        showMessage({message: err.message, type: 'danger'});
+      } finally {
+        setSending(false);
+      }
     };
 
     // const validAddress = address => {
@@ -373,7 +437,9 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, 'bridge'>> =
                     <Text style={styles.CARD_ITEM_TITLE}>Recipient</Text>
                     <View style={styles.CARD_ITEM_DESCRIPTION}>
                       <Text style={styles.AMOUNT_STYLE}>
-                        {truncateRecipient(recipientAddress)}
+                        {truncateRecipient(
+                          `${bridgeDetails.bridgeConfig?.config.contracts.nativeTokenBridge}`,
+                        )}
                       </Text>
                     </View>
                   </View>

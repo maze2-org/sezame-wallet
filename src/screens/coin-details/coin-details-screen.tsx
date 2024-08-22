@@ -430,7 +430,7 @@ export const CoinDetailsScreen: FC<
                           </View>
                         )}
                       </View>
-                      {selectedAsset && (
+                      {selectedAsset && selectedAsset.chain === "ALPH" && (
                         <>
                           <BridgeCard from={selectedAsset} />
                           <TransactionsHistory asset={selectedAsset} />

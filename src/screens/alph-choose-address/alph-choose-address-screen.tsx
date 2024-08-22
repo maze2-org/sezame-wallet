@@ -10,7 +10,6 @@ import {IWalletAsset, useStores} from 'models';
 import {View} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {Chains, WalletGenerator} from '@maze2/sezame-sdk';
-import {WalletDescription} from '@maze2/sezame-sdk/dist/utils/types/WalletDescription';
 import {useNavigation} from '@react-navigation/native';
 import FlashMessage from 'react-native-flash-message';
 import AddressEntry from './components/address-entry/address-entry.component';

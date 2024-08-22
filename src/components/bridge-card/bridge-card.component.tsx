@@ -18,14 +18,12 @@ export function BridgeCard({from}: BridgeCardPropsType) {
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>();
 
   const navigateToBridge = (e: any) => {
-    // @TODO : Re-introduce the bridge page once we have a way to use the alephium sdk properly
-
     // navigation.navigate('bridge', {
     //   coinId: from.cid,
     //   chain: from.chain,
     // });
 
-    Linking.openURL('https://bridge.alephium.org/#/transfer');
+  Linking.openURL("https://bridge.alephium.org/#/transfer");
   };
 
   return (

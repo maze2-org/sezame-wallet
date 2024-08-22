@@ -4,6 +4,8 @@ import {remove} from 'utils/storage';
 import {StoredWallet} from '../../utils/stored-wallet';
 import {AssetBalance, getBalance} from 'services/api';
 import {Chains, WalletGenerator} from '@maze2/sezame-sdk';
+import {WalletDescription} from '@maze2/sezame-sdk/dist/utils/types/WalletDescription';
+import {NodeProvider} from '@alephium/web3';
 
 const DerivedAddress = types.model({
   publicKey: types.string,
@@ -49,7 +51,9 @@ const WalletAsset = types.model({
   decimals: types.optional(types.number, 8),
   derivedAddresses: types.optional(types.array(DerivedAddress), []),
   selectedAddress: types.optional(types.number, -1),
+  nodeProvider: types.frozen(),
 });
+
 export type IWalletAsset = Instance<typeof WalletAsset>;
 export type IWalletDerivedAddress = Instance<typeof DerivedAddress>;
 
@@ -67,6 +71,7 @@ export type BaseWalletDescription = {
   decimals: number;
   contract: string | null;
   balance: number;
+  nodeProvider?: NodeProvider;
 };
 
 const sleep = async (time: number) => {
@@ -176,16 +181,18 @@ export const CurrentWalletModel = types
             address: existingAsset.address,
           });
         } else {
-          const newAsset = yield WalletGenerator.generateKeyPairFromMnemonic(
-            wallet.mnemonic,
-            asset.chain as Chains,
-            0,
-          );
+          const newAsset: WalletDescription =
+            yield WalletGenerator.generateKeyPairFromMnemonic(
+              wallet.mnemonic,
+              asset.chain as Chains,
+              0,
+            );
           self.assets.push({
             ...asset,
             publicKey: newAsset.publicKey,
             privateKey: newAsset.privateKey,
             address: newAsset.address,
+            nodeProvider: newAsset.nodeProvider,
           });
         }
 

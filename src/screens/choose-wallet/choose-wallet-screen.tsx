@@ -32,12 +32,12 @@ import {
   DropdownListStyle,
   DropdownContainerStyle,
   PRIMARY_OUTLINE_BTN,
-} from "theme/elements.ts";
+} from 'theme/elements.ts';
 import DropDownPicker from 'react-native-dropdown-picker';
-import {TextInputField} from "components/text-input-field/text-input-field.tsx";
-import {StoredWallet} from "utils/stored-wallet.ts";
+import {TextInputField} from 'components/text-input-field/text-input-field.tsx';
+import {StoredWallet} from 'utils/stored-wallet.ts';
 import {showMessage} from 'react-native-flash-message';
-import {save, IKeychainData, load} from "utils/keychain.ts";
+import {save, IKeychainData, load} from 'utils/keychain.ts';
 
 import {useNavigation} from '@react-navigation/native';
 import {useStores} from 'models';
@@ -244,15 +244,15 @@ export const ChooseWalletScreen: FC<
                             label: item,
                             value: item,
                           }))}
-                          setValue={(e)=>{
+                          setValue={e => {
                             const newValue = e(value);
-                            onChange(newValue)
+                            onChange(newValue);
                           }}
                           setOpen={setOpen}
                           placeholder="Select a wallet"
                         />
                       </>
-                    )
+                    );
                   }}
                   rules={{
                     required: {
@@ -308,7 +308,10 @@ export const ChooseWalletScreen: FC<
                 />
               </View>
               <View style={footerStyle}>
-                <Biometrics walletName={watch('walletName')} onLoad={onGetKeychainData} />
+                <Biometrics
+                  walletName={watch('walletName')}
+                  onLoad={onGetKeychainData}
+                />
               </View>
             </View>
           </AppScreen>
