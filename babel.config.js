@@ -5,7 +5,8 @@ module.exports = {
       "babel-plugin-inline-import",
       {
         "extensions": [".svg"]
-      }
+      },
+      "react-native-worklets-core/plugin"
     ],
     [
       'module-resolver',

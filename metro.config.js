@@ -15,6 +15,7 @@ cfg.resolver.extraNodeModules = {
   buffer: `${__dirname}/node_modules/@craftzdog/react-native-buffer`,
   path: `${__dirname}/node_modules/path-browserify`,
   os: `${__dirname}/node_modules/react-native-os`,
+  ws: `${__dirname}/node_modules/ws)`,
   http: `${__dirname}/node_modules/@tradle/react-native-http`,
   https: `${__dirname}/node_modules/https-browserify`,
   assert: require.resolve('assert'),
