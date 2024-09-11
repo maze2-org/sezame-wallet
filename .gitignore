@@ -83,5 +83,7 @@ web-build/
 app/config/env.*.js
 !env.js
 
-# Bundle 
+# Bundle
 android/app/src/main/assets/index.android.bundle
+
+.yarn/
