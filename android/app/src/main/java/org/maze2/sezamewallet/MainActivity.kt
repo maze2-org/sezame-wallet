@@ -1,4 +1,4 @@
-package com.SezameWallet
+package org.maze2.sezamewallet
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
