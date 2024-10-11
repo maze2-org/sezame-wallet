@@ -1,4 +1,4 @@
-import React, { FC, useRef, useEffect, useState, useCallback } from "react"
+import React, { FC, useRef, useEffect, useState, useCallback, useMemo } from "react"
 import { observer } from "mobx-react-lite"
 import {
   ImageBackground,
@@ -56,6 +56,7 @@ import { showMessage } from "react-native-flash-message"
 import { palette } from "theme/palette.ts"
 import handCoinIcon from "assets/icons/hand-coin.svg"
 import { SvgXml } from "react-native-svg"
+import AlephimPendingBride from "components/alephimPendingBride/alephimPendingBride.tsx"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
@@ -74,6 +75,8 @@ const checkboxes = [
   { value: 3, title: "75%" },
 ]
 
+const tokens = require("@config/tokens.json")
+
 export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
   observer(function BridgeScreen({ route }) {
 
@@ -85,6 +88,9 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
     const { currentWalletStore, pendingTransactions, exchangeRates } =
       useStores()
     const { getSelectedAddressForAsset, assets } = currentWalletStore
+    const ethNetworkETHCoin = useMemo(() => assets.find((el) => el.chain === "ETH" && el.cid === "ethereum"), [assets.length])
+    const ethNetworkAlephiumCoin = useMemo(() => assets.find((el) => el.chain === "ETH" && el.cid === "alephium"), [assets.length])
+
     const {
       control,
       handleSubmit,
@@ -333,8 +339,35 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
     const goBack = () => navigation.goBack()
 
     const onPressGoAddEthereum = () => {
-      /** TODO correct path **/
       // navigation.navigate('createWallet');
+      const tokenInfo = tokens.find((el: any) => el.id === "alephium")
+      const chain = tokenInfo.chains.find((el: any) => el.id === "ETH")
+      if (!tokenInfo || !chain) return
+
+      currentWalletStore
+        .addAutoAsset({
+          name: tokenInfo.name,
+          chain: chain.id,
+          symbol: tokenInfo.symbol,
+          cid: tokenInfo.id,
+          type: tokenInfo.type,
+          contract: chain.contract,
+          image: tokenInfo.thumb,
+        })
+        .then(() => {
+          showMessage({
+            message: "Coin added to wallet",
+            type: "success",
+          })
+        })
+        .catch(e => {
+          console.log(e)
+          showMessage({
+            message: "Something went wrong",
+            type: "danger",
+          })
+        })
+
     }
 
     useEffect(() => {
@@ -357,114 +390,135 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
           <ScrollView contentContainerStyle={stylesComponent.container} keyboardShouldPersistTaps={"handled"}>
             <View>
 
-              <View style={stylesComponent.walletsWrapper}>
+              <View
+                style={[stylesComponent.walletsWrapper, !!ethNetworkAlephiumCoin && stylesComponent.walletsWrapperWithTwoChild]}>
                 <CurrencyDescriptionBlock
+                  asset={asset}
                   icon="transfer"
                   balance="freeBalance"
-                  asset={asset}
                   title="Available balance"
+                  styleBalance={!!ethNetworkAlephiumCoin && stylesComponent.balanceText}
                 />
-                <CurrencyDescriptionBlock
-                  icon="transfer"
-                  balance="freeBalance"
-                  asset={asset}
-                  title="Available balance"
-                />
-              </View>
-
-              <View style={[stylesComponent.infoCard, { marginTop: 24 }]}>
-                <Text style={stylesComponent.infoCardTitle}>Important</Text>
-                <Text style={stylesComponent.infoCardMessage}>
-                  You need to add Ethereum (and its ALPH ERC20 token) to your wallet before performing bridge
-                  operations
-                </Text>
-              </View>
-
-              {/*<View style={[stylesComponent.infoCard,stylesComponent.infoCardGold,{marginTop:24}]}>*/}
-              {/*  <Text style={stylesComponent.infoCardTitle}>Important</Text>*/}
-              {/*  <Text style={stylesComponent.infoCardMessage}>*/}
-              {/*    You don’t have any funds in your Ethereum wallet.*/}
-              {/*    Note that you will have to pay ethereum transaction fees and you will need some ETH to finalize the process*/}
-              {/*  </Text>*/}
-              {/*</View>*/}
-
-              <Button
-                style={PRIMARY_BTN}
-                textStyle={{ color: palette.white }}
-                text="Add Ethereum network to the wallet"
-                onPress={onPressGoAddEthereum}
-              />
-
-
-              <View>
-                <Controller
-                  control={control}
-                  name="amount"
-                  render={({ field: { onChange, value, onBlur } }) => (
-                    <View style={stylesComponent.labelWrapper}>
-                      <Text style={stylesComponent.label}>Amount to bridge</Text>
-                      <View style={stylesComponent.inputFiledWrapper}>
-                        <TextInput style={stylesComponent.inputFiled} returnKeyType={"done"} numberOfLines={1}
-                                   keyboardType="numeric" onBlur={onBlur} value={value} onChangeText={onChange} />
-                        <SvgXml style={stylesComponent.inputIcon} width="28" height="28" xml={handCoinIcon} />
-                      </View>
-                    </View>
-                  )}
-                  rules={{
-                    required: {
-                      value: true,
-                      message: "Field is required!",
-                    },
-                    pattern: {
-                      value: numericRegEx,
-                      message: "Invalid amount",
-                    },
-                    max: {
-                      value: asset?.freeBalance,
-                      message: "Insufficient funds",
-                    },
-                  }}
-                />
-                {errors?.["amount"]?.message &&
-                  <Text style={textInputErrorMessage}>{errors["amount"].message}</Text>
+                {!!ethNetworkAlephiumCoin &&
+                  <CurrencyDescriptionBlock
+                    asset={ethNetworkETHCoin}
+                    icon="transfer"
+                    balance="freeBalance"
+                    title="Available balance"
+                    styleBalance={!!ethNetworkAlephiumCoin && stylesComponent.balanceText}
+                  />
                 }
               </View>
 
-              <View style={stylesComponent.checkboxes}>
-                {checkboxes.map((el) => {
-                  return (
-                    <Controller
-                      control={control}
-                      name="checkbox"
-                      render={({ field: { onChange, value } }) => {
-                        const cond = value !== null && +value === +el.value
-                        return (
-                          <Pressable
-                            style={[stylesComponent.checkbox, cond && stylesComponent.checkboxActive]}
-                            key={el.value} onPress={() => onChange(cond ? null : el.value)}>
-                            <Text style={stylesComponent.checkboxText}>{el.title}</Text>
-                          </Pressable>
-                        )
-                      }}
-                    />
-                  )
-                })}
-              </View>
+              {!ethNetworkAlephiumCoin &&
+                <View style={[stylesComponent.infoCard, { marginTop: 24 }]}>
+                  <Text style={stylesComponent.infoCardTitle}>Important</Text>
+                  <Text style={stylesComponent.infoCardMessage}>
+                    You need to add Ethereum (and its ALPH ERC20 token) to your wallet before performing bridge
+                    operations
+                  </Text>
+                </View>
+              }
+
+              <AlephimPendingBride asset={asset}/>
+
+              {/*{!!ethNetworkAlephiumCoin && !!ethNetworkETHCoin && ethNetworkETHCoin?.balanceWithDerivedAddresses === 0 &&*/}
+              {/*  <View style={[stylesComponent.infoCard, stylesComponent.infoCardGold, { marginTop: 24 }]}>*/}
+              {/*    <Text style={stylesComponent.infoCardTitle}>Important</Text>*/}
+              {/*    <Text style={stylesComponent.infoCardMessage}>*/}
+              {/*      You don’t have any funds in your Ethereum wallet.*/}
+              {/*      Note that you will have to pay ethereum transaction fees and you will need some ETH to finalize the*/}
+              {/*      process*/}
+              {/*    </Text>*/}
+              {/*  </View>*/}
+              {/*}*/}
+
+              {!ethNetworkAlephiumCoin &&
+                <Button
+                  style={PRIMARY_BTN}
+                  textStyle={{ color: palette.white }}
+                  text="Add Ethereum network to the wallet"
+                  onPress={onPressGoAddEthereum}
+                />
+              }
+
+
+              {!!ethNetworkETHCoin && !!ethNetworkAlephiumCoin &&
+                <View>
+                  <Controller
+                    control={control}
+                    name="amount"
+                    render={({ field: { onChange, value, onBlur } }) => (
+                      <View style={stylesComponent.labelWrapper}>
+                        <Text style={stylesComponent.label}>Amount to bridge</Text>
+                        <View style={stylesComponent.inputFiledWrapper}>
+                          <TextInput style={stylesComponent.inputFiled} returnKeyType={"done"} numberOfLines={1}
+                                     keyboardType="numeric" onBlur={onBlur} value={value} onChangeText={onChange} />
+                          <SvgXml style={stylesComponent.inputIcon} width="28" height="28" xml={handCoinIcon} />
+                        </View>
+                      </View>
+                    )}
+                    rules={{
+                      required: {
+                        value: true,
+                        message: "Field is required!",
+                      },
+                      pattern: {
+                        value: numericRegEx,
+                        message: "Invalid amount",
+                      },
+                      max: {
+                        value: asset?.freeBalance,
+                        message: "Insufficient funds",
+                      },
+                    }}
+                  />
+                  {errors?.["amount"]?.message &&
+                    <Text style={textInputErrorMessage}>{errors["amount"].message}</Text>
+                  }
+                </View>
+              }
+
+              {!!ethNetworkETHCoin && !!ethNetworkAlephiumCoin &&
+                <View style={stylesComponent.checkboxes}>
+                  {checkboxes.map((el,index) => {
+                    return (
+                      <Controller
+                        key={index}
+                        control={control}
+                        name="checkbox"
+                        render={({ field: { onChange, value } }) => {
+                          const cond = value !== null && +value === +el.value
+                          return (
+                            <Pressable
+                              style={[stylesComponent.checkbox, cond && stylesComponent.checkboxActive]}
+                              key={el.value} onPress={() => onChange(cond ? null : el.value)}>
+                              <Text style={stylesComponent.checkboxText}>{el.title}</Text>
+                            </Pressable>
+                          )
+                        }}
+                      />
+                    )
+                  })}
+                </View>
+              }
             </View>
 
           </ScrollView>
-          <View style={stylesComponent.previewOperation}>
-            <WalletButton
-              type="primary"
-              text="Preview the operation"
-              outline={true}
-              disabled={!isValid}
-              onPress={() => {
-                Keyboard.dismiss()
-                handleSubmit(onSubmit)()
-              }}
-            />
-          </View>
+          {!!ethNetworkETHCoin && !!ethNetworkAlephiumCoin &&
+            <View style={stylesComponent.previewOperation}>
+              <WalletButton
+                type="primary"
+                text="Preview the operation"
+                outline={true}
+                disabled={!isValid || ethNetworkETHCoin?.balanceWithDerivedAddresses === 0}
+                onPress={() => {
+                  Keyboard.dismiss()
+                  handleSubmit(onSubmit)()
+                }}
+              />
+            </View>
+          }
         </ImageBackground>
         {isPreview && (
           <Drawer
@@ -540,7 +594,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
           </Drawer>
         )}
 
-        <Footer onLeftButtonPress={goBack}/>
+        <Footer onLeftButtonPress={goBack} />
       </KeyboardAvoidingView>
     )
   })
@@ -554,7 +608,16 @@ const stylesComponent = StyleSheet.create({
   },
   walletsWrapper: {
     flexDirection: "row",
+    justifyContent: "center",
+  },
+  walletsWrapperWithTwoChild: {
+    paddingHorizontal: 16,
     justifyContent: "space-between",
+  },
+  balanceText: {
+    fontSize: 18,
+    marginTop: -14,
+    fontWeight: "bold",
   },
   infoCard: {
     gap: 16,
@@ -629,7 +692,7 @@ const stylesComponent = StyleSheet.create({
   },
   previewOperation: {
     marginTop: 29,
-    marginBottom:16,
+    marginBottom: 16,
     alignItems: "center",
   },
 })

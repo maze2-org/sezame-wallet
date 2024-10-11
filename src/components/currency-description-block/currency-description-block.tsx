@@ -47,6 +47,7 @@ const IconStyle: ImageStyle = {
   justifyContent: "center",
   alignItems: "center",
 }
+
 export interface CurrencyDescriptionBlockProps {
   /**
    * An optional style override useful for padding & margin.
@@ -58,6 +59,7 @@ export interface CurrencyDescriptionBlockProps {
   icon?: "transfer" | "stake" | "unstake"
   small?: boolean
   balance?: "freeBalance" | "balance" | "stakedBalance"
+  styleBalance?: StyleProp<TextStyle>
 }
 
 /**
@@ -66,7 +68,7 @@ export interface CurrencyDescriptionBlockProps {
 export const CurrencyDescriptionBlock = observer(function CurrencyDescriptionBlock(
   props: CurrencyDescriptionBlockProps,
 ) {
-  const { style, asset, icon, title, small } = props
+  const { style, asset, icon, title, small,styleBalance = {} } = props
   const styles = Object.assign({}, CONTAINER, style)
 
   const rewardsStyle: TextStyle = {
@@ -103,7 +105,7 @@ export const CurrencyDescriptionBlock = observer(function CurrencyDescriptionBlo
         )}
       </View>
       <Text style={rewardsStyle}>{title}</Text>
-      <Text style={amountStyle}>
+      <Text style={[amountStyle,styleBalance]}>
         {asset[balanceType].toFixed(4)} {asset.symbol}
       </Text>
     </View>
