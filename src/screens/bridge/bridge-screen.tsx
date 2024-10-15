@@ -1,62 +1,81 @@
 import React, { FC, useRef, useEffect, useState, useCallback, useMemo } from "react"
+import * as alephiumMainnetConfig from "../../bridges/alephium/artifacts/.deployments.mainnet.json"
+import AlephimPendingBride from "components/alephimPendingBride/alephimPendingBride.tsx"
+import handCoinIcon from "assets/icons/hand-coin.svg"
+import { ethers } from "ethers"
+import { SvgXml } from "react-native-svg"
+import { presets } from "components/screen/screen.presets"
+import { palette } from "theme/palette.ts"
 import { observer } from "mobx-react-lite"
-import {
-  ImageBackground,
-  TextStyle,
-  View,
-  ViewStyle,
-  ScrollView,
-  KeyboardAvoidingView,
-  Keyboard,
-  Platform,
-  StyleSheet, TextInputProps, ViewProps, TextInput, Pressable, Dimensions,
-} from "react-native"
-import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
+import { atob, btoa } from "react-native-quick-base64"
+import { showMessage } from "react-native-flash-message"
+import { useNavigation } from "@react-navigation/native"
+import { BridgeSettings } from "@maze2/sezame-sdk/dist/utils/config"
+import { PrivateKeyWallet } from "@alephium/web3-wallet"
 import { NavigatorParamList } from "navigators"
-import BigNumber from "bignumber.js"
-
+import { getBalance, getFees } from "services/api"
+import { color, spacing, typography } from "theme"
+import { Controller, useForm, useWatch } from "react-hook-form"
+import { BaseWalletDescription, useStores } from "models"
+import { CONFIG, Chains, NodeProviderGenerator } from "@maze2/sezame-sdk"
+import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
+import {
+  PRIMARY_BTN,
+  MainBackground,
+  BackgroundStyle,
+  drawerErrorMessage,
+  textInputErrorMessage,
+} from "theme/elements"
+import {
+  web3,
+  node,
+  sleep,
+  NodeProvider,
+  ALPH_TOKEN_ID,
+  subscribeToTxStatus,
+  MINIMAL_CONTRACT_DEPOSIT,
+} from "@alephium/web3"
 import {
   Text,
+  Footer,
   Button,
   Drawer,
-  Footer,
-  Screen,
   WalletButton,
   CurrencyDescriptionBlock,
 } from "components"
-
-import { color, spacing, typography } from "theme"
-import { Controller, useForm, useWatch } from "react-hook-form"
-import { TextInputField } from "components/text-input-field/text-input-field"
 import {
-  textInput,
-  CONTAINER,
-  MainBackground,
-  BackgroundStyle,
-  drawerErrorMessage, PRIMARY_BTN, textInputErrorMessage,
-} from "theme/elements"
-import { useNavigation } from "@react-navigation/native"
-import { BaseWalletDescription, useStores } from "models"
-import { getBalance, getFees } from "services/api"
-import styles from "./styles"
-import { presets } from "components/screen/screen.presets"
-import { CONFIG, Chains, NodeProviderGenerator } from "@maze2/sezame-sdk"
-
+  View,
+  Keyboard,
+  Platform,
+  ViewStyle,
+  TextInput,
+  Pressable,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+  ImageBackground,
+  KeyboardAvoidingView,
+} from "react-native"
 import {
-  transferLocalTokenFromAlph,
+  approveEth,
   CHAIN_ID_ETH,
+  uint8ArrayToHex,
+  hexToUint8Array,
+  CHAIN_ID_ALEPHIUM,
+  getSignedVAAWithRetry,
+  getAttestTokenHandlerId,
+  parseSequenceFromLogAlph,
+  transferLocalTokenFromAlph,
+  updateRemoteTokenPoolOnAlph,
+  parseTargetChainFromLogAlph,
+  createRemoteTokenPoolOnAlph,
   MAINNET_ALPH_MINIMAL_CONSISTENCY_LEVEL,
 } from "@alephium/wormhole-sdk"
 
-import * as alephiumMainnetConfig from "../../bridges/alephium/artifacts/.deployments.mainnet.json"
-import { PrivateKeyWallet } from "@alephium/web3-wallet"
-import { ALPH_TOKEN_ID, NodeProvider, ONE_ALPH } from "@alephium/web3"
-import { BridgeSettings } from "@maze2/sezame-sdk/dist/utils/config"
-import { showMessage } from "react-native-flash-message"
-import { palette } from "theme/palette.ts"
-import handCoinIcon from "assets/icons/hand-coin.svg"
-import { SvgXml } from "react-native-svg"
-import AlephimPendingBride from "components/alephimPendingBride/alephimPendingBride.tsx"
+import styles from "./styles"
+
+global.atob = atob
+global.btoa = btoa
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
@@ -87,9 +106,10 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
     // Pull in one of our MST stores
     const { currentWalletStore, pendingTransactions, exchangeRates } =
       useStores()
-    const { getSelectedAddressForAsset, assets } = currentWalletStore
+    const { getSelectedAddressForAsset, assets, wallet } = currentWalletStore
     const ethNetworkETHCoin = useMemo(() => assets.find((el) => el.chain === "ETH" && el.cid === "ethereum"), [assets.length])
     const ethNetworkAlephiumCoin = useMemo(() => assets.find((el) => el.chain === "ETH" && el.cid === "alephium"), [assets.length])
+    console.log(wallet)
 
     const {
       control,
@@ -126,9 +146,12 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
         return
       }
 
-      const nodeProvider = await NodeProviderGenerator.getNodeProvider(
+      const generator = await NodeProviderGenerator.getNodeProvider(
         asset.chain as Chains,
       )
+      // @ts-ignore
+      const nodeProvider: NodeProvider = generator.getNodeProvider()
+      web3.setCurrentNodeProvider(nodeProvider)
 
       const wallet = new PrivateKeyWallet({
         privateKey: asset.privateKey,
@@ -145,7 +168,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
 
       try {
         console.log("MESSAGEFEEEEEEEEEEEEEEEE", bridgeConfig.config.messageFee)
-        const result = await transferLocalTokenFromAlph(
+        const tx = await transferLocalTokenFromAlph(
           wallet,
           alephiumMainnetConfig.contracts.TokenBridge.contractInstance
             .contractId,
@@ -158,8 +181,148 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
           0n,
           MAINNET_ALPH_MINIMAL_CONSISTENCY_LEVEL,
         )
+        // const tx = {
+        //   "fromGroup": 0,
+        //   "gasAmount": 51399,
+        //   "gasPrice": 100000000000n,
+        //   "groupIndex": 0,
+        //   "signature": "d5153782a2a75e4e40c1ed676a64710a9f23d8631d26eeb98ff348e4028fae625d99f2a657c2745b24e5ad31b5b68f80de03e0af4186b7b3c0cfe27eadbdadaf",
+        //   "toGroup": 0,
+        //   "txId": "d13d1849cad2493655160b81600cdc54540df80209e8f816ec1531d4f6e47419",
+        //   "unsignedTx": "0000010101030001001a0c0d1440207f42f8e21128e70c7a30098a32c5c388de7eb4ffc6ef7dd86f72e8e11acc4800010a17001500626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a15007a1600a2144020000000000000000000000000000000000000000000000000000000000000000013c3038d7ea4c68000a31500626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a150014402000000000000000000000000000000000000000000000000000000000000000001340ff0e1440207f42f8e21128e70c7a30098a32c5c388de7eb4ffc6ef7dd86f72e8e11acc480013c3038d7ea4c6800016000c14040a3a00001340cd130a0c1440207f42f8e21128e70c7a30098a32c5c388de7eb4ffc6ef7dd86f72e8e11acc480001108000c8c7c1174876e80001d5b05c7d103c4e78b1c970d73e800d59ba070221030196c6a0488a38a3c7489bb6f4763c000237c37e212b80fde49d8cc01179d213e9fe3cef91d04de96eec21a936d43a8f4301c403a454b1962ff00000626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a150000000000000000000000",
+        // }
+        //
+        console.log({ tx })
 
-        console.log("result", { result })
+        subscribeToTxStatus({
+          pollingInterval: 1000,
+          messageCallback: async (event) => {
+            // const event = {"type": "MemPooled"}
+            // const event = {"blockHash": "000000000000256106c8eb591ac5477f99957b9cbae8f83055d3088af6f7fb20", "chainConfirmations": 1, "fromGroupConfirmations": 1, "toGroupConfirmations": 1, "txIndex": 1, "type": "Confirmed"}
+
+            console.log("event", event)
+            if (event.type === "Confirmed") {
+              const confirmed = await waitALPHTxConfirmed(nodeProvider, tx.txId, MAINNET_ALPH_MINIMAL_CONSISTENCY_LEVEL)
+
+              const ethNodeProvider = new ethers.providers.JsonRpcProvider("https://node-ethereum.sezame.app")
+              const signer = new ethers.Wallet(ethNetworkETHCoin!.privateKey, ethNodeProvider)
+              const balance = await ethNodeProvider.getBalance(signer.address)
+
+              console.log("Balance:", ethers.utils.formatEther(balance))
+
+              const res = await approveEth(
+                "0x579a3bDE631c3d8068CbFE3dc45B0F14EC18dD43",
+                ethNetworkAlephiumCoin!.address,
+                signer,
+                bAmount,
+                {
+                  gasLimit: tx.gasAmount,
+                  gasPrice: tx.gasPrice,
+                },
+              )
+
+              // const res = {
+              //   "blockHash": "0x7be487607c100a3d9d2fba59e5922658b9f620d9b080d7ce3c7d82799dc27b1a",
+              //   "blockNumber": 20970399,
+              //   "byzantium": true,
+              //   "confirmations": 1,
+              //   "contractAddress": null,
+              //   "cumulativeGasUsed": { "hex": "0xba6689", "type": "BigNumber" },
+              //   "effectiveGasPrice": { "hex": "0x174876e800", "type": "BigNumber" },
+              //   "events": [],
+              //   "from": "0x1105886df9185c4823b03F93Fb1E0b655AF04286",
+              //   "gasUsed": { "hex": "0x5480", "type": "BigNumber" },
+              //   "logs": [],
+              //   "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+              //   "status": 1,
+              //   "to": "0x1105886df9185c4823b03F93Fb1E0b655AF04286",
+              //   "transactionHash": "0x0417144616464479790d1f3903b58c7f6a8576dd25e1ff91309f71829013dfdd",
+              //   "transactionIndex": 147,
+              //   "type": 2,
+              // }
+
+              console.log("res", res)
+
+              function isAlphTxConfirmed(txStatus: node.TxStatus): txStatus is node.Confirmed {
+                return txStatus.type === "Confirmed"
+              }
+
+              async function waitALPHTxConfirmed(provider: NodeProvider, txId: string, confirmations: number): Promise<node.Confirmed> {
+                try {
+                  const txStatus = await provider.transactions.getTransactionsStatus({ txId: txId })
+                  // @ts-ignore
+                  console.log(`Confirmations: ${txStatus?.chainConfirmations}/${confirmations}`)
+                  if (isAlphTxConfirmed(txStatus) && txStatus.chainConfirmations >= confirmations) {
+                    return txStatus as node.Confirmed
+                  }
+                } catch (error) {
+                  console.error(`Failed to get tx status, tx id: ${txId}`)
+                }
+                const ALEPHIUM_POLLING_INTERVAL = 10000
+                await sleep(ALEPHIUM_POLLING_INTERVAL)
+                return waitALPHTxConfirmed(provider, txId, confirmations)
+              }
+
+              async function getTxInfo(provider: NodeProvider, txId: string) {
+                const events = await provider.events.getEventsTxIdTxid(txId, { group: alephiumMainnetConfig.contracts.TokenBridge.contractInstance.groupIndex })
+                const event = events.events.find((event) => event.contractAddress === alephiumMainnetConfig.contracts.TokenBridge.contractInstance.contractId)
+                if (typeof event === "undefined") {
+                  return Promise.reject(`Failed to get event for tx: ${txId}`)
+                }
+                const WormholeMessageEventIndex = 0
+                if (event.eventIndex !== WormholeMessageEventIndex) {
+                  return Promise.reject("invalid event index: " + event.eventIndex)
+                }
+                const sender = event.fields[0]
+                if (sender.type !== "ByteVec") {
+                  return Promise.reject("invalid sender, expect ByteVec type, have: " + sender.type)
+                }
+                const senderContractId = (sender as node.ValByteVec).value
+                if (senderContractId !== alephiumMainnetConfig.contracts.TokenBridge.contractInstance.contractId) {
+                  return Promise.reject("invalid sender, expect token bridge contract id, have: " + senderContractId)
+                }
+                const sequence = parseSequenceFromLogAlph(event)
+                const targetChain = parseTargetChainFromLogAlph(event)
+                return { sequence, targetChain }
+              }
+
+              async function waitTxConfirmedAndGetTxInfo(provider: NodeProvider, txId: string): Promise<any> {
+                const confirmed = await waitALPHTxConfirmed(provider, txId, MAINNET_ALPH_MINIMAL_CONSISTENCY_LEVEL)
+                const { sequence, targetChain } = await getTxInfo(provider, txId)
+                // const blockHeader = await provider.blockflow.getBlockflowHeadersBlockHash(confirmed.blockHash)
+                // return new AlphTxInfo(blockHeader, txId, sequence, targetChain, confirmed.chainConfirmations)
+                return { sequence, targetChain }
+              }
+
+              const shouldUpdate = false
+              const attestTokenHandlerId = getAttestTokenHandlerId(alephiumMainnetConfig.contracts.TokenBridge.contractInstance.contractId, CHAIN_ID_ALEPHIUM, alephiumMainnetConfig.contracts.TokenBridge.contractInstance.groupIndex)
+              const txInfo = await waitTxConfirmedAndGetTxInfo(nodeProvider, tx.txId)
+              console.log("txInfo.sequence", txInfo.sequence)
+              console.log("start")
+              const { vaaBytes } = await getSignedVAAWithRetry(
+                ["https://guardian-0.bridge.alephium.org"],
+                CHAIN_ID_ALEPHIUM,
+                alephiumMainnetConfig.contracts.TokenBridge.contractInstance.contractId,
+                CHAIN_ID_ETH,
+                txInfo.sequence,
+              )
+              console.log("end")
+              console.log("vaaBytes", vaaBytes)
+              const signedVAA = vaaBytes ? hexToUint8Array(uint8ArrayToHex(vaaBytes)) : undefined
+              console.log("signedVAA", signedVAA)
+              if (signedVAA) {
+                const result = shouldUpdate
+                  ? await updateRemoteTokenPoolOnAlph(wallet, attestTokenHandlerId, signedVAA)
+                  : await createRemoteTokenPoolOnAlph(wallet, attestTokenHandlerId, signedVAA, wallet.account.address, MINIMAL_CONTRACT_DEPOSIT)
+                console.log("result", result)
+              }
+            }
+          },
+          errorCallback: (error) => {
+            console.log("error", error)
+          },
+        }, tx.txId)
+
       } catch (err) {
         console.log("THERE WAS AN ERROR IN transferLocalTokenFromAlph", err)
       } finally {
@@ -167,8 +330,6 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
       }
 
       console.log("TRANSFER DONEEEEEEEEEEEEE")
-
-      // console.log({result});
     }
 
     // Pull in navigation via hook
@@ -420,7 +581,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
                 </View>
               }
 
-              <AlephimPendingBride asset={asset}/>
+              <AlephimPendingBride asset={asset} />
 
               {/*{!!ethNetworkAlephiumCoin && !!ethNetworkETHCoin && ethNetworkETHCoin?.balanceWithDerivedAddresses === 0 &&*/}
               {/*  <View style={[stylesComponent.infoCard, stylesComponent.infoCardGold, { marginTop: 24 }]}>*/}
@@ -481,7 +642,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
 
               {!!ethNetworkETHCoin && !!ethNetworkAlephiumCoin &&
                 <View style={stylesComponent.checkboxes}>
-                  {checkboxes.map((el,index) => {
+                  {checkboxes.map((el, index) => {
                     return (
                       <Controller
                         key={index}

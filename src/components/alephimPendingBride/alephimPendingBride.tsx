@@ -32,9 +32,6 @@ const AlephimPendingBride: IProps = ({ onPressRedeem, onPressCopyTxId, hideRedee
 
 
   const getTransfer = async () => {
-    console.log("asset.privateKey", asset.privateKey)
-    console.log("asset.address", asset.address)
-
     const nodeProvider = await NodeProviderGenerator.getNodeProvider(
       asset.chain as Chains,
     )

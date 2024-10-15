@@ -17656,7 +17656,7 @@ react-native-qrcode-svg@^6.2.0:
     qrcode "^1.5.1"
     text-encoding "^0.7.0"
 
-react-native-quick-base64@^2.0.5, react-native-quick-base64@^2.0.8:
+react-native-quick-base64@^2.0.5, react-native-quick-base64@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/react-native-quick-base64/-/react-native-quick-base64-2.1.2.tgz#062b09b165c1530095fe99b94544c948318dbe99"
   integrity sha512-xghaXpWdB0ji8OwYyo0fWezRroNxiNFCNFpGUIyE7+qc4gA/IGWnysIG5L0MbdoORv8FkTKUvfd6yCUN5R2VFA==
