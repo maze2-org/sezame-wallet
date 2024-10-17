@@ -67,13 +67,14 @@ import {
 } from "@alephium/wormhole-sdk"
 
 import styles from "./styles"
+import { getSignedVAAWithRetry } from "screens/bridge/getSignedVAAWithRetry.ts"
 import {
   getConfigs,
   ETH_JSON_RPC_PROVIDER_URL,
   WormholeMessageEventIndex,
 } from "./constsnts.ts"
 
-const BRIDGE_CONSTANTS = getConfigs("testnet")
+const BRIDGE_CONSTANTS = getConfigs("mainnet")
 console.log(BRIDGE_CONSTANTS)
 
 global.atob = atob
@@ -369,10 +370,10 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
         //   "gasAmount": 51399,
         //   "gasPrice": 100000000000n,
         //   "groupIndex": 0,
-        //   "signature": "cb6457c5ab1752be16d416ff4da895be1d8cf360cfb5874efdbdfb721168544749dfa82f845f7a842df3037927f41c6b2e8a84beffefcd7e0c5ca3f951d681f5",
+        //   "signature": "3276f7807aa5b0eaed147fbaf96e873961efac899a1d83a990a8f6375083af597fb4ea4a53ec1c33177b133288965eaea99fbe7aa766aa500a73d4c584de6c0f",
         //   "toGroup": 0,
-        //   "txId": "9c5632e35fac916a58aefc273732db07415971c96e6b7127c6b8e726469451ba",
-        //   "unsignedTx": "0000010101030001001a0c0d1440207f42f8e21128e70c7a30098a32c5c388de7eb4ffc6ef7dd86f72e8e11acc4800010a17001500626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a15007a1600a2144020000000000000000000000000000000000000000000000000000000000000000013c3038d7ea4c68000a31500626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a150014402000000000000000000000000000000000000000000000000000000000000000001340ff0e1440207f42f8e21128e70c7a30098a32c5c388de7eb4ffc6ef7dd86f72e8e11acc480013c3038d7ea4c6800016000c1404e47e01001340cd130a0c1440207f42f8e21128e70c7a30098a32c5c388de7eb4ffc6ef7dd86f72e8e11acc480001108000c8c7c1174876e80001d5b05c7dbba9ea08da2b5ef5e5e4c5109f114f6f557605ee0f11b4f642e595333be5451d000237c37e212b80fde49d8cc01179d213e9fe3cef91d04de96eec21a936d43a8f4301c4030ba33f80fe080000626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a150000000000000000000000",
+        //   "txId": "3c3a8800dd07a5114d3616b96b7e535589680bcdf9e16d06364b9f29edfccf20",
+        //   "unsignedTx": "0000010101030001001a0c0d1440207f42f8e21128e70c7a30098a32c5c388de7eb4ffc6ef7dd86f72e8e11acc4800010a17001500626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a15007a1600a2144020000000000000000000000000000000000000000000000000000000000000000013c3038d7ea4c68000a31500626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a150014402000000000000000000000000000000000000000000000000000000000000000001340ff0e1440207f42f8e21128e70c7a30098a32c5c388de7eb4ffc6ef7dd86f72e8e11acc480013c3038d7ea4c6800016000c140433eb00001340cd130a0c1440207f42f8e21128e70c7a30098a32c5c388de7eb4ffc6ef7dd86f72e8e11acc480001108000c8c7c1174876e80001d5b05c7da17f4038f70cf822474ac5eb8832cf1a00ae218da5e8d738889c48bc593f2509000237c37e212b80fde49d8cc01179d213e9fe3cef91d04de96eec21a936d43a8f4301c402f5d30aa289300000626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a150000000000000000000000",
         // }
 
         // TESTNET
@@ -393,13 +394,13 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
 
         // MAINNET
         // const txInfo = {
-        //   "blockHash": "00000000000031ca76422171f441a00d3b1b3f4023b5e8b1de428a45f9681da0",
-        //   "blockHeight": 2261892,
-        //   "blockTimestamp": 1729086134831,
+        //   "blockHash": "000000000000345f5b2a9a83e23d542ecc7961150d7a5b7e46986830adc2bd00",
+        //   "blockHeight": 2267174,
+        //   "blockTimestamp": 1729169583697,
         //   "confirmations": 1,
-        //   "sequence": "4269",
+        //   "sequence": "4286",
         //   "targetChain": 2,
-        //   "txId": "9c5632e35fac916a58aefc273732db07415971c96e6b7127c6b8e726469451ba",
+        //   "txId": "3c3a8800dd07a5114d3616b96b7e535589680bcdf9e16d06364b9f29edfccf20",
         // }
 
         // TESTNET
@@ -421,8 +422,8 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
         console.log("waitAlphTxConfirmed [end]", BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL)
 
         console.log("getSignedVAA [start]")
-        const { vaaBytes } = await getSignedVAA(
-          BRIDGE_CONSTANTS.WORMHOLE_RPC_HOSTS[0],
+        const { vaaBytes } = await getSignedVAAWithRetry(
+          BRIDGE_CONSTANTS.WORMHOLE_RPC_HOSTS,
           CHAIN_ID_ALEPHIUM,
           BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID,
           CHAIN_ID_ETH,
