@@ -1,7 +1,8 @@
 import React, { FC, useRef, useEffect, useState, useCallback, useMemo } from "react"
-import * as alephiumMainnetConfig from "../../bridges/alephium/artifacts/.deployments.mainnet.json"
 import AlephimPendingBride from "components/alephimPendingBride/alephimPendingBride.tsx"
 import handCoinIcon from "assets/icons/hand-coin.svg"
+import { grpc } from "@improbable-eng/grpc-web"
+import { ReactNativeTransport } from "@improbable-eng/grpc-web-react-native-transport"
 import { ethers } from "ethers"
 import { SvgXml } from "react-native-svg"
 import { presets } from "components/screen/screen.presets"
@@ -29,11 +30,8 @@ import {
 import {
   web3,
   node,
-  sleep,
   NodeProvider,
-  ALPH_TOKEN_ID,
-  subscribeToTxStatus,
-  MINIMAL_CONTRACT_DEPOSIT,
+  ALPH_TOKEN_ID, subscribeToTxStatus,
 } from "@alephium/web3"
 import {
   Text,
@@ -57,25 +55,30 @@ import {
   KeyboardAvoidingView,
 } from "react-native"
 import {
-  approveEth,
+  ChainId,
+  redeemOnEth,
   CHAIN_ID_ETH,
-  uint8ArrayToHex,
-  hexToUint8Array,
+  getSignedVAA,
   CHAIN_ID_ALEPHIUM,
-  getSignedVAAWithRetry,
-  getAttestTokenHandlerId,
+  waitAlphTxConfirmed,
   parseSequenceFromLogAlph,
   transferLocalTokenFromAlph,
-  updateRemoteTokenPoolOnAlph,
   parseTargetChainFromLogAlph,
-  createRemoteTokenPoolOnAlph,
-  MAINNET_ALPH_MINIMAL_CONSISTENCY_LEVEL,
 } from "@alephium/wormhole-sdk"
 
 import styles from "./styles"
+import {
+  getConfigs,
+  ETH_JSON_RPC_PROVIDER_URL,
+  WormholeMessageEventIndex,
+} from "./constsnts.ts"
+
+const BRIDGE_CONSTANTS = getConfigs("testnet")
+console.log(BRIDGE_CONSTANTS)
 
 global.atob = atob
 global.btoa = btoa
+grpc.setDefaultTransport(ReactNativeTransport({ withCredentials: true }))
 
 const ROOT: ViewStyle = {
   backgroundColor: color.palette.black,
@@ -168,161 +171,277 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
 
       try {
         console.log("MESSAGEFEEEEEEEEEEEEEEEE", bridgeConfig.config.messageFee)
-        const tx = await transferLocalTokenFromAlph(
+        // const tx = await transferLocalTokenFromAlph(
+        //   wallet,
+        //   alephiumMainnetConfig.contracts.TokenBridge.contractInstance
+        //     .contractId,
+        //   wallet.account.address,
+        //   ALPH_TOKEN_ID,
+        //   CHAIN_ID_ETH,
+        //   bridgeConfig.config.contracts.nativeTokenBridge,
+        //   bAmount,
+        //   BigInt(bridgeConfig.config.messageFee),
+        //   0n,
+        //   BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL,
+        // )
+
+        // subscribeToTxStatus({
+        //   pollingInterval: 1000,
+        //   messageCallback: async (event) => {
+        //     // const event = {"type": "MemPooled"}
+        //     // const event = {"blockHash": "000000000000256106c8eb591ac5477f99957b9cbae8f83055d3088af6f7fb20", "chainConfirmations": 1, "fromGroupConfirmations": 1, "toGroupConfirmations": 1, "txIndex": 1, "type": "Confirmed"}
+        //
+        //     console.log("event", event)
+        //     if (event.type === "Confirmed") {
+        //       const confirmed = await waitALPHTxConfirmed(nodeProvider, tx.txId, BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL)
+        //
+        //       const ethNodeProvider = new ethers.providers.JsonRpcProvider("https://node-ethereum.sezame.app")
+        //       const signer = new ethers.Wallet(ethNetworkETHCoin!.privateKey, ethNodeProvider)
+        //       const balance = await ethNodeProvider.getBalance(signer.address)
+        //
+        //       console.log("Balance:", ethers.utils.formatEther(balance))
+        //
+        //       const res = await approveEth(
+        //         "0x579a3bDE631c3d8068CbFE3dc45B0F14EC18dD43",
+        //         ethNetworkAlephiumCoin!.address,
+        //         signer,
+        //         bAmount,
+        //         {
+        //           gasLimit: tx.gasAmount,
+        //           gasPrice: tx.gasPrice,
+        //         },
+        //       )
+        //
+        //       function isAlphTxConfirmed(txStatus: node.TxStatus): txStatus is node.Confirmed {
+        //         return txStatus.type === "Confirmed"
+        //       }
+        //
+        //       async function waitALPHTxConfirmed(provider: NodeProvider, txId: string, confirmations: number): Promise<node.Confirmed> {
+        //         try {
+        //           const txStatus = await provider.transactions.getTransactionsStatus({ txId: txId })
+        //           // @ts-ignore
+        //           console.log(`Confirmations: ${txStatus?.chainConfirmations}/${confirmations}`)
+        //           if (isAlphTxConfirmed(txStatus) && txStatus.chainConfirmations >= confirmations) {
+        //             return txStatus as node.Confirmed
+        //           }
+        //         } catch (error) {
+        //           console.error(`Failed to get tx status, tx id: ${txId}`)
+        //         }
+        //         const ALEPHIUM_POLLING_INTERVAL = 10000
+        //         await sleep(ALEPHIUM_POLLING_INTERVAL)
+        //         return waitALPHTxConfirmed(provider, txId, confirmations)
+        //       }
+        //
+        //       async function getTxInfo(provider: NodeProvider, txId: string) {
+        //         const events = await provider.events.getEventsTxIdTxid(txId, { group: alephiumMainnetConfig.contracts.TokenBridge.contractInstance.groupIndex })
+        //         const event = events.events.find((event) => event.contractAddress === BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID)
+        //         if (typeof event === "undefined") {
+        //           return Promise.reject(`Failed to get event for tx: ${txId}`)
+        //         }
+        //         const WormholeMessageEventIndex = 0
+        //         if (event.eventIndex !== WormholeMessageEventIndex) {
+        //           return Promise.reject("invalid event index: " + event.eventIndex)
+        //         }
+        //         const sender = event.fields[0]
+        //         if (sender.type !== "ByteVec") {
+        //           return Promise.reject("invalid sender, expect ByteVec type, have: " + sender.type)
+        //         }
+        //         const senderContractId = (sender as node.ValByteVec).value
+        //         if (senderContractId !== BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID) {
+        //           return Promise.reject("invalid sender, expect token bridge contract id, have: " + senderContractId)
+        //         }
+        //         const sequence = parseSequenceFromLogAlph(event)
+        //         const targetChain = parseTargetChainFromLogAlph(event)
+        //         return { sequence, targetChain }
+        //       }
+        //
+        //       async function waitTxConfirmedAndGetTxInfo(provider: NodeProvider, txId: string): Promise<any> {
+        //         const confirmed = await waitALPHTxConfirmed(provider, txId, BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL)
+        //         const { sequence, targetChain } = await getTxInfo(provider, txId)
+        //         // const blockHeader = await provider.blockflow.getBlockflowHeadersBlockHash(confirmed.blockHash)
+        //         // return new AlphTxInfo(blockHeader, txId, sequence, targetChain, confirmed.chainConfirmations)
+        //         return { sequence, targetChain }
+        //       }
+        //
+        //       const shouldUpdate = false
+        //       const attestTokenHandlerId = getAttestTokenHandlerId(BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID, CHAIN_ID_ALEPHIUM, alephiumMainnetConfig.contracts.TokenBridge.contractInstance.groupIndex)
+        //       const txInfo = await waitTxConfirmedAndGetTxInfo(nodeProvider, tx.txId)
+        //       console.log("txInfo.sequence", txInfo.sequence)
+        //       console.log("start")
+        //       const { vaaBytes } = await getSignedVAAWithRetry(
+        //         ["https://guardian-0.bridge.alephium.org"],
+        //         CHAIN_ID_ALEPHIUM,
+        //         BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID,
+        //         CHAIN_ID_ETH,
+        //         txInfo.sequence,
+        //       )
+        //       console.log("end")
+        //       console.log("vaaBytes", vaaBytes)
+        //       const signedVAA = vaaBytes ? hexToUint8Array(uint8ArrayToHex(vaaBytes)) : undefined
+        //       console.log("signedVAA", signedVAA)
+        //       if (signedVAA) {
+        //         const result = shouldUpdate
+        //           ? await updateRemoteTokenPoolOnAlph(wallet, attestTokenHandlerId, signedVAA)
+        //           : await createRemoteTokenPoolOnAlph(wallet, attestTokenHandlerId, signedVAA, wallet.account.address, MINIMAL_CONTRACT_DEPOSIT)
+        //         console.log("result", result)
+        //       }
+        //     }
+        //   },
+        //   errorCallback: (error) => {
+        //     console.log("error", error)
+        //   },
+        // }, tx.txId)
+
+        /**
+         * New ------------------------------------------------------------------------
+         * */
+        class AlphTxInfo {
+          blockHash: string
+          blockHeight: number
+          blockTimestamp: number
+          txId: string
+          sequence: string
+          targetChain: ChainId
+          confirmations: number
+
+          constructor(blockHeader: node.BlockHeaderEntry, txId: string, sequence: string, targetChain: ChainId, confirmations: number) {
+            this.blockHash = blockHeader.hash
+            this.blockHeight = blockHeader.height
+            this.blockTimestamp = blockHeader.timestamp
+            this.txId = txId
+            this.sequence = sequence
+            this.targetChain = targetChain
+            this.confirmations = confirmations
+          }
+        }
+
+        async function getTxInfo(provider: NodeProvider, txId: string) {
+          console.log("CALL getTxInfo txID:", txId)
+          const events = await provider.events.getEventsTxIdTxid(txId, { group: BRIDGE_CONSTANTS.ALEPHIUM_BRIDGE_GROUP_INDEX })
+          console.log(events)
+          const event = events.events.find((event) => event.contractAddress === BRIDGE_CONSTANTS.ALEPHIUM_BRIDGE_ADDRESS)
+          if (typeof event === "undefined") {
+            return Promise.reject(`Failed to get event for tx: ${txId}`)
+          }
+          if (event.eventIndex !== WormholeMessageEventIndex) {
+            return Promise.reject("invalid event index: " + event.eventIndex)
+          }
+          const sender = event.fields[0]
+          if (sender.type !== "ByteVec") {
+            return Promise.reject("invalid sender, expect ByteVec type, have: " + sender.type)
+          }
+          const senderContractId = (sender as node.ValByteVec).value
+          if (senderContractId !== BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID) {
+            return Promise.reject("invalid sender, expect token bridge contract id, have: " + senderContractId)
+          }
+          const sequence = parseSequenceFromLogAlph(event)
+          const targetChain = parseTargetChainFromLogAlph(event)
+          return { sequence, targetChain }
+        }
+
+        async function waitTxConfirmedAndGetTxInfo(provider: NodeProvider, txId: string): Promise<AlphTxInfo> {
+          const confirmed = await waitAlphTxConfirmed(provider, txId, 1)
+          const { sequence, targetChain } = await getTxInfo(provider, txId)
+          const blockHeader = await provider.blockflow.getBlockflowHeadersBlockHash(confirmed.blockHash)
+          return new AlphTxInfo(blockHeader, txId, sequence, targetChain, confirmed.chainConfirmations)
+        }
+
+        // ----------------------------------------------------------------------------
+        const ethNodeProvider = new ethers.providers.JsonRpcProvider(ETH_JSON_RPC_PROVIDER_URL)
+        const signer = new ethers.Wallet(ethNetworkETHCoin!.privateKey, ethNodeProvider)
+
+        const result = await transferLocalTokenFromAlph(
           wallet,
-          alephiumMainnetConfig.contracts.TokenBridge.contractInstance
-            .contractId,
+          BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID,
           wallet.account.address,
           ALPH_TOKEN_ID,
           CHAIN_ID_ETH,
-          bridgeConfig.config.contracts.nativeTokenBridge,
+          BRIDGE_CONSTANTS.TRANSFER_TARGET_ADDRESS_HEX,
           bAmount,
           BigInt(bridgeConfig.config.messageFee),
           0n,
-          MAINNET_ALPH_MINIMAL_CONSISTENCY_LEVEL,
+          BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL,
         )
-        // const tx = {
+
+        // MAINNET
+        // const result = {
         //   "fromGroup": 0,
         //   "gasAmount": 51399,
         //   "gasPrice": 100000000000n,
         //   "groupIndex": 0,
-        //   "signature": "d5153782a2a75e4e40c1ed676a64710a9f23d8631d26eeb98ff348e4028fae625d99f2a657c2745b24e5ad31b5b68f80de03e0af4186b7b3c0cfe27eadbdadaf",
+        //   "signature": "cb6457c5ab1752be16d416ff4da895be1d8cf360cfb5874efdbdfb721168544749dfa82f845f7a842df3037927f41c6b2e8a84beffefcd7e0c5ca3f951d681f5",
         //   "toGroup": 0,
-        //   "txId": "d13d1849cad2493655160b81600cdc54540df80209e8f816ec1531d4f6e47419",
-        //   "unsignedTx": "0000010101030001001a0c0d1440207f42f8e21128e70c7a30098a32c5c388de7eb4ffc6ef7dd86f72e8e11acc4800010a17001500626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a15007a1600a2144020000000000000000000000000000000000000000000000000000000000000000013c3038d7ea4c68000a31500626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a150014402000000000000000000000000000000000000000000000000000000000000000001340ff0e1440207f42f8e21128e70c7a30098a32c5c388de7eb4ffc6ef7dd86f72e8e11acc480013c3038d7ea4c6800016000c14040a3a00001340cd130a0c1440207f42f8e21128e70c7a30098a32c5c388de7eb4ffc6ef7dd86f72e8e11acc480001108000c8c7c1174876e80001d5b05c7d103c4e78b1c970d73e800d59ba070221030196c6a0488a38a3c7489bb6f4763c000237c37e212b80fde49d8cc01179d213e9fe3cef91d04de96eec21a936d43a8f4301c403a454b1962ff00000626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a150000000000000000000000",
+        //   "txId": "9c5632e35fac916a58aefc273732db07415971c96e6b7127c6b8e726469451ba",
+        //   "unsignedTx": "0000010101030001001a0c0d1440207f42f8e21128e70c7a30098a32c5c388de7eb4ffc6ef7dd86f72e8e11acc4800010a17001500626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a15007a1600a2144020000000000000000000000000000000000000000000000000000000000000000013c3038d7ea4c68000a31500626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a150014402000000000000000000000000000000000000000000000000000000000000000001340ff0e1440207f42f8e21128e70c7a30098a32c5c388de7eb4ffc6ef7dd86f72e8e11acc480013c3038d7ea4c6800016000c1404e47e01001340cd130a0c1440207f42f8e21128e70c7a30098a32c5c388de7eb4ffc6ef7dd86f72e8e11acc480001108000c8c7c1174876e80001d5b05c7dbba9ea08da2b5ef5e5e4c5109f114f6f557605ee0f11b4f642e595333be5451d000237c37e212b80fde49d8cc01179d213e9fe3cef91d04de96eec21a936d43a8f4301c4030ba33f80fe080000626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a150000000000000000000000",
         // }
-        //
-        console.log({ tx })
 
-        subscribeToTxStatus({
-          pollingInterval: 1000,
-          messageCallback: async (event) => {
-            // const event = {"type": "MemPooled"}
-            // const event = {"blockHash": "000000000000256106c8eb591ac5477f99957b9cbae8f83055d3088af6f7fb20", "chainConfirmations": 1, "fromGroupConfirmations": 1, "toGroupConfirmations": 1, "txIndex": 1, "type": "Confirmed"}
+        // TESTNET
+        // const result = {
+        //   "fromGroup": 0,
+        //   "gasAmount": 55890,
+        //   "gasPrice": 100000000000n,
+        //   "groupIndex": 0,
+        //   "signature": "ff2a2f3ef761202726e8d1a1bca5519ad1797fef3c5d4dcf66cb0da4a65587a351f10e81350144f98e03b99b5923bf807e636e98c05664d124006490b8f1a4aa",
+        //   "toGroup": 0,
+        //   "txId": "4057e8bb83c50d2f033b70e68fd1400d6f9be05ae55cbfe1accd153f02235278",
+        //   "unsignedTx": "0001010101030001001a0c0d1440204c91e8825fcfea5219cf6a5b4f1607db7f0bd22850f39ed87dad9445bd99a800010a17001500626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a15007a1600a2144020000000000000000000000000000000000000000000000000000000000000000013c3038d7ea4c68000a31500626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a150014402000000000000000000000000000000000000000000000000000000000000000001340ff0e1440204c91e8825fcfea5219cf6a5b4f1607db7f0bd22850f39ed87dad9445bd99a80013c3038d7ea4c6800016000c1404860c0100130a130a0c1440204c91e8825fcfea5219cf6a5b4f1607db7f0bd22850f39ed87dad9445bd99a80001108000da52c1174876e80001d5b05c7dac8a50bc8bfad8e2a8c33aa4e030ed8e32d7fcbe110bd2d1802d2b5bd713dd34000237c37e212b80fde49d8cc01179d213e9fe3cef91d04de96eec21a936d43a8f4301c41b035dfbcc4da00000626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a150000000000000000000000",
+        // }
 
-            console.log("event", event)
-            if (event.type === "Confirmed") {
-              const confirmed = await waitALPHTxConfirmed(nodeProvider, tx.txId, MAINNET_ALPH_MINIMAL_CONSISTENCY_LEVEL)
+        console.log("result", result)
 
-              const ethNodeProvider = new ethers.providers.JsonRpcProvider("https://node-ethereum.sezame.app")
-              const signer = new ethers.Wallet(ethNetworkETHCoin!.privateKey, ethNodeProvider)
-              const balance = await ethNodeProvider.getBalance(signer.address)
+        const txInfo = await waitTxConfirmedAndGetTxInfo(wallet.nodeProvider, result.txId)
 
-              console.log("Balance:", ethers.utils.formatEther(balance))
+        // MAINNET
+        // const txInfo = {
+        //   "blockHash": "00000000000031ca76422171f441a00d3b1b3f4023b5e8b1de428a45f9681da0",
+        //   "blockHeight": 2261892,
+        //   "blockTimestamp": 1729086134831,
+        //   "confirmations": 1,
+        //   "sequence": "4269",
+        //   "targetChain": 2,
+        //   "txId": "9c5632e35fac916a58aefc273732db07415971c96e6b7127c6b8e726469451ba",
+        // }
 
-              const res = await approveEth(
-                "0x579a3bDE631c3d8068CbFE3dc45B0F14EC18dD43",
-                ethNetworkAlephiumCoin!.address,
-                signer,
-                bAmount,
-                {
-                  gasLimit: tx.gasAmount,
-                  gasPrice: tx.gasPrice,
-                },
-              )
+        // TESTNET
+        // const txInfo = {
+        //   "blockHash": "0000000c2eba2ab051dc30da557fca8b0a78d4197efe0068a297ecc3d51d4770",
+        //   "blockHeight": 1317075,
+        //   "blockTimestamp": 1729159372624,
+        //   "confirmations": 1,
+        //   "sequence": "4613",
+        //   "targetChain": 2,
+        //   "txId": "4057e8bb83c50d2f033b70e68fd1400d6f9be05ae55cbfe1accd153f02235278",
+        // }
 
-              // const res = {
-              //   "blockHash": "0x7be487607c100a3d9d2fba59e5922658b9f620d9b080d7ce3c7d82799dc27b1a",
-              //   "blockNumber": 20970399,
-              //   "byzantium": true,
-              //   "confirmations": 1,
-              //   "contractAddress": null,
-              //   "cumulativeGasUsed": { "hex": "0xba6689", "type": "BigNumber" },
-              //   "effectiveGasPrice": { "hex": "0x174876e800", "type": "BigNumber" },
-              //   "events": [],
-              //   "from": "0x1105886df9185c4823b03F93Fb1E0b655AF04286",
-              //   "gasUsed": { "hex": "0x5480", "type": "BigNumber" },
-              //   "logs": [],
-              //   "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-              //   "status": 1,
-              //   "to": "0x1105886df9185c4823b03F93Fb1E0b655AF04286",
-              //   "transactionHash": "0x0417144616464479790d1f3903b58c7f6a8576dd25e1ff91309f71829013dfdd",
-              //   "transactionIndex": 147,
-              //   "type": 2,
-              // }
 
-              console.log("res", res)
+        console.log("txInfo", txInfo)
 
-              function isAlphTxConfirmed(txStatus: node.TxStatus): txStatus is node.Confirmed {
-                return txStatus.type === "Confirmed"
-              }
+        console.log("waitAlphTxConfirmed [start]", BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL)
+        await waitAlphTxConfirmed(wallet.nodeProvider, txInfo.txId, BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL)
+        console.log("waitAlphTxConfirmed [end]", BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL)
 
-              async function waitALPHTxConfirmed(provider: NodeProvider, txId: string, confirmations: number): Promise<node.Confirmed> {
-                try {
-                  const txStatus = await provider.transactions.getTransactionsStatus({ txId: txId })
-                  // @ts-ignore
-                  console.log(`Confirmations: ${txStatus?.chainConfirmations}/${confirmations}`)
-                  if (isAlphTxConfirmed(txStatus) && txStatus.chainConfirmations >= confirmations) {
-                    return txStatus as node.Confirmed
-                  }
-                } catch (error) {
-                  console.error(`Failed to get tx status, tx id: ${txId}`)
-                }
-                const ALEPHIUM_POLLING_INTERVAL = 10000
-                await sleep(ALEPHIUM_POLLING_INTERVAL)
-                return waitALPHTxConfirmed(provider, txId, confirmations)
-              }
+        console.log("getSignedVAA [start]")
+        const { vaaBytes } = await getSignedVAA(
+          BRIDGE_CONSTANTS.WORMHOLE_RPC_HOSTS[0],
+          CHAIN_ID_ALEPHIUM,
+          BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID,
+          CHAIN_ID_ETH,
+          txInfo.sequence,
+        )
+        console.log("getSignedVAA [end]")
+        console.log("vaaBytes", vaaBytes)
 
-              async function getTxInfo(provider: NodeProvider, txId: string) {
-                const events = await provider.events.getEventsTxIdTxid(txId, { group: alephiumMainnetConfig.contracts.TokenBridge.contractInstance.groupIndex })
-                const event = events.events.find((event) => event.contractAddress === alephiumMainnetConfig.contracts.TokenBridge.contractInstance.contractId)
-                if (typeof event === "undefined") {
-                  return Promise.reject(`Failed to get event for tx: ${txId}`)
-                }
-                const WormholeMessageEventIndex = 0
-                if (event.eventIndex !== WormholeMessageEventIndex) {
-                  return Promise.reject("invalid event index: " + event.eventIndex)
-                }
-                const sender = event.fields[0]
-                if (sender.type !== "ByteVec") {
-                  return Promise.reject("invalid sender, expect ByteVec type, have: " + sender.type)
-                }
-                const senderContractId = (sender as node.ValByteVec).value
-                if (senderContractId !== alephiumMainnetConfig.contracts.TokenBridge.contractInstance.contractId) {
-                  return Promise.reject("invalid sender, expect token bridge contract id, have: " + senderContractId)
-                }
-                const sequence = parseSequenceFromLogAlph(event)
-                const targetChain = parseTargetChainFromLogAlph(event)
-                return { sequence, targetChain }
-              }
+        const signedVAA = vaaBytes
+        const redeemData = await redeemOnEth(
+          BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
+          signer,
+          signedVAA,
+        )
 
-              async function waitTxConfirmedAndGetTxInfo(provider: NodeProvider, txId: string): Promise<any> {
-                const confirmed = await waitALPHTxConfirmed(provider, txId, MAINNET_ALPH_MINIMAL_CONSISTENCY_LEVEL)
-                const { sequence, targetChain } = await getTxInfo(provider, txId)
-                // const blockHeader = await provider.blockflow.getBlockflowHeadersBlockHash(confirmed.blockHash)
-                // return new AlphTxInfo(blockHeader, txId, sequence, targetChain, confirmed.chainConfirmations)
-                return { sequence, targetChain }
-              }
-
-              const shouldUpdate = false
-              const attestTokenHandlerId = getAttestTokenHandlerId(alephiumMainnetConfig.contracts.TokenBridge.contractInstance.contractId, CHAIN_ID_ALEPHIUM, alephiumMainnetConfig.contracts.TokenBridge.contractInstance.groupIndex)
-              const txInfo = await waitTxConfirmedAndGetTxInfo(nodeProvider, tx.txId)
-              console.log("txInfo.sequence", txInfo.sequence)
-              console.log("start")
-              const { vaaBytes } = await getSignedVAAWithRetry(
-                ["https://guardian-0.bridge.alephium.org"],
-                CHAIN_ID_ALEPHIUM,
-                alephiumMainnetConfig.contracts.TokenBridge.contractInstance.contractId,
-                CHAIN_ID_ETH,
-                txInfo.sequence,
-              )
-              console.log("end")
-              console.log("vaaBytes", vaaBytes)
-              const signedVAA = vaaBytes ? hexToUint8Array(uint8ArrayToHex(vaaBytes)) : undefined
-              console.log("signedVAA", signedVAA)
-              if (signedVAA) {
-                const result = shouldUpdate
-                  ? await updateRemoteTokenPoolOnAlph(wallet, attestTokenHandlerId, signedVAA)
-                  : await createRemoteTokenPoolOnAlph(wallet, attestTokenHandlerId, signedVAA, wallet.account.address, MINIMAL_CONTRACT_DEPOSIT)
-                console.log("result", result)
-              }
-            }
-          },
-          errorCallback: (error) => {
-            console.log("error", error)
-          },
-        }, tx.txId)
-
+        console.log("redeemData", redeemData)
+        /**
+         * New -------------------------------------------------------------------  END
+         * */
       } catch (err) {
         console.log("THERE WAS AN ERROR IN transferLocalTokenFromAlph", err)
       } finally {
