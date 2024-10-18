@@ -8,6 +8,7 @@ import { SvgXml } from "react-native-svg"
 import { presets } from "components/screen/screen.presets"
 import { palette } from "theme/palette.ts"
 import { observer } from "mobx-react-lite"
+import { arrayify } from "@ethersproject/bytes"
 import { atob, btoa } from "react-native-quick-base64"
 import { showMessage } from "react-native-flash-message"
 import { useNavigation } from "@react-navigation/native"
@@ -31,7 +32,8 @@ import {
   web3,
   node,
   NodeProvider,
-  ALPH_TOKEN_ID, subscribeToTxStatus,
+  ALPH_TOKEN_ID,
+  subscribeToTxStatus,
 } from "@alephium/web3"
 import {
   Text,
@@ -63,18 +65,17 @@ import {
   waitAlphTxConfirmed,
   parseSequenceFromLogAlph,
   transferLocalTokenFromAlph,
-  parseTargetChainFromLogAlph,
+  parseTargetChainFromLogAlph, ethers_contracts, hexToUint8Array, uint8ArrayToHex,
 } from "@alephium/wormhole-sdk"
 
 import styles from "./styles"
 import { getSignedVAAWithRetry } from "screens/bridge/getSignedVAAWithRetry.ts"
 import {
   getConfigs,
-  ETH_JSON_RPC_PROVIDER_URL,
   WormholeMessageEventIndex,
 } from "./constsnts.ts"
 
-const BRIDGE_CONSTANTS = getConfigs("mainnet")
+const BRIDGE_CONSTANTS = getConfigs("testnet")
 console.log(BRIDGE_CONSTANTS)
 
 global.atob = atob
@@ -348,7 +349,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
         }
 
         // ----------------------------------------------------------------------------
-        const ethNodeProvider = new ethers.providers.JsonRpcProvider(ETH_JSON_RPC_PROVIDER_URL)
+        const ethNodeProvider = new ethers.providers.JsonRpcProvider(BRIDGE_CONSTANTS.ETH_JSON_RPC_PROVIDER_URL)
         const signer = new ethers.Wallet(ethNetworkETHCoin!.privateKey, ethNodeProvider)
 
         const result = await transferLocalTokenFromAlph(
@@ -357,7 +358,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
           wallet.account.address,
           ALPH_TOKEN_ID,
           CHAIN_ID_ETH,
-          BRIDGE_CONSTANTS.TRANSFER_TARGET_ADDRESS_HEX,
+          uint8ArrayToHex(arrayify(ethNetworkETHCoin!.address)),
           bAmount,
           BigInt(bridgeConfig.config.messageFee),
           0n,
@@ -413,7 +414,6 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
         //   "targetChain": 2,
         //   "txId": "4057e8bb83c50d2f033b70e68fd1400d6f9be05ae55cbfe1accd153f02235278",
         // }
-
 
         console.log("txInfo", txInfo)
 
@@ -792,7 +792,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
                 type="primary"
                 text="Preview the operation"
                 outline={true}
-                disabled={!isValid || ethNetworkETHCoin?.balanceWithDerivedAddresses === 0}
+                // disabled={!isValid || ethNetworkETHCoin?.balanceWithDerivedAddresses === 0}
                 onPress={() => {
                   Keyboard.dismiss()
                   handleSubmit(onSubmit)()

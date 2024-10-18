@@ -527,16 +527,6 @@ export const AppNavigator = observer((props: NavigationProps) => {
     openTxModal,
   } = walletConnectStore;
 
-  const {getAssets} = currentWalletStore;
-
-  //
-  console.log(
-    getAssets().then(res => {
-      console.log(res.toJSON(), 'res');
-    }),
-    'log',
-  );
-
   const nextAction = nextActions.toJSON()[nextActions.toJSON().length - 1];
   console.log(nextAction, 'nextAction');
   const currentWallet = currentWalletStore.wallet;
