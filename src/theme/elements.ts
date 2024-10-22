@@ -217,6 +217,16 @@ export const PRIMARY_OUTLINE_BTN: TextStyle = {
   width: '100%',
 };
 
+export const PRIMARY_OUTLINE_BTN_WITH_BORDER: TextStyle = {
+  width: '100%',
+  borderRadius: 80,
+  height: 47,
+  borderWidth: 1,
+  backgroundColor: 'transparent',
+  borderColor: color.palette.gold,
+  marginVertical: spacing[2],
+};
+
 export const TEXT_CENTTER: TextStyle = {
   textAlign: 'center',
 };

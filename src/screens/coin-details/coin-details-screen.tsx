@@ -66,7 +66,7 @@ export const CoinDetailsScreen: FC<
   );
 
   const capabilities =
-    tokenInfo.chains.reduce((previous, current) => {
+    tokenInfo.chains.reduce((previous: any, current: any) => {
       if (current.id === route.params.chain) {
         return current.capabilities;
       }
@@ -158,11 +158,11 @@ export const CoinDetailsScreen: FC<
       });
   }, []);
 
-  const getCoinData = async coin => {
+  const getCoinData = async (coin: any) => {
     try {
       const data = await getCoinDetails(coin);
       setCoinData(data);
-    } catch (error) {
+    } catch (error: any) {
       showMessage({
         message: error?.message || 'Something went wrong',
         type: 'danger',
@@ -174,7 +174,7 @@ export const CoinDetailsScreen: FC<
   const getChartData = async () => {
     try {
       // setChartDays(days)
-      const data = await getMarketChart(route?.params?.coinId, chartDays);
+      const data = await getMarketChart(route?.params?.coinId, Number(chartDays));
 
       setChartData(data.prices);
     } catch (error) {
@@ -243,7 +243,7 @@ export const CoinDetailsScreen: FC<
   const onPressCopyTxId = (txId: string) => {
     if (!!txId) {
       Clipboard.setString(txId)
-      modalFlashRef?.current?.showMessage({
+      showMessage({
         type: "success",
         message: "Copied to clipboard",
       })
@@ -448,23 +448,22 @@ export const CoinDetailsScreen: FC<
                       </View>
                       {selectedAsset && selectedAsset.chain === "ALPH" && (
                         <>
-                          {alephiumBridgeStore.isProcessingConfirmations ?
+                          {alephiumBridgeStore.isProcessingConfirmations &&
                             <View style={componentStyles.alephiumPendingBrideWrapper}>
                               <AlephimPendingBride
-                                onPressRedeem={()=> {
-                                  navigation.navigate('bridge', {
+                                onPressRedeem={() => {
+                                  navigation.navigate("bridge", {
                                     coinId: selectedAsset.cid,
                                     chain: selectedAsset.chain,
-                                  });
+                                  })
                                 }}
                                 onPressCopyTxId={onPressCopyTxId}
                                 txId={alephiumBridgeStore.currentTxId}
                                 currentConfirmations={alephiumBridgeStore.chainConfirmations}
                                 minimalConfirmations={BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL} />
                             </View>
-                            :
-                            <BridgeCard from={selectedAsset} />
                           }
+                          <BridgeCard from={selectedAsset} />
                           <TransactionsHistory asset={selectedAsset} />
                         </>
                       )}
@@ -473,10 +472,10 @@ export const CoinDetailsScreen: FC<
 
                   {!!tokenInfo && route.params.fromAddCurrency && (
                     <View style={styles.TOKEN_CHAINS_CONTAINER}>
-                      {tokenInfo.chains.map(chain => {
+                      {tokenInfo.chains.map((chain: any) => {
                         const allChains = allAssets
                           ? allAssets
-                              .filter(a => a.cid === mainAsset.cid)
+                              .filter(a => a.cid === mainAsset?.cid)
                               .map(a => a.chain)
                           : [];
                         const hasInWallet = currentWalletStore.assets.find(

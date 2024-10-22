@@ -1,5 +1,6 @@
 import React, { FC, useRef, useEffect, useState, useCallback, useMemo } from "react"
 import AlephimPendingBride from "components/alephimPendingBride/alephimPendingBride.tsx"
+import Clipboard from "@react-native-clipboard/clipboard"
 import handCoinIcon from "assets/icons/hand-coin.svg"
 import { grpc } from "@improbable-eng/grpc-web"
 import { ReactNativeTransport } from "@improbable-eng/grpc-web-react-native-transport"
@@ -33,7 +34,6 @@ import {
   node,
   NodeProvider,
   ALPH_TOKEN_ID,
-  subscribeToTxStatus,
 } from "@alephium/web3"
 import {
   Text,
@@ -54,27 +54,26 @@ import {
   ScrollView,
   Dimensions,
   ImageBackground,
-  KeyboardAvoidingView,
   ActivityIndicator,
+  KeyboardAvoidingView,
 } from "react-native"
 import {
-  ChainId,
   redeemOnEth,
   CHAIN_ID_ETH,
-  getSignedVAA,
+  uint8ArrayToHex,
   CHAIN_ID_ALEPHIUM,
   waitAlphTxConfirmed,
   parseSequenceFromLogAlph,
   transferLocalTokenFromAlph,
-  parseTargetChainFromLogAlph, ethers_contracts, hexToUint8Array, uint8ArrayToHex,
+  parseTargetChainFromLogAlph, ethers_contracts,
 } from "@alephium/wormhole-sdk"
 
 import styles from "./styles"
+import RedeemCoins from "components/redeemCoins/redeemCoins.tsx"
+import alephiumBridgeStore from "../../mobx/alephiumBridgeStore.tsx"
+import { AlphTxInfo } from "screens/bridge/AlphTxInfo.ts"
 import { getSignedVAAWithRetry } from "screens/bridge/getSignedVAAWithRetry.ts"
 import { getConfigs, WormholeMessageEventIndex, ALPH_DECIMAL } from "./constsnts.ts"
-import alephiumBridgeStore from "../../mobx/alephiumBridgeStore.tsx"
-import Clipboard from "@react-native-clipboard/clipboard"
-import RedeemCoins from "components/redeemCoins/redeemCoins.tsx"
 
 global.atob = atob
 global.btoa = btoa
@@ -167,6 +166,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
       })
 
       const bridgeConfig: BridgeSettings | null =
+        // @ts-ignore
         (CONFIG.getConfigFor(asset.chain, "bridge") as BridgeSettings) || null
 
       if (!bridgeConfig) {
@@ -176,27 +176,6 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
       alephiumBridgeStore.setBridgingAmount(amount)
       try {
         console.log("MESSAGEFEEEEEEEEEEEEEEEE", bridgeConfig.config.messageFee)
-
-        /** ----------------------------------- New ------------------------------------- **/
-        class AlphTxInfo {
-          blockHash: string
-          blockHeight: number
-          blockTimestamp: number
-          txId: string
-          sequence: string
-          targetChain: ChainId
-          confirmations: number
-
-          constructor(blockHeader: node.BlockHeaderEntry, txId: string, sequence: string, targetChain: ChainId, confirmations: number) {
-            this.blockHash = blockHeader.hash
-            this.blockHeight = blockHeader.height
-            this.blockTimestamp = blockHeader.timestamp
-            this.txId = txId
-            this.sequence = sequence
-            this.targetChain = targetChain
-            this.confirmations = confirmations
-          }
-        }
 
         async function getTxInfo(provider: NodeProvider, txId: string) {
           console.log("CALL getTxInfo txID:", txId)
@@ -229,10 +208,10 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
           return new AlphTxInfo(blockHeader, txId, sequence, targetChain, confirmed.chainConfirmations)
         }
 
-        /** ----------------------------------- New ------------------------------------- **/
         const ethNodeProvider = new ethers.providers.JsonRpcProvider(BRIDGE_CONSTANTS.ETH_JSON_RPC_PROVIDER_URL)
         const signer = new ethers.Wallet(ethNetworkETHCoin!.privateKey, ethNodeProvider)
         alephiumBridgeStore.setSigner(signer)
+        alephiumBridgeStore.setIsTransferring(true)
 
         const result = await transferLocalTokenFromAlph(
           wallet,
@@ -246,60 +225,11 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
           0n,
           BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL,
         )
-        const gasAmount: number = Number(result.gasAmount);
-        const gasPrice: number = Number(result.gasPrice);
-        const totalFee: number = gasAmount * gasPrice / 1e18;
-        alephiumBridgeStore.setTotalFees(totalFee)
-
-        // MAINNET
-        // const result = {
-        //   "fromGroup": 0,
-        //   "gasAmount": 51399,
-        //   "gasPrice": 100000000000n,
-        //   "groupIndex": 0,
-        //   "signature": "3276f7807aa5b0eaed147fbaf96e873961efac899a1d83a990a8f6375083af597fb4ea4a53ec1c33177b133288965eaea99fbe7aa766aa500a73d4c584de6c0f",
-        //   "toGroup": 0,
-        //   "txId": "3c3a8800dd07a5114d3616b96b7e535589680bcdf9e16d06364b9f29edfccf20",
-        //   "unsignedTx": "0000010101030001001a0c0d1440207f42f8e21128e70c7a30098a32c5c388de7eb4ffc6ef7dd86f72e8e11acc4800010a17001500626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a15007a1600a2144020000000000000000000000000000000000000000000000000000000000000000013c3038d7ea4c68000a31500626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a150014402000000000000000000000000000000000000000000000000000000000000000001340ff0e1440207f42f8e21128e70c7a30098a32c5c388de7eb4ffc6ef7dd86f72e8e11acc480013c3038d7ea4c6800016000c140433eb00001340cd130a0c1440207f42f8e21128e70c7a30098a32c5c388de7eb4ffc6ef7dd86f72e8e11acc480001108000c8c7c1174876e80001d5b05c7da17f4038f70cf822474ac5eb8832cf1a00ae218da5e8d738889c48bc593f2509000237c37e212b80fde49d8cc01179d213e9fe3cef91d04de96eec21a936d43a8f4301c402f5d30aa289300000626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a150000000000000000000000",
-        // }
-
-        // TESTNET
-        // const result = {
-        //   "fromGroup": 0,
-        //   "gasAmount": 55890,
-        //   "gasPrice": 100000000000n,
-        //   "groupIndex": 0,
-        //   "signature": "ff2a2f3ef761202726e8d1a1bca5519ad1797fef3c5d4dcf66cb0da4a65587a351f10e81350144f98e03b99b5923bf807e636e98c05664d124006490b8f1a4aa",
-        //   "toGroup": 0,
-        //   "txId": "4057e8bb83c50d2f033b70e68fd1400d6f9be05ae55cbfe1accd153f02235278",
-        //   "unsignedTx": "0001010101030001001a0c0d1440204c91e8825fcfea5219cf6a5b4f1607db7f0bd22850f39ed87dad9445bd99a800010a17001500626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a15007a1600a2144020000000000000000000000000000000000000000000000000000000000000000013c3038d7ea4c68000a31500626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a150014402000000000000000000000000000000000000000000000000000000000000000001340ff0e1440204c91e8825fcfea5219cf6a5b4f1607db7f0bd22850f39ed87dad9445bd99a80013c3038d7ea4c6800016000c1404860c0100130a130a0c1440204c91e8825fcfea5219cf6a5b4f1607db7f0bd22850f39ed87dad9445bd99a80001108000da52c1174876e80001d5b05c7dac8a50bc8bfad8e2a8c33aa4e030ed8e32d7fcbe110bd2d1802d2b5bd713dd34000237c37e212b80fde49d8cc01179d213e9fe3cef91d04de96eec21a936d43a8f4301c41b035dfbcc4da00000626147708544d0e7360952f05734b0545568feb0556b1f6404298e60b63a150000000000000000000000",
-        // }
 
         console.log("result", result)
 
         const txInfo = await waitTxConfirmedAndGetTxInfo(wallet.nodeProvider, result.txId)
-
-        // MAINNET
-        // const txInfo = {
-        //   "blockHash": "000000000000345f5b2a9a83e23d542ecc7961150d7a5b7e46986830adc2bd00",
-        //   "blockHeight": 2267174,
-        //   "blockTimestamp": 1729169583697,
-        //   "confirmations": 1,
-        //   "sequence": "4286",
-        //   "targetChain": 2,
-        //   "txId": "3c3a8800dd07a5114d3616b96b7e535589680bcdf9e16d06364b9f29edfccf20",
-        // }
-
-        // TESTNET
-        // const txInfo = {
-        //   "blockHash": "0000000c2eba2ab051dc30da557fca8b0a78d4197efe0068a297ecc3d51d4770",
-        //   "blockHeight": 1317075,
-        //   "blockTimestamp": 1729159372624,
-        //   "confirmations": 1,
-        //   "sequence": "4613",
-        //   "targetChain": 2,
-        //   "txId": "4057e8bb83c50d2f033b70e68fd1400d6f9be05ae55cbfe1accd153f02235278",
-        // }
+        alephiumBridgeStore.setIsTransferring(false)
 
         console.log("txInfo", txInfo)
 
@@ -336,8 +266,12 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
         console.log("getSignedVAA [end]")
         console.log("vaaBytes", vaaBytes)
 
-
-        /** ----------------------------------- New END ------------------------------------- **/
+        const token = ethers_contracts.Bridge__factory.connect(BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS, signer)
+        const gasAmountResult = await token.estimateGas.completeTransfer(vaaBytes)
+        const gasAmount = Number(gasAmountResult.toString())
+        const gasPrice: number = Number(result.gasPrice)
+        const totalFee: number = gasAmount * gasPrice / 1e18
+        alephiumBridgeStore.setTotalFees(totalFee)
       } catch (err) {
         console.log("THERE WAS AN ERROR IN transferLocalTokenFromAlph", err)
       } finally {
@@ -360,10 +294,10 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
           signedVAA,
         )
         alephiumBridgeStore.resetStore()
-        console.log('redeemData',redeemData)
+        console.log("redeemData", redeemData)
       } catch (e) {
         console.log("redeemOnEthError: Something whet wrong ", e)
-      }finally {
+      } finally {
         alephiumBridgeStore.setIsRedeemProcessing(false)
       }
     }
@@ -492,36 +426,9 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
       setSending(true)
       try {
         transferToBridge(amount)
-        // const txId = await makeSendTransaction(
-        //   asset,
-        //   fees ? fees.regular : null,
-        // );
-        // if (!txId) {
-        //   showMessage({message: 'Unable to Send', type: 'danger'});
-        // } else {
-        //   if (amount === null) {
-        //     showMessage({message: 'No amount specified', type: 'danger'});
-        //     return;
-        //   }
-        //   showMessage({message: 'Transaction sent', type: 'success'});
-        //   pendingTransactions.add(asset, {
-        //     amount: `-${new BigNumber(amount)
-        //       .plus(
-        //         fees.regular.settings.feeValue
-        //           ? fees.regular.settings.feeValue
-        //           : '0',
-        //       )
-        //       .toString()}`,
-        //     from: asset.address,
-        //     to: recipientAddress,
-        //     timestamp: new Date().getTime(),
-        //     reason: 'transaction',
-        //     txId,
-        //   });
         setFees(null)
         setIsPreview(false)
         goBack()
-        // }
       } catch (err: any) {
         showMessage({ message: err.message, type: "danger" })
       } finally {
@@ -529,42 +436,74 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
       }
     }
 
-    // const validAddress = address => {
-    //   return checkAddress(address, asset.chain as any) || 'Invalid address';
-    // };
-
     const goBack = () => navigation.goBack()
 
     const onPressGoAddEthereum = () => {
-      // navigation.navigate('createWallet');
-      const tokenInfo = tokens.find((el: any) => el.id === "alephium")
-      const chain = tokenInfo.chains.find((el: any) => el.id === "ETH")
-      if (!tokenInfo || !chain) return
+      const ALPHTokenInfo = tokens.find((el: any) => el.id === "alephium")
+      const ALPHChain = ALPHTokenInfo.chains.find((el: any) => el.id === "ETH")
+      const ETHTokenInfo = tokens.find((el: any) => el.id === "ethereum")
+      const ETHChain = ETHTokenInfo.chains.find((el: any) => el.id === "ETH")
 
-      currentWalletStore
-        .addAutoAsset({
-          name: tokenInfo.name,
-          chain: chain.id,
-          symbol: tokenInfo.symbol,
-          cid: tokenInfo.id,
-          type: tokenInfo.type,
-          contract: chain.contract,
-          image: tokenInfo.thumb,
+      if (!ALPHTokenInfo || !ALPHChain || !ETHTokenInfo) {
+        return showMessage({
+          message: "Something went wrong",
+          type: "danger",
         })
-        .then(() => {
-          showMessage({
-            message: "Coin added to wallet",
-            type: "success",
-          })
-        })
-        .catch(e => {
-          console.log(e)
-          showMessage({
-            message: "Something went wrong",
-            type: "danger",
-          })
-        })
+      }
 
+      // Add ETH token to Eth network
+      if (!ethNetworkETHCoin) {
+        currentWalletStore
+          .addAutoAsset({
+            name: ETHTokenInfo.name,
+            chain: ETHChain.id,
+            symbol: ETHTokenInfo.symbol,
+            cid: ETHTokenInfo.id,
+            type: ETHTokenInfo.type,
+            contract: ETHChain.contract,
+            image: ETHTokenInfo.thumb,
+          })
+          .then(() => {
+            showMessage({
+              message: "Coin added to wallet",
+              type: "success",
+            })
+          })
+          .catch(e => {
+            console.log(e)
+            showMessage({
+              message: "Something went wrong",
+              type: "danger",
+            })
+          })
+      }
+
+      // Add ALPH token to Eth network
+      if (!ethNetworkAlephiumCoin) {
+        currentWalletStore
+          .addAutoAsset({
+            name: ALPHTokenInfo.name,
+            chain: ALPHChain.id,
+            symbol: ALPHTokenInfo.symbol,
+            cid: ALPHTokenInfo.id,
+            type: ALPHTokenInfo.type,
+            contract: ALPHChain.contract,
+            image: ALPHTokenInfo.thumb,
+          })
+          .then(() => {
+            showMessage({
+              message: "Coin added to wallet",
+              type: "success",
+            })
+          })
+          .catch(e => {
+            console.log(e)
+            showMessage({
+              message: "Something went wrong",
+              type: "danger",
+            })
+          })
+      }
     }
 
     const onPressCopyTxId = (txId: string) => {
@@ -617,9 +556,18 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
                     />
                   }
                 </View>
+
+                {alephiumBridgeStore.isTransferring && (
+                  <View style={stylesComponent.transferLoadingMessageWrapper}>
+                    <ActivityIndicator />
+                    <Text style={stylesComponent.transferLoadingMessage}>Waiting for transaction confirmation...</Text>
+                  </View>
+                )}
+
+
                 {!alephiumBridgeStore.bridgingAmount &&
                   <>
-                    {!ethNetworkAlephiumCoin &&
+                    {(!ethNetworkETHCoin || !ethNetworkAlephiumCoin) &&
                       <View style={[stylesComponent.infoCard, { marginTop: 24 }]}>
                         <Text style={stylesComponent.infoCardTitle}>Important</Text>
                         <Text style={stylesComponent.infoCardMessage}>
@@ -650,7 +598,6 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
                         onPress={onPressGoAddEthereum}
                       />
                     }
-
 
                     {!!ethNetworkETHCoin && !!ethNetworkAlephiumCoin && !alephiumBridgeStore.isProcessingConfirmations &&
                       <View>
@@ -745,11 +692,11 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
             {!!ethNetworkETHCoin && !!ethNetworkAlephiumCoin && !alephiumBridgeStore.bridgingAmount &&
               <View style={stylesComponent.previewOperation}>
                 <WalletButton
-                  text={'Preview the operation'}
+                  text={"Preview the operation"}
                   type="primary"
                   outline={true}
-                  disabled={!isValid || ethNetworkETHCoin?.balanceWithDerivedAddresses === 0}
-                  onPress={()=>{
+                  // disabled={!isValid || ethNetworkETHCoin?.balanceWithDerivedAddresses === 0}
+                  onPress={() => {
                     Keyboard.dismiss()
                     handleSubmit(onSubmit)()
                   }}
@@ -757,19 +704,25 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
               </View>
             }
 
-            {!!alephiumBridgeStore.bridgingAmount && !alephiumBridgeStore.isRedeemProcessing && !alephiumBridgeStore.isProcessingConfirmations &&
+            {!!alephiumBridgeStore.bridgingAmount && !alephiumBridgeStore.isProcessingConfirmations &&
               <View style={stylesComponent.previewOperation}>
                 <WalletButton
                   type="primary"
                   outline={true}
                   text={"Preview the operation"}
                   onPress={() => setIsPreview(true)}
-                  disabled={alephiumBridgeStore.loadingSignedVAA}
+                  disabled={alephiumBridgeStore.loadingSignedVAA || alephiumBridgeStore.isRedeemProcessing}
                 >
-                  {alephiumBridgeStore.loadingSignedVAA &&
-                    <ActivityIndicator />
-                  }
+                    {(alephiumBridgeStore.loadingSignedVAA || alephiumBridgeStore.isRedeemProcessing) &&
+                      <ActivityIndicator />
+                    }
                 </WalletButton>
+                {alephiumBridgeStore.loadingSignedVAA &&
+                  <Text style={stylesComponent.transferLoadingMessage}>Getting signed VAA...</Text>
+                }
+                {alephiumBridgeStore.isRedeemProcessing &&
+                  <Text style={stylesComponent.transferLoadingMessage}>Waiting for transaction confirmation...</Text>
+                }
               </View>
             }
 
@@ -793,7 +746,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
                   disabled={alephiumBridgeStore.signedVAA ? false : sending || !sendable}
                   style={styles.DRAWER_BTN_OK}
                   textStyle={styles.DRAWER_BTN_TEXT}
-                  onPress={()=> alephiumBridgeStore.signedVAA ? redeemOnEthHandler() : processTransaction()}
+                  onPress={() => alephiumBridgeStore.signedVAA ? redeemOnEthHandler() : processTransaction()}
                 />,
               ]}>
               <View style={styles.DRAWER_CARD}>
@@ -843,7 +796,11 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
                           </Text>
                         </>
                       )}
-                      {alephiumBridgeStore.bridgingAmount && alephiumBridgeStore.totalFees}
+                      {!!alephiumBridgeStore.bridgingAmount && (
+                        <>
+                          {alephiumBridgeStore.totalFees} ETH
+                        </>
+                      )}
                     </Text>
                   </View>
                 </View>
@@ -905,6 +862,13 @@ const stylesComponent = StyleSheet.create({
   inputFiledWrapper: {
     position: "relative",
   },
+  transferLoadingMessageWrapper: {
+    gap: 8,
+    marginTop: 16,
+  },
+  transferLoadingMessage: {
+    textAlign: "center",
+  },
   inputFiled: {
     fontSize: 16,
     width: "100%",
@@ -953,6 +917,7 @@ const stylesComponent = StyleSheet.create({
     backgroundColor: "#DBAF00",
   },
   previewOperation: {
+    gap: 16,
     marginTop: 29,
     marginBottom: 16,
     alignItems: "center",

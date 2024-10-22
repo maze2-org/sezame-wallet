@@ -92,7 +92,7 @@ export const CurrencyDescriptionBlock = observer(function CurrencyDescriptionBlo
   return (
     <View style={[{ alignItems: "center" }, small && smallStyle]}>
       <View style={styles}>
-        <Image source={{ uri: asset.image }} style={LogoStyle} />
+        <Image source={{ uri: asset?.image }} style={LogoStyle} />
         {icon === "transfer" && (
           <View style={IconStyle}>
             <SvgXml width={24} height={24} xml={transfer} />
@@ -106,7 +106,7 @@ export const CurrencyDescriptionBlock = observer(function CurrencyDescriptionBlo
       </View>
       <Text style={rewardsStyle}>{title}</Text>
       <Text style={[amountStyle,styleBalance]}>
-        {asset[balanceType].toFixed(4)} {asset.symbol}
+        {asset?.[balanceType]?.toFixed(4)} {asset?.symbol}
       </Text>
     </View>
   )

@@ -1,6 +1,7 @@
 import { makeAutoObservable } from "mobx"
 
 class AlephiumBridgeStore {
+  isTransferring: boolean = false
   totalFees: string | number = 0
   isRedeemProcessing = false
   bridgingAmount: string | number = ""
@@ -46,14 +47,18 @@ class AlephiumBridgeStore {
   setIsRedeemProcessing(loading: boolean) {
     this.isRedeemProcessing = loading
   }
+
   setTotalFees(fees: string | number) {
     this.totalFees = fees
   }
 
-
+  setIsTransferring(isTransferring: boolean) {
+    this.isTransferring = isTransferring
+  }
 
   resetStore() {
     this.totalFees = 0
+    this.isTransferring = false
     this.isRedeemProcessing = false
     this.loadingSignedVAA = false
     this.bridgingAmount = ""

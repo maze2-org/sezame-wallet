@@ -29,6 +29,14 @@ const AlephimPendingBride: IProps = ({
                                      }) => {
   const modalFlashRef = useRef<FlashMessage>();
 
+  const truncateText = (text: string) => {
+    return (
+      text.substring(0, 16) +
+      '...' +
+      text.substring(text.length - 16, text.length)
+    );
+  };
+
   const onPressCopyTxIdHandler = () => {
     if (!!txId) {
       Clipboard.setString(txId)
@@ -51,7 +59,7 @@ const AlephimPendingBride: IProps = ({
         </View>
         <View>
           <Text style={styles.txIdTitle}>Tx ID</Text>
-          <Text style={styles.txId}>{txId}</Text>
+          <Text style={styles.txId}>{truncateText(txId)}</Text>
         </View>
       </View>
 
