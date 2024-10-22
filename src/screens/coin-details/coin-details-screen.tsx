@@ -1,6 +1,6 @@
 import React, {useMemo, FC, useEffect, useRef, useState} from 'react';
 import {observer} from 'mobx-react-lite';
-import {View, ImageBackground, ScrollView, Linking} from 'react-native';
+import { View, ImageBackground, ScrollView, Linking, StyleSheet } from "react-native"
 import {StackNavigationProp, StackScreenProps} from '@react-navigation/stack';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import IonIcons from 'react-native-vector-icons/Ionicons';
@@ -24,6 +24,10 @@ import CoinDetailsFooter from './compnents/coin-details-footer';
 import ReceiveModal from './compnents/receive-modal';
 import TransactionsHistory from './compnents/transactions-history';
 import {BridgeCard} from 'components/bridge-card/bridge-card.component';
+import AlephimPendingBride from "components/alephimPendingBride/alephimPendingBride.tsx"
+import alephiumBridgeStore from "mobx/alephiumBridgeStore.tsx"
+import Clipboard from "@react-native-clipboard/clipboard"
+import { getConfigs } from "screens/bridge/constsnts.ts"
 const tokens = require('@config/tokens.json');
 
 export const CoinDetailsScreen: FC<
@@ -33,7 +37,7 @@ export const CoinDetailsScreen: FC<
   const [coinData, setCoinData] = useState<CoingeckoCoin | null>(null);
   const [chartData, setChartData] = useState<any[]>([]);
   const [chartDays, setChartDays] = useState<number | 'max'>(1);
-  const {currentWalletStore, exchangeRates, setOverlayLoadingShown} =
+  const {currentWalletStore, exchangeRates, setOverlayLoadingShown,TESTNET} =
     useStores();
   const {
     getAssetById,
@@ -43,6 +47,8 @@ export const CoinDetailsScreen: FC<
     setBalance,
   } = currentWalletStore;
   const [explorerUrl, setExplorerUrl] = useState<string>('');
+  const BRIDGE_CONSTANTS = useMemo(() => (getConfigs(TESTNET ? "testnet" : "mainnet")), [TESTNET])
+
 
   const asset = getSelectedAddressForAsset(
     route.params.coinId,
@@ -233,6 +239,16 @@ export const CoinDetailsScreen: FC<
       }
     }
   };
+
+  const onPressCopyTxId = (txId: string) => {
+    if (!!txId) {
+      Clipboard.setString(txId)
+      modalFlashRef?.current?.showMessage({
+        type: "success",
+        message: "Copied to clipboard",
+      })
+    }
+  }
 
   return (
     <Screen unsafe={true} style={styles.ROOT} preset="fixed">
@@ -432,7 +448,23 @@ export const CoinDetailsScreen: FC<
                       </View>
                       {selectedAsset && selectedAsset.chain === "ALPH" && (
                         <>
-                          <BridgeCard from={selectedAsset} />
+                          {alephiumBridgeStore.isProcessingConfirmations ?
+                            <View style={componentStyles.alephiumPendingBrideWrapper}>
+                              <AlephimPendingBride
+                                onPressRedeem={()=> {
+                                  navigation.navigate('bridge', {
+                                    coinId: selectedAsset.cid,
+                                    chain: selectedAsset.chain,
+                                  });
+                                }}
+                                onPressCopyTxId={onPressCopyTxId}
+                                txId={alephiumBridgeStore.currentTxId}
+                                currentConfirmations={alephiumBridgeStore.chainConfirmations}
+                                minimalConfirmations={BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL} />
+                            </View>
+                            :
+                            <BridgeCard from={selectedAsset} />
+                          }
                           <TransactionsHistory asset={selectedAsset} />
                         </>
                       )}
@@ -515,3 +547,10 @@ export const CoinDetailsScreen: FC<
     </Screen>
   );
 });
+
+
+const componentStyles = StyleSheet.create({
+  alephiumPendingBrideWrapper:{
+    paddingHorizontal:8
+  }
+})

@@ -10,7 +10,7 @@ import { palette } from "theme/palette.ts"
 import { observer } from "mobx-react-lite"
 import { arrayify } from "@ethersproject/bytes"
 import { atob, btoa } from "react-native-quick-base64"
-import { showMessage } from "react-native-flash-message"
+import FlashMessage, { showMessage } from "react-native-flash-message"
 import { useNavigation } from "@react-navigation/native"
 import { BridgeSettings } from "@maze2/sezame-sdk/dist/utils/config"
 import { PrivateKeyWallet } from "@alephium/web3-wallet"
@@ -55,6 +55,7 @@ import {
   Dimensions,
   ImageBackground,
   KeyboardAvoidingView,
+  ActivityIndicator,
 } from "react-native"
 import {
   ChainId,
@@ -70,13 +71,10 @@ import {
 
 import styles from "./styles"
 import { getSignedVAAWithRetry } from "screens/bridge/getSignedVAAWithRetry.ts"
-import {
-  getConfigs,
-  WormholeMessageEventIndex,
-} from "./constsnts.ts"
-
-const BRIDGE_CONSTANTS = getConfigs("testnet")
-console.log(BRIDGE_CONSTANTS)
+import { getConfigs, WormholeMessageEventIndex, ALPH_DECIMAL } from "./constsnts.ts"
+import alephiumBridgeStore from "../../mobx/alephiumBridgeStore.tsx"
+import Clipboard from "@react-native-clipboard/clipboard"
+import RedeemCoins from "components/redeemCoins/redeemCoins.tsx"
 
 global.atob = atob
 global.btoa = btoa
@@ -94,15 +92,18 @@ type BridgeDetails = {
 };
 
 const checkboxes = [
-  { value: 1, title: "25%" },
-  { value: 2, title: "50%" },
-  { value: 3, title: "75%" },
+  { value: 1, title: "25%", percent: 25 },
+  { value: 2, title: "50%", percent: 50 },
+  { value: 3, title: "75%", percent: 75 },
 ]
 
 const tokens = require("@config/tokens.json")
 
 export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
   observer(function BridgeScreen({ route }) {
+    const modalFlashRef = useRef<FlashMessage>()
+    const rootStore = useStores()
+    const BRIDGE_CONSTANTS = useMemo(() => (getConfigs(rootStore.TESTNET ? "testnet" : "mainnet")), [rootStore.TESTNET])
 
     const DrawerStyle: ViewStyle = {
       display: "flex",
@@ -119,6 +120,8 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
     const {
       control,
       handleSubmit,
+      watch,
+      setValue: setFormValue,
       formState: { errors, isValid },
     } = useForm({
       mode: "onChange",
@@ -169,134 +172,12 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
       if (!bridgeConfig) {
         return false
       }
-      const bAmount = BigInt(Number(amount) * 1000000000000000000)
-
+      const bAmount = BigInt(Number(amount) * ALPH_DECIMAL)
+      alephiumBridgeStore.setBridgingAmount(amount)
       try {
         console.log("MESSAGEFEEEEEEEEEEEEEEEE", bridgeConfig.config.messageFee)
-        // const tx = await transferLocalTokenFromAlph(
-        //   wallet,
-        //   alephiumMainnetConfig.contracts.TokenBridge.contractInstance
-        //     .contractId,
-        //   wallet.account.address,
-        //   ALPH_TOKEN_ID,
-        //   CHAIN_ID_ETH,
-        //   bridgeConfig.config.contracts.nativeTokenBridge,
-        //   bAmount,
-        //   BigInt(bridgeConfig.config.messageFee),
-        //   0n,
-        //   BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL,
-        // )
 
-        // subscribeToTxStatus({
-        //   pollingInterval: 1000,
-        //   messageCallback: async (event) => {
-        //     // const event = {"type": "MemPooled"}
-        //     // const event = {"blockHash": "000000000000256106c8eb591ac5477f99957b9cbae8f83055d3088af6f7fb20", "chainConfirmations": 1, "fromGroupConfirmations": 1, "toGroupConfirmations": 1, "txIndex": 1, "type": "Confirmed"}
-        //
-        //     console.log("event", event)
-        //     if (event.type === "Confirmed") {
-        //       const confirmed = await waitALPHTxConfirmed(nodeProvider, tx.txId, BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL)
-        //
-        //       const ethNodeProvider = new ethers.providers.JsonRpcProvider("https://node-ethereum.sezame.app")
-        //       const signer = new ethers.Wallet(ethNetworkETHCoin!.privateKey, ethNodeProvider)
-        //       const balance = await ethNodeProvider.getBalance(signer.address)
-        //
-        //       console.log("Balance:", ethers.utils.formatEther(balance))
-        //
-        //       const res = await approveEth(
-        //         "0x579a3bDE631c3d8068CbFE3dc45B0F14EC18dD43",
-        //         ethNetworkAlephiumCoin!.address,
-        //         signer,
-        //         bAmount,
-        //         {
-        //           gasLimit: tx.gasAmount,
-        //           gasPrice: tx.gasPrice,
-        //         },
-        //       )
-        //
-        //       function isAlphTxConfirmed(txStatus: node.TxStatus): txStatus is node.Confirmed {
-        //         return txStatus.type === "Confirmed"
-        //       }
-        //
-        //       async function waitALPHTxConfirmed(provider: NodeProvider, txId: string, confirmations: number): Promise<node.Confirmed> {
-        //         try {
-        //           const txStatus = await provider.transactions.getTransactionsStatus({ txId: txId })
-        //           // @ts-ignore
-        //           console.log(`Confirmations: ${txStatus?.chainConfirmations}/${confirmations}`)
-        //           if (isAlphTxConfirmed(txStatus) && txStatus.chainConfirmations >= confirmations) {
-        //             return txStatus as node.Confirmed
-        //           }
-        //         } catch (error) {
-        //           console.error(`Failed to get tx status, tx id: ${txId}`)
-        //         }
-        //         const ALEPHIUM_POLLING_INTERVAL = 10000
-        //         await sleep(ALEPHIUM_POLLING_INTERVAL)
-        //         return waitALPHTxConfirmed(provider, txId, confirmations)
-        //       }
-        //
-        //       async function getTxInfo(provider: NodeProvider, txId: string) {
-        //         const events = await provider.events.getEventsTxIdTxid(txId, { group: alephiumMainnetConfig.contracts.TokenBridge.contractInstance.groupIndex })
-        //         const event = events.events.find((event) => event.contractAddress === BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID)
-        //         if (typeof event === "undefined") {
-        //           return Promise.reject(`Failed to get event for tx: ${txId}`)
-        //         }
-        //         const WormholeMessageEventIndex = 0
-        //         if (event.eventIndex !== WormholeMessageEventIndex) {
-        //           return Promise.reject("invalid event index: " + event.eventIndex)
-        //         }
-        //         const sender = event.fields[0]
-        //         if (sender.type !== "ByteVec") {
-        //           return Promise.reject("invalid sender, expect ByteVec type, have: " + sender.type)
-        //         }
-        //         const senderContractId = (sender as node.ValByteVec).value
-        //         if (senderContractId !== BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID) {
-        //           return Promise.reject("invalid sender, expect token bridge contract id, have: " + senderContractId)
-        //         }
-        //         const sequence = parseSequenceFromLogAlph(event)
-        //         const targetChain = parseTargetChainFromLogAlph(event)
-        //         return { sequence, targetChain }
-        //       }
-        //
-        //       async function waitTxConfirmedAndGetTxInfo(provider: NodeProvider, txId: string): Promise<any> {
-        //         const confirmed = await waitALPHTxConfirmed(provider, txId, BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL)
-        //         const { sequence, targetChain } = await getTxInfo(provider, txId)
-        //         // const blockHeader = await provider.blockflow.getBlockflowHeadersBlockHash(confirmed.blockHash)
-        //         // return new AlphTxInfo(blockHeader, txId, sequence, targetChain, confirmed.chainConfirmations)
-        //         return { sequence, targetChain }
-        //       }
-        //
-        //       const shouldUpdate = false
-        //       const attestTokenHandlerId = getAttestTokenHandlerId(BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID, CHAIN_ID_ALEPHIUM, alephiumMainnetConfig.contracts.TokenBridge.contractInstance.groupIndex)
-        //       const txInfo = await waitTxConfirmedAndGetTxInfo(nodeProvider, tx.txId)
-        //       console.log("txInfo.sequence", txInfo.sequence)
-        //       console.log("start")
-        //       const { vaaBytes } = await getSignedVAAWithRetry(
-        //         ["https://guardian-0.bridge.alephium.org"],
-        //         CHAIN_ID_ALEPHIUM,
-        //         BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID,
-        //         CHAIN_ID_ETH,
-        //         txInfo.sequence,
-        //       )
-        //       console.log("end")
-        //       console.log("vaaBytes", vaaBytes)
-        //       const signedVAA = vaaBytes ? hexToUint8Array(uint8ArrayToHex(vaaBytes)) : undefined
-        //       console.log("signedVAA", signedVAA)
-        //       if (signedVAA) {
-        //         const result = shouldUpdate
-        //           ? await updateRemoteTokenPoolOnAlph(wallet, attestTokenHandlerId, signedVAA)
-        //           : await createRemoteTokenPoolOnAlph(wallet, attestTokenHandlerId, signedVAA, wallet.account.address, MINIMAL_CONTRACT_DEPOSIT)
-        //         console.log("result", result)
-        //       }
-        //     }
-        //   },
-        //   errorCallback: (error) => {
-        //     console.log("error", error)
-        //   },
-        // }, tx.txId)
-
-        /**
-         * New ------------------------------------------------------------------------
-         * */
+        /** ----------------------------------- New ------------------------------------- **/
         class AlphTxInfo {
           blockHash: string
           blockHeight: number
@@ -348,9 +229,10 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
           return new AlphTxInfo(blockHeader, txId, sequence, targetChain, confirmed.chainConfirmations)
         }
 
-        // ----------------------------------------------------------------------------
+        /** ----------------------------------- New ------------------------------------- **/
         const ethNodeProvider = new ethers.providers.JsonRpcProvider(BRIDGE_CONSTANTS.ETH_JSON_RPC_PROVIDER_URL)
         const signer = new ethers.Wallet(ethNetworkETHCoin!.privateKey, ethNodeProvider)
+        alephiumBridgeStore.setSigner(signer)
 
         const result = await transferLocalTokenFromAlph(
           wallet,
@@ -364,6 +246,10 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
           0n,
           BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL,
         )
+        const gasAmount: number = Number(result.gasAmount);
+        const gasPrice: number = Number(result.gasPrice);
+        const totalFee: number = gasAmount * gasPrice / 1e18;
+        alephiumBridgeStore.setTotalFees(totalFee)
 
         // MAINNET
         // const result = {
@@ -417,11 +303,27 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
 
         console.log("txInfo", txInfo)
 
+        alephiumBridgeStore.setCurrentTxId(txInfo.txId)
+        alephiumBridgeStore.setIsProcessingConfirmations(true)
+
+        const interval = setInterval(async () => {
+          const txStatus = await nodeProvider.transactions.getTransactionsStatus({ txId: txInfo.txId })
+          if ("chainConfirmations" in txStatus) {
+            alephiumBridgeStore.setCurrentConfirmations(txStatus.chainConfirmations)
+          }
+          if (alephiumBridgeStore.chainConfirmations >= BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL) {
+            alephiumBridgeStore.setIsProcessingConfirmations(false)
+            clearInterval(interval)
+          }
+        }, 10000)
+
+        alephiumBridgeStore.setLoadingSignedVAA(true)
         console.log("waitAlphTxConfirmed [start]", BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL)
         await waitAlphTxConfirmed(wallet.nodeProvider, txInfo.txId, BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL)
         console.log("waitAlphTxConfirmed [end]", BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL)
 
         console.log("getSignedVAA [start]")
+        // signedVAA = vaaBytes
         const { vaaBytes } = await getSignedVAAWithRetry(
           BRIDGE_CONSTANTS.WORMHOLE_RPC_HOSTS,
           CHAIN_ID_ALEPHIUM,
@@ -429,20 +331,13 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
           CHAIN_ID_ETH,
           txInfo.sequence,
         )
+        alephiumBridgeStore.setLoadingSignedVAA(false)
+        alephiumBridgeStore.setSignedVAA(vaaBytes)
         console.log("getSignedVAA [end]")
         console.log("vaaBytes", vaaBytes)
 
-        const signedVAA = vaaBytes
-        const redeemData = await redeemOnEth(
-          BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
-          signer,
-          signedVAA,
-        )
 
-        console.log("redeemData", redeemData)
-        /**
-         * New -------------------------------------------------------------------  END
-         * */
+        /** ----------------------------------- New END ------------------------------------- **/
       } catch (err) {
         console.log("THERE WAS AN ERROR IN transferLocalTokenFromAlph", err)
       } finally {
@@ -450,6 +345,27 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
       }
 
       console.log("TRANSFER DONEEEEEEEEEEEEE")
+    }
+
+    const redeemOnEthHandler = async () => {
+      const signer = alephiumBridgeStore.signer
+      const signedVAA = alephiumBridgeStore.signedVAA
+      setIsPreview(false)
+      if (!signer || !signedVAA) return
+      try {
+        alephiumBridgeStore.setIsRedeemProcessing(true)
+        const redeemData = await redeemOnEth(
+          BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
+          signer,
+          signedVAA,
+        )
+        alephiumBridgeStore.resetStore()
+        console.log('redeemData',redeemData)
+      } catch (e) {
+        console.log("redeemOnEthError: Something whet wrong ", e)
+      }finally {
+        alephiumBridgeStore.setIsRedeemProcessing(false)
+      }
     }
 
     // Pull in navigation via hook
@@ -651,6 +567,16 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
 
     }
 
+    const onPressCopyTxId = (txId: string) => {
+      if (!!txId) {
+        Clipboard.setString(txId)
+        modalFlashRef?.current?.showMessage({
+          type: "success",
+          message: "Copied to clipboard",
+        })
+      }
+    }
+
     useEffect(() => {
       const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
         scrollViewRef?.current?.scrollToEnd()
@@ -659,224 +585,279 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
     }, [scrollViewRef?.current])
 
     return (
-      <KeyboardAvoidingView
-        style={[
-          presets.scroll.outer,
-          { backgroundColor: color.palette.black },
-        ]}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
+      <>
 
-        <ImageBackground source={MainBackground} style={BackgroundStyle}>
-          <ScrollView contentContainerStyle={stylesComponent.container} keyboardShouldPersistTaps={"handled"}>
-            <View>
+        <KeyboardAvoidingView
+          style={[
+            presets.scroll.outer,
+            { backgroundColor: color.palette.black },
+          ]}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <ImageBackground source={MainBackground} style={BackgroundStyle}>
+            <ScrollView contentContainerStyle={stylesComponent.container} keyboardShouldPersistTaps={"handled"}>
 
-              <View
-                style={[stylesComponent.walletsWrapper, !!ethNetworkAlephiumCoin && stylesComponent.walletsWrapperWithTwoChild]}>
-                <CurrencyDescriptionBlock
-                  asset={asset}
-                  icon="transfer"
-                  balance="freeBalance"
-                  title="Available balance"
-                  styleBalance={!!ethNetworkAlephiumCoin && stylesComponent.balanceText}
-                />
-                {!!ethNetworkAlephiumCoin &&
+              <View>
+                <View
+                  style={[stylesComponent.walletsWrapper, !!ethNetworkAlephiumCoin && stylesComponent.walletsWrapperWithTwoChild]}>
                   <CurrencyDescriptionBlock
-                    asset={ethNetworkETHCoin}
+                    asset={asset}
                     icon="transfer"
                     balance="freeBalance"
                     title="Available balance"
                     styleBalance={!!ethNetworkAlephiumCoin && stylesComponent.balanceText}
                   />
+                  {!!ethNetworkAlephiumCoin &&
+                    <CurrencyDescriptionBlock
+                      asset={ethNetworkETHCoin}
+                      icon="transfer"
+                      balance="freeBalance"
+                      title="Available balance"
+                      styleBalance={!!ethNetworkAlephiumCoin && stylesComponent.balanceText}
+                    />
+                  }
+                </View>
+                {!alephiumBridgeStore.bridgingAmount &&
+                  <>
+                    {!ethNetworkAlephiumCoin &&
+                      <View style={[stylesComponent.infoCard, { marginTop: 24 }]}>
+                        <Text style={stylesComponent.infoCardTitle}>Important</Text>
+                        <Text style={stylesComponent.infoCardMessage}>
+                          You need to add Ethereum (and its ALPH ERC20 token) to your wallet before performing bridge
+                          operations
+                        </Text>
+                      </View>
+                    }
+
+                    {!!ethNetworkAlephiumCoin && !!ethNetworkETHCoin && ethNetworkETHCoin?.balanceWithDerivedAddresses === 0 &&
+                      <View style={[stylesComponent.infoCard, stylesComponent.infoCardGold, { marginTop: 24 }]}>
+                        <Text style={stylesComponent.infoCardTitle}>Important</Text>
+                        <Text style={stylesComponent.infoCardMessage}>
+                          You don’t have any funds in your Ethereum wallet.
+                          Note that you will have to pay ethereum transaction fees and you will need some ETH to
+                          finalize
+                          the
+                          process
+                        </Text>
+                      </View>
+                    }
+
+                    {!ethNetworkAlephiumCoin &&
+                      <Button
+                        style={PRIMARY_BTN}
+                        textStyle={{ color: palette.white }}
+                        text="Add Ethereum network to the wallet"
+                        onPress={onPressGoAddEthereum}
+                      />
+                    }
+
+
+                    {!!ethNetworkETHCoin && !!ethNetworkAlephiumCoin && !alephiumBridgeStore.isProcessingConfirmations &&
+                      <View>
+                        <Controller
+                          control={control}
+                          name="amount"
+                          render={({ field: { onChange, value, onBlur } }) => (
+                            <View style={stylesComponent.labelWrapper}>
+                              <Text style={stylesComponent.label}>Amount to bridge</Text>
+                              <View style={stylesComponent.inputFiledWrapper}>
+                                <TextInput style={stylesComponent.inputFiled} returnKeyType={"done"} numberOfLines={1}
+                                           keyboardType="numeric" onBlur={onBlur} value={value}
+                                           onChangeText={onChange} />
+                                <SvgXml style={stylesComponent.inputIcon} width="28" height="28" xml={handCoinIcon} />
+                              </View>
+                            </View>
+                          )}
+                          rules={{
+                            required: {
+                              value: true,
+                              message: "Field is required!",
+                            },
+                            pattern: {
+                              value: numericRegEx,
+                              message: "Invalid amount",
+                            },
+                            max: {
+                              value: asset?.freeBalance,
+                              message: "Insufficient funds",
+                            },
+                          }}
+                        />
+                        {errors?.["amount"]?.message &&
+                          <Text style={textInputErrorMessage}>{errors["amount"].message}</Text>
+                        }
+                      </View>
+                    }
+
+                    {!!ethNetworkETHCoin && !!ethNetworkAlephiumCoin && !alephiumBridgeStore.isProcessingConfirmations &&
+                      <View style={stylesComponent.checkboxes}>
+                        {checkboxes.map((el, index) => {
+                          return (
+                            <Controller
+                              key={index}
+                              control={control}
+                              name="checkbox"
+                              render={({ field: { onChange, value } }) => {
+                                const cond = value !== null && +value === +el.value
+                                return (
+                                  <Pressable
+                                    style={[stylesComponent.checkbox, cond && stylesComponent.checkboxActive]}
+                                    key={el.value} onPress={() => {
+                                    onChange(cond ? null : el.value)
+                                    if (asset?.balance === undefined) return
+                                    const amountValue = cond ? "" : (asset?.balance * el.percent / 100).toString()
+                                    setFormValue("amount", amountValue)
+                                  }}>
+                                    <Text style={stylesComponent.checkboxText}>{el.title}</Text>
+                                  </Pressable>
+                                )
+                              }}
+                            />
+                          )
+                        })}
+                      </View>
+                    }
+                  </>
                 }
               </View>
 
-              {!ethNetworkAlephiumCoin &&
-                <View style={[stylesComponent.infoCard, { marginTop: 24 }]}>
-                  <Text style={stylesComponent.infoCardTitle}>Important</Text>
-                  <Text style={stylesComponent.infoCardMessage}>
-                    You need to add Ethereum (and its ALPH ERC20 token) to your wallet before performing bridge
-                    operations
-                  </Text>
+              {alephiumBridgeStore.isProcessingConfirmations &&
+                <View style={{ marginTop: 24 }}>
+                  <AlephimPendingBride
+                    hideRedeem={true}
+                    onPressCopyTxId={onPressCopyTxId}
+                    txId={alephiumBridgeStore.currentTxId}
+                    currentConfirmations={alephiumBridgeStore.chainConfirmations}
+                    minimalConfirmations={BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL} />
                 </View>
               }
 
-              <AlephimPendingBride asset={asset} />
+              {alephiumBridgeStore.signedVAA &&
+                <View style={stylesComponent.redeemCoinsWrapper}>
+                  <RedeemCoins
+                    from={asset}
+                    to={ethNetworkETHCoin}
+                    bridging={alephiumBridgeStore.bridgingAmount} />
+                </View>
+              }
 
-              {/*{!!ethNetworkAlephiumCoin && !!ethNetworkETHCoin && ethNetworkETHCoin?.balanceWithDerivedAddresses === 0 &&*/}
-              {/*  <View style={[stylesComponent.infoCard, stylesComponent.infoCardGold, { marginTop: 24 }]}>*/}
-              {/*    <Text style={stylesComponent.infoCardTitle}>Important</Text>*/}
-              {/*    <Text style={stylesComponent.infoCardMessage}>*/}
-              {/*      You don’t have any funds in your Ethereum wallet.*/}
-              {/*      Note that you will have to pay ethereum transaction fees and you will need some ETH to finalize the*/}
-              {/*      process*/}
-              {/*    </Text>*/}
-              {/*  </View>*/}
-              {/*}*/}
-
-              {!ethNetworkAlephiumCoin &&
-                <Button
-                  style={PRIMARY_BTN}
-                  textStyle={{ color: palette.white }}
-                  text="Add Ethereum network to the wallet"
-                  onPress={onPressGoAddEthereum}
+            </ScrollView>
+            {!!ethNetworkETHCoin && !!ethNetworkAlephiumCoin && !alephiumBridgeStore.bridgingAmount &&
+              <View style={stylesComponent.previewOperation}>
+                <WalletButton
+                  text={'Preview the operation'}
+                  type="primary"
+                  outline={true}
+                  disabled={!isValid || ethNetworkETHCoin?.balanceWithDerivedAddresses === 0}
+                  onPress={()=>{
+                    Keyboard.dismiss()
+                    handleSubmit(onSubmit)()
+                  }}
                 />
-              }
+              </View>
+            }
 
-
-              {!!ethNetworkETHCoin && !!ethNetworkAlephiumCoin &&
-                <View>
-                  <Controller
-                    control={control}
-                    name="amount"
-                    render={({ field: { onChange, value, onBlur } }) => (
-                      <View style={stylesComponent.labelWrapper}>
-                        <Text style={stylesComponent.label}>Amount to bridge</Text>
-                        <View style={stylesComponent.inputFiledWrapper}>
-                          <TextInput style={stylesComponent.inputFiled} returnKeyType={"done"} numberOfLines={1}
-                                     keyboardType="numeric" onBlur={onBlur} value={value} onChangeText={onChange} />
-                          <SvgXml style={stylesComponent.inputIcon} width="28" height="28" xml={handCoinIcon} />
-                        </View>
-                      </View>
-                    )}
-                    rules={{
-                      required: {
-                        value: true,
-                        message: "Field is required!",
-                      },
-                      pattern: {
-                        value: numericRegEx,
-                        message: "Invalid amount",
-                      },
-                      max: {
-                        value: asset?.freeBalance,
-                        message: "Insufficient funds",
-                      },
-                    }}
-                  />
-                  {errors?.["amount"]?.message &&
-                    <Text style={textInputErrorMessage}>{errors["amount"].message}</Text>
+            {!!alephiumBridgeStore.bridgingAmount && !alephiumBridgeStore.isRedeemProcessing && !alephiumBridgeStore.isProcessingConfirmations &&
+              <View style={stylesComponent.previewOperation}>
+                <WalletButton
+                  type="primary"
+                  outline={true}
+                  text={"Preview the operation"}
+                  onPress={() => setIsPreview(true)}
+                  disabled={alephiumBridgeStore.loadingSignedVAA}
+                >
+                  {alephiumBridgeStore.loadingSignedVAA &&
+                    <ActivityIndicator />
                   }
-                </View>
-              }
-
-              {!!ethNetworkETHCoin && !!ethNetworkAlephiumCoin &&
-                <View style={stylesComponent.checkboxes}>
-                  {checkboxes.map((el, index) => {
-                    return (
-                      <Controller
-                        key={index}
-                        control={control}
-                        name="checkbox"
-                        render={({ field: { onChange, value } }) => {
-                          const cond = value !== null && +value === +el.value
-                          return (
-                            <Pressable
-                              style={[stylesComponent.checkbox, cond && stylesComponent.checkboxActive]}
-                              key={el.value} onPress={() => onChange(cond ? null : el.value)}>
-                              <Text style={stylesComponent.checkboxText}>{el.title}</Text>
-                            </Pressable>
-                          )
-                        }}
-                      />
-                    )
-                  })}
-                </View>
-              }
-            </View>
-
-          </ScrollView>
-          {!!ethNetworkETHCoin && !!ethNetworkAlephiumCoin &&
-            <View style={stylesComponent.previewOperation}>
-              <WalletButton
-                type="primary"
-                text="Preview the operation"
-                outline={true}
-                // disabled={!isValid || ethNetworkETHCoin?.balanceWithDerivedAddresses === 0}
-                onPress={() => {
-                  Keyboard.dismiss()
-                  handleSubmit(onSubmit)()
-                }}
-              />
-            </View>
-          }
-        </ImageBackground>
-        {isPreview && (
-          <Drawer
-            title="Sign and Submit"
-            style={DrawerStyle}
-            actions={[
-              <Button
-                text="CANCEL"
-                style={styles.DRAWER_BTN_CANCEL}
-                textStyle={styles.DRAWER_BTN_TEXT}
-                disabled={sending}
-                onPress={() => {
-                  setIsPreview(false)
-                }}
-              />,
-              <Button
-                text={sending ? "SENDING..." : "SIGN AND SUBMIT"}
-                disabled={sending || !sendable}
-                style={styles.DRAWER_BTN_OK}
-                textStyle={styles.DRAWER_BTN_TEXT}
-                onPress={processTransaction}
-              />,
-            ]}>
-            <View style={styles.DRAWER_CARD}>
-              <View style={styles.DRAWER_CARD_ITEM}>
-                <Text style={styles.CARD_ITEM_TITLE}>Transfer</Text>
-                <View style={styles.CARD_ITEM_DESCRIPTION}>
-                  <Text style={styles.AMOUNT_STYLE}>
-                    {amount} {asset?.symbol.toUpperCase()}
-                  </Text>
-                </View>
+                </WalletButton>
               </View>
-              <View style={styles.CARD_ITEM_DIVIDER} />
-              <View style={styles.DRAWER_CARD_ITEM}>
-                <Text style={styles.CARD_ITEM_TITLE}>Recipient</Text>
-                <View style={styles.CARD_ITEM_DESCRIPTION}>
-                  <Text style={styles.AMOUNT_STYLE}>
-                    {truncateRecipient(
-                      `${bridgeDetails.bridgeConfig?.config.contracts.nativeTokenBridge}`,
-                    )}
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.CARD_ITEM_DIVIDER} />
-              <View style={styles.DRAWER_CARD_ITEM}>
-                <Text style={styles.CARD_ITEM_TITLE}>Transaction fees</Text>
-                <View style={styles.CARD_ITEM_DESCRIPTION}>
-                  <Text style={styles.AMOUNT_STYLE}>
-                    {fees && (
-                      <>
-                        {fees
-                          ? `${fees.regular.settings.feeValue.toFixed(6)} ${
-                            fees.regular.currency
-                          }`
-                          : ""}{" "}
-                        <Text style={styles.EQUIVALENT_USD_STYLE}>
-                          (~
-                          {`${(
-                            exchangeRates.getRate(asset.cid) *
-                            fees.regular.settings.feeValue
-                          ).toFixed(2)}`}
-                          $)
+            }
+
+          </ImageBackground>
+          {isPreview && (
+            <Drawer
+              title="Sign and Submit"
+              style={DrawerStyle}
+              actions={[
+                <Button
+                  text="CANCEL"
+                  style={styles.DRAWER_BTN_CANCEL}
+                  textStyle={styles.DRAWER_BTN_TEXT}
+                  disabled={sending}
+                  onPress={() => {
+                    setIsPreview(false)
+                  }}
+                />,
+                <Button
+                  text={sending ? "SENDING..." : "SIGN AND SUBMIT"}
+                  disabled={alephiumBridgeStore.signedVAA ? false : sending || !sendable}
+                  style={styles.DRAWER_BTN_OK}
+                  textStyle={styles.DRAWER_BTN_TEXT}
+                  onPress={()=> alephiumBridgeStore.signedVAA ? redeemOnEthHandler() : processTransaction()}
+                />,
+              ]}>
+              <View style={styles.DRAWER_CARD}>
+                {!alephiumBridgeStore.signedVAA &&
+                  <>
+                    <View style={styles.DRAWER_CARD_ITEM}>
+                      <Text style={styles.CARD_ITEM_TITLE}>Transfer</Text>
+                      <View style={styles.CARD_ITEM_DESCRIPTION}>
+                        <Text style={styles.AMOUNT_STYLE}>
+                          {amount} {asset?.symbol.toUpperCase()}
                         </Text>
-                      </>
-                    )}
-                  </Text>
+                      </View>
+                    </View>
+                    <View style={styles.CARD_ITEM_DIVIDER} />
+                    <View style={styles.DRAWER_CARD_ITEM}>
+                      <Text style={styles.CARD_ITEM_TITLE}>Recipient</Text>
+                      <View style={styles.CARD_ITEM_DESCRIPTION}>
+                        <Text style={styles.AMOUNT_STYLE}>
+                          {truncateRecipient(
+                            `${bridgeDetails.bridgeConfig?.config.contracts.nativeTokenBridge}`,
+                          )}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.CARD_ITEM_DIVIDER} />
+                  </>
+                }
+
+                <View style={styles.DRAWER_CARD_ITEM}>
+                  <Text style={styles.CARD_ITEM_TITLE}>Transaction fees</Text>
+                  <View style={styles.CARD_ITEM_DESCRIPTION}>
+                    <Text style={styles.AMOUNT_STYLE}>
+                      {fees && (
+                        <>
+                          {fees
+                            ? `${fees.regular.settings.feeValue.toFixed(6)} ${
+                              fees.regular.currency
+                            }`
+                            : ""}{" "}
+                          <Text style={styles.EQUIVALENT_USD_STYLE}>
+                            (~
+                            {`${(
+                              exchangeRates.getRate(asset.cid) *
+                              fees.regular.settings.feeValue
+                            ).toFixed(2)}`}
+                            $)
+                          </Text>
+                        </>
+                      )}
+                      {alephiumBridgeStore.bridgingAmount && alephiumBridgeStore.totalFees}
+                    </Text>
+                  </View>
                 </View>
               </View>
-            </View>
-            {errorMsg && (
-              <Text style={[drawerErrorMessage]}>{errorMsg}</Text>
-            )}
-          </Drawer>
-        )}
+              {errorMsg && (
+                <Text style={[drawerErrorMessage]}>{errorMsg}</Text>
+              )}
+            </Drawer>
+          )}
 
-        <Footer onLeftButtonPress={goBack} />
-      </KeyboardAvoidingView>
+          <Footer onLeftButtonPress={goBack} />
+        </KeyboardAvoidingView>
+        <FlashMessage ref={modalFlashRef} position="bottom" />
+      </>
     )
   })
 
@@ -975,5 +956,9 @@ const stylesComponent = StyleSheet.create({
     marginTop: 29,
     marginBottom: 16,
     alignItems: "center",
+  },
+  redeemCoinsWrapper: {
+    marginTop: 16,
+    paddingHorizontal: 16,
   },
 })
