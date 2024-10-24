@@ -1,12 +1,9 @@
 import React, { FC, useRef, useEffect, useState, useCallback, useMemo } from "react"
 import AlephimPendingBride from "components/alephimPendingBride/alephimPendingBride.tsx"
 import Clipboard from "@react-native-clipboard/clipboard"
-import handCoinIcon from "assets/icons/hand-coin.svg"
 import { grpc } from "@improbable-eng/grpc-web"
 import { ReactNativeTransport } from "@improbable-eng/grpc-web-react-native-transport"
 import { ethers } from "ethers"
-import { SvgXml } from "react-native-svg"
-import { presets } from "components/screen/screen.presets"
 import { palette } from "theme/palette.ts"
 import { observer } from "mobx-react-lite"
 import { arrayify } from "@ethersproject/bytes"
@@ -17,72 +14,38 @@ import { BridgeSettings } from "@maze2/sezame-sdk/dist/utils/config"
 import { PrivateKeyWallet } from "@alephium/web3-wallet"
 import { NavigatorParamList } from "navigators"
 import { getBalance, getFees } from "services/api"
-import { color, spacing, typography } from "theme"
+import { spacing } from "theme"
 import { Controller, useForm, useWatch } from "react-hook-form"
 import { BaseWalletDescription, useStores } from "models"
 import { CONFIG, Chains, NodeProviderGenerator } from "@maze2/sezame-sdk"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
-import {
-  PRIMARY_BTN,
-  MainBackground,
-  BackgroundStyle,
-  drawerErrorMessage,
-  textInputErrorMessage,
-} from "theme/elements"
-import {
-  web3,
-  node,
-  NodeProvider,
-  ALPH_TOKEN_ID,
-} from "@alephium/web3"
-import {
-  Text,
-  Footer,
-  Button,
-  Drawer,
-  WalletButton,
-  CurrencyDescriptionBlock,
-} from "components"
-import {
-  View,
-  Keyboard,
-  Platform,
-  ViewStyle,
-  TextInput,
-  Pressable,
-  StyleSheet,
-  ScrollView,
-  Dimensions,
-  ImageBackground,
-  ActivityIndicator,
-  KeyboardAvoidingView,
-} from "react-native"
-import {
-  redeemOnEth,
-  CHAIN_ID_ETH,
-  uint8ArrayToHex,
-  CHAIN_ID_ALEPHIUM,
-  waitAlphTxConfirmed,
-  parseSequenceFromLogAlph,
-  transferLocalTokenFromAlph,
-  parseTargetChainFromLogAlph, ethers_contracts,
-} from "@alephium/wormhole-sdk"
+import { PRIMARY_BTN, MainBackground, BackgroundStyle, drawerErrorMessage, textInputErrorMessage } from "theme/elements"
+import { web3, node, NodeProvider, ALPH_TOKEN_ID } from "@alephium/web3"
+import { Text, Footer, Button, Drawer, WalletButton, CurrencyDescriptionBlock } from "components"
+import { View, Keyboard, Platform, StyleSheet, ScrollView, Dimensions, ImageBackground, ActivityIndicator, KeyboardAvoidingView} from "react-native"
+import { redeemOnEth, CHAIN_ID_ETH, uint8ArrayToHex, CHAIN_ID_ALEPHIUM, waitAlphTxConfirmed, parseSequenceFromLogAlph, transferLocalTokenFromAlph, parseTargetChainFromLogAlph, ethers_contracts } from "@alephium/wormhole-sdk"
 
 import styles from "./styles"
 import RedeemCoins from "components/redeemCoins/redeemCoins.tsx"
 import alephiumBridgeStore from "../../mobx/alephiumBridgeStore.tsx"
 import { AlphTxInfo } from "screens/bridge/AlphTxInfo.ts"
 import { getSignedVAAWithRetry } from "screens/bridge/getSignedVAAWithRetry.ts"
-import { getConfigs, WormholeMessageEventIndex, ALPH_DECIMAL } from "./constsnts.ts"
+import {
+  getConfigs,
+  WormholeMessageEventIndex,
+  ALPH_DECIMAL,
+  CHECKBOXES_PERCENT,
+  ICheckboxPercentItem,
+} from "./constsnts.ts"
+import LoadingTransactionConfirmation from "components/LoadingTransactionConfirmation/LoadingTransactionConfirmation.tsx"
+import AlephiumBridgeBadge from "components/AlephiumBridgeBadge/AlephiumBridgeBadge.tsx"
+import AlephiumInput from "components/AlephiumInput/AlephiumInput.tsx"
+import AlephiumPercentCheckBox from "components/AlephiumPercentCheckBox/AlephiumPercentCheckBox.tsx"
 
 global.atob = atob
 global.btoa = btoa
 grpc.setDefaultTransport(ReactNativeTransport({ withCredentials: true }))
 
-const ROOT: ViewStyle = {
-  backgroundColor: color.palette.black,
-  flex: 1,
-}
 
 type BridgeDetails = {
   nodeProvider?: NodeProvider | null;
@@ -90,63 +53,97 @@ type BridgeDetails = {
   bridgeConfig?: BridgeSettings | null;
 };
 
-const checkboxes = [
-  { value: 1, title: "25%", percent: 25 },
-  { value: 2, title: "50%", percent: 50 },
-  { value: 3, title: "75%", percent: 75 },
-]
-
 const tokens = require("@config/tokens.json")
 
-export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
-  observer(function BridgeScreen({ route }) {
+export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = observer(function BridgeScreen({ route }) {
     const modalFlashRef = useRef<FlashMessage>()
+    const scrollViewRef = useRef<ScrollView | null>(null)
+    const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
+
+
     const rootStore = useStores()
-    const BRIDGE_CONSTANTS = useMemo(() => (getConfigs(rootStore.TESTNET ? "testnet" : "mainnet")), [rootStore.TESTNET])
-
-    const DrawerStyle: ViewStyle = {
-      display: "flex",
-    }
-
     // Pull in one of our MST stores
-    const { currentWalletStore, pendingTransactions, exchangeRates } =
-      useStores()
+    const { currentWalletStore, pendingTransactions, exchangeRates } = useStores()
     const { getSelectedAddressForAsset, assets, wallet } = currentWalletStore
-    const ethNetworkETHCoin = useMemo(() => assets.find((el) => el.chain === "ETH" && el.cid === "ethereum"), [assets.length])
-    const ethNetworkAlephiumCoin = useMemo(() => assets.find((el) => el.chain === "ETH" && el.cid === "alephium"), [assets.length])
-    console.log(wallet)
+    // Pull in navigation via hook
+    const asset = getSelectedAddressForAsset(route.params.coinId, route.params.chain)
 
-    const {
-      control,
-      handleSubmit,
-      watch,
-      setValue: setFormValue,
-      formState: { errors, isValid },
-    } = useForm({
+    const [bridgeDetails, setBridgeDetails] = useState<BridgeDetails>({
+      nodeProvider: null,
+      signer: null,
+      bridgeConfig: null,
+    })
+    const [fees, setFees] = useState<any>(null)
+    const [isPreview, setIsPreview] = useState<boolean>(false)
+    const [sending, setSending] = useState<boolean>(false)
+    const [sendable, setSendable] = useState<boolean>(false)
+    const [errorMsg, setErrorMsg] = useState<string | null>(null)
+    const [amount, setAmount] = useState<number | null>(0)
+    const numericRegEx = useRef(/^\d+(.\d+)?$/).current
+    const { setBalance } = currentWalletStore
+
+    const { control, handleSubmit, watch, setValue: setFormValue, formState: { errors, isValid }, } = useForm({
       mode: "onChange",
       defaultValues: {
         amount: "",
         checkbox: null,
       },
     })
-
     const textInputAmount = useWatch({
       control,
       name: "amount",
       defaultValue: "",
     })
-
     const checkboxFiled = useWatch({
       control,
       name: "checkbox",
     })
 
-    const scrollViewRef = useRef<ScrollView | null>(null)
-    const [bridgeDetails, setBridgeDetails] = useState<BridgeDetails>({
-      nodeProvider: null,
-      signer: null,
-      bridgeConfig: null,
-    })
+    const BRIDGE_CONSTANTS = useMemo(() => (getConfigs(rootStore.TESTNET ? "testnet" : "mainnet")), [rootStore.TESTNET])
+    const ethNetworkETHCoin = useMemo(() => assets.find((el) => el.chain === "ETH" && el.cid === "ethereum"), [assets.length])
+    const ethNetworkAlephiumCoin = useMemo(() => assets.find((el) => el.chain === "ETH" && el.cid === "alephium"), [assets.length])
+
+    const onSubmit = async () => {
+    setErrorMsg(null)
+    try {
+      if (!asset || amount === null) {
+        return
+      }
+
+      const { bridgeConfig } = bridgeDetails
+
+      if (!bridgeConfig) {
+        return
+      }
+
+      setIsPreview(true)
+      setSendable(false)
+      const response = await getFees(
+        asset,
+        bridgeConfig.config.contracts.nativeTokenBridge,
+        amount,
+        "bridge",
+      )
+      console.log(response)
+      setFees(response)
+      console.log("SUBMITTING ---------------------->", { asset, amount })
+      // transferToBridge(amount);
+      setSendable(true)
+    } catch (error: any) {
+      console.log("THERE IS AN ERROR IN THE TRANSFER")
+      console.log(error)
+      switch (error.message) {
+        case "INSUFFICIENT_FUNDS":
+          setErrorMsg("Insufficiant funds")
+          break
+        default:
+          setErrorMsg(error.message)
+          break
+      }
+
+      setSendable(false)
+    }
+  }
 
     const transferToBridge = async (amount: number) => {
       if (!asset || !amount) {
@@ -302,116 +299,12 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
       }
     }
 
-    // Pull in navigation via hook
-    const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
-    const asset = getSelectedAddressForAsset(
-      route.params.coinId,
-      route.params.chain,
-    )
-    const [fees, setFees] = useState<any>(null)
-    const [isPreview, setIsPreview] = useState<boolean>(false)
-    const [sending, setSending] = useState<boolean>(false)
-    const [sendable, setSendable] = useState<boolean>(false)
-    const [errorMsg, setErrorMsg] = useState<string | null>(null)
-    const [amount, setAmount] = useState<number | null>(0)
-    const numericRegEx = useRef(/^\d+(.\d+)?$/).current
-    const { setBalance } = currentWalletStore
-
-    useEffect(() => {
-      const _getBalances = async () => {
-        if (asset) {
-          const balance = await getBalance(asset)
-          setBalance(asset, balance)
-        }
-      }
-      _getBalances()
-    }, [])
-
-    useEffect(() => {
-      // Convert the string got from the form into a number (Sdk needs a number and not a string)
-      setAmount(parseFloat(textInputAmount.split(",").join(".")))
-    }, [textInputAmount])
-
-    useEffect(() => {
-      console.log("checkboxFiled", checkboxFiled)
-    }, [checkboxFiled])
-
-    const init = useCallback(async (asset: BaseWalletDescription) => {
-      const nodeProvider = await NodeProviderGenerator.getNodeProvider(
-        asset.chain as Chains,
-      )
-
-      const signer = new PrivateKeyWallet({
-        privateKey: asset.privateKey,
-        nodeProvider,
-      })
-
-      const bridgeConfig =
-        (CONFIG?.getConfigFor &&
-          (CONFIG.getConfigFor(
-            asset.chain as Chains,
-            "bridge",
-          ) as BridgeSettings)) ||
-        null
-
-      console.log("Define provider")
-      setBridgeDetails({ nodeProvider, signer, bridgeConfig })
-    }, [])
-
-    useEffect(() => {
-      if (asset) {
-        init(asset)
-      }
-    }, [asset?.address, asset?.chain, init])
-
     const truncateRecipient = (hash: string) => {
       return (
         hash.substring(0, 8) +
         "..." +
         hash.substring(hash.length - 8, hash.length)
       )
-    }
-
-    const onSubmit = async () => {
-      setErrorMsg(null)
-      try {
-        if (!asset || amount === null) {
-          return
-        }
-
-        const { bridgeConfig } = bridgeDetails
-
-        if (!bridgeConfig) {
-          return
-        }
-
-        setIsPreview(true)
-        setSendable(false)
-        const response = await getFees(
-          asset,
-          bridgeConfig.config.contracts.nativeTokenBridge,
-          amount,
-          "bridge",
-        )
-        console.log(response)
-        setFees(response)
-        console.log("SUBMITTING ---------------------->", { asset, amount })
-        // transferToBridge(amount);
-        setSendable(true)
-      } catch (error: any) {
-        console.log("THERE IS AN ERROR IN THE TRANSFER")
-        console.log(error)
-        switch (error.message) {
-          case "INSUFFICIENT_FUNDS":
-            setErrorMsg("Insufficiant funds")
-            break
-          default:
-            setErrorMsg(error.message)
-            break
-        }
-
-        setSendable(false)
-      }
     }
 
     const processTransaction = async () => {
@@ -428,15 +321,13 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
         transferToBridge(amount)
         setFees(null)
         setIsPreview(false)
-        goBack()
+        navigation.goBack()
       } catch (err: any) {
         showMessage({ message: err.message, type: "danger" })
       } finally {
         setSending(false)
       }
     }
-
-    const goBack = () => navigation.goBack()
 
     const onPressGoAddEthereum = () => {
       const ALPHTokenInfo = tokens.find((el: any) => el.id === "alephium")
@@ -506,7 +397,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
       }
     }
 
-    const onPressCopyTxId = (txId: string) => {
+    const onPressCopyTxIdHandler = (txId: string) => {
       if (!!txId) {
         Clipboard.setString(txId)
         modalFlashRef?.current?.showMessage({
@@ -516,6 +407,71 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
       }
     }
 
+    const onPressPercentHandler = (el: ICheckboxPercentItem, checked: boolean, onChange) => {
+      onChange(checked ? null : el.value)
+      if (asset?.balance === undefined) return
+      const amountValue = checked ? "" : (asset?.balance * el.percent / 100).toString()
+      setFormValue("amount", amountValue)
+    }
+
+    const init = useCallback(async (asset: BaseWalletDescription) => {
+    const nodeProvider = await NodeProviderGenerator.getNodeProvider(
+      asset.chain as Chains,
+    )
+
+    const signer = new PrivateKeyWallet({
+      privateKey: asset.privateKey,
+      nodeProvider,
+    })
+
+    const bridgeConfig =
+      (CONFIG?.getConfigFor &&
+        (CONFIG.getConfigFor(
+          asset.chain as Chains,
+          "bridge",
+        ) as BridgeSettings)) ||
+      null
+
+    console.log("Define provider")
+    setBridgeDetails({ nodeProvider, signer, bridgeConfig })
+  }, [])
+
+    const rulesAmount = useMemo(() => {
+    return {
+      required: {
+        value: true,
+        message: "Field is required!",
+      },
+      pattern: {
+        value: numericRegEx,
+        message: "Invalid amount",
+      },
+      max: {
+        value: asset?.freeBalance,
+        message: "Insufficient funds",
+      },
+    }
+  }, [numericRegEx, asset])
+
+    useEffect(() => {
+      const _getBalances = async () => {
+        if (asset) {
+          const balance = await getBalance(asset)
+          setBalance(asset, balance)
+        }
+      }
+      _getBalances()
+    }, [])
+
+    useEffect(() => {
+      // Convert the string got from the form into a number (Sdk needs a number and not a string)
+      setAmount(parseFloat(textInputAmount.split(",").join(".")))
+    }, [textInputAmount])
+
+    useEffect(() => {
+      console.log("checkboxFiled", checkboxFiled)
+    }, [checkboxFiled])
+
     useEffect(() => {
       const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
         scrollViewRef?.current?.scrollToEnd()
@@ -523,14 +479,17 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
       return () => keyboardDidShowListener.remove()
     }, [scrollViewRef?.current])
 
+    useEffect(() => {
+    if (asset) {
+      init(asset)
+    }
+  }, [asset?.address, asset?.chain, init])
+
     return (
       <>
 
         <KeyboardAvoidingView
-          style={[
-            presets.scroll.outer,
-            { backgroundColor: color.palette.black },
-          ]}
+          style={stylesComponent.keyboardAvoidingView}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
           <ImageBackground source={MainBackground} style={BackgroundStyle}>
@@ -548,47 +507,36 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
                   />
                   {!!ethNetworkAlephiumCoin &&
                     <CurrencyDescriptionBlock
-                      asset={ethNetworkETHCoin}
                       icon="transfer"
                       balance="freeBalance"
                       title="Available balance"
+                      asset={{ ...ethNetworkAlephiumCoin, image: ethNetworkETHCoin.image }}
                       styleBalance={!!ethNetworkAlephiumCoin && stylesComponent.balanceText}
                     />
                   }
                 </View>
 
                 {alephiumBridgeStore.isTransferring && (
-                  <View style={stylesComponent.transferLoadingMessageWrapper}>
-                    <ActivityIndicator />
-                    <Text style={stylesComponent.transferLoadingMessage}>Waiting for transaction confirmation...</Text>
-                  </View>
+                  <LoadingTransactionConfirmation
+                    activityIndicator={true}
+                    message={"Waiting for transaction confirmation..."}
+                  />
                 )}
-
 
                 {!alephiumBridgeStore.bridgingAmount &&
                   <>
-                    {(!ethNetworkETHCoin || !ethNetworkAlephiumCoin) &&
-                      <View style={[stylesComponent.infoCard, { marginTop: 24 }]}>
-                        <Text style={stylesComponent.infoCardTitle}>Important</Text>
-                        <Text style={stylesComponent.infoCardMessage}>
-                          You need to add Ethereum (and its ALPH ERC20 token) to your wallet before performing bridge
-                          operations
-                        </Text>
-                      </View>
-                    }
-
-                    {!!ethNetworkAlephiumCoin && !!ethNetworkETHCoin && ethNetworkETHCoin?.balanceWithDerivedAddresses === 0 &&
-                      <View style={[stylesComponent.infoCard, stylesComponent.infoCardGold, { marginTop: 24 }]}>
-                        <Text style={stylesComponent.infoCardTitle}>Important</Text>
-                        <Text style={stylesComponent.infoCardMessage}>
-                          You don’t have any funds in your Ethereum wallet.
-                          Note that you will have to pay ethereum transaction fees and you will need some ETH to
-                          finalize
-                          the
-                          process
-                        </Text>
-                      </View>
-                    }
+                    <AlephiumBridgeBadge
+                      title={"Important"}
+                      style={stylesComponent.infoCard}
+                      isShow={!ethNetworkETHCoin || !ethNetworkAlephiumCoin}
+                      description={"You need to add Ethereum (and its ALPH ERC20 token) to your wallet before performing bridge operations"}
+                    />
+                    <AlephiumBridgeBadge
+                      title={"Important"}
+                      style={[stylesComponent.infoCard, stylesComponent.infoCardGold]}
+                      isShow={!!ethNetworkAlephiumCoin && !!ethNetworkETHCoin && ethNetworkETHCoin?.balanceWithDerivedAddresses === 0}
+                      description={"You don’t have any funds in your Ethereum wallet. Note that you will have to pay ethereum transaction fees and you will need some ETH to finalize the process"}
+                    />
 
                     {!ethNetworkAlephiumCoin &&
                       <Button
@@ -600,64 +548,30 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
                     }
 
                     {!!ethNetworkETHCoin && !!ethNetworkAlephiumCoin && !alephiumBridgeStore.isProcessingConfirmations &&
-                      <View>
-                        <Controller
-                          control={control}
-                          name="amount"
-                          render={({ field: { onChange, value, onBlur } }) => (
-                            <View style={stylesComponent.labelWrapper}>
-                              <Text style={stylesComponent.label}>Amount to bridge</Text>
-                              <View style={stylesComponent.inputFiledWrapper}>
-                                <TextInput style={stylesComponent.inputFiled} returnKeyType={"done"} numberOfLines={1}
-                                           keyboardType="numeric" onBlur={onBlur} value={value}
-                                           onChangeText={onChange} />
-                                <SvgXml style={stylesComponent.inputIcon} width="28" height="28" xml={handCoinIcon} />
-                              </View>
-                            </View>
-                          )}
-                          rules={{
-                            required: {
-                              value: true,
-                              message: "Field is required!",
-                            },
-                            pattern: {
-                              value: numericRegEx,
-                              message: "Invalid amount",
-                            },
-                            max: {
-                              value: asset?.freeBalance,
-                              message: "Insufficient funds",
-                            },
-                          }}
-                        />
-                        {errors?.["amount"]?.message &&
-                          <Text style={textInputErrorMessage}>{errors["amount"].message}</Text>
-                        }
-                      </View>
+                      <Controller
+                        name="amount"
+                        control={control}
+                        rules={rulesAmount}
+                        render={({ field: { onChange, value, onBlur } }) => (<AlephiumInput value={value} onBlur={onBlur} onChangeText={onChange} errorMessage={errors?.["amount"]?.message || ""} />)}
+                      />
                     }
 
                     {!!ethNetworkETHCoin && !!ethNetworkAlephiumCoin && !alephiumBridgeStore.isProcessingConfirmations &&
                       <View style={stylesComponent.checkboxes}>
-                        {checkboxes.map((el, index) => {
+                        {CHECKBOXES_PERCENT.map((el, index) => {
                           return (
                             <Controller
                               key={index}
-                              control={control}
                               name="checkbox"
+                              control={control}
                               render={({ field: { onChange, value } }) => {
-                                const cond = value !== null && +value === +el.value
+                                const checked = value !== null && +value === +el.value
                                 return (
-                                  <Pressable
-                                    style={[stylesComponent.checkbox, cond && stylesComponent.checkboxActive]}
-                                    key={el.value} onPress={() => {
-                                    onChange(cond ? null : el.value)
-                                    if (asset?.balance === undefined) return
-                                    const amountValue = cond ? "" : (asset?.balance * el.percent / 100).toString()
-                                    setFormValue("amount", amountValue)
-                                  }}>
-                                    <Text style={stylesComponent.checkboxText}>{el.title}</Text>
-                                  </Pressable>
-                                )
+                                  <AlephiumPercentCheckBox
+                                    key={el.value}
+                                    text={el.title}
+                                    checked={checked}
+                                    onPress={() => onPressPercentHandler(el, checked, onChange)} />)
                               }}
                             />
                           )
@@ -672,7 +586,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
                 <View style={{ marginTop: 24 }}>
                   <AlephimPendingBride
                     hideRedeem={true}
-                    onPressCopyTxId={onPressCopyTxId}
+                    onPressCopyTxId={onPressCopyTxIdHandler}
                     txId={alephiumBridgeStore.currentTxId}
                     currentConfirmations={alephiumBridgeStore.chainConfirmations}
                     minimalConfirmations={BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL} />
@@ -713,15 +627,15 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
                   onPress={() => setIsPreview(true)}
                   disabled={alephiumBridgeStore.loadingSignedVAA || alephiumBridgeStore.isRedeemProcessing}
                 >
-                    {(alephiumBridgeStore.loadingSignedVAA || alephiumBridgeStore.isRedeemProcessing) &&
-                      <ActivityIndicator />
-                    }
+                  {(alephiumBridgeStore.loadingSignedVAA || alephiumBridgeStore.isRedeemProcessing) &&
+                    <ActivityIndicator />
+                  }
                 </WalletButton>
                 {alephiumBridgeStore.loadingSignedVAA &&
-                  <Text style={stylesComponent.transferLoadingMessage}>Getting signed VAA...</Text>
+                  <LoadingTransactionConfirmation message={"Getting signed VAA..."} />
                 }
                 {alephiumBridgeStore.isRedeemProcessing &&
-                  <Text style={stylesComponent.transferLoadingMessage}>Waiting for transaction confirmation...</Text>
+                  <LoadingTransactionConfirmation message={"Waiting for transaction confirmation..."} />
                 }
               </View>
             }
@@ -730,7 +644,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
           {isPreview && (
             <Drawer
               title="Sign and Submit"
-              style={DrawerStyle}
+              style={{ display: "flex" }}
               actions={[
                 <Button
                   text="CANCEL"
@@ -811,7 +725,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
             </Drawer>
           )}
 
-          <Footer onLeftButtonPress={goBack} />
+          <Footer onLeftButtonPress={() => navigation.goBack()} />
         </KeyboardAvoidingView>
         <FlashMessage ref={modalFlashRef} position="bottom" />
       </>
@@ -820,6 +734,11 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> =
 
 
 const stylesComponent = StyleSheet.create({
+  keyboardAvoidingView: {
+    flex: 1,
+    height: "100%",
+    backgroundColor: palette.black,
+  },
   container: {
     flexGrow: 1,
     paddingHorizontal: 20,
@@ -839,61 +758,12 @@ const stylesComponent = StyleSheet.create({
     fontWeight: "bold",
   },
   infoCard: {
-    gap: 16,
-    width: "100%",
-    borderRadius: 6,
+    marginTop: 24,
     marginBottom: 35,
-    paddingVertical: 19,
-    paddingHorizontal: 8,
-    backgroundColor: palette.darkBlack,
   },
   infoCardGold: {
+    marginTop: 24,
     backgroundColor: "#DBAF00",
-  },
-  infoCardTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: palette.white,
-  },
-  infoCardMessage: {
-    fontSize: 14,
-    color: palette.white,
-  },
-  inputFiledWrapper: {
-    position: "relative",
-  },
-  transferLoadingMessageWrapper: {
-    gap: 8,
-    marginTop: 16,
-  },
-  transferLoadingMessage: {
-    textAlign: "center",
-  },
-  inputFiled: {
-    fontSize: 16,
-    width: "100%",
-    color: palette.white,
-    backgroundColor: palette.darkBlack,
-    borderRadius: 8,
-    paddingVertical: 15,
-    paddingLeft: 20,
-    paddingRight: 35,
-  },
-  labelWrapper: {
-    gap: 4,
-  },
-  label: {
-    fontSize: 10,
-    lineHeight: 14,
-    fontWeight: "600",
-    color: color.palette.grey,
-    textTransform: "uppercase",
-    fontFamily: typography.primary,
-  },
-  inputIcon: {
-    position: "absolute",
-    right: 5,
-    top: 10,
   },
   checkboxes: {
     gap: 10,

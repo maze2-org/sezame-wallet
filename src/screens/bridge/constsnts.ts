@@ -3,7 +3,7 @@ import { MAINNET_ALPH_MINIMAL_CONSISTENCY_LEVEL, TESTNET_ALPH_MINIMAL_CONSISTENC
 import * as alephiumMainnetConfig from "../../bridges/alephium/artifacts/.deployments.mainnet.json"
 import * as alephiumTestnetConfig from "../../bridges/alephium/artifacts/.deployments.testnet.json"
 
-export const ALPH_DECIMAL = 1000000000000000000;
+export const ALPH_DECIMAL = 1000000000000000000
 export const WormholeMessageEventIndex = 0
 // export const ETH_JSON_RPC_PROVIDER_URL = "https://node-ethereum.sezame.app"
 // export const ETH_JSON_RPC_PROVIDER_URL = "https://node-ethereum-testnet.sezame.app"
@@ -53,3 +53,11 @@ export const getConfigs = (CLUSTER: "mainnet" | "testnet") => {
       return BRIDGE_CONSTANTS_TESTNET
   }
 }
+
+export type ICheckboxPercentItem = { value: number, title: string, percent: number }
+
+export const CHECKBOXES_PERCENT: ICheckboxPercentItem[] = [
+  { value: 1, title: "25%", percent: 25 },
+  { value: 2, title: "50%", percent: 50 },
+  { value: 3, title: "75%", percent: 75 },
+]
