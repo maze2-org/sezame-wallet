@@ -39,18 +39,18 @@ export const decrypt = (password: string, payloadRaw: string) => {
   const salt = Buffer.from(payload.salt, "hex")
   const iv = Buffer.from(payload.iv, "hex")
   const encrypted = Buffer.from(payload.encrypted, "hex")
-
+  
   const authLength = payload.noAuthTag? 0 : authTagLength;
-
+  
   const derivedKey = keyFromPassword(password, salt)
   const decipher = createDecipher(derivedKey, iv)
   const data = encrypted.slice(0, encrypted.length - authLength)
+
   const authTag = encrypted.slice(encrypted.length - authLength, encrypted.length)
   if (authLength > 0) {
-    decipher.setAuthTag(authTag)
+    decipher.setAuthTag(authTag);
   }
   const decrypted = Buffer.concat([decipher.update(data), decipher.final()])
-
   return decrypted.toString("utf8")
 }
 
