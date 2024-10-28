@@ -58,6 +58,7 @@ function AddAddress({
               flexGrow: 1,
             }}>
             <RNPickerSelect
+              useNativeAndroidPickerStyle={false}
               style={{
                 inputIOSContainer: {
                   backgroundColor: 'black',
@@ -72,10 +73,23 @@ function AddAddress({
                 inputIOS: {
                   color: color.palette.gold,
                 },
+                inputAndroidContainer: {
+                  backgroundColor: "black",
+                  borderTopLeftRadius: 8,
+                  borderBottomLeftRadius: 8,
+                  borderWidth: 1,
+                  borderColor: color.palette.gold,
+                  paddingHorizontal: 16,
+                  flexDirection: "row",
+                  alignItems: "center",
+                },
+                inputAndroid: {
+                  color: color.palette.gold,
+                },
               }}
               onValueChange={value =>
                 setSelectedGroup(
-                  value ? (parseInt(value) as 0 | 1 | 2 | 3) : undefined,
+                  value !== "auto" ? (parseInt(value) as 0 | 1 | 2 | 3) : undefined,
                 )
               }
               Icon={() => (
@@ -86,11 +100,11 @@ function AddAddress({
                 />
               )}
               items={[
-                {label: 'Auto', value: undefined},
-                {label: 'Group 0', value: 0},
-                {label: 'Group 1', value: 1},
-                {label: 'Group 2', value: 2},
-                {label: 'Group 3', value: 3},
+                {label: 'Auto', value: "auto"},
+                {label: 'Group 0', value: "0"},
+                {label: 'Group 1', value: "1"},
+                {label: 'Group 2', value: "2"},
+                {label: 'Group 3', value: "3"},
               ]}
             />
           </View>
