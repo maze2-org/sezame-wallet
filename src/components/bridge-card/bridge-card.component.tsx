@@ -31,7 +31,7 @@ export function BridgeCard({ from }: BridgeCardPropsType) {
   return (
     <Card title="Bridge">
       <View style={{ paddingTop: spacing[4] }}>
-        {from.group !== "0" ? (
+        {from.group !== "0" && from.chain === "ALPH" ? (
           <Text style={styles.DANGER}>
             Brige is only compatible with addresses on group 0. The current one
             is on group {from.group}

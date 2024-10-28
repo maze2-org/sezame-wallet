@@ -46,6 +46,8 @@ export const getBalance = async (
   const balance = await cryptoWallet.getBalance();
 
   return balance;
+  {/*// FOR ETH NOT FINISHED*/}
+  // return {...balance, freeBalance: 10};
 };
 
 export const getTransactionsUrl = (asset: IWalletAsset) => {

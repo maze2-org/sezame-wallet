@@ -343,11 +343,11 @@ export const CoinDetailsScreen: FC<
                             </Text>
                             <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>
                               {Number(mainAsset?.freeBalance).toFixed(4) +
-                                ' ' +
+                                " " +
                                 mainAsset.symbol.toUpperCase()}
                             </Text>
                             <Text style={styles.BALANCE_STAKING_CARD_NOTE}>
-                              {' '}
+                              {" "}
                               (~
                               {`${(
                                 exchangeRates.getRate(mainAsset.cid) *
@@ -356,7 +356,7 @@ export const CoinDetailsScreen: FC<
                               $)
                             </Text>
                           </View>
-                          {['lifting', 'lowering'].some(el =>
+                          {["lifting", "lowering"].some(el =>
                             capabilities.includes(el),
                           ) && (
                             <>
@@ -378,7 +378,7 @@ export const CoinDetailsScreen: FC<
                           )}
                         </View>
 
-                        {capabilities.includes('staking') && (
+                        {capabilities.includes("staking") && (
                           <View style={styles.BALANCE_STAKING_CARD}>
                             <View style={styles.BALANCE_STAKING_CARD_BODY}>
                               <Text style={styles.BALANCE_STAKING_CARD_HEADER}>
@@ -389,7 +389,7 @@ export const CoinDetailsScreen: FC<
                                   mainAsset.stakedBalance +
                                   mainAsset.unlockedBalance +
                                   mainAsset.unstakedBalance
-                                ).toFixed(4)}{' '}
+                                ).toFixed(4)}{" "}
                                 {mainAsset.symbol.toUpperCase()}
                               </Text>
                               <Text style={styles.BALANCE_STAKING_CARD_NOTE}>
@@ -446,7 +446,9 @@ export const CoinDetailsScreen: FC<
                           </View>
                         )}
                       </View>
-                      {selectedAsset && selectedAsset.chain === "ALPH" && (
+                      {
+                        selectedAsset && (selectedAsset.chain === "ALPH" ||
+                        (selectedAsset.chain === "ETH" && selectedAsset.cid === "alephium")) && (
                         <>
                           {alephiumBridgeStore.isProcessingConfirmations &&
                             <View style={componentStyles.alephiumPendingBrideWrapper}>

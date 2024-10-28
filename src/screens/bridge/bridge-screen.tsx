@@ -19,11 +19,27 @@ import { Controller, useForm, useWatch } from "react-hook-form"
 import { BaseWalletDescription, useStores } from "models"
 import { CONFIG, Chains, NodeProviderGenerator } from "@maze2/sezame-sdk"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
-import { PRIMARY_BTN, MainBackground, BackgroundStyle, drawerErrorMessage, textInputErrorMessage } from "theme/elements"
+import { PRIMARY_BTN, MainBackground, BackgroundStyle, drawerErrorMessage } from "theme/elements"
 import { web3, node, NodeProvider, ALPH_TOKEN_ID } from "@alephium/web3"
 import { Text, Footer, Button, Drawer, WalletButton, CurrencyDescriptionBlock } from "components"
 import { View, Keyboard, Platform, StyleSheet, ScrollView, Dimensions, ImageBackground, ActivityIndicator, KeyboardAvoidingView} from "react-native"
-import { redeemOnEth, CHAIN_ID_ETH, uint8ArrayToHex, CHAIN_ID_ALEPHIUM, waitAlphTxConfirmed, parseSequenceFromLogAlph, transferLocalTokenFromAlph, parseTargetChainFromLogAlph, ethers_contracts } from "@alephium/wormhole-sdk"
+import {
+  approveEth,
+  redeemOnEth,
+  CHAIN_ID_ETH,
+  uint8ArrayToHex,
+  CHAIN_ID_ALEPHIUM,
+  waitAlphTxConfirmed,
+  parseSequenceFromLogAlph,
+  transferLocalTokenFromAlph,
+  parseTargetChainFromLogAlph,
+  ethers_contracts,
+  transferFromEth,
+  transferRemoteTokenFromAlph,
+  hexToUint8Array,
+  redeemOnEthNative,
+  parseSequenceFromLogEth, isEVMChain, ChainId,
+} from "@alephium/wormhole-sdk"
 
 import styles from "./styles"
 import RedeemCoins from "components/redeemCoins/redeemCoins.tsx"
@@ -36,6 +52,7 @@ import {
   ALPH_DECIMAL,
   CHECKBOXES_PERCENT,
   ICheckboxPercentItem,
+  EpochDuration,
 } from "./constsnts.ts"
 import LoadingTransactionConfirmation from "components/LoadingTransactionConfirmation/LoadingTransactionConfirmation.tsx"
 import AlephiumBridgeBadge from "components/AlephiumBridgeBadge/AlephiumBridgeBadge.tsx"
@@ -56,65 +73,61 @@ type BridgeDetails = {
 const tokens = require("@config/tokens.json")
 
 export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = observer(function BridgeScreen({ route }) {
-    const modalFlashRef = useRef<FlashMessage>()
-    const scrollViewRef = useRef<ScrollView | null>(null)
-    const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
+  const modalFlashRef = useRef<FlashMessage>()
+  const scrollViewRef = useRef<ScrollView | null>(null)
+  const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>()
 
+  const rootStore = useStores()
+  // Pull in one of our MST stores
+  const { currentWalletStore, pendingTransactions, exchangeRates } = useStores()
+  const { getSelectedAddressForAsset, assets, wallet } = currentWalletStore
+  // Pull in navigation via hook
+  const asset = getSelectedAddressForAsset(route.params.coinId, route.params.chain)
 
-    const rootStore = useStores()
-    // Pull in one of our MST stores
-    const { currentWalletStore, pendingTransactions, exchangeRates } = useStores()
-    const { getSelectedAddressForAsset, assets, wallet } = currentWalletStore
-    // Pull in navigation via hook
-    const asset = getSelectedAddressForAsset(route.params.coinId, route.params.chain)
+  const [bridgeDetails, setBridgeDetails] = useState<BridgeDetails>({
+    nodeProvider: null,
+    signer: null,
+    bridgeConfig: null,
+  })
+  const [fees, setFees] = useState<any>(null)
+  const [isPreview, setIsPreview] = useState<boolean>(false)
+  const [sending, setSending] = useState<boolean>(false)
+  const [sendable, setSendable] = useState<boolean>(false)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [amount, setAmount] = useState<number | null>(0)
+  const numericRegEx = useRef(/^\d+(.\d+)?$/).current
+  const { setBalance } = currentWalletStore
 
-    const [bridgeDetails, setBridgeDetails] = useState<BridgeDetails>({
-      nodeProvider: null,
-      signer: null,
-      bridgeConfig: null,
-    })
-    const [fees, setFees] = useState<any>(null)
-    const [isPreview, setIsPreview] = useState<boolean>(false)
-    const [sending, setSending] = useState<boolean>(false)
-    const [sendable, setSendable] = useState<boolean>(false)
-    const [errorMsg, setErrorMsg] = useState<string | null>(null)
-    const [amount, setAmount] = useState<number | null>(0)
-    const numericRegEx = useRef(/^\d+(.\d+)?$/).current
-    const { setBalance } = currentWalletStore
+  const { control, handleSubmit, watch, setValue: setFormValue, formState: { errors, isValid } } = useForm({
+    mode: "onChange",
+    defaultValues: {
+      amount: "",
+      checkbox: null,
+    },
+  })
+  const textInputAmount = useWatch({
+    control,
+    name: "amount",
+    defaultValue: "",
+  })
+  const checkboxFiled = useWatch({
+    control,
+    name: "checkbox",
+  })
 
-    const { control, handleSubmit, watch, setValue: setFormValue, formState: { errors, isValid }, } = useForm({
-      mode: "onChange",
-      defaultValues: {
-        amount: "",
-        checkbox: null,
-      },
-    })
-    const textInputAmount = useWatch({
-      control,
-      name: "amount",
-      defaultValue: "",
-    })
-    const checkboxFiled = useWatch({
-      control,
-      name: "checkbox",
-    })
+  const BRIDGE_CONSTANTS = useMemo(() => (getConfigs(rootStore.TESTNET ? "testnet" : "mainnet")), [rootStore.TESTNET])
+  const alphNetworkAlephiumCoin = useMemo(() => assets.find((el) => el.chain === "ALPH" && el.cid === "alephium"), [assets.length])
+  const ethNetworkETHCoin = useMemo(() => assets.find((el) => el.chain === "ETH" && el.cid === "ethereum"), [assets.length])
+  const ethNetworkAlephiumCoin = useMemo(() => assets.find((el) => el.chain === "ETH" && el.cid === "alephium"), [assets.length])
 
-    const BRIDGE_CONSTANTS = useMemo(() => (getConfigs(rootStore.TESTNET ? "testnet" : "mainnet")), [rootStore.TESTNET])
-    const ethNetworkETHCoin = useMemo(() => assets.find((el) => el.chain === "ETH" && el.cid === "ethereum"), [assets.length])
-    const ethNetworkAlephiumCoin = useMemo(() => assets.find((el) => el.chain === "ETH" && el.cid === "alephium"), [assets.length])
-
-    const onSubmit = async () => {
+  const onSubmit = async () => {
     setErrorMsg(null)
     try {
       if (!asset || amount === null) {
         return
       }
-
       const { bridgeConfig } = bridgeDetails
-
-      if (!bridgeConfig) {
-        return
-      }
+      if (!bridgeConfig) return
 
       setIsPreview(true)
       setSendable(false)
@@ -127,7 +140,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
       console.log(response)
       setFees(response)
       console.log("SUBMITTING ---------------------->", { asset, amount })
-      // transferToBridge(amount);
+      // transferToBridgeFromALPH(amount);
       setSendable(true)
     } catch (error: any) {
       console.log("THERE IS AN ERROR IN THE TRANSFER")
@@ -145,276 +158,308 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
     }
   }
 
-    const transferToBridge = async (amount: number) => {
-      if (!asset || !amount) {
-        return
-      }
+  const transferToBridgeFromALPH = async (amount: number) => {
+    if (!asset || !amount) {
+      return
+    }
 
-      const generator = await NodeProviderGenerator.getNodeProvider(
-        asset.chain as Chains,
-      )
+    const generator = await NodeProviderGenerator.getNodeProvider(
+      asset.chain as Chains,
+    )
+    // @ts-ignore
+    const nodeProvider: NodeProvider = generator.getNodeProvider()
+    web3.setCurrentNodeProvider(nodeProvider)
+
+    const wallet = new PrivateKeyWallet({
+      privateKey: asset.privateKey,
+      nodeProvider,
+    })
+
+    const bridgeConfig: BridgeSettings | null =
       // @ts-ignore
-      const nodeProvider: NodeProvider = generator.getNodeProvider()
-      web3.setCurrentNodeProvider(nodeProvider)
+      (CONFIG.getConfigFor(asset.chain, "bridge") as BridgeSettings) || null
 
-      const wallet = new PrivateKeyWallet({
-        privateKey: asset.privateKey,
-        nodeProvider,
-      })
-
-      const bridgeConfig: BridgeSettings | null =
-        // @ts-ignore
-        (CONFIG.getConfigFor(asset.chain, "bridge") as BridgeSettings) || null
-
-      if (!bridgeConfig) {
-        return false
-      }
-      const bAmount = BigInt(Number(amount) * ALPH_DECIMAL)
-      alephiumBridgeStore.setBridgingAmount(amount)
-      try {
-        console.log("MESSAGEFEEEEEEEEEEEEEEEE", bridgeConfig.config.messageFee)
-
-        async function getTxInfo(provider: NodeProvider, txId: string) {
-          console.log("CALL getTxInfo txID:", txId)
-          const events = await provider.events.getEventsTxIdTxid(txId, { group: BRIDGE_CONSTANTS.ALEPHIUM_BRIDGE_GROUP_INDEX })
-          console.log(events)
-          const event = events.events.find((event) => event.contractAddress === BRIDGE_CONSTANTS.ALEPHIUM_BRIDGE_ADDRESS)
-          if (typeof event === "undefined") {
-            return Promise.reject(`Failed to get event for tx: ${txId}`)
-          }
-          if (event.eventIndex !== WormholeMessageEventIndex) {
-            return Promise.reject("invalid event index: " + event.eventIndex)
-          }
-          const sender = event.fields[0]
-          if (sender.type !== "ByteVec") {
-            return Promise.reject("invalid sender, expect ByteVec type, have: " + sender.type)
-          }
-          const senderContractId = (sender as node.ValByteVec).value
-          if (senderContractId !== BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID) {
-            return Promise.reject("invalid sender, expect token bridge contract id, have: " + senderContractId)
-          }
-          const sequence = parseSequenceFromLogAlph(event)
-          const targetChain = parseTargetChainFromLogAlph(event)
-          return { sequence, targetChain }
-        }
-
-        async function waitTxConfirmedAndGetTxInfo(provider: NodeProvider, txId: string): Promise<AlphTxInfo> {
-          const confirmed = await waitAlphTxConfirmed(provider, txId, 1)
-          const { sequence, targetChain } = await getTxInfo(provider, txId)
-          const blockHeader = await provider.blockflow.getBlockflowHeadersBlockHash(confirmed.blockHash)
-          return new AlphTxInfo(blockHeader, txId, sequence, targetChain, confirmed.chainConfirmations)
-        }
-
-        const ethNodeProvider = new ethers.providers.JsonRpcProvider(BRIDGE_CONSTANTS.ETH_JSON_RPC_PROVIDER_URL)
-        const signer = new ethers.Wallet(ethNetworkETHCoin!.privateKey, ethNodeProvider)
-        alephiumBridgeStore.setSigner(signer)
-        alephiumBridgeStore.setIsTransferring(true)
-
-        const result = await transferLocalTokenFromAlph(
-          wallet,
-          BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID,
-          wallet.account.address,
-          ALPH_TOKEN_ID,
-          CHAIN_ID_ETH,
-          uint8ArrayToHex(arrayify(ethNetworkETHCoin!.address)),
-          bAmount,
-          BigInt(bridgeConfig.config.messageFee),
-          0n,
-          BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL,
-        )
-
-        console.log("result", result)
-
-        const txInfo = await waitTxConfirmedAndGetTxInfo(wallet.nodeProvider, result.txId)
-        alephiumBridgeStore.setIsTransferring(false)
-
-        console.log("txInfo", txInfo)
-
-        alephiumBridgeStore.setCurrentTxId(txInfo.txId)
-        alephiumBridgeStore.setIsProcessingConfirmations(true)
-
-        const interval = setInterval(async () => {
-          const txStatus = await nodeProvider.transactions.getTransactionsStatus({ txId: txInfo.txId })
-          if ("chainConfirmations" in txStatus) {
-            alephiumBridgeStore.setCurrentConfirmations(txStatus.chainConfirmations)
-          }
-          if (alephiumBridgeStore.chainConfirmations >= BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL) {
-            alephiumBridgeStore.setIsProcessingConfirmations(false)
-            clearInterval(interval)
-          }
-        }, 10000)
-
-        alephiumBridgeStore.setLoadingSignedVAA(true)
-        console.log("waitAlphTxConfirmed [start]", BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL)
-        await waitAlphTxConfirmed(wallet.nodeProvider, txInfo.txId, BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL)
-        console.log("waitAlphTxConfirmed [end]", BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL)
-
-        console.log("getSignedVAA [start]")
-        // signedVAA = vaaBytes
-        const { vaaBytes } = await getSignedVAAWithRetry(
-          BRIDGE_CONSTANTS.WORMHOLE_RPC_HOSTS,
-          CHAIN_ID_ALEPHIUM,
-          BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID,
-          CHAIN_ID_ETH,
-          txInfo.sequence,
-        )
-        alephiumBridgeStore.setLoadingSignedVAA(false)
-        alephiumBridgeStore.setSignedVAA(vaaBytes)
-        console.log("getSignedVAA [end]")
-        console.log("vaaBytes", vaaBytes)
-
-        const token = ethers_contracts.Bridge__factory.connect(BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS, signer)
-        const gasAmountResult = await token.estimateGas.completeTransfer(vaaBytes)
-        const gasAmount = Number(gasAmountResult.toString())
-        const gasPrice: number = Number(result.gasPrice)
-        const totalFee: number = gasAmount * gasPrice / 1e18
-        alephiumBridgeStore.setTotalFees(totalFee)
-      } catch (err) {
-        console.log("THERE WAS AN ERROR IN transferLocalTokenFromAlph", err)
-      } finally {
-        console.log("Done...")
-      }
-
-      console.log("TRANSFER DONEEEEEEEEEEEEE")
+    if (!bridgeConfig) {
+      return false
     }
+    const bAmount = BigInt(Number(amount) * ALPH_DECIMAL)
+    alephiumBridgeStore.setBridgingAmount(amount)
+    try {
+      console.log("MESSAGEFEEEEEEEEEEEEEEEE", bridgeConfig.config.messageFee)
 
-    const redeemOnEthHandler = async () => {
-      const signer = alephiumBridgeStore.signer
-      const signedVAA = alephiumBridgeStore.signedVAA
-      setIsPreview(false)
-      if (!signer || !signedVAA) return
-      try {
-        alephiumBridgeStore.setIsRedeemProcessing(true)
-        const redeemData = await redeemOnEth(
-          BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
-          signer,
-          signedVAA,
-        )
-        alephiumBridgeStore.resetStore()
-        console.log("redeemData", redeemData)
-      } catch (e) {
-        console.log("redeemOnEthError: Something whet wrong ", e)
-      } finally {
-        alephiumBridgeStore.setIsRedeemProcessing(false)
+      async function getTxInfo(provider: NodeProvider, txId: string) {
+        console.log("CALL getTxInfo txID:", txId)
+        const events = await provider.events.getEventsTxIdTxid(txId, { group: BRIDGE_CONSTANTS.ALEPHIUM_BRIDGE_GROUP_INDEX })
+        console.log(events)
+        const event = events.events.find((event) => event.contractAddress === BRIDGE_CONSTANTS.ALEPHIUM_BRIDGE_ADDRESS)
+        if (typeof event === "undefined") {
+          return Promise.reject(`Failed to get event for tx: ${txId}`)
+        }
+        if (event.eventIndex !== WormholeMessageEventIndex) {
+          return Promise.reject("invalid event index: " + event.eventIndex)
+        }
+        const sender = event.fields[0]
+        if (sender.type !== "ByteVec") {
+          return Promise.reject("invalid sender, expect ByteVec type, have: " + sender.type)
+        }
+        const senderContractId = (sender as node.ValByteVec).value
+        if (senderContractId !== BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID) {
+          return Promise.reject("invalid sender, expect token bridge contract id, have: " + senderContractId)
+        }
+        const sequence = parseSequenceFromLogAlph(event)
+        const targetChain = parseTargetChainFromLogAlph(event)
+        return { sequence, targetChain }
       }
-    }
 
-    const truncateRecipient = (hash: string) => {
-      return (
-        hash.substring(0, 8) +
-        "..." +
-        hash.substring(hash.length - 8, hash.length)
+      async function waitTxConfirmedAndGetTxInfo(provider: NodeProvider, txId: string): Promise<AlphTxInfo> {
+        const confirmed = await waitAlphTxConfirmed(provider, txId, 1)
+        const { sequence, targetChain } = await getTxInfo(provider, txId)
+        const blockHeader = await provider.blockflow.getBlockflowHeadersBlockHash(confirmed.blockHash)
+        return new AlphTxInfo(blockHeader, txId, sequence, targetChain, confirmed.chainConfirmations)
+      }
+
+      const ethNodeProvider = new ethers.providers.JsonRpcProvider(BRIDGE_CONSTANTS.ETH_JSON_RPC_PROVIDER_URL)
+      const signer = new ethers.Wallet(ethNetworkETHCoin!.privateKey, ethNodeProvider)
+      alephiumBridgeStore.setSigner(signer)
+      alephiumBridgeStore.setIsTransferring(true)
+
+      const result = await transferLocalTokenFromAlph(
+        wallet,
+        BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID,
+        wallet.account.address,
+        ALPH_TOKEN_ID,
+        CHAIN_ID_ETH,
+        uint8ArrayToHex(arrayify(ethNetworkETHCoin!.address)),
+        bAmount,
+        BigInt(bridgeConfig.config.messageFee),
+        0n,
+        BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL,
       )
+
+      console.log("result", result)
+
+      const txInfo = await waitTxConfirmedAndGetTxInfo(wallet.nodeProvider, result.txId)
+      alephiumBridgeStore.setIsTransferring(false)
+
+      console.log("txInfo", txInfo)
+
+      alephiumBridgeStore.setCurrentTxId(txInfo.txId)
+      alephiumBridgeStore.setIsProcessingConfirmations(true)
+
+      const interval = setInterval(async () => {
+        const txStatus = await nodeProvider.transactions.getTransactionsStatus({ txId: txInfo.txId })
+        if ("chainConfirmations" in txStatus) {
+          alephiumBridgeStore.setCurrentConfirmations(txStatus.chainConfirmations)
+        }
+        if (alephiumBridgeStore.chainConfirmations >= BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL) {
+          alephiumBridgeStore.setIsProcessingConfirmations(false)
+          clearInterval(interval)
+        }
+      }, 10000)
+
+      alephiumBridgeStore.setLoadingSignedVAA(true)
+      console.log("waitAlphTxConfirmed [start]", BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL)
+      await waitAlphTxConfirmed(wallet.nodeProvider, txInfo.txId, BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL)
+      console.log("waitAlphTxConfirmed [end]", BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL)
+
+      console.log("getSignedVAA [start]")
+      // signedVAA = vaaBytes
+      const { vaaBytes } = await getSignedVAAWithRetry(
+        BRIDGE_CONSTANTS.WORMHOLE_RPC_HOSTS,
+        CHAIN_ID_ALEPHIUM,
+        BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID,
+        CHAIN_ID_ETH,
+        txInfo.sequence,
+      )
+      alephiumBridgeStore.setLoadingSignedVAA(false)
+      alephiumBridgeStore.setSignedVAA(vaaBytes)
+      console.log("getSignedVAA [end]")
+      console.log("vaaBytes", vaaBytes)
+
+      const token = ethers_contracts.Bridge__factory.connect(BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS, signer)
+      const gasAmountResult = await token.estimateGas.completeTransfer(vaaBytes)
+      const gasAmount = Number(gasAmountResult.toString())
+      const gasPrice: number = Number(result.gasPrice)
+      const totalFee: number = gasAmount * gasPrice / 1e18
+      alephiumBridgeStore.setTotalFees(totalFee)
+    } catch (err) {
+      console.log("THERE WAS AN ERROR IN transferLocalTokenFromAlph", err)
+    } finally {
+      console.log("Done...")
     }
 
-    const processTransaction = async () => {
-      if (!asset) {
-        return
-      }
+    console.log("TRANSFER DONEEEEEEEEEEEEE")
+  }
 
-      if (!amount) {
-        return
-      }
+  const redeemOnEthHandler = async () => {
+    const signer = alephiumBridgeStore.signer
+    const signedVAA = alephiumBridgeStore.signedVAA
+    setIsPreview(false)
+    if (!signer || !signedVAA) return
+    try {
+      alephiumBridgeStore.setIsRedeemProcessing(true)
+      const redeemData = await redeemOnEth(
+        BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
+        signer,
+        signedVAA,
+      )
+      alephiumBridgeStore.resetStore()
+      console.log("redeemData", redeemData)
+    } catch (e) {
+      console.log("redeemOnEthError: Something whet wrong ", e)
+    } finally {
+      alephiumBridgeStore.setIsRedeemProcessing(false)
+    }
+  }
 
-      setSending(true)
-      try {
-        transferToBridge(amount)
-        setFees(null)
-        setIsPreview(false)
-        navigation.goBack()
-      } catch (err: any) {
-        showMessage({ message: err.message, type: "danger" })
-      } finally {
-        setSending(false)
-      }
+  const truncateRecipient = (hash: string) => {
+    return (
+      hash.substring(0, 8) +
+      "..." +
+      hash.substring(hash.length - 8, hash.length)
+    )
+  }
+
+  const processTransaction = async () => {
+    if (!amount || !asset) return
+    setSending(true)
+    try {
+      transferToBridgeFromALPH(amount).catch()
+      setFees(null)
+      setIsPreview(false)
+      navigation.goBack()
+    } catch (err: any) {
+      showMessage({ message: err.message, type: "danger" })
+    } finally {
+      setSending(false)
+    }
+  }
+
+  const onPressGoAddEthereum = () => {
+    const ALPHTokenInfo = tokens.find((el: any) => el.id === "alephium")
+    const ALPHChain = ALPHTokenInfo.chains.find((el: any) => el.id === "ETH")
+    const ETHTokenInfo = tokens.find((el: any) => el.id === "ethereum")
+    const ETHChain = ETHTokenInfo.chains.find((el: any) => el.id === "ETH")
+
+    if (!ALPHTokenInfo || !ALPHChain || !ETHTokenInfo) {
+      return showMessage({
+        message: "Something went wrong",
+        type: "danger",
+      })
     }
 
-    const onPressGoAddEthereum = () => {
-      const ALPHTokenInfo = tokens.find((el: any) => el.id === "alephium")
-      const ALPHChain = ALPHTokenInfo.chains.find((el: any) => el.id === "ETH")
-      const ETHTokenInfo = tokens.find((el: any) => el.id === "ethereum")
-      const ETHChain = ETHTokenInfo.chains.find((el: any) => el.id === "ETH")
-
-      if (!ALPHTokenInfo || !ALPHChain || !ETHTokenInfo) {
-        return showMessage({
-          message: "Something went wrong",
-          type: "danger",
+    // Add ETH token to Eth network
+    if (!ethNetworkETHCoin) {
+      currentWalletStore
+        .addAutoAsset({
+          name: ETHTokenInfo.name,
+          chain: ETHChain.id,
+          symbol: ETHTokenInfo.symbol,
+          cid: ETHTokenInfo.id,
+          type: ETHTokenInfo.type,
+          contract: ETHChain.contract,
+          image: ETHTokenInfo.thumb,
         })
-      }
-
-      // Add ETH token to Eth network
-      if (!ethNetworkETHCoin) {
-        currentWalletStore
-          .addAutoAsset({
-            name: ETHTokenInfo.name,
-            chain: ETHChain.id,
-            symbol: ETHTokenInfo.symbol,
-            cid: ETHTokenInfo.id,
-            type: ETHTokenInfo.type,
-            contract: ETHChain.contract,
-            image: ETHTokenInfo.thumb,
+        .then(() => {
+          showMessage({
+            message: "Coin added to wallet",
+            type: "success",
           })
-          .then(() => {
-            showMessage({
-              message: "Coin added to wallet",
-              type: "success",
-            })
-          })
-          .catch(e => {
-            console.log(e)
-            showMessage({
-              message: "Something went wrong",
-              type: "danger",
-            })
-          })
-      }
-
-      // Add ALPH token to Eth network
-      if (!ethNetworkAlephiumCoin) {
-        currentWalletStore
-          .addAutoAsset({
-            name: ALPHTokenInfo.name,
-            chain: ALPHChain.id,
-            symbol: ALPHTokenInfo.symbol,
-            cid: ALPHTokenInfo.id,
-            type: ALPHTokenInfo.type,
-            contract: ALPHChain.contract,
-            image: ALPHTokenInfo.thumb,
-          })
-          .then(() => {
-            showMessage({
-              message: "Coin added to wallet",
-              type: "success",
-            })
-          })
-          .catch(e => {
-            console.log(e)
-            showMessage({
-              message: "Something went wrong",
-              type: "danger",
-            })
-          })
-      }
-    }
-
-    const onPressCopyTxIdHandler = (txId: string) => {
-      if (!!txId) {
-        Clipboard.setString(txId)
-        modalFlashRef?.current?.showMessage({
-          type: "success",
-          message: "Copied to clipboard",
         })
-      }
+        .catch(e => {
+          console.log(e)
+          showMessage({
+            message: "Something went wrong",
+            type: "danger",
+          })
+        })
     }
 
-    const onPressPercentHandler = (el: ICheckboxPercentItem, checked: boolean, onChange) => {
-      onChange(checked ? null : el.value)
-      if (asset?.balance === undefined) return
-      const amountValue = checked ? "" : (asset?.balance * el.percent / 100).toString()
-      setFormValue("amount", amountValue)
+    // Add ALPH token to Eth network
+    if (!ethNetworkAlephiumCoin) {
+      currentWalletStore
+        .addAutoAsset({
+          name: ALPHTokenInfo.name,
+          chain: ALPHChain.id,
+          symbol: ALPHTokenInfo.symbol,
+          cid: ALPHTokenInfo.id,
+          type: ALPHTokenInfo.type,
+          contract: ALPHChain.contract,
+          image: ALPHTokenInfo.thumb,
+        })
+        .then(() => {
+          showMessage({
+            message: "Coin added to wallet",
+            type: "success",
+          })
+        })
+        .catch(e => {
+          console.log(e)
+          showMessage({
+            message: "Something went wrong",
+            type: "danger",
+          })
+        })
+    }
+  }
+
+  const onPressGoAddAlephium = () => {
+    const ALPHTokenInfo = tokens.find((el: any) => el.id === "alephium")
+    const ALPHChain = ALPHTokenInfo.chains.find((el: any) => el.id === "ALPH")
+
+    if (!ALPHTokenInfo || !ALPHChain) {
+      return showMessage({
+        message: "Something went wrong",
+        type: "danger",
+      })
     }
 
-    const init = useCallback(async (asset: BaseWalletDescription) => {
+    // Add Alephium token to ALPH network
+    if (!alphNetworkAlephiumCoin) {
+      currentWalletStore
+        .addAutoAsset({
+          name: ALPHTokenInfo.name,
+          chain: ALPHChain.id,
+          symbol: ALPHTokenInfo.symbol,
+          cid: ALPHTokenInfo.id,
+          type: ALPHTokenInfo.type,
+          contract: ALPHChain.contract,
+          image: ALPHTokenInfo.thumb,
+        })
+        .then(() => {
+          showMessage({
+            message: "Coin added to wallet",
+            type: "success",
+          })
+        })
+        .catch(e => {
+          console.log(e)
+          showMessage({
+            message: "Something went wrong",
+            type: "danger",
+          })
+        })
+    }
+  }
+
+  const onPressCopyTxIdHandler = (txId: string) => {
+    if (!!txId) {
+      Clipboard.setString(txId)
+      modalFlashRef?.current?.showMessage({
+        type: "success",
+        message: "Copied to clipboard",
+      })
+    }
+  }
+
+  const onPressPercentHandler = (el: ICheckboxPercentItem, checked: boolean, onChange: any) => {
+    onChange(checked ? null : el.value)
+    if (asset?.balance === undefined) return
+    const amountValue = checked ? "" : (asset?.balance * el.percent / 100).toString()
+    setFormValue("amount", amountValue)
+  }
+
+  const init = useCallback(async (asset: BaseWalletDescription) => {
     const nodeProvider = await NodeProviderGenerator.getNodeProvider(
       asset.chain as Chains,
     )
@@ -436,7 +481,211 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
     setBridgeDetails({ nodeProvider, signer, bridgeConfig })
   }, [])
 
-    const rulesAmount = useMemo(() => {
+  /**FROM ETH**/
+  const [currentBlock,setCurrentBlock] = useState(0)
+  const [lastBlockUpdatedTs, setLastBlockUpdatedTs] = useState(Date.now())
+  const [singedVaa,setSingedVaa] = useState<any>(null)
+
+  const approveEthHandler = async () => {
+    Keyboard.dismiss()
+    const ethNodeProvider = new ethers.providers.JsonRpcProvider(BRIDGE_CONSTANTS.ETH_JSON_RPC_PROVIDER_URL)
+    const signer = new ethers.Wallet(ethNetworkETHCoin!.privateKey, ethNodeProvider)
+    const bAmount = BigInt(Number(amount) * ALPH_DECIMAL) // decimals 18
+
+    const result = await approveEth(
+      BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
+      BRIDGE_CONSTANTS.ALEPHIUM_ADDRESS_IN_ETH_NETWORK,
+      signer,
+      bAmount
+    )
+
+    // const result = {
+    //   "blockHash": "0x4a312567206c0394e3ef6d45aee4fb18066661f5a1ba3b6c0e2ecb510dac5beb",
+    //   "blockNumber": 6936899,
+    //   "byzantium": true,
+    //   "confirmations": 1,
+    //   "contractAddress": null,
+    //   "cumulativeGasUsed": { "hex": "0x0514c8", "type": "BigNumber" },
+    //   "effectiveGasPrice": { "hex": "0x013057e376", "type": "BigNumber" },
+    //   "events": [{
+    //     "address": "0xD62Efc730439F0ad1D6B29448ff9aE894B7857c1",
+    //     "args": [Array],
+    //     "blockHash": "0x4a312567206c0394e3ef6d45aee4fb18066661f5a1ba3b6c0e2ecb510dac5beb",
+    //     "blockNumber": 6936899,
+    //     "data": "0x00000000000000000000000000000000000000000000000000038d7ea4c68000",
+    //     "decode": [Function anonymous],
+    //     "event": "Approval",
+    //     "eventSignature": "Approval(address,address,uint256)",
+    //     "getBlock": [Function anonymous],
+    //     "getTransaction": [Function anonymous],
+    //     "getTransactionReceipt": [Function anonymous],
+    //     "logIndex": 3,
+    //     "removeListener": [Function anonymous],
+    //     "topics": [Array],
+    //     "transactionHash": "0x9ae3173e4c2d88100585caabdd9db97bb86c1c18d2c561d69e71de8e253d09e3",
+    //     "transactionIndex": 8,
+    //   }],
+    //   "from": "0x1105886df9185c4823b03F93Fb1E0b655AF04286",
+    //   "gasUsed": { "hex": "0xf042", "type": "BigNumber" },
+    //   "logs": [{
+    //     "address": "0xD62Efc730439F0ad1D6B29448ff9aE894B7857c1",
+    //     "blockHash": "0x4a312567206c0394e3ef6d45aee4fb18066661f5a1ba3b6c0e2ecb510dac5beb",
+    //     "blockNumber": 6936899,
+    //     "data": "0x00000000000000000000000000000000000000000000000000038d7ea4c68000",
+    //     "logIndex": 3,
+    //     "topics": [Array],
+    //     "transactionHash": "0x9ae3173e4c2d88100585caabdd9db97bb86c1c18d2c561d69e71de8e253d09e3",
+    //     "transactionIndex": 8,
+    //   }],
+    //   "logsBloom": "0x00004000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000008000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000010000000800000000000001000000000000000010000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000002000000000000000000",
+    //   "status": 1,
+    //   "to": "0xD62Efc730439F0ad1D6B29448ff9aE894B7857c1",
+    //   "transactionHash": "0x9ae3173e4c2d88100585caabdd9db97bb86c1c18d2c561d69e71de8e253d09e3",
+    //   "transactionIndex": 8,
+    //   "type": 2,
+    // }
+
+    console.log('result',result)
+  }
+
+  function checkEVMChainId(chainId: ChainId) {
+    if (!isEVMChain(chainId)) {
+      throw new Error(`invalid chain id ${chainId}, expected an evm chain`)
+    }
+  }
+
+  async function getEVMCurrentBlockNumber(provider: ethers.providers.Provider, chainId: ChainId): Promise<number> {
+    checkEVMChainId(chainId)
+    return await provider.getBlockNumber()
+  }
+
+  const getBlockProgress = async (evmProvider: ethers.providers.Provider, chainId: ChainId) => {
+    while (!singedVaa) {
+      await new Promise((resolve) => setTimeout(resolve, 3000))
+      try {
+        const newBlock = await getEVMCurrentBlockNumber(evmProvider, chainId)
+        setCurrentBlock((prev) => {
+          const now = Date.now()
+          if (prev !== newBlock) {
+            setLastBlockUpdatedTs(now)
+          }
+          return newBlock
+        })
+
+      } catch (e) {
+        console.error(e)
+      }
+    }
+  }
+
+  const transferToBridgeFromETH = async () => {
+    console.log('start')
+    try {
+      const ethNodeProvider = new ethers.providers.JsonRpcProvider(BRIDGE_CONSTANTS.ETH_JSON_RPC_PROVIDER_URL)
+      const signer = new ethers.Wallet(ethNetworkETHCoin!.privateKey, ethNodeProvider)
+      const bAmount = BigInt(Number(amount) * ALPH_DECIMAL) // decimals 18
+
+      const generator = await NodeProviderGenerator.getNodeProvider(asset?.chain as Chains,)
+      // @ts-ignore
+      const nodeProvider: NodeProvider = generator.getNodeProvider()
+      web3.setCurrentNodeProvider(nodeProvider)
+
+      const wallet = new PrivateKeyWallet({
+        privateKey: asset?.privateKey || "",
+        nodeProvider,
+      })
+      const feeParsed = ethers.utils.parseUnits("0", 18);
+
+      const receipt = await transferFromEth(
+        BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
+        signer,
+        BRIDGE_CONSTANTS.ALEPHIUM_ADDRESS_IN_ETH_NETWORK,
+        bAmount,
+        CHAIN_ID_ALEPHIUM,
+        hexToUint8Array(wallet.account.address),
+        feeParsed
+      )
+
+      console.log("receipt", receipt)
+
+      // MAINNET
+      // 0x01e82b67367dE9f805E55de730D5007a752912A8
+      // TESTNET
+      const bridgeAddress = "0x91025D8a7E70cF478eC9F759C492cD23D298045C"
+      const sequence = parseSequenceFromLogEth(receipt, bridgeAddress)
+      console.log("sequence", sequence)
+
+      const transactionHash = receipt.transactionHash
+      const blockHeight = receipt.blockNumber
+      // const isFinalized = currentBlock >= tx.blockHeight;
+
+      const data = getBlockProgress(ethNodeProvider,CHAIN_ID_ETH)
+
+      const { vaaBytes } = await getSignedVAAWithRetry(
+        BRIDGE_CONSTANTS.WORMHOLE_RPC_HOSTS,
+        CHAIN_ID_ETH,
+        BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID,
+        CHAIN_ID_ALEPHIUM,
+        sequence,
+      )
+      setSingedVaa(vaaBytes)
+
+      // console.log("vaaBytes", vaaBytes)
+      // const data = redeemOnEth(
+      //   BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
+      //   signer,
+      // )
+
+      console.log('receipt', receipt)
+    }catch (e){
+      console.log('error',e)
+    }
+
+    // await transferFromEthWithoutWait(
+    //   BRIDGE_CONSTANTS.ETH_TOKEN_BRIDGE_ADDRESS,
+    //   signer,
+    //   signer.address,
+    //   bAmount,
+    //   CHAIN_ID_ALEPHIUM,
+    //   wallet.account.address,
+    //   feeParsed
+    // )
+  }
+  /**FROM ETH**/
+
+  useEffect(() => {
+    const _getBalances = async () => {
+      if (asset) {
+        const balance = await getBalance(asset)
+        setBalance(asset, balance)
+      }
+    }
+    _getBalances()
+  }, [])
+
+  useEffect(() => {
+    // Convert the string got from the form into a number (Sdk needs a number and not a string)
+    setAmount(parseFloat(textInputAmount.split(",").join(".")))
+  }, [textInputAmount])
+
+  useEffect(() => {
+    console.log("checkboxFiled", checkboxFiled)
+  }, [checkboxFiled])
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
+      scrollViewRef?.current?.scrollToEnd()
+    })
+    return () => keyboardDidShowListener.remove()
+  }, [scrollViewRef?.current])
+
+  useEffect(() => {
+    if (asset) {
+      init(asset)
+    }
+  }, [asset?.address, asset?.chain, init])
+
+  const rulesAmount = useMemo(() => {
     return {
       required: {
         value: true,
@@ -452,42 +701,57 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
       },
     }
   }, [numericRegEx, asset])
-
-    useEffect(() => {
-      const _getBalances = async () => {
-        if (asset) {
-          const balance = await getBalance(asset)
-          setBalance(asset, balance)
-        }
-      }
-      _getBalances()
-    }, [])
-
-    useEffect(() => {
-      // Convert the string got from the form into a number (Sdk needs a number and not a string)
-      setAmount(parseFloat(textInputAmount.split(",").join(".")))
-    }, [textInputAmount])
-
-    useEffect(() => {
-      console.log("checkboxFiled", checkboxFiled)
-    }, [checkboxFiled])
-
-    useEffect(() => {
-      const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
-        scrollViewRef?.current?.scrollToEnd()
-      })
-      return () => keyboardDidShowListener.remove()
-    }, [scrollViewRef?.current])
-
-    useEffect(() => {
-    if (asset) {
-      init(asset)
+  const fromAsset = useMemo(() => {
+    switch (asset?.chain) {
+      case "ETH":
+        return { ...ethNetworkAlephiumCoin, image: ethNetworkETHCoin?.image }
+      case "ALPH":
+        return asset
     }
-  }, [asset?.address, asset?.chain, init])
+  }, [asset, ethNetworkAlephiumCoin, ethNetworkETHCoin])
+  const toAsset = useMemo(() => {
+    switch (asset?.chain) {
+      case "ETH":
+        return { ...alphNetworkAlephiumCoin, freeBalance: alphNetworkAlephiumCoin?.balanceWithDerivedAddresses }
+      case "ALPH":
+        return { ...ethNetworkAlephiumCoin, image: ethNetworkETHCoin?.image }
+    }
+  }, [asset, ethNetworkAlephiumCoin, ethNetworkETHCoin, alphNetworkAlephiumCoin])
+  const currencyBlockCond = useMemo(() => {
+    switch (asset?.chain) {
+      case "ETH":
+        return !!alphNetworkAlephiumCoin
+      case "ALPH":
+        return !!ethNetworkAlephiumCoin
+    }
+  }, [asset, ethNetworkAlephiumCoin, alphNetworkAlephiumCoin])
+  const addButtonInfo = useMemo(() => {
+    const mapper: any = {
+      "ALPH": {
+        text: "Add Ethereum network to the wallet",
+        onAddHandler: onPressGoAddEthereum,
+        isVisible: !ethNetworkAlephiumCoin,
+      },
+      "ETH": {
+        text: "Add Alephium network to the wallet",
+        onAddHandler: onPressGoAddAlephium,
+        isVisible: !alphNetworkAlephiumCoin,
+      },
+    }
+    return asset?.chain ? mapper[asset.chain] : ""
+  }, [asset, ethNetworkAlephiumCoin, alphNetworkAlephiumCoin])
+
+  const alephiumConfirmationsInfo = useMemo(() => {
+    return {
+      isVisible: alephiumBridgeStore.isProcessingConfirmations,
+      txId: alephiumBridgeStore.currentTxId,
+      currentConfirmations: alephiumBridgeStore.chainConfirmations,
+      minimalConfirmations: BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL,
+    }
+  }, [alephiumBridgeStore.isProcessingConfirmations,alephiumBridgeStore.currentTxId,alephiumBridgeStore.chainConfirmations,BRIDGE_CONSTANTS])
 
     return (
       <>
-
         <KeyboardAvoidingView
           style={stylesComponent.keyboardAvoidingView}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -495,23 +759,26 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
           <ImageBackground source={MainBackground} style={BackgroundStyle}>
             <ScrollView contentContainerStyle={stylesComponent.container} keyboardShouldPersistTaps={"handled"}>
 
+              {/*// FOR ETH NOT FINISHED*/}
+              {/*<Text>currentBlock:{currentBlock}</Text>*/}
+              {/*<Text>lastBlockUpdatedTs: {lastBlockUpdatedTs}</Text>*/}
               <View>
                 <View
-                  style={[stylesComponent.walletsWrapper, !!ethNetworkAlephiumCoin && stylesComponent.walletsWrapperWithTwoChild]}>
+                  style={[stylesComponent.walletsWrapper, currencyBlockCond && stylesComponent.walletsWrapperWithTwoChild]}>
                   <CurrencyDescriptionBlock
-                    asset={asset}
+                    asset={fromAsset}
                     icon="transfer"
                     balance="freeBalance"
                     title="Available balance"
-                    styleBalance={!!ethNetworkAlephiumCoin && stylesComponent.balanceText}
+                    styleBalance={currencyBlockCond && stylesComponent.balanceText}
                   />
-                  {!!ethNetworkAlephiumCoin &&
+                  {currencyBlockCond &&
                     <CurrencyDescriptionBlock
+                      asset={toAsset}
                       icon="transfer"
                       balance="freeBalance"
                       title="Available balance"
-                      asset={{ ...ethNetworkAlephiumCoin, image: ethNetworkETHCoin.image }}
-                      styleBalance={!!ethNetworkAlephiumCoin && stylesComponent.balanceText}
+                      styleBalance={currencyBlockCond && stylesComponent.balanceText}
                     />
                   }
                 </View>
@@ -537,15 +804,6 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
                       isShow={!!ethNetworkAlephiumCoin && !!ethNetworkETHCoin && ethNetworkETHCoin?.balanceWithDerivedAddresses === 0}
                       description={"You don’t have any funds in your Ethereum wallet. Note that you will have to pay ethereum transaction fees and you will need some ETH to finalize the process"}
                     />
-
-                    {!ethNetworkAlephiumCoin &&
-                      <Button
-                        style={PRIMARY_BTN}
-                        textStyle={{ color: palette.white }}
-                        text="Add Ethereum network to the wallet"
-                        onPress={onPressGoAddEthereum}
-                      />
-                    }
 
                     {!!ethNetworkETHCoin && !!ethNetworkAlephiumCoin && !alephiumBridgeStore.isProcessingConfirmations &&
                       <Controller
@@ -578,18 +836,27 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
                         })}
                       </View>
                     }
+
+                    {addButtonInfo?.isVisible &&
+                      <Button
+                        style={PRIMARY_BTN}
+                        textStyle={{ color: palette.white }}
+                        text={addButtonInfo?.text}
+                        onPress={() => addButtonInfo?.onAddHandler?.()}
+                      />
+                    }
                   </>
                 }
               </View>
 
-              {alephiumBridgeStore.isProcessingConfirmations &&
+              {alephiumConfirmationsInfo.isVisible &&
                 <View style={{ marginTop: 24 }}>
                   <AlephimPendingBride
                     hideRedeem={true}
                     onPressCopyTxId={onPressCopyTxIdHandler}
-                    txId={alephiumBridgeStore.currentTxId}
-                    currentConfirmations={alephiumBridgeStore.chainConfirmations}
-                    minimalConfirmations={BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL} />
+                    txId={alephiumConfirmationsInfo.txId}
+                    currentConfirmations={alephiumConfirmationsInfo.currentConfirmations}
+                    minimalConfirmations={alephiumConfirmationsInfo.minimalConfirmations} />
                 </View>
               }
 
@@ -603,13 +870,13 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
               }
 
             </ScrollView>
-            {!!ethNetworkETHCoin && !!ethNetworkAlephiumCoin && !alephiumBridgeStore.bridgingAmount &&
+            {!!ethNetworkETHCoin && !!ethNetworkAlephiumCoin && !alephiumBridgeStore.bridgingAmount && asset?.chain === "ALPH" &&
               <View style={stylesComponent.previewOperation}>
                 <WalletButton
                   text={"Preview the operation"}
                   type="primary"
                   outline={true}
-                  // disabled={!isValid || ethNetworkETHCoin?.balanceWithDerivedAddresses === 0}
+                  disabled={!isValid || ethNetworkETHCoin?.balanceWithDerivedAddresses === 0}
                   onPress={() => {
                     Keyboard.dismiss()
                     handleSubmit(onSubmit)()
@@ -617,6 +884,33 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
                 />
               </View>
             }
+
+            {/*// FOR ETH NOT FINISHED*/}
+            {/*{asset?.chain === "ETH" &&*/}
+            {/*  <>*/}
+            {/*    <View style={stylesComponent.previewOperation}>*/}
+            {/*      <WalletButton*/}
+            {/*        text={"Approve"}*/}
+            {/*        type="primary"*/}
+            {/*        outline={true}*/}
+            {/*        disabled={!isValid}*/}
+            {/*        onPress={approveEthHandler}*/}
+            {/*      />*/}
+            {/*    </View>*/}
+            {/*  </>*/}
+            {/*}*/}
+
+            {/*// FOR ETH NOT FINISHED*/}
+            {/*<View style={stylesComponent.previewOperation}>*/}
+            {/*  <WalletButton*/}
+            {/*    text={"transferToBridgeFromETH"}*/}
+            {/*    type="primary"*/}
+            {/*    outline={true}*/}
+            {/*    // disabled={!isValid}*/}
+            {/*    onPress={transferToBridgeFromETH}*/}
+            {/*  />*/}
+            {/*</View>*/}
+
 
             {!!alephiumBridgeStore.bridgingAmount && !alephiumBridgeStore.isProcessingConfirmations &&
               <View style={stylesComponent.previewOperation}>
