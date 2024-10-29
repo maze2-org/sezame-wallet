@@ -47,21 +47,24 @@ export class StoredWallet {
           );
         }
 
-        for (const derivedAddress of asset.derivedAddresses) {
-          if (!derivedAddress.group) {
-            try {
-              const group = await getAddressGroup(
-                asset,
-                derivedAddress.address,
-              );
-              derivedAddress.group = group.toString();
-            } catch (error: any) {
-              console.error(
-                `Erreur lors de la récupération du groupe pour ${derivedAddress.address}: ${error?.message}`,
-              );
+        if (asset.derivedAddresses) {
+          for (const derivedAddress of asset.derivedAddresses) {
+            if (!derivedAddress.group) {
+              try {
+                const group = await getAddressGroup(
+                  asset,
+                  derivedAddress.address,
+                );
+                derivedAddress.group = group.toString();
+              } catch (error: any) {
+                console.error(
+                  `Erreur lors de la récupération du groupe pour ${derivedAddress.address}: ${error?.message}`,
+                );
+              }
             }
           }
         }
+        
       }
     }
     return walletData;
@@ -73,7 +76,6 @@ export class StoredWallet {
       if (!encryptedData) {
         throw new Error("Wallet data don't exist");
       }
-
       let walletData: WalletJson = JSON.parse(decrypt(password, encryptedData));
       walletData = await this.initializeAlephiumAddressesGroups(walletData);
       const storedWallet = new StoredWallet(
@@ -82,10 +84,11 @@ export class StoredWallet {
         password,
         walletData.assets,
       );
-
+      
       // await storedWallet.addAssets(walletData.assets)
       return storedWallet;
     } catch (err) {
+      console.log(err);
       throw new Error('Unable to open this wallet');
     }
   }

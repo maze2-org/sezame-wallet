@@ -23,6 +23,7 @@ type ReceiveModalProps = {
 
 const ReceiveModal = ({visible, asset, onClose}: ReceiveModalProps) => {
   const copyAddress = (value: string) => {
+    console.log(123)
     if (value) {
       Clipboard.setString(value);
       Clipboard.getString()
@@ -104,9 +105,13 @@ const ReceiveModal = ({visible, asset, onClose}: ReceiveModalProps) => {
               </View>
             )}
 
-            <TouchableOpacity
-              style={styles.RECEIVE_MODAL_COPY_BUTTON}
-              onPress={() => copyAddress(asset?.address)}>
+            <Pressable
+              onPress={() => copyAddress(asset?.address)}
+              style={({ pressed }) => [
+                styles.RECEIVE_MODAL_COPY_BUTTON,
+                { opacity: pressed ? 0.2 : 1 }
+              ]}
+            >
               <View>
                 <SvgXml
                   stroke={color.palette.gold}
@@ -116,10 +121,14 @@ const ReceiveModal = ({visible, asset, onClose}: ReceiveModalProps) => {
                 />
                 <Text style={styles.RECEIVE_MODAL_COPY_TEXT}>COPY ADDRESS</Text>
               </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.RECEIVE_MODAL_COPY_BUTTON}
-              onPress={() => copyAddress(asset?.publicKey)}>
+            </Pressable>
+            <Pressable
+              onPress={() => copyAddress(asset?.publicKey)}
+              style={({ pressed }) => [
+                styles.RECEIVE_MODAL_COPY_BUTTON,
+                { opacity: pressed ? 0.2 : 1 }
+              ]}
+            >
               <View>
                 <SvgXml
                   stroke={color.palette.gold}
@@ -131,7 +140,7 @@ const ReceiveModal = ({visible, asset, onClose}: ReceiveModalProps) => {
                   COPY PUBLIC KEY
                 </Text>
               </View>
-            </TouchableOpacity>
+            </Pressable>
           </View>
         </Pressable>
       </Pressable>
