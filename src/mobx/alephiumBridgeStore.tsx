@@ -1,7 +1,8 @@
 import { makeAutoObservable } from "mobx"
+import { ethers } from "ethers"
 
 class AlephiumBridgeStore {
-  isTransferring: boolean = false
+  isTransferringFromALPH: boolean = false
   totalFees: string | number = 0
   isRedeemProcessing = false
   bridgingAmount: string | number = ""
@@ -11,6 +12,10 @@ class AlephiumBridgeStore {
   signedVAA = null
   loadingSignedVAA = false
   isProcessingConfirmations = false
+  isApprovingEth: boolean = false
+  approvedEthResult: any = null
+  isTransferringFromETH: boolean = false
+  receipt: ethers.ContractReceipt | null = null
 
   constructor() {
     makeAutoObservable(this)
@@ -52,13 +57,29 @@ class AlephiumBridgeStore {
     this.totalFees = fees
   }
 
-  setIsTransferring(isTransferring: boolean) {
-    this.isTransferring = isTransferring
+  setIsTransferringFromALPH(isTransferringFromALPH: boolean) {
+    this.isTransferringFromALPH = isTransferringFromALPH
+  }
+
+  setIsApprovingEth(isApprovingEth: boolean) {
+    this.isApprovingEth = isApprovingEth
+  }
+
+  setApprovedEthResult(result: any) {
+    this.approvedEthResult = result
+  }
+
+  setIsTransferringFromETH(isTransferringFromETH: boolean) {
+    this.isTransferringFromETH = isTransferringFromETH
+  }
+
+  setReceipt(receipt: ethers.ContractReceipt) {
+    this.receipt = receipt
   }
 
   resetStore() {
     this.totalFees = 0
-    this.isTransferring = false
+    this.isTransferringFromALPH = false
     this.isRedeemProcessing = false
     this.loadingSignedVAA = false
     this.bridgingAmount = ""
@@ -67,6 +88,10 @@ class AlephiumBridgeStore {
     this.signer = null
     this.signedVAA = null
     this.isProcessingConfirmations = false
+    this.isApprovingEth = false
+    this.approvedEthResult = null
+    this.isTransferringFromETH = false
+    this.receipt = null
   }
 }
 

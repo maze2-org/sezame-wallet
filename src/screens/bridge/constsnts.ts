@@ -5,6 +5,7 @@ import * as alephiumTestnetConfig from "../../bridges/alephium/artifacts/.deploy
 
 export const ALPH_DECIMAL = 1000000000000000000
 export const WormholeMessageEventIndex = 0
+export const DefaultEVMChainConfirmations = 15
 export const EpochDuration = 480000
 // export const ETH_JSON_RPC_PROVIDER_URL = "https://node-ethereum.sezame.app"
 // export const ETH_JSON_RPC_PROVIDER_URL = "https://node-ethereum-testnet.sezame.app"
@@ -20,6 +21,7 @@ export const BRIDGE_CONSTANTS_MAINNET = {
   ALEPHIUM_BRIDGE_GROUP_INDEX: alephiumMainnetConfig.contracts.TokenBridge.contractInstance.groupIndex,
   ALEPHIUM_BRIDGE_ADDRESS: alephiumMainnetConfig.contracts.Governance.contractInstance.address,
   TRANSFER_TARGET_ADDRESS_HEX: alephiumMainnetConfig.contracts.TokenBridge.contractInstance.address,
+  ETH_BRIDGE_ADDRESS: "0x01e82b67367dE9f805E55de730D5007a752912A8",
 }
 
 // Using configs like in wormhole-fork
@@ -33,6 +35,7 @@ export const BRIDGE_CONSTANTS_TESTNET = {
   ALEPHIUM_BRIDGE_GROUP_INDEX: 0,
   ALEPHIUM_BRIDGE_ADDRESS: "22kH5DXnKjRvnr8y4FSKo9ADCAgQTqQz6oqLP2JJuLapX",
   TRANSFER_TARGET_ADDRESS_HEX: "yqr94FUpZARYoSjB8F7TxLZQUXMKTrt52PVcfY938Hu1",
+  ETH_BRIDGE_ADDRESS: "0x91025D8a7E70cF478eC9F759C492cD23D298045C",
 }
 
 // Using our config file
@@ -45,6 +48,7 @@ export const BRIDGE_CONSTANTS_TESTNET = {
 //   ALEPHIUM_BRIDGE_GROUP_INDEX: alephiumTestnetConfig.contracts.TokenBridge.contractInstance.groupIndex,
 //   ALEPHIUM_BRIDGE_ADDRESS: alephiumTestnetConfig.contracts.Governance.contractInstance.address,
 //   TRANSFER_TARGET_ADDRESS_HEX: alephiumTestnetConfig.contracts.TokenBridge.contractInstance.address,
+//   ETH_BRIDGE_ADDRESS: '0x91025D8a7E70cF478eC9F759C492cD23D298045C'
 // }
 
 

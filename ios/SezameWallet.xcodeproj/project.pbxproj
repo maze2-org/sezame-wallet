@@ -11,10 +11,10 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		1FB80CFD9836621E5844E35A /* libPods-SezameWallet-SezamewalletTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DC2311DAEAA486589234798E /* libPods-SezameWallet-SezamewalletTests.a */; };
 		2A3D84BAAE0E302833ABAD43 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = F27EF8F91B20EF86B2D8258E /* PrivacyInfo.xcprivacy */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		C0E57BA0FD4AD42B64C25546 /* libPods-SezameWallet-SezamewalletTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1634E2B94F620A270148C096 /* libPods-SezameWallet-SezamewalletTests.a */; };
-		EA238763FEC0F4199CA11952 /* libPods-SezameWallet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8AC77051DB241936F6475C47 /* libPods-SezameWallet.a */; };
+		9BC06B92054B3F1845F67792 /* libPods-SezameWallet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BE733B268D57A42659562415 /* libPods-SezameWallet.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,13 +37,13 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = SezameWallet/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = SezameWallet/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = SezameWallet/main.m; sourceTree = "<group>"; };
-		1634E2B94F620A270148C096 /* libPods-SezameWallet-SezamewalletTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SezameWallet-SezamewalletTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		557F902CABF35E21A1A5C8EC /* Pods-SezameWallet-SezamewalletTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SezameWallet-SezamewalletTests.release.xcconfig"; path = "Target Support Files/Pods-SezameWallet-SezamewalletTests/Pods-SezameWallet-SezamewalletTests.release.xcconfig"; sourceTree = "<group>"; };
-		7425BDC1501E699513C5AEDF /* Pods-SezameWallet-SezamewalletTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SezameWallet-SezamewalletTests.debug.xcconfig"; path = "Target Support Files/Pods-SezameWallet-SezamewalletTests/Pods-SezameWallet-SezamewalletTests.debug.xcconfig"; sourceTree = "<group>"; };
+		185DDFB5C1B139F2087752FB /* Pods-SezameWallet-SezamewalletTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SezameWallet-SezamewalletTests.debug.xcconfig"; path = "Target Support Files/Pods-SezameWallet-SezamewalletTests/Pods-SezameWallet-SezamewalletTests.debug.xcconfig"; sourceTree = "<group>"; };
+		4DB77E4CC8BA88C0CEA869C0 /* Pods-SezameWallet-SezamewalletTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SezameWallet-SezamewalletTests.release.xcconfig"; path = "Target Support Files/Pods-SezameWallet-SezamewalletTests/Pods-SezameWallet-SezamewalletTests.release.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = SezameWallet/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		8AC77051DB241936F6475C47 /* libPods-SezameWallet.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SezameWallet.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		A4113E3458B1CADB0598A062 /* Pods-SezameWallet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SezameWallet.release.xcconfig"; path = "Target Support Files/Pods-SezameWallet/Pods-SezameWallet.release.xcconfig"; sourceTree = "<group>"; };
-		D982A28396AEA324048654BD /* Pods-SezameWallet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SezameWallet.debug.xcconfig"; path = "Target Support Files/Pods-SezameWallet/Pods-SezameWallet.debug.xcconfig"; sourceTree = "<group>"; };
+		BE733B268D57A42659562415 /* libPods-SezameWallet.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SezameWallet.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C52FA358C3B0A01EBDCD0D46 /* Pods-SezameWallet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SezameWallet.debug.xcconfig"; path = "Target Support Files/Pods-SezameWallet/Pods-SezameWallet.debug.xcconfig"; sourceTree = "<group>"; };
+		DC2311DAEAA486589234798E /* libPods-SezameWallet-SezamewalletTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SezameWallet-SezamewalletTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		EA83DE4D11DDF1788A0C7B07 /* Pods-SezameWallet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SezameWallet.release.xcconfig"; path = "Target Support Files/Pods-SezameWallet/Pods-SezameWallet.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F27EF8F91B20EF86B2D8258E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = SezameWallet/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -53,7 +53,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C0E57BA0FD4AD42B64C25546 /* libPods-SezameWallet-SezamewalletTests.a in Frameworks */,
+				1FB80CFD9836621E5844E35A /* libPods-SezameWallet-SezamewalletTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -61,7 +61,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EA238763FEC0F4199CA11952 /* libPods-SezameWallet.a in Frameworks */,
+				9BC06B92054B3F1845F67792 /* libPods-SezameWallet.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -103,8 +103,8 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				8AC77051DB241936F6475C47 /* libPods-SezameWallet.a */,
-				1634E2B94F620A270148C096 /* libPods-SezameWallet-SezamewalletTests.a */,
+				BE733B268D57A42659562415 /* libPods-SezameWallet.a */,
+				DC2311DAEAA486589234798E /* libPods-SezameWallet-SezamewalletTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -143,10 +143,10 @@
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				D982A28396AEA324048654BD /* Pods-SezameWallet.debug.xcconfig */,
-				A4113E3458B1CADB0598A062 /* Pods-SezameWallet.release.xcconfig */,
-				7425BDC1501E699513C5AEDF /* Pods-SezameWallet-SezamewalletTests.debug.xcconfig */,
-				557F902CABF35E21A1A5C8EC /* Pods-SezameWallet-SezamewalletTests.release.xcconfig */,
+				C52FA358C3B0A01EBDCD0D46 /* Pods-SezameWallet.debug.xcconfig */,
+				EA83DE4D11DDF1788A0C7B07 /* Pods-SezameWallet.release.xcconfig */,
+				185DDFB5C1B139F2087752FB /* Pods-SezameWallet-SezamewalletTests.debug.xcconfig */,
+				4DB77E4CC8BA88C0CEA869C0 /* Pods-SezameWallet-SezamewalletTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -158,12 +158,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "SezamewalletTests" */;
 			buildPhases = (
-				1986386A02F0ACE50F523EDE /* [CP] Check Pods Manifest.lock */,
+				B17AAAB7C2BF555F5166010E /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				6494A3C31EB8DE79567B3409 /* [CP] Embed Pods Frameworks */,
-				7D5B1D933ABA6FE66EF9491E /* [CP] Copy Pods Resources */,
+				4CF999247D8AB893DB9128F0 /* [CP] Embed Pods Frameworks */,
+				DAA5A55F01363188AD2F1F13 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -179,13 +179,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "SezameWallet" */;
 			buildPhases = (
-				4C8709C5DBF77AE8944683B4 /* [CP] Check Pods Manifest.lock */,
+				DC62FC98B8D1D5E6FB6F44B3 /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				B98513D54FDCC53B1BB2A3BC /* [CP] Embed Pods Frameworks */,
-				D58CEB0DA22587929FCE903A /* [CP] Copy Pods Resources */,
+				9683A4BAFA19CB9B4D979384 /* [CP] Embed Pods Frameworks */,
+				7F4FA5975C8CB1DAC6FC2232 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -272,7 +272,58 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"../node_modules/react-native/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"../node_modules/react-native/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
 		};
-		1986386A02F0ACE50F523EDE /* [CP] Check Pods Manifest.lock */ = {
+		4CF999247D8AB893DB9128F0 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SezameWallet-SezamewalletTests/Pods-SezameWallet-SezamewalletTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SezameWallet-SezamewalletTests/Pods-SezameWallet-SezamewalletTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SezameWallet-SezamewalletTests/Pods-SezameWallet-SezamewalletTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		7F4FA5975C8CB1DAC6FC2232 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SezameWallet/Pods-SezameWallet-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SezameWallet/Pods-SezameWallet-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SezameWallet/Pods-SezameWallet-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9683A4BAFA19CB9B4D979384 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SezameWallet/Pods-SezameWallet-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SezameWallet/Pods-SezameWallet-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SezameWallet/Pods-SezameWallet-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B17AAAB7C2BF555F5166010E /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -294,7 +345,24 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		4C8709C5DBF77AE8944683B4 /* [CP] Check Pods Manifest.lock */ = {
+		DAA5A55F01363188AD2F1F13 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SezameWallet-SezamewalletTests/Pods-SezameWallet-SezamewalletTests-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SezameWallet-SezamewalletTests/Pods-SezameWallet-SezamewalletTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SezameWallet-SezamewalletTests/Pods-SezameWallet-SezamewalletTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		DC62FC98B8D1D5E6FB6F44B3 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -314,74 +382,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		6494A3C31EB8DE79567B3409 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SezameWallet-SezamewalletTests/Pods-SezameWallet-SezamewalletTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SezameWallet-SezamewalletTests/Pods-SezameWallet-SezamewalletTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SezameWallet-SezamewalletTests/Pods-SezameWallet-SezamewalletTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		7D5B1D933ABA6FE66EF9491E /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SezameWallet-SezamewalletTests/Pods-SezameWallet-SezamewalletTests-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SezameWallet-SezamewalletTests/Pods-SezameWallet-SezamewalletTests-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SezameWallet-SezamewalletTests/Pods-SezameWallet-SezamewalletTests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		B98513D54FDCC53B1BB2A3BC /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SezameWallet/Pods-SezameWallet-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SezameWallet/Pods-SezameWallet-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SezameWallet/Pods-SezameWallet-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		D58CEB0DA22587929FCE903A /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SezameWallet/Pods-SezameWallet-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SezameWallet/Pods-SezameWallet-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SezameWallet/Pods-SezameWallet-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -417,7 +417,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7425BDC1501E699513C5AEDF /* Pods-SezameWallet-SezamewalletTests.debug.xcconfig */;
+			baseConfigurationReference = 185DDFB5C1B139F2087752FB /* Pods-SezameWallet-SezamewalletTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -444,7 +444,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 557F902CABF35E21A1A5C8EC /* Pods-SezameWallet-SezamewalletTests.release.xcconfig */;
+			baseConfigurationReference = 4DB77E4CC8BA88C0CEA869C0 /* Pods-SezameWallet-SezamewalletTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
@@ -468,7 +468,7 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D982A28396AEA324048654BD /* Pods-SezameWallet.debug.xcconfig */;
+			baseConfigurationReference = C52FA358C3B0A01EBDCD0D46 /* Pods-SezameWallet.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -498,7 +498,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A4113E3458B1CADB0598A062 /* Pods-SezameWallet.release.xcconfig */;
+			baseConfigurationReference = EA83DE4D11DDF1788A0C7B07 /* Pods-SezameWallet.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
