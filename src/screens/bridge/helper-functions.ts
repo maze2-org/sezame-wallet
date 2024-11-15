@@ -14,7 +14,8 @@ export function checkEVMChainId(chainId: ChainId) {
 
 export async function getEVMCurrentBlockNumber(provider: ethers.providers.Provider, chainId: ChainId): Promise<number> {
   checkEVMChainId(chainId)
-  return await provider.getBlockNumber()
+  const data = await provider.getBlock("finalized")
+  return data.number
 }
 
 export function isEVMTxConfirmed(chainId: ChainId, txBlock: number, currentBlock: number): boolean {

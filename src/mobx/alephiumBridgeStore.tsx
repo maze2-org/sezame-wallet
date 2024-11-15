@@ -15,6 +15,8 @@ class AlephiumBridgeStore {
   isApprovingEth: boolean = false
   approvedEthResult: any = null
   isTransferringFromETH: boolean = false
+  isGettingSignedVAA: boolean = false
+  waitForTransferCompleted: boolean = false
   receipt: ethers.ContractReceipt | null = null
 
   constructor() {
@@ -73,6 +75,15 @@ class AlephiumBridgeStore {
     this.isTransferringFromETH = isTransferringFromETH
   }
 
+  setIsGettingSignedVAA(isGettingSignedVAA: boolean) {
+    this.isGettingSignedVAA = isGettingSignedVAA
+  }
+
+  setWaitForTransferCompleted(waitForTransferCompleted: boolean) {
+    this.waitForTransferCompleted = waitForTransferCompleted
+  }
+
+
   setReceipt(receipt: ethers.ContractReceipt) {
     this.receipt = receipt
   }
@@ -91,6 +102,8 @@ class AlephiumBridgeStore {
     this.isApprovingEth = false
     this.approvedEthResult = null
     this.isTransferringFromETH = false
+    this.isGettingSignedVAA = false
+    this.waitForTransferCompleted = false
     this.receipt = null
   }
 }
