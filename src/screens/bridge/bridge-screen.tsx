@@ -1,4 +1,4 @@
-import React, { FC, useRef, useEffect, useState, useCallback, useMemo } from "react"
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import AlephimPendingBride from "components/alephimPendingBride/alephimPendingBride.tsx"
 import * as base58 from "bs58"
 import Clipboard from "@react-native-clipboard/clipboard"
@@ -18,38 +18,38 @@ import { getBalance, getFees } from "services/api"
 import { spacing } from "theme"
 import { Controller, useForm, useWatch } from "react-hook-form"
 import { BaseWalletDescription, useStores } from "models"
-import { CONFIG, Chains, NodeProviderGenerator } from "@maze2/sezame-sdk"
+import { Chains, CONFIG, NodeProviderGenerator } from "@maze2/sezame-sdk"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
-import { PRIMARY_BTN, MainBackground, BackgroundStyle, drawerErrorMessage } from "theme/elements"
-import { web3, node, NodeProvider, ALPH_TOKEN_ID } from "@alephium/web3"
-import { Text, Footer, Button, Drawer, WalletButton, CurrencyDescriptionBlock } from "components"
+import { BackgroundStyle, drawerErrorMessage, MainBackground, PRIMARY_BTN } from "theme/elements"
+import { ALPH_TOKEN_ID, node, NodeProvider, web3 } from "@alephium/web3"
+import { Button, CurrencyDescriptionBlock, Drawer, Footer, Text, WalletButton } from "components"
 import {
-  View,
-  Keyboard,
-  Platform,
-  StyleSheet,
-  ScrollView,
+  ActivityIndicator,
   Dimensions,
   ImageBackground,
-  ActivityIndicator,
+  Keyboard,
   KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
 } from "react-native"
 import {
-  ChainId,
   approveEth,
-  redeemOnEth,
-  CHAIN_ID_ETH,
-  uint8ArrayToHex,
-  transferFromEth,
-  ethers_contracts,
   CHAIN_ID_ALEPHIUM,
-  waitAlphTxConfirmed,
+  CHAIN_ID_ETH,
+  ChainId,
+  ethers_contracts,
   getEmitterAddressEth,
-  parseSequenceFromLogEth,
-  parseSequenceFromLogAlph,
-  transferLocalTokenFromAlph,
-  parseTargetChainFromLogAlph,
   getIsTransferCompletedEth,
+  parseSequenceFromLogAlph,
+  parseSequenceFromLogEth,
+  parseTargetChainFromLogAlph,
+  redeemOnEth,
+  transferFromEth,
+  transferLocalTokenFromAlph,
+  uint8ArrayToHex,
+  waitAlphTxConfirmed,
 } from "@alephium/wormhole-sdk"
 
 import styles from "./styles"
@@ -58,9 +58,9 @@ import alephiumBridgeStore from "../../mobx/alephiumBridgeStore.tsx"
 import { AlphTxInfo } from "screens/bridge/AlphTxInfo.ts"
 import { getSignedVAAWithRetry } from "screens/bridge/getSignedVAAWithRetry.ts"
 import {
-  getConfigs,
   ALPH_DECIMAL,
   CHECKBOXES_PERCENT,
+  getConfigs,
   ICheckboxPercentItem,
   WormholeMessageEventIndex,
 } from "./constsnts.ts"
@@ -575,6 +575,25 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
     }
   }
 
+  async function attemptWithRetries(task: any, maxAttempts: number, interval: number) {
+    let attempt = 0
+
+    const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+    while (attempt < maxAttempts) {
+      try {
+        return await task()
+      } catch (error: any) {
+        attempt++
+        console.error(`Attempt ${attempt} failed: ${error?.message}`)
+        if (attempt >= maxAttempts) {
+          throw new Error("Maximum retry attempts reached.")
+        }
+        await delay(interval)
+      }
+    }
+  }
+
   const transferToBridgeFromETH = async () => {
     console.log("[START]:transferToBridgeFromETH")
     try {
@@ -642,13 +661,15 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
       console.log("[vaaBytes]:", vaaBytes)
       console.log("[vaaBytes]:", typeof vaaBytes)
 
-      const signedVaa: Uint8Array = vaaBytes;
       alephiumBridgeStore.setWaitForTransferCompleted(true)
-      await getIsTransferCompletedEth(
-        BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID,
-        ethNodeProvider,
-        signedVaa
-      )
+      const task = async () => {
+        return await getIsTransferCompletedEth(
+          BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID,
+          ethNodeProvider,
+          vaaBytes,
+        )
+      }
+      await attemptWithRetries(task, 15, 10000)
       alephiumBridgeStore.setWaitForTransferCompleted(false)
 
       // console.log("vaaBytes", vaaBytes)
@@ -951,7 +972,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
                     }
                     {alephiumBridgeStore.isGettingSignedVAA &&
                       <LoadingTransactionConfirmation
-                        message={`"Waiting for Wormhole Network consensus..."`}
+                        message={"Waiting for Wormhole Network consensus..."}
                       />
                     }
 
