@@ -1,39 +1,41 @@
-import React, {useMemo, FC, useEffect, useRef, useState} from 'react';
-import {observer} from 'mobx-react-lite';
-import {View, ImageBackground, ScrollView, Linking} from 'react-native';
-import {StackNavigationProp, StackScreenProps} from '@react-navigation/stack';
+import React, { useMemo, FC, useEffect, useRef, useState } from 'react';
+import { observer } from 'mobx-react-lite';
+import { View, ImageBackground, ScrollView, Linking } from 'react-native';
+import { StackNavigationProp, StackScreenProps } from '@react-navigation/stack';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import IonIcons from 'react-native-vector-icons/Ionicons';
 
 import stakeIcon from '@assets/icons/stake.svg';
-import {NavigatorParamList} from 'navigators';
-import {showMessage} from 'react-native-flash-message';
-import {Button, CoinCard, PriceChart, Screen, Text} from 'components';
+import { NavigatorParamList } from 'navigators';
+import { showMessage } from 'react-native-flash-message';
+import { Button, CoinCard, PriceChart, Screen, Text } from 'components';
 
-import {color} from 'theme';
-import {useNavigation} from '@react-navigation/native';
-import {getCoinDetails, getMarketChart} from 'utils/apis';
-import {CoingeckoCoin} from 'types/coingeckoCoin';
-import {useStores} from 'models';
-import {BackgroundStyle, MainBackground, SEPARATOR} from 'theme/elements';
+import { color, spacing } from 'theme';
+import { useNavigation } from '@react-navigation/native';
+import { getCoinDetails, getMarketChart } from 'utils/apis';
+import { CoingeckoCoin } from 'types/coingeckoCoin';
+import { useStores } from 'models';
+import { BackgroundStyle, MainBackground, SEPARATOR } from 'theme/elements';
 import styles from './styles';
-import {SvgXml} from 'react-native-svg';
-import {getBalance, getTransactionsUrl} from 'services/api';
+import { SvgXml } from 'react-native-svg';
+import { getBalance, getTransactionsUrl } from 'services/api';
 import AnimatedComponent from '../../components/animatedComponent/AnimatedComponent';
 import CoinDetailsFooter from './compnents/coin-details-footer';
 import ReceiveModal from './compnents/receive-modal';
 import TransactionsHistory from './compnents/transactions-history';
-import {BridgeCard} from 'components/bridge-card/bridge-card.component';
+import { BridgeCard } from 'components/bridge-card/bridge-card.component';
+import { Card } from 'components/card/card.component';
 const tokens = require('@config/tokens.json');
 
 export const CoinDetailsScreen: FC<
   StackScreenProps<NavigatorParamList, 'coinDetails'>
-> = observer(function CoinDetailsScreen({route}) {
+> = observer(function CoinDetailsScreen({ route }) {
   const [receiveIsVisible, setReceiveIsVisible] = useState<boolean>(false);
-  const [coinData, setCoinData] = useState<CoingeckoCoin | null>(null);
+  const [coinData, setCoinData] = useState<Partial<CoingeckoCoin> | null>(null);
   const [chartData, setChartData] = useState<any[]>([]);
+  const [chartDataError, setChartDataError] = useState<boolean>(false);
   const [chartDays, setChartDays] = useState<number | 'max'>(1);
-  const {currentWalletStore, exchangeRates, setOverlayLoadingShown} =
+  const { currentWalletStore, exchangeRates, setOverlayLoadingShown } =
     useStores();
   const {
     getAssetById,
@@ -152,11 +154,11 @@ export const CoinDetailsScreen: FC<
       });
   }, []);
 
-  const getCoinData = async coin => {
+  const getCoinData = async (coinName: string) => {
     try {
-      const data = await getCoinDetails(coin);
+      const data = await getCoinDetails(coinName);
       setCoinData(data);
-    } catch (error) {
+    } catch (error: any) {
       showMessage({
         message: error?.message || 'Something went wrong',
         type: 'danger',
@@ -171,8 +173,10 @@ export const CoinDetailsScreen: FC<
       const data = await getMarketChart(route?.params?.coinId, chartDays);
 
       setChartData(data.prices);
+      setChartDataError(false);
     } catch (error) {
       console.log(error);
+      setChartDataError(true);
     }
   };
 
@@ -277,6 +281,13 @@ export const CoinDetailsScreen: FC<
                     </View>
                   )}
                 </View>
+                {!!chartDataError && !chartData && <Card title="Error with historcal data">
+                  <View style={{ paddingTop: spacing[4] }}>
+                    <Text>
+                      Unable to retrieve historical data. Please refresh to display the graph.
+                    </Text>
+                  </View>
+                </Card>}
                 {!!chartData && !!chartData.length && (
                   <PriceChart data={chartData.map(p => p[1])} />
                 )}
@@ -286,12 +297,12 @@ export const CoinDetailsScreen: FC<
                   {!!chartData && !!chartData.length && (
                     <View style={styles.TIMEFRAME_BTNS}>
                       {[
-                        {value: 1, label: '24H'},
-                        {value: 7, label: '7D'},
-                        {value: 30, label: '1M'},
-                        {value: 90, label: '3M'},
-                        {value: 180, label: '6M'},
-                        {value: 'max', label: 'max'},
+                        { value: 1, label: '24H' },
+                        { value: 7, label: '7D' },
+                        { value: 30, label: '1M' },
+                        { value: 90, label: '3M' },
+                        { value: 180, label: '6M' },
+                        { value: 'max', label: 'max' },
                       ].map(frame => (
                         <Button
                           key={frame.value}
@@ -343,23 +354,23 @@ export const CoinDetailsScreen: FC<
                           {['lifting', 'lowering'].some(el =>
                             capabilities.includes(el),
                           ) && (
-                            <>
-                              <View style={SEPARATOR} />
-                              <Button
-                                style={styles.BALANCE_STAKING_CARD_BTN}
-                                onPress={navigateSwapping}>
-                                <IonIcons
-                                  style={styles.BALANCE_STAKING_CARD_BTN_ICON}
-                                  name="swap-horizontal"
-                                  size={23}
-                                />
-                                <Text
-                                  style={styles.BALANCE_STAKING_CARD_BTN_TEXT}>
-                                  SWAP
-                                </Text>
-                              </Button>
-                            </>
-                          )}
+                              <>
+                                <View style={SEPARATOR} />
+                                <Button
+                                  style={styles.BALANCE_STAKING_CARD_BTN}
+                                  onPress={navigateSwapping}>
+                                  <IonIcons
+                                    style={styles.BALANCE_STAKING_CARD_BTN_ICON}
+                                    name="swap-horizontal"
+                                    size={23}
+                                  />
+                                  <Text
+                                    style={styles.BALANCE_STAKING_CARD_BTN_TEXT}>
+                                    SWAP
+                                  </Text>
+                                </Button>
+                              </>
+                            )}
                         </View>
 
                         {capabilities.includes('staking') && (
@@ -394,20 +405,20 @@ export const CoinDetailsScreen: FC<
                                   style={
                                     styles.BALANCE_STAKING_LITTLE_TEXT
                                   }>{`Staked: ${mainAsset.stakedBalance.toFixed(
-                                  4,
-                                )}`}</Text>
+                                    4,
+                                  )}`}</Text>
                                 <Text
                                   style={
                                     styles.BALANCE_STAKING_LITTLE_TEXT
                                   }>{`Unstaked: ${mainAsset.unstakedBalance.toFixed(
-                                  4,
-                                )}`}</Text>
+                                    4,
+                                  )}`}</Text>
                                 <Text
                                   style={
                                     styles.BALANCE_STAKING_LITTLE_TEXT
                                   }>{`Unlocked: ${mainAsset.unlockedBalance.toFixed(
-                                  4,
-                                )}`}</Text>
+                                    4,
+                                  )}`}</Text>
                               </View>
                             </View>
 
@@ -444,8 +455,8 @@ export const CoinDetailsScreen: FC<
                       {tokenInfo.chains.map(chain => {
                         const allChains = allAssets
                           ? allAssets
-                              .filter(a => a.cid === mainAsset.cid)
-                              .map(a => a.chain)
+                            .filter(a => a.cid === mainAsset.cid)
+                            .map(a => a.chain)
                           : [];
                         const hasInWallet = currentWalletStore.assets.find(
                           item => {
