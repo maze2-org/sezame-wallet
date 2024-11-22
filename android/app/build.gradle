@@ -79,8 +79,8 @@ android {
         applicationId "org.maze2.sezamewallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 27
-        versionName "0.15.4"
+        versionCode 28
+        versionName "0.15.5"
     }
     signingConfigs {
         debug {
