@@ -136,7 +136,6 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, 'bridge'>> =
       const bAmount = BigInt(Number(amount) * 1000000000000000000);
 
       try {
-        console.log('MESSAGEFEEEEEEEEEEEEEEEE', bridgeConfig.config.messageFee);
         const result = await transferLocalTokenFromAlph(
           wallet,
           alephiumMainnetConfig.contracts.TokenBridge.contractInstance

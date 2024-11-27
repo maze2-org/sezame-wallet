@@ -1,6 +1,6 @@
-import {flow, getRoot, Instance, SnapshotOut, types} from 'mobx-state-tree';
+import { flow, getRoot, Instance, SnapshotOut, types } from 'mobx-state-tree';
 import SignClient from '@walletconnect/sign-client';
-import {buildApprovedNamespaces, getSdkError} from '@walletconnect/utils';
+import { buildApprovedNamespaces, getSdkError } from '@walletconnect/utils';
 import {
   parseSessionProposalEvent,
   walletConnectRequestToTitle,
@@ -8,15 +8,15 @@ import {
   extractBlockchainDetailsFromProposal,
   getWalletConnectProposalAlephiumGroup,
 } from 'utils/wallet-connect';
-import {SessionTypes} from '@walletconnect/types';
-import {parseChain, formatChain} from '@alephium/walletconnect-provider';
-import {SignClientTypes} from '@walletconnect/types';
-import {BaseWalletDescription} from 'models';
+import { SessionTypes } from '@walletconnect/types';
+import { parseChain, formatChain } from '@alephium/walletconnect-provider';
+import { SignClientTypes } from '@walletconnect/types';
+import { BaseWalletDescription } from 'models';
 import {
   getTransactionAssetAmounts,
   signAndSendTransaction,
 } from 'api/transactions.ts';
-import {showMessage} from 'react-native-flash-message';
+import { showMessage } from 'react-native-flash-message';
 
 const WalletConnectAction = types.model({
   action: types.string,
@@ -62,18 +62,10 @@ export const WalletConnectModel = types
   .views(self => ({}))
   .actions(self => ({
     init: flow(function* connect() {
-      console.log(
-        '----------------------------------------initinitinitinitinitinitinitinitinitinitinit----------------------------------------',
-      );
+
       if (self.client) {
-        console.log(
-          '----------------------------------------SELF CLIENT EXISTS----------------------------------------',
-        );
         return;
       }
-      console.log(
-        '----------------------------------------SELF CLIENT NOT EXISTS----------------------------------------',
-      );
 
       const walletConnectClient: SignClient = yield SignClient.init({
         projectId: '2a084aa1d7e09af2b9044a524f39afbe',
@@ -119,7 +111,7 @@ export const WalletConnectModel = types
       try {
         const pairings = walletConnectClient.core.pairing.pairings;
         let existingPairing = pairings.values.find(
-          ({topic}: {topic: string}) => topic === pairingTopic,
+          ({ topic }: { topic: string }) => topic === pairingTopic,
         );
 
         if (existingPairing) {
@@ -148,7 +140,7 @@ export const WalletConnectModel = types
           console.log('✅ CONNECTING: DONE!');
 
           const pendingProposal = walletConnectClient.core.history.pending.find(
-            ({topic, request}) =>
+            ({ topic, request }) =>
               topic === existingPairing.topic &&
               request.method === 'wc_sessionPropose',
           );
@@ -164,12 +156,12 @@ export const WalletConnectModel = types
           } else {
             console.error(
               '❌ This WalletConnect session is not valid anymore. Try to refresh the dApp and connect again. Session topic: ' +
-                existingPairing.topic,
+              existingPairing.topic,
             );
           }
         } else {
           try {
-            yield walletConnectClient.core.pairing.pair({uri});
+            yield walletConnectClient.core.pairing.pair({ uri });
           } catch (e) {
             console.error('❌ COULD NOT PAIR WITH: ', uri, e);
           }
@@ -290,7 +282,7 @@ export const WalletConnectModel = types
       self.nextActions.remove(action);
     }),
 
-    requestExplorerApi: flow(function* (action: IWalletConnectAction) {}),
+    requestExplorerApi: flow(function* (action: IWalletConnectAction) { }),
 
     toggleTxModal: flow(function* (action: boolean) {
       self.openTxModal = action;
@@ -331,9 +323,9 @@ export const WalletConnectModel = types
           sessionRequestData.unsignedTxData.unsignedTx,
           currentWalletStore,
         );
-        const {attoAlphAmount, tokens} = sessionRequestData.wcData.assetAmounts
+        const { attoAlphAmount, tokens } = sessionRequestData.wcData.assetAmounts
           ? getTransactionAssetAmounts(sessionRequestData.wcData.assetAmounts)
-          : {attoAlphAmount: undefined, tokens: undefined};
+          : { attoAlphAmount: undefined, tokens: undefined };
         const signResult = {
           groupIndex: sessionRequestData.unsignedTxData.fromGroup,
           unsignedTx: sessionRequestData.unsignedTxData.unsignedTx,
@@ -371,11 +363,9 @@ export const WalletConnectModel = types
         self.nextActions.remove(action);
         self.openTxModal = false;
       }
-      console.log('accept alph tx', JSON.stringify(action, null, 2));
     }),
 
     refuseAlphTx: flow(function* (action: IWalletConnectAction) {
-      console.log('refuse alph tx', JSON.stringify(action, null, 2));
       const client: SignClient = self.client;
       const rawEvent =
         action.eventData as SignClientTypes.EventArguments['session_request'];
@@ -459,7 +449,7 @@ export const WalletConnectModel = types
       console.log('Approving session...', proposalEvent);
 
       let blockchainType = 'ethereum'; // 'alephium' or 'ethereum'
-      const {id, requiredNamespaces, relays} = proposalEvent.params || {};
+      const { id, requiredNamespaces, relays } = proposalEvent.params || {};
       const nameSpaceName = Object.keys(requiredNamespaces)[0];
       const requiredNamespace = requiredNamespaces[nameSpaceName];
       const requiredChains = requiredNamespace.chains;
@@ -500,17 +490,11 @@ export const WalletConnectModel = types
             },
           };
 
-          const {metadata} = parseSessionProposalEvent(proposalEvent);
+          const { metadata } = parseSessionProposalEvent(proposalEvent);
 
           const existingSession = activeSessions.find(
             session => session.peer.metadata.url === metadata.url,
           );
-
-          console.log(
-            'existingSession -----------------------',
-            JSON.stringify(existingSession, null, 2),
-          );
-
           if (existingSession) {
             try {
               yield self.client.disconnect({
@@ -526,7 +510,7 @@ export const WalletConnectModel = types
             }
           }
 
-          const {topic, acknowledged} = yield self.client.approve({
+          const { topic, acknowledged } = yield self.client.approve({
             id,
             relayProtocol: relays[0].protocol,
             namespaces,
@@ -593,9 +577,9 @@ export const WalletConnectModel = types
   }));
 
 type WalletConnectType = Instance<typeof WalletConnectModel>;
-export interface WalletConnect extends WalletConnectType {}
+export interface WalletConnect extends WalletConnectType { }
 type WalletConnectSnapshotType = SnapshotOut<typeof WalletConnectModel>;
-export interface WalletConnectSnapshot extends WalletConnectSnapshotType {}
+export interface WalletConnectSnapshot extends WalletConnectSnapshotType { }
 export const createWalletConnectDefaultModel = () =>
   types.optional(WalletConnectModel, {
     connected: false,
