@@ -528,7 +528,6 @@ export const AppNavigator = observer((props: NavigationProps) => {
   } = walletConnectStore;
 
   const nextAction = nextActions.toJSON()[nextActions.toJSON().length - 1];
-  console.log(nextAction, 'nextAction');
   const currentWallet = currentWalletStore.wallet;
   function hexToUtf8(hex: string) {
     let bytes = [];
