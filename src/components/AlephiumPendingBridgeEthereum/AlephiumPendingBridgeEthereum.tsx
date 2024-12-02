@@ -7,72 +7,94 @@ import copyIcon from "@assets/icons/copy.svg"
 import { SvgXml } from "react-native-svg"
 import Clipboard from "@react-native-clipboard/clipboard"
 import FlashMessage, { showMessage } from "react-native-flash-message"
+import alephiumBridgeStore from "mobx/alephiumBridgeStore.tsx"
 
-interface iAlephimPendingBride {
-  txId: string
-  hideRedeem?: boolean
-  currentConfirmations: number
-  minimalConfirmations: number
-  onPressRedeem?: () => void
-  onPressCopyTxId?: (txId:string) => void
+interface IAlephiumPendingBridgeEthereum {
+  isTransferringFromETH: boolean,
+  isGettingSignedVAA: boolean,
+  waitForTransferCompleted: boolean,
+  txId?: string
+  startBlock?: number
+  currentBlock?: number
+  targetBlock?: number
 }
 
-type IProps = React.FC<iAlephimPendingBride>
+type IProps = React.FC<IAlephiumPendingBridgeEthereum>
 
-const AlephimPendingBride: IProps = ({
-                                       txId,
-                                       onPressRedeem,
-                                       onPressCopyTxId,
-                                       hideRedeem = false,
-                                       currentConfirmations,
-                                       minimalConfirmations,
-                                     }) => {
-  const modalFlashRef = useRef<FlashMessage>();
+const AlephiumPendingBridgeEthereum: IProps = ({
+                                                 txId,
+                                                 startBlock,
+                                                 currentBlock,
+                                                 targetBlock,
+                                                 isTransferringFromETH,
+                                                 isGettingSignedVAA,
+                                                 waitForTransferCompleted,
+                                               }) => {
+  const modalFlashRef = useRef<FlashMessage>()
 
-  const truncateText = (text: string) => {
+  const truncateText = (text?: string) => {
+    if (!text) return text
+
     return (
       text.substring(0, 16) +
-      '...' +
+      "..." +
       text.substring(text.length - 16, text.length)
-    );
-  };
+    )
+  }
 
   const onPressCopyTxIdHandler = () => {
     if (!!txId) {
       Clipboard.setString(txId)
-      onPressCopyTxId?.(txId)
+      showMessage({
+        type: "success",
+        message: "Copied to clipboard",
+      })
     }
   }
 
-  const percent = useMemo(() => (currentConfirmations / minimalConfirmations * 100), [currentConfirmations, minimalConfirmations])
+  const percent = useMemo(() => {
+    if (!currentBlock || !startBlock || !targetBlock || targetBlock <= startBlock) return 0
+
+    const normalizedProgress = (currentBlock - startBlock) / (targetBlock - startBlock)
+    return Math.min(Math.max(normalizedProgress * 100, 0), 100)
+  }, [currentBlock, startBlock, targetBlock])
 
   return (
     <View style={styles.wrapper}>
       <View style={styles.container}>
         <Text style={styles.title}>Pending bridge</Text>
-        <Text style={styles.description}>You initiated a bridge operation from Alephium to Ethereum</Text>
+        <Text style={styles.description}>You initiated a bridge operation from Ethereum to Alephium</Text>
         <View style={styles.progressWrapper}>
           <View style={styles.progress}>
             <View style={[styles.progressInner, { width: `${percent}%` }]}></View>
           </View>
-          <Text style={styles.progressText}>{currentConfirmations}/{minimalConfirmations} confirmations</Text>
+          {isTransferringFromETH ?
+            (!!currentBlock ?
+                <Text style={styles.progressText}>
+                  Waiting for finality on Ethereum which may take up to 15 minutes. Last finalized block number{" "}
+                  {currentBlock} {targetBlock}
+                </Text>
+                :
+                <Text style={styles.progressText}>
+                  Waiting for transaction confirmation...
+                </Text>
+            )
+            : isGettingSignedVAA ?
+              <Text style={styles.progressText}></Text>
+              : waitForTransferCompleted ?
+                <Text style={styles.progressText}>Waiting for a relayer to process your transfer.</Text>
+                : null
+          }
         </View>
-        <View>
-          <Text style={styles.txIdTitle}>Tx ID</Text>
-          <Text style={styles.txId}>{truncateText(txId)}</Text>
-        </View>
+        {!!txId &&
+          <View>
+            <Text style={styles.txIdTitle}>Tx ID</Text>
+            <Text style={styles.txId}>{truncateText(txId)}</Text>
+          </View>
+        }
       </View>
 
       <View style={styles.footer}>
-        {!hideRedeem &&
-          <>
-            <TouchableOpacity activeOpacity={0.8} onPress={onPressRedeem} style={styles.footerBlock}>
-              <SvgXml width={20} height={20} xml={stakeIcon} />
-              <Text style={styles.footerBlockText}>REDEEM</Text>
-            </TouchableOpacity>
-            <View style={styles.footerLine} />
-          </>
-        }
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={onPressCopyTxIdHandler}
@@ -86,7 +108,7 @@ const AlephimPendingBride: IProps = ({
   )
 }
 
-export default AlephimPendingBride
+export default AlephiumPendingBridgeEthereum
 
 
 const styles = StyleSheet.create({

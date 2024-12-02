@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from "react"
-import AlephimPendingBride from "components/alephimPendingBride/alephimPendingBride.tsx"
+import AlephiumPendingBridge from "components/AlephiumPendingBridge/AlephiumPendingBridge.tsx"
 import * as base58 from "bs58"
 import Clipboard from "@react-native-clipboard/clipboard"
 import { grpc } from "@improbable-eng/grpc-web"
@@ -70,6 +70,7 @@ import AlephiumPercentCheckBox from "components/AlephiumPercentCheckBox/Alephium
 import LoadingTransactionConfirmation
   from "components/LoadingTransactionConfirmation/LoadingTransactionConfirmation.tsx"
 import { getEVMCurrentBlockNumber, waitEVMTxConfirmed } from "screens/bridge/helper-functions.ts"
+import AlephiumPendingBridgeEthereum from "components/AlephiumPendingBridgeEthereum/AlephiumPendingBridgeEthereum.tsx"
 
 global.atob = atob
 global.btoa = btoa
@@ -494,7 +495,6 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
   }, [])
 
   /**FROM ETH**/
-  const [currentBlock, setCurrentBlock] = useState(0)
   const [singedVaa, setSingedVaa] = useState<any>(null)
 
   const approveEthHandler = async () => {
@@ -567,7 +567,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
       await new Promise((resolve) => setTimeout(resolve, 3000))
       try {
         const newBlock = await getEVMCurrentBlockNumber(evmProvider, chainId)
-        setCurrentBlock(newBlock)
+        alephiumBridgeStore.setCurrentBlock(newBlock)
 
       } catch (e) {
         console.error(e)
@@ -658,8 +658,6 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
 
       setSingedVaa(vaaBytes)
       alephiumBridgeStore.setIsGettingSignedVAA(false)
-      console.log("[vaaBytes]:", vaaBytes)
-      console.log("[vaaBytes]:", typeof vaaBytes)
 
       alephiumBridgeStore.setWaitForTransferCompleted(true)
       const task = async () => {
@@ -672,11 +670,6 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
       await attemptWithRetries(task, 15, 10000)
       alephiumBridgeStore.setWaitForTransferCompleted(false)
 
-      // console.log("vaaBytes", vaaBytes)
-      // const data = redeemOnEth(
-      //   BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
-      //   signer,
-      // )
       alephiumBridgeStore.resetStore()
     } catch (error) {
       console.log("[Error]", error)
@@ -685,16 +678,6 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
       alephiumBridgeStore.setWaitForTransferCompleted(false)
       alephiumBridgeStore.resetStore()
     }
-
-    // await transferFromEthWithoutWait(
-    //   BRIDGE_CONSTANTS.ETH_TOKEN_BRIDGE_ADDRESS,
-    //   signer,
-    //   signer.address,
-    //   bAmount,
-    //   CHAIN_ID_ALEPHIUM,
-    //   wallet.account.address,
-    //   feeParsed
-    // )
   }
   /**FROM ETH**/
 
@@ -916,7 +899,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
 
             {alephiumConfirmationsInfo.isVisible &&
               <View style={{ marginTop: 24 }}>
-                <AlephimPendingBride
+                <AlephiumPendingBridge
                   hideRedeem={true}
                   onPressCopyTxId={onPressCopyTxIdHandler}
                   txId={alephiumConfirmationsInfo.txId}
@@ -931,6 +914,24 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
                   from={asset}
                   to={ethNetworkETHCoin}
                   bridging={alephiumBridgeStore.bridgingAmount} />
+              </View>
+            }
+
+            {(
+                alephiumBridgeStore.isTransferringFromETH ||
+                alephiumBridgeStore.isGettingSignedVAA ||
+                alephiumBridgeStore.waitForTransferCompleted
+              ) &&
+              <View style={{ marginTop: 24 }}>
+                <AlephiumPendingBridgeEthereum
+                  txId={alephiumBridgeStore?.receipt?.transactionHash}
+                  startBlock={alephiumBridgeStore.startBlock}
+                  currentBlock={alephiumBridgeStore.currentBlock}
+                  targetBlock={alephiumBridgeStore?.receipt?.blockNumber}
+                  isTransferringFromETH={alephiumBridgeStore.isTransferringFromETH}
+                  isGettingSignedVAA={alephiumBridgeStore.isGettingSignedVAA}
+                  waitForTransferCompleted={alephiumBridgeStore.waitForTransferCompleted}
+                />
               </View>
             }
 
@@ -965,20 +966,6 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
                         <ActivityIndicator />
                       }
                     </WalletButton>
-                    {alephiumBridgeStore.isTransferringFromETH && !!alephiumBridgeStore.receipt &&
-                      <LoadingTransactionConfirmation
-                        message={`Waiting for finality on Ethereum which may take up to 15 minutes. Last finalized block number ${currentBlock} ${alephiumBridgeStore.receipt?.blockNumber}`}
-                      />
-                    }
-                    {alephiumBridgeStore.isGettingSignedVAA &&
-                      <LoadingTransactionConfirmation
-                        message={"Waiting for Wormhole Network consensus..."}
-                      />
-                    }
-
-                    {alephiumBridgeStore.waitForTransferCompleted &&
-                      <LoadingTransactionConfirmation message={"Waiting for a relayer to process your transfer."} />
-                    }
                   </>
                 )
                 :

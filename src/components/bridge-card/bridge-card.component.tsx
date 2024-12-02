@@ -38,8 +38,8 @@ export function BridgeCard({ from }: BridgeCardPropsType) {
           </Text>
         ) : (
           <View style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
-            <Text style={styles.BODY}>Send your Alephium to the Etherum network</Text>
-
+            <Text style={styles.BODY}>Send your {from.chain === "ALPH" ? "Alephium" : "Etherum"} to the{" "}
+              {from.chain === "ALPH" ? "Etherum" : "Alephium"} network</Text>
             <Button
               style={{ ...PRIMARY_OUTLINE_BTN_WITH_BORDER, width: "auto", paddingHorizontal: 24 }}
               textStyle={{ color: palette.white }}

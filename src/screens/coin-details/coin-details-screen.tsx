@@ -24,11 +24,12 @@ import CoinDetailsFooter from './compnents/coin-details-footer';
 import ReceiveModal from './compnents/receive-modal';
 import TransactionsHistory from './compnents/transactions-history';
 import {BridgeCard} from 'components/bridge-card/bridge-card.component';
-import AlephimPendingBride from "components/alephimPendingBride/alephimPendingBride.tsx"
+import AlephiumPendingBridge from "components/AlephiumPendingBridge/AlephiumPendingBridge.tsx"
 import alephiumBridgeStore from "mobx/alephiumBridgeStore.tsx"
 import Clipboard from "@react-native-clipboard/clipboard"
 import { getConfigs } from "screens/bridge/constsnts.ts"
 import { Card } from 'components/card/card.component';
+import AlephiumPendingBridgeEthereum from "components/AlephiumPendingBridgeEthereum/AlephiumPendingBridgeEthereum.tsx"
 const tokens = require('@config/tokens.json');
 
 export const CoinDetailsScreen: FC<
@@ -463,7 +464,7 @@ export const CoinDetailsScreen: FC<
                         <>
                           {alephiumBridgeStore.isProcessingConfirmations &&
                             <View style={componentStyles.alephiumPendingBrideWrapper}>
-                              <AlephimPendingBride
+                              <AlephiumPendingBridge
                                 onPressRedeem={() => {
                                   navigation.navigate("bridge", {
                                     coinId: selectedAsset.cid,
@@ -474,6 +475,38 @@ export const CoinDetailsScreen: FC<
                                 txId={alephiumBridgeStore.currentTxId}
                                 currentConfirmations={alephiumBridgeStore.chainConfirmations}
                                 minimalConfirmations={BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL} />
+                            </View>
+                          }
+                          {alephiumBridgeStore.isProcessingConfirmations &&
+                            <View style={componentStyles.alephiumPendingBrideWrapper}>
+                              <AlephiumPendingBridge
+                                onPressRedeem={() => {
+                                  navigation.navigate("bridge", {
+                                    coinId: selectedAsset.cid,
+                                    chain: selectedAsset.chain,
+                                  })
+                                }}
+                                onPressCopyTxId={onPressCopyTxId}
+                                txId={alephiumBridgeStore.currentTxId}
+                                currentConfirmations={alephiumBridgeStore.chainConfirmations}
+                                minimalConfirmations={BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL} />
+                            </View>
+                          }
+                          {selectedAsset.chain === "ETH" && (
+                              alephiumBridgeStore.isTransferringFromETH ||
+                              alephiumBridgeStore.isGettingSignedVAA ||
+                              alephiumBridgeStore.waitForTransferCompleted
+                            ) &&
+                            <View style={componentStyles.alephiumPendingBrideWrapper}>
+                              <AlephiumPendingBridgeEthereum
+                                txId={alephiumBridgeStore?.receipt?.transactionHash}
+                                startBlock={alephiumBridgeStore.startBlock}
+                                currentBlock={alephiumBridgeStore.currentBlock}
+                                targetBlock={alephiumBridgeStore?.receipt?.blockNumber}
+                                isTransferringFromETH={alephiumBridgeStore.isTransferringFromETH}
+                                isGettingSignedVAA={alephiumBridgeStore.isGettingSignedVAA}
+                                waitForTransferCompleted={alephiumBridgeStore.waitForTransferCompleted}
+                              />
                             </View>
                           }
                           <BridgeCard from={selectedAsset} />

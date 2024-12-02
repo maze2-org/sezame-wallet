@@ -18,6 +18,8 @@ class AlephiumBridgeStore {
   isGettingSignedVAA: boolean = false
   waitForTransferCompleted: boolean = false
   receipt: ethers.ContractReceipt | null = null
+  startBlock: number = 0
+  currentBlock: number = 0
 
   constructor() {
     makeAutoObservable(this)
@@ -75,6 +77,13 @@ class AlephiumBridgeStore {
     this.isTransferringFromETH = isTransferringFromETH
   }
 
+  setCurrentBlock(currentBlock: number) {
+    this.currentBlock = currentBlock
+    if (!this.startBlock) {
+      this.startBlock = currentBlock
+    }
+  }
+
   setIsGettingSignedVAA(isGettingSignedVAA: boolean) {
     this.isGettingSignedVAA = isGettingSignedVAA
   }
@@ -105,6 +114,8 @@ class AlephiumBridgeStore {
     this.isGettingSignedVAA = false
     this.waitForTransferCompleted = false
     this.receipt = null
+    this.startBlock = 0
+    this.currentBlock = 0
   }
 }
 
