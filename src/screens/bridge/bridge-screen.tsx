@@ -661,13 +661,17 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
 
       alephiumBridgeStore.setWaitForTransferCompleted(true)
       const task = async () => {
-        return await getIsTransferCompletedEth(
-          BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID,
+        const isTransferCompleted =  await getIsTransferCompletedEth(
+          BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
           ethNodeProvider,
           vaaBytes,
         )
+        if(isTransferCompleted){
+          alephiumBridgeStore.setWaitForTransferCompleted(false)
+          alephiumBridgeStore.resetStore()
+        }
       }
-      await attemptWithRetries(task, 15, 10000)
+      await attemptWithRetries(task, 100, 10000)
       alephiumBridgeStore.setWaitForTransferCompleted(false)
 
       alephiumBridgeStore.resetStore()
@@ -679,6 +683,21 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
       alephiumBridgeStore.resetStore()
     }
   }
+
+  // const test = async ()=>{
+  //   const ethNodeProvider = new ethers.providers.JsonRpcProvider(BRIDGE_CONSTANTS.ETH_JSON_RPC_PROVIDER_URL)
+  //   const vaaBytes = new Uint8Array([1, 0, 0, 0, 0, 1, 0, 63, 144, 87, 157, 162, 225, 128, 201, 60, 108, 113, 135, 187, 96, 124, 23, 155, 43, 86, 17, 191, 148, 101, 145, 32, 75, 168, 57, 59, 161, 151, 17, 54, 112, 23, 171, 189, 3, 132, 41, 214, 203, 46, 234, 36, 2, 180, 5, 75, 99, 43, 234, 164, 154, 126, 79, 178, 170, 200, 18, 139, 57, 204, 10, 1, 103, 79, 15, 76, 157, 58, 1, 0, 0, 2, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 123, 209, 95, 113, 80, 247, 226, 5, 173, 149, 251, 188, 39, 32, 250, 57, 124, 56, 139, 0, 0, 0, 0, 0, 0, 13, 230, 15, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 66, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 0, 33, 0, 240, 105, 102, 103, 100, 215, 41, 6, 143, 31, 58, 157, 55, 215, 139, 139, 194, 186, 39, 119, 42, 160, 19, 88, 172, 164, 197, 52, 169, 48, 135, 181, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+  //   const task = async () => {
+  //     console.log('task')
+  //     const isTransferCompleted =  await getIsTransferCompletedEth(
+  //       BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
+  //       ethNodeProvider,
+  //       vaaBytes,
+  //     )
+  //     console.log('isTransferCompleted',isTransferCompleted)
+  //   }
+  //   await attemptWithRetries(task, 100, 10000)
+  // }
   /**FROM ETH**/
 
   useEffect(() => {
@@ -950,6 +969,12 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
               />
             </View>
           }
+
+          {/*<WalletButton*/}
+          {/*  text={"Test"}*/}
+          {/*  type="primary"*/}
+          {/*  onPress={test}*/}
+          {/*/>*/}
 
           {asset?.chain === "ETH" &&
             <View style={stylesComponent.previewOperation}>
