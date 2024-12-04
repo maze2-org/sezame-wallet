@@ -624,8 +624,9 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
       const nodeProvider: NodeProvider = generator.getNodeProvider()
       web3.setCurrentNodeProvider(nodeProvider)
 
+      const privateKey = alphNetworkAlephiumCoin?.group === '0' ? alphNetworkAlephiumCoin.privateKey : alphNetworkAlephiumCoin?.derivedAddresses?.find(a=>a.group === '0')?.privateKey
       const wallet = new PrivateKeyWallet({
-        privateKey: alphNetworkAlephiumCoin?.privateKey || "",
+        privateKey: privateKey || '',
         nodeProvider,
       })
       const feeParsed = ethers.utils.parseUnits("0", 18)
@@ -697,12 +698,12 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
       // Wait for relayer
       // const task = async () => {
       //   console.log("getIsTransferCompletedEth", JSON.stringify({
-      //     address:BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
+      //     address:BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID,
       //     ethNodeProvider,
       //     vaaBytes,
       //   }))
       //   const isTransferCompleted =  await getIsTransferCompletedEth(
-      //     BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
+      //     BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID,
       //     ethNodeProvider,
       //     vaaBytes,
       //   )
@@ -744,12 +745,6 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
       console.log('waitALPHTxConfirmed [PENDING]')
       const confirmedTx = await waitALPHTxConfirmed(wallet.nodeProvider, txId, 1)
       console.log('waitALPHTxConfirmed [SUCCESS]')
-      const isTransferCompleted = await getIsTransferCompletedAlph(
-        tokenBridgeForChainId,
-        BRIDGE_CONSTANTS.ALEPHIUM_BRIDGE_GROUP_INDEX,
-        vaaBytes
-      )
-      console.log('isTransferCompleted', isTransferCompleted)
       console.log('FINISSHHHHHHHHH!')
       // Manual redeem
 
@@ -775,7 +770,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
   //     // const task = async () => {
   //     //   console.log('task')
   //     //   const isTransferCompleted =  await getIsTransferCompletedEth(
-  //     //     BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
+  //     //     BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID,
   //     //     ethNodeProvider,
   //     //     vaaBytes,
   //     //   )
@@ -790,8 +785,9 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
   //     const nodeProvider: NodeProvider = generator.getNodeProvider()
   //     web3.setCurrentNodeProvider(nodeProvider)
   //
+  //     const privateKey = alphNetworkAlephiumCoin?.group === '0' ? alphNetworkAlephiumCoin.privateKey : alphNetworkAlephiumCoin?.derivedAddresses?.find(a=>a.group === '0')?.privateKey
   //     const wallet = new PrivateKeyWallet({
-  //       privateKey: alphNetworkAlephiumCoin?.privateKey || "",
+  //       privateKey: privateKey || "",
   //       nodeProvider,
   //     })
   //
