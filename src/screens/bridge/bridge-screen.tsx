@@ -21,7 +21,7 @@ import { BaseWalletDescription, useStores } from "models"
 import { Chains, CONFIG, NodeProviderGenerator } from "@maze2/sezame-sdk"
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
 import { BackgroundStyle, drawerErrorMessage, MainBackground, PRIMARY_BTN } from "theme/elements"
-import { ALPH_TOKEN_ID, node, NodeProvider, web3 } from "@alephium/web3"
+import { ALPH_TOKEN_ID, node, NodeProvider, sleep, web3 } from "@alephium/web3"
 import { Button, CurrencyDescriptionBlock, Drawer, Footer, Text, WalletButton } from "components"
 import {
   ActivityIndicator,
@@ -40,11 +40,14 @@ import {
   CHAIN_ID_ETH,
   ChainId,
   ethers_contracts,
-  getEmitterAddressEth,
+  extractBodyFromVAA,
+  getEmitterAddressEth, getIsTransferCompletedAlph,
   getIsTransferCompletedEth,
+  getTokenBridgeForChainId,
   parseSequenceFromLogAlph,
   parseSequenceFromLogEth,
   parseTargetChainFromLogAlph,
+  redeemOnAlph,
   redeemOnEth,
   transferFromEth,
   transferLocalTokenFromAlph,
@@ -504,6 +507,12 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
     const bAmount = BigInt(Number(amount) * ALPH_DECIMAL) // decimals 18
 
     alephiumBridgeStore.setIsApprovingEth(true)
+    console.log("approveEth", JSON.stringify({
+      address: BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
+      ALEPHIUM_ADDRESS_IN_ETH_NETWORK: BRIDGE_CONSTANTS.ALEPHIUM_ADDRESS_IN_ETH_NETWORK,
+      signer,
+      bAmount,
+    }, null, 2))
     const result = await approveEth(
       BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
       BRIDGE_CONSTANTS.ALEPHIUM_ADDRESS_IN_ETH_NETWORK,
@@ -582,7 +591,15 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
 
     while (attempt < maxAttempts) {
       try {
-        return await task()
+        const value = await task()
+        if (!value) {
+          attempt++
+          console.error(`Attempt ${attempt} failed with value false`)
+          if (attempt >= maxAttempts) {
+            console.log("Maximum retry attempts reached.")
+          }
+          await delay(interval)
+        }
       } catch (error: any) {
         attempt++
         console.error(`Attempt ${attempt} failed: ${error?.message}`)
@@ -602,17 +619,26 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
       const signer = new ethers.Wallet(ethNetworkETHCoin!.privateKey, ethNodeProvider)
       const bAmount = BigInt(Number(amount) * ALPH_DECIMAL) // decimals 18
 
-      const generator = await NodeProviderGenerator.getNodeProvider(asset?.chain as Chains)
+      const generator = await NodeProviderGenerator.getNodeProvider(Chains.ALPH as Chains)
       // @ts-ignore
       const nodeProvider: NodeProvider = generator.getNodeProvider()
       web3.setCurrentNodeProvider(nodeProvider)
 
       const wallet = new PrivateKeyWallet({
-        privateKey: asset?.privateKey || "",
+        privateKey: alphNetworkAlephiumCoin?.privateKey || "",
         nodeProvider,
       })
       const feeParsed = ethers.utils.parseUnits("0", 18)
 
+      console.log("transferFromEth", JSON.stringify({
+        address: BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
+        signer,
+        ALEPHIUM_ADDRESS_IN_ETH_NETWORK: BRIDGE_CONSTANTS.ALEPHIUM_ADDRESS_IN_ETH_NETWORK,
+        bAmount,
+        CHAIN_ID_ALEPHIUM,
+        accAddress: base58.decode(wallet.account.address),
+        feeParsed,
+      }, null, 2))
       const receipt = await transferFromEth(
         BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
         signer,
@@ -647,6 +673,13 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
       alephiumBridgeStore.setIsTransferringFromETH(false)
 
       alephiumBridgeStore.setIsGettingSignedVAA(true)
+      console.log("getSignedVAAWithRetry", JSON.stringify({
+        WORMHOLE_RPC_HOSTS: BRIDGE_CONSTANTS.WORMHOLE_RPC_HOSTS,
+        CHAIN_ID_ETH,
+        emitterAddress,
+        CHAIN_ID_ALEPHIUM,
+        sequence: sequence.toString(),
+      }, null, 2))
       const { vaaBytes } = (await getSignedVAAWithRetry(
         BRIDGE_CONSTANTS.WORMHOLE_RPC_HOSTS,
         CHAIN_ID_ETH,
@@ -654,24 +687,72 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
         CHAIN_ID_ALEPHIUM,
         sequence.toString(),
       ) as { vaaBytes: Uint8Array })
+      console.log('vaaBytes', vaaBytes)
 
 
       setSingedVaa(vaaBytes)
       alephiumBridgeStore.setIsGettingSignedVAA(false)
 
       alephiumBridgeStore.setWaitForTransferCompleted(true)
-      const task = async () => {
-        const isTransferCompleted =  await getIsTransferCompletedEth(
-          BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
-          ethNodeProvider,
-          vaaBytes,
-        )
-        if(isTransferCompleted){
-          alephiumBridgeStore.setWaitForTransferCompleted(false)
-          alephiumBridgeStore.resetStore()
-        }
+      // Wait for relayer
+      // const task = async () => {
+      //   console.log("getIsTransferCompletedEth", JSON.stringify({
+      //     address:BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
+      //     ethNodeProvider,
+      //     vaaBytes,
+      //   }))
+      //   const isTransferCompleted =  await getIsTransferCompletedEth(
+      //     BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
+      //     ethNodeProvider,
+      //     vaaBytes,
+      //   )
+      //   console.log('isTransferCompleted', isTransferCompleted)
+      //   if(isTransferCompleted){
+      //     alephiumBridgeStore.setWaitForTransferCompleted(false)
+      //     alephiumBridgeStore.resetStore()
+      //   }
+      //   return isTransferCompleted
+      // }
+      // await attemptWithRetries(task, 100, 10000)
+      // Wait for relayer
+
+      // Manual redeem
+      function getEmitterChainId(signedVAA: Uint8Array): ChainId {
+        const payload = extractBodyFromVAA(signedVAA)
+        const emitterChainId = Buffer.from(payload).readUInt16BE(8)
+        return emitterChainId as ChainId
       }
-      await attemptWithRetries(task, 100, 10000)
+
+      async function waitALPHTxConfirmed(provider: NodeProvider, txId: string, confirmations: number): Promise<node.Confirmed> {
+        try {
+          const txStatus = await provider.transactions.getTransactionsStatus({txId: txId})
+          if (txStatus.type === "Confirmed" && txStatus.chainConfirmations >= confirmations) {
+            return txStatus as node.Confirmed
+          }
+        } catch (error) {
+          console.error(`Failed to get tx status, tx id: ${txId}`)
+        }
+        await sleep(5000)
+        return waitALPHTxConfirmed(provider, txId, confirmations)
+      }
+
+      const emitterChainId = getEmitterChainId(vaaBytes)
+      const tokenBridgeForChainId = getTokenBridgeForChainId(BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID, emitterChainId, BRIDGE_CONSTANTS.ALEPHIUM_BRIDGE_GROUP_INDEX)
+      const result = await redeemOnAlph(wallet, tokenBridgeForChainId, vaaBytes)
+      const txId = result.txId
+      console.log("txId!", txId)
+      console.log('waitALPHTxConfirmed [PENDING]')
+      const confirmedTx = await waitALPHTxConfirmed(wallet.nodeProvider, txId, 1)
+      console.log('waitALPHTxConfirmed [SUCCESS]')
+      const isTransferCompleted = await getIsTransferCompletedAlph(
+        tokenBridgeForChainId,
+        BRIDGE_CONSTANTS.ALEPHIUM_BRIDGE_GROUP_INDEX,
+        vaaBytes
+      )
+      console.log('isTransferCompleted', isTransferCompleted)
+      console.log('FINISSHHHHHHHHH!')
+      // Manual redeem
+
       alephiumBridgeStore.setWaitForTransferCompleted(false)
 
       alephiumBridgeStore.resetStore()
@@ -684,22 +765,78 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
     }
   }
 
-  // const test = async ()=>{
-  //   const ethNodeProvider = new ethers.providers.JsonRpcProvider(BRIDGE_CONSTANTS.ETH_JSON_RPC_PROVIDER_URL)
-  //   const vaaBytes = new Uint8Array([1, 0, 0, 0, 0, 1, 0, 63, 144, 87, 157, 162, 225, 128, 201, 60, 108, 113, 135, 187, 96, 124, 23, 155, 43, 86, 17, 191, 148, 101, 145, 32, 75, 168, 57, 59, 161, 151, 17, 54, 112, 23, 171, 189, 3, 132, 41, 214, 203, 46, 234, 36, 2, 180, 5, 75, 99, 43, 234, 164, 154, 126, 79, 178, 170, 200, 18, 139, 57, 204, 10, 1, 103, 79, 15, 76, 157, 58, 1, 0, 0, 2, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 123, 209, 95, 113, 80, 247, 226, 5, 173, 149, 251, 188, 39, 32, 250, 57, 124, 56, 139, 0, 0, 0, 0, 0, 0, 13, 230, 15, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 66, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 0, 33, 0, 240, 105, 102, 103, 100, 215, 41, 6, 143, 31, 58, 157, 55, 215, 139, 139, 194, 186, 39, 119, 42, 160, 19, 88, 172, 164, 197, 52, 169, 48, 135, 181, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-  //   const task = async () => {
-  //     console.log('task')
-  //     const isTransferCompleted =  await getIsTransferCompletedEth(
-  //       BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
-  //       ethNodeProvider,
-  //       vaaBytes,
+  // const test = async () => {
+  //   try {
+  //
+  //     const ethNodeProvider = new ethers.providers.JsonRpcProvider(BRIDGE_CONSTANTS.ETH_JSON_RPC_PROVIDER_URL)
+  //     const vaaBytes = new Uint8Array([1, 0, 0, 0, 0, 1, 0, 249, 238, 228, 74, 71, 55, 34, 20, 92, 100, 158, 202, 43, 138, 6, 90, 224, 0, 114, 202, 241, 200, 130, 221, 141, 128, 102, 212, 119, 141, 176, 17, 78, 188, 175, 250, 145, 126, 207, 132, 103, 144, 178, 69, 150, 216, 10, 43, 236, 228, 149, 211, 61, 242, 233, 125, 70, 89, 72, 134, 200, 147, 120, 33, 0, 103, 80, 24, 120, 180, 218, 0, 0, 0, 2, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 123, 209, 95, 113, 80, 247, 226, 5, 173, 149, 251, 188, 39, 32, 250, 57, 124, 56, 139, 0, 0, 0, 0, 0, 0, 13, 240, 15, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 152, 150, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 0, 33, 0, 165, 192, 53, 72, 28, 19, 19, 220, 177, 186, 114, 176, 174, 244, 110, 228, 8, 71, 122, 141, 83, 215, 33, 108, 162, 185, 40, 22, 235, 252, 149, 130, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+  //
+  //     // Wait for relayer
+  //     // const task = async () => {
+  //     //   console.log('task')
+  //     //   const isTransferCompleted =  await getIsTransferCompletedEth(
+  //     //     BRIDGE_CONSTANTS.ETHEREUM_TOKEN_BRIDGE_ADDRESS,
+  //     //     ethNodeProvider,
+  //     //     vaaBytes,
+  //     //   )
+  //     //   console.log('isTransferCompleted',isTransferCompleted)
+  //     // }
+  //     // await attemptWithRetries(task, 100, 10000)
+  //     // Wait for relayer
+  //
+  //     // Manual redeem
+  //     const generator = await NodeProviderGenerator.getNodeProvider(Chains.ALPH as Chains)
+  //     // @ts-ignore
+  //     const nodeProvider: NodeProvider = generator.getNodeProvider()
+  //     web3.setCurrentNodeProvider(nodeProvider)
+  //
+  //     const wallet = new PrivateKeyWallet({
+  //       privateKey: alphNetworkAlephiumCoin?.privateKey || "",
+  //       nodeProvider,
+  //     })
+  //
+  //     function getEmitterChainId(signedVAA: Uint8Array): ChainId {
+  //       const payload = extractBodyFromVAA(signedVAA)
+  //       const emitterChainId = Buffer.from(payload).readUInt16BE(8)
+  //       return emitterChainId as ChainId
+  //     }
+  //
+  //     async function waitALPHTxConfirmed(provider: NodeProvider, txId: string, confirmations: number): Promise<node.Confirmed> {
+  //       try {
+  //         const txStatus = await provider.transactions.getTransactionsStatus({txId: txId})
+  //         if (txStatus.type === "Confirmed" && txStatus.chainConfirmations >= confirmations) {
+  //           return txStatus as node.Confirmed
+  //         }
+  //       } catch (error) {
+  //         console.error(`Failed to get tx status, tx id: ${txId}`)
+  //       }
+  //       await sleep(5000)
+  //       return waitALPHTxConfirmed(provider, txId, confirmations)
+  //     }
+  //
+  //     const emitterChainId = getEmitterChainId(vaaBytes)
+  //     console.log('emitterChainId', emitterChainId)
+  //     const tokenBridgeForChainId = getTokenBridgeForChainId(BRIDGE_CONSTANTS.ALEPHIUM_TOKEN_BRIDGE_CONTRACT_ID, emitterChainId, BRIDGE_CONSTANTS.ALEPHIUM_BRIDGE_GROUP_INDEX)
+  //     console.log('tokenBridgeForChainId', tokenBridgeForChainId)
+  //     console.log('redeemOnAlph [START]')
+  //     const result = await redeemOnAlph(wallet, tokenBridgeForChainId, vaaBytes)
+  //     console.log('redeemOnAlph [FINISH]')
+  //     const txId = result.txId
+  //     console.log("txId!", txId)
+  //     const confirmedTx = await waitALPHTxConfirmed(wallet.nodeProvider, txId, 1)
+  //     const isTransferCompleted = await getIsTransferCompletedAlph(
+  //       tokenBridgeForChainId,
+  //       BRIDGE_CONSTANTS.ALEPHIUM_BRIDGE_GROUP_INDEX,
+  //       vaaBytes
   //     )
-  //     console.log('isTransferCompleted',isTransferCompleted)
+  //     console.log('isTransferCompleted', isTransferCompleted)
+  //     console.log('FINISSHHHHHHHHH!')
+  //     // Manual redeem
+  //   } catch (error) {
+  //     console.error(error)
   //   }
-  //   await attemptWithRetries(task, 100, 10000)
   // }
   /**FROM ETH**/
-
   useEffect(() => {
     const _getBalances = async () => {
       if (asset) {
