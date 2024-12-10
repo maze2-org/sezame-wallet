@@ -132,10 +132,14 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
   })
 
   const BRIDGE_CONSTANTS = useMemo(() => (getConfigs(rootStore.TESTNET ? "testnet" : "mainnet")), [rootStore.TESTNET])
-  const alphNetworkAlephiumCoin = useMemo(() => assets.find((el) => el.chain === "ALPH" && el.cid === "alephium"), [assets.length])
+  const alphNetworkAlephiumCoin = useMemo(() => {
+    const founed = assets.find((el) => el.chain === "ALPH" && el.cid === "alephium")
+    if(!!founed?.derivedAddresses) {
+      return founed.derivedAddresses.find(a=>a.group === '0')
+    }
+  }, [assets.length])
   const ethNetworkETHCoin = useMemo(() => assets.find((el) => el.chain === "ETH" && el.cid === "ethereum"), [assets.length])
   const ethNetworkAlephiumCoin = useMemo(() => assets.find((el) => el.chain === "ETH" && el.cid === "alephium"), [assets.length])
-
   const onSubmit = async () => {
     setErrorMsg(null)
     try {
@@ -624,9 +628,9 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
       const nodeProvider: NodeProvider = generator.getNodeProvider()
       web3.setCurrentNodeProvider(nodeProvider)
 
-      const privateKey = alphNetworkAlephiumCoin?.group === '0' ? alphNetworkAlephiumCoin.privateKey : alphNetworkAlephiumCoin?.derivedAddresses?.find(a=>a.group === '0')?.privateKey
+      console.log('alphNetworkAlephiumCoin?.privateKey',alphNetworkAlephiumCoin?.privateKey)
       const wallet = new PrivateKeyWallet({
-        privateKey: privateKey || '',
+        privateKey: alphNetworkAlephiumCoin?.privateKey || '',
         nodeProvider,
       })
       const feeParsed = ethers.utils.parseUnits("0", 18)
@@ -785,9 +789,8 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
   //     const nodeProvider: NodeProvider = generator.getNodeProvider()
   //     web3.setCurrentNodeProvider(nodeProvider)
   //
-  //     const privateKey = alphNetworkAlephiumCoin?.group === '0' ? alphNetworkAlephiumCoin.privateKey : alphNetworkAlephiumCoin?.derivedAddresses?.find(a=>a.group === '0')?.privateKey
   //     const wallet = new PrivateKeyWallet({
-  //       privateKey: privateKey || "",
+  //       privateKey: alphNetworkAlephiumCoin?.privateKey || "",
   //       nodeProvider,
   //     })
   //
@@ -895,7 +898,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
   const toAsset = useMemo(() => {
     switch (asset?.chain) {
       case "ETH":
-        return { ...alphNetworkAlephiumCoin, freeBalance: alphNetworkAlephiumCoin?.balanceWithDerivedAddresses }
+        return alphNetworkAlephiumCoin
       case "ALPH":
         return { ...ethNetworkAlephiumCoin, image: ethNetworkETHCoin?.image }
     }
