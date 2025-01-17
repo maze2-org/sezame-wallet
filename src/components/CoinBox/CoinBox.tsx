@@ -271,10 +271,9 @@ const CoinBoxItem = ({
                 <Text style={styles.BOLD_FONT}>
                   {Number(asset?.balanceWithDerivedAddresses).toFixed(4)}
                 </Text>
-                <Text style={styles.LIGHT_FONT}>{`${(
-                  exchangeRates.getRate(asset?.cid) *
-                  asset.balanceWithDerivedAddresses
-                ).toFixed(2)}$`}</Text>
+                <Text style={styles.LIGHT_FONT}>
+                  {`${(exchangeRates.getRate(asset?.cid) * asset.balanceWithDerivedAddresses).toFixed(2)}$`}
+                </Text>
               </>
             )}
           </View>

@@ -1,11 +1,21 @@
-import {NetworkType} from 'config/networks';
-import {flow, Instance, SnapshotOut, types} from 'mobx-state-tree';
-import {remove} from 'utils/storage';
-import {StoredWallet} from '../../utils/stored-wallet';
-import {AssetBalance, getBalance} from 'services/api';
-import {Chains, WalletGenerator} from '@maze2/sezame-sdk';
-import {WalletDescription} from '@maze2/sezame-sdk/dist/utils/types/WalletDescription';
-import {NodeProvider} from '@alephium/web3';
+import { NetworkType } from "config/networks"
+import { flow, Instance, SnapshotOut, types } from "mobx-state-tree"
+import { remove } from "utils/storage"
+import { StoredWallet } from "../../utils/stored-wallet"
+import { AssetBalance, getBalance } from "services/api"
+import { Chains, WalletGenerator } from "@maze2/sezame-sdk"
+import { WalletDescription } from "@maze2/sezame-sdk/dist/utils/types/WalletDescription"
+import { NodeProvider } from "@alephium/web3"
+
+const SelectedAddressModel = types.model({
+  address: types.string,
+  group: types.string,
+  index: types.number,
+  privateKey: types.string,
+  publicKey: types.string,
+  balance: types.number,
+});
+
 
 const DerivedAddress = types.model({
   publicKey: types.string,
@@ -94,6 +104,7 @@ export const CurrentWalletModel = types
     loadingBalance: types.boolean,
     updatingAssets: types.boolean,
     mnemonic: types.maybe(types.string),
+    alphSelectedAddresses: types.optional(types.array(types.model({ name: types.string, address: SelectedAddressModel})), []),
   })
   .views(self => ({
     getWallet: () => {
@@ -145,14 +156,10 @@ export const CurrentWalletModel = types
     },
   })) // eslint-disable-line @typescript-eslint/no-unused-vars
   .actions(self => ({
-    setSelectedAddress: (alphWalletAddress: string, chain: string) => {
-      const alph = self.assets.find(asset => asset.chain === chain);
-      if (alph) {
-        const index =
-          alph.derivedAddresses.findIndex(
-            d => d.address === alphWalletAddress,
-          ) ?? -1;
-        alph.selectedAddress = index;
+    setSelectedAddress: (alphWalletAddress: string, chain: string, cid:string) => {
+      const alphAsset = self.assets.find(asset => asset.chain === chain && asset.cid === cid);
+      if (alphAsset) {
+        alphAsset.selectedAddress = alphAsset.derivedAddresses.findIndex(d => d.address === alphWalletAddress);
       }
     },
     addAutoAsset: flow(function* (asset: any) {
@@ -326,18 +333,24 @@ export const CurrentWalletModel = types
       }
       // self.assets.replace(wallet.toJson().assets as any)
       self.name = wallet.toJson().walletName;
+      console.log(JSON.stringify(self.assets, null, 2))
 
       // Define default wallet address
-      const alph = self.assets.find(asset => asset.chain === 'ALPH');
-      if (alph) {
-        self.alphSelectedAddress = {
-          address: alph.address,
-          group: alph.group,
-          index: alph.index,
-          privateKey: alph.privateKey,
-          publicKey: alph.publicKey,
-          balance: alph.balance,
-        };
+      const alphAssets = self.assets.filter(asset => asset.chain === "ALPH")
+      if (alphAssets.length) {
+        alphAssets.forEach(asset => {
+          self.alphSelectedAddresses.push({
+            name: asset.name,
+            address: {
+              address: asset.address,
+              group: asset.group,
+              index: asset.index,
+              privateKey: asset.privateKey,
+              publicKey: asset.publicKey,
+              balance: asset.balance,
+            },
+          })
+        })
       }
     },
     close: () => {
@@ -383,6 +396,7 @@ export const CurrentWalletModel = types
             const currentDerivedAddress = asset.derivedAddresses[i];
 
             const balance = yield getBalance({
+              ...asset,
               ...currentDerivedAddress,
               chain: asset.chain,
               cid: asset.cid,

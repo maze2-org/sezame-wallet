@@ -19,6 +19,7 @@ type TokenDetails = {
 };
 
 const coingeckoBaseUrl = 'https://coingecko.sezame.app/api/v3';
+const mexcBaseUrl = "https://api.mexc.com"
 
 const cache = new Map();
 
@@ -47,9 +48,9 @@ const fetchWithCache = (url: string, expiration: number) => {
 /**
  * Return the data coming from coingecko (name and image) or from fromthe tokens.json file as a fallback.
  * When fallback is used, there is no high resolution images
- * 
- * @param symbol 
- * @returns 
+ *
+ * @param symbol
+ * @returns
  */
 export const getCoinDetails = async (symbol: string): Promise<Partial<CoingeckoCoin> | null> => {
   const url = coingeckoBaseUrl + '/coins/' + symbol + '?sparkline=true';
@@ -93,5 +94,15 @@ export const getMarketChart = (id: string, days: number | 'max'): Promise<any> =
     id +
     '/market_chart?vs_currency=usd&days=' +
     days;
+  return fetchWithCache(url, 300000);
+};
+
+export const getMarketChartMexc = (symbol: string, interval: string): Promise<any> => {
+  const url =
+    mexcBaseUrl +
+    '/api/v3/klines?symbol=' +
+    symbol + "USDT" +
+    '&interval=' +
+    interval;
   return fetchWithCache(url, 300000);
 };

@@ -259,7 +259,7 @@ export type NavigatorParamList = {
   };
   settings: undefined;
   changePassword: undefined;
-  alphChooseAddress: undefined;
+  alphChooseAddress: { chain?: string; coinId?: string };
   addCurrency: undefined;
   stakingBalance: StackingBalanceRouteParams;
 };
@@ -322,7 +322,7 @@ const AppStackHeader = (
             justifyContent: 'flex-end',
             flexGrow: 1,
           }}>
-          {displayAlphSelector && <AlephiumAddressSelector />}
+          {displayAlphSelector && <AlephiumAddressSelector chain={props?.route?.params?.chain}  coinId={props?.route?.params?.coinId}/>}
           <SettingsBtn hideOpitonals={!showButtons} />
         </View>
       </View>

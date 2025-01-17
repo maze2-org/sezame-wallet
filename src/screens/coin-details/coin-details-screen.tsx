@@ -1,36 +1,53 @@
-import React, {useMemo, FC, useEffect, useRef, useState} from 'react';
-import {observer} from 'mobx-react-lite';
-import { View, ImageBackground, ScrollView, Linking, StyleSheet } from "react-native"
-import {StackNavigationProp, StackScreenProps} from '@react-navigation/stack';
-import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
-import IonIcons from 'react-native-vector-icons/Ionicons';
+import React, { FC, useEffect, useMemo, useState } from "react"
+import { observer } from "mobx-react-lite"
+import { ImageBackground, ScrollView, StyleSheet, View } from "react-native"
+import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack"
+import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5"
+import IonIcons from "react-native-vector-icons/Ionicons"
 
-import stakeIcon from '@assets/icons/stake.svg';
-import { NavigatorParamList } from 'navigators';
-import { showMessage } from 'react-native-flash-message';
-import { Button, CoinCard, PriceChart, Screen, Text } from 'components';
+import stakeIcon from "@assets/icons/stake.svg"
+import { NavigatorParamList } from "navigators"
+import { showMessage } from "react-native-flash-message"
+import { Button, CoinCard, PriceChart, Screen, Text } from "components"
 
-import { color, spacing } from 'theme';
-import { useNavigation } from '@react-navigation/native';
-import { getCoinDetails, getMarketChart } from 'utils/apis';
-import { CoingeckoCoin } from 'types/coingeckoCoin';
-import { useStores } from 'models';
-import { BackgroundStyle, MainBackground, SEPARATOR } from 'theme/elements';
-import styles from './styles';
-import { SvgXml } from 'react-native-svg';
-import { getBalance, getTransactionsUrl } from 'services/api';
-import AnimatedComponent from '../../components/animatedComponent/AnimatedComponent';
-import CoinDetailsFooter from './compnents/coin-details-footer';
-import ReceiveModal from './compnents/receive-modal';
-import TransactionsHistory from './compnents/transactions-history';
-import {BridgeCard} from 'components/bridge-card/bridge-card.component';
+import { color, spacing } from "theme"
+import { useNavigation } from "@react-navigation/native"
+import { getCoinDetails, getMarketChart,getMarketChartMexc } from "utils/apis"
+import { CoingeckoCoin } from "types/coingeckoCoin"
+import { useStores } from "models"
+import { BackgroundStyle, MainBackground, SEPARATOR } from "theme/elements"
+import styles from "./styles"
+import { SvgXml } from "react-native-svg"
+import { getBalance, getTransactionsUrl } from "services/api"
+import AnimatedComponent from "../../components/animatedComponent/AnimatedComponent"
+import CoinDetailsFooter from "./compnents/coin-details-footer"
+import ReceiveModal from "./compnents/receive-modal"
+import TransactionsHistory from "./compnents/transactions-history"
+import { BridgeCard } from "components/bridge-card/bridge-card.component"
 import AlephiumPendingBridge from "components/AlephiumPendingBridge/AlephiumPendingBridge.tsx"
 import alephiumBridgeStore from "mobx/alephiumBridgeStore.tsx"
 import Clipboard from "@react-native-clipboard/clipboard"
 import { getConfigs } from "screens/bridge/constsnts.ts"
-import { Card } from 'components/card/card.component';
+import { Card } from "components/card/card.component"
 import AlephiumPendingBridgeEthereum from "components/AlephiumPendingBridgeEthereum/AlephiumPendingBridgeEthereum.tsx"
 const tokens = require('@config/tokens.json');
+
+type ChartDayValue = 1 | 7 | 30 | 90 | 180 | 'max';
+
+type ChartDay = {
+  value: ChartDayValue;
+  label: string;
+  apiValue: string;
+};
+
+const chartDaysData:ChartDay[] = [
+  { value: 1, label: "24H", apiValue: "1d" },
+  { value: 7, label: "7D", apiValue: "1W" },
+  { value: 30, label: "1M", apiValue: "1M" },
+  { value: 90, label: "3M", apiValue: "3M" },
+  { value: 180, label: "6M", apiValue: "6M" },
+  { value: "max", label: "max", apiValue: "max" },
+]
 
 export const CoinDetailsScreen: FC<
   StackScreenProps<NavigatorParamList, 'coinDetails'>
@@ -39,7 +56,7 @@ export const CoinDetailsScreen: FC<
   const [coinData, setCoinData] = useState<Partial<CoingeckoCoin> | null>(null);
   const [chartData, setChartData] = useState<any[]>([]);
   const [chartDataError, setChartDataError] = useState<boolean>(false);
-  const [chartDays, setChartDays] = useState<number | 'max'>(1);
+  const [chartDays, setChartDays] = useState<ChartDayValue>(1);
   const {currentWalletStore, exchangeRates, setOverlayLoadingShown,TESTNET} =
     useStores();
   const {
@@ -58,6 +75,7 @@ export const CoinDetailsScreen: FC<
     route.params.chain,
   );
   const mainAsset = getAssetById(route.params.coinId, route.params.chain);
+
   const selectedAsset = getSelectedAddressForAsset(
     route.params.coinId,
     route.params.chain,
@@ -67,6 +85,9 @@ export const CoinDetailsScreen: FC<
   const tokenInfo = tokens.find(
     (token: any) => token.id === route.params.coinId,
   );
+
+  const isAbx = useMemo(() => (selectedAsset?.symbol === "ABX"), [selectedAsset])
+  const chartDaysFilteredData = useMemo(() => (isAbx ? [chartDaysData[0], chartDaysData[1]] : chartDaysData), [isAbx])
 
   const capabilities =
     tokenInfo.chains.reduce((previous: any, current: any) => {
@@ -176,10 +197,21 @@ export const CoinDetailsScreen: FC<
 
   const getChartData = async () => {
     try {
-      // setChartDays(days)
-      const data = await getMarketChart(route?.params?.coinId, Number(chartDays));
+      let data;
 
-      setChartData(data.prices);
+      if(isAbx){
+        const objectValue = chartDaysData.find(el => el.value === chartDays)
+        if (objectValue?.apiValue) {
+          const responseData = await getMarketChartMexc(selectedAsset?.symbol || "", objectValue?.apiValue)
+          const covertData = responseData?.map((element: any) => ([element[0],element[6]]))
+          data = { prices: covertData }
+        }
+      }else{
+      // setChartDays(days)
+       data = await getMarketChart(route?.params?.coinId, Number(chartDays));
+      }
+
+      setChartData(data?.prices);
       setChartDataError(false);
     } catch (error) {
       console.log(error);
@@ -267,7 +299,7 @@ export const CoinDetailsScreen: FC<
                     style={styles.COIN_CARD}
                     name={coinData.name}
                     balance={asset?.balance}
-                    imageUrl={coinData.image?.large}
+                    imageUrl={tokenInfo?.thumb || coinData.image?.large}
                     symbol={coinData.symbol}
                     chain={`${mainAsset?.chain}`}
                   />
@@ -312,15 +344,8 @@ export const CoinDetailsScreen: FC<
               <View style={styles.COIN_DETAILS_CONTAINER}>
                 <AnimatedComponent direction={'TOP'}>
                   {!!chartData && !!chartData.length && (
-                    <View style={styles.TIMEFRAME_BTNS}>
-                      {[
-                        { value: 1, label: '24H' },
-                        { value: 7, label: '7D' },
-                        { value: 30, label: '1M' },
-                        { value: 90, label: '3M' },
-                        { value: 180, label: '6M' },
-                        { value: 'max', label: 'max' },
-                      ].map(frame => (
+                    <View style={[componentStyles.timeFrameBtns, isAbx && componentStyles.abxWrapper]}>
+                      {chartDaysFilteredData.map(frame => (
                         <Button
                           key={frame.value}
                           onPress={() =>
@@ -345,7 +370,7 @@ export const CoinDetailsScreen: FC<
                   )}
                 </AnimatedComponent>
                 <AnimatedComponent direction={'BOTTOM'}>
-                  {!!mainAsset && !route.params.fromAddCurrency && (
+                  {!!selectedAsset && !route.params.fromAddCurrency && (
                     <View>
                       <View style={styles.BALANCE_STAKING_CONTAINER}>
                         <View style={styles.BALANCE_STAKING_CARD}>
@@ -354,16 +379,16 @@ export const CoinDetailsScreen: FC<
                               Available balance
                             </Text>
                             <Text style={styles.BALANCE_STAKING_CARD_AMOUNT}>
-                              {Number(mainAsset?.freeBalance).toFixed(4) +
+                              {Number(selectedAsset?.freeBalance).toFixed(4) +
                                 " " +
-                                mainAsset.symbol.toUpperCase()}
+                                selectedAsset?.symbol?.toUpperCase()}
                             </Text>
                             <Text style={styles.BALANCE_STAKING_CARD_NOTE}>
                               {" "}
                               (~
                               {`${(
-                                exchangeRates.getRate(mainAsset.cid) *
-                                mainAsset.freeBalance
+                                exchangeRates.getRate(selectedAsset.cid) *
+                                selectedAsset.freeBalance
                               ).toFixed(2)}`}
                               $)
                             </Text>
@@ -459,7 +484,7 @@ export const CoinDetailsScreen: FC<
                         )}
                       </View>
                       {
-                        selectedAsset && (selectedAsset.chain === "ALPH" ||
+                        selectedAsset && ((selectedAsset.chain === "ALPH" && selectedAsset.contract === null) ||
                         (selectedAsset.chain === "ETH" && selectedAsset.cid === "alephium")) && (
                         <>
                           {alephiumBridgeStore.isProcessingConfirmations &&
@@ -597,5 +622,14 @@ export const CoinDetailsScreen: FC<
 const componentStyles = StyleSheet.create({
   alephiumPendingBrideWrapper:{
     paddingHorizontal:8
+  },
+  timeFrameBtns:{
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: -spacing[4],
+  },
+  abxWrapper:{
+    justifyContent: "flex-start",
   }
 })

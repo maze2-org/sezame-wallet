@@ -36,7 +36,7 @@ import {
 } from 'theme/elements';
 import {useNavigation} from '@react-navigation/native';
 import {useStores} from 'models';
-import {getBalance, getFees, makeSendTransaction} from 'services/api';
+import { getBalance, getFees, makeSendTransaction, TokenSendAlph } from "services/api"
 import {showMessage} from 'react-native-flash-message';
 import styles from './styles';
 import {presets} from "components/screen/screen.presets.ts";
@@ -93,6 +93,7 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, 'send'>> =
     const {getSelectedAddressForAsset, assets} = currentWalletStore;
     const {
       control,
+      getValues,
       handleSubmit,
       formState: {errors, isValid},
     } = useForm({mode: 'onChange'});
@@ -177,12 +178,17 @@ export const SendScreen: FC<StackScreenProps<NavigatorParamList, 'send'>> =
       if (!asset) {
         return;
       }
-
+      const values = getValues()
       setSending(true);
       try {
+        const tokens: TokenSendAlph[] = asset.chain === "ALPH" && asset?.contract !== null ? [{
+          id: asset.contract,
+          amount: values?.amount * Math.pow(10, asset.decimals),
+        }] : []
         const txId = await makeSendTransaction(
           asset,
           fees ? fees.regular : null,
+          tokens
         );
         if (!txId) {
           showMessage({message: 'Unable to Send', type: 'danger'});

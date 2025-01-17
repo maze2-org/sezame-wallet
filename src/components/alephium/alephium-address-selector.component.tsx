@@ -1,6 +1,6 @@
 import {useStores} from 'models';
 import * as React from 'react';
-import {Text, View} from 'react-native';
+import { Image, Text, View } from "react-native"
 
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {useNavigation} from '@react-navigation/native';
@@ -9,12 +9,25 @@ import {NavigatorParamList} from 'navigators/app-navigator.tsx';
 import {color} from 'theme';
 import {observer} from 'mobx-react-lite';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
+import { useMemo } from "react"
+const tokens = require('@config/tokens.json');
 
-const AlephiumAddressSelector = observer(() => {
+interface IAlephiumAddressSelectorProps{
+  chain?:string
+  coinId?:string
+}
+
+const AlephiumAddressSelector:React.FC<IAlephiumAddressSelectorProps> = observer(({chain = "ALPH",coinId = 'alephium'}) => {
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>();
   const {currentWalletStore} = useStores();
   const {getSelectedAddressForAsset, getAssetById, assets} = currentWalletStore;
-  const alphSelectedAddress = getSelectedAddressForAsset('alephium', 'ALPH');
+
+  const alphSelectedAddress = getSelectedAddressForAsset(coinId, chain);
+
+  const assetImage = useMemo(()=>{
+    const foundedAsset = tokens?.find((token)=> coinId === token.id)
+    return foundedAsset ? foundedAsset.thumb : null;
+  },[coinId])
 
   if (!alphSelectedAddress) {
     return <></>;
@@ -36,7 +49,7 @@ const AlephiumAddressSelector = observer(() => {
           maxWidth: 200,
           backgroundColor: 'black',
         }}
-        onPress={() => navigation.navigate('alphChooseAddress')}>
+        onPress={() => navigation.navigate("alphChooseAddress", { chain, coinId })}>
         <View
           style={{
             display: 'flex',
@@ -73,20 +86,36 @@ const AlephiumAddressSelector = observer(() => {
 
             <View
               style={{
-                display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 flexDirection: 'row',
                 margin: 'auto',
                 alignSelf: 'stretch',
               }}>
-              <Text
-                style={{
-                  color: color.palette.white,
-                  flexGrow: 1,
-                  textAlign: 'center',
-                }}>
-                {alphSelectedAddress.balance} א
-              </Text>
+             <View>
+               {assetImage ?
+                 <View style={{ flexDirection:'row', alignItems: "center", gap: 4 }}>
+                   <View style={{ backgroundColor: "#fff", borderRadius: 15, padding: 2 }}>
+                     <Image source={{ uri: assetImage }} width={12} height={12} />
+                   </View>
+                   <Text
+                     style={{
+                       color: color.palette.white,
+                       flexGrow: 1,
+                     }}>
+                     {alphSelectedAddress.balance}
+                   </Text>
+                 </View>
+                 :
+                 <Text
+                   style={{
+                     color: color.palette.white,
+                     flexGrow: 1,
+                     textAlign: "center",
+                   }}>
+                   {alphSelectedAddress.balance} א
+                 </Text>}
+             </View>
             </View>
           </View>
           <View>

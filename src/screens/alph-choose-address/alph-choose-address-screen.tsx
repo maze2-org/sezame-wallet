@@ -18,18 +18,20 @@ import {addDerivedAddress} from 'utils/wallet-utils';
 
 export const AlphChooseAddressScreen: FC<
   StackScreenProps<NavigatorParamList, 'alphChooseAddress'>
-> = observer(function AlphChooseAddressScreen() {
+> = observer(function AlphChooseAddressScreen(props) {
+  const chain = props.route.params?.chain || "ALPH"
+  const coinId = props.route.params?.coinId || "alephium"
   const {currentWalletStore} = useStores();
   const {getAssetById, setSelectedAddress, getSelectedAddressForAsset} =
     currentWalletStore;
 
-  const asset = getAssetById('alephium', 'ALPH');
-  const alphSelectedAddress = getSelectedAddressForAsset('alephium', 'ALPH');
+  const asset = getAssetById(coinId, chain);
+  const alphSelectedAddress = getSelectedAddressForAsset(coinId, chain);
 
   const navigation = useNavigation<StackNavigationProp<NavigatorParamList>>();
 
   const onSelectAddress = (address: string) => {
-    setSelectedAddress(address, 'ALPH');
+    setSelectedAddress(address, chain, coinId);
     navigation.goBack();
   };
 
@@ -70,7 +72,7 @@ export const AlphChooseAddressScreen: FC<
             <AddressEntry
               key={derivedAddress.address}
               onSelectWallet={onSelectAddress}
-              asset={derivedAddress}
+              asset={{...asset, ...derivedAddress}}
               selected={
                 derivedAddress?.address === alphSelectedAddress?.address
               }

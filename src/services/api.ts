@@ -15,6 +15,11 @@ export type CryptoTransaction = {
 
 const tokens = require('@config/tokens.json');
 
+export type TokenSendAlph = {
+  id: string;
+  amount: number;
+}
+
 export type AssetBalance = {
   confirmedBalance: number;
   unconfirmedBalance: number;
@@ -102,9 +107,10 @@ export const getTransactionDriver = async (asset: BaseWalletDescription) => {
 export const makeSendTransaction = (
   asset: BaseWalletDescription,
   proposal: any,
+  tokens:TokenSendAlph[] = [],
 ) => {
   const cryptoWallet = getWallet(asset);
-  return cryptoWallet.postTxSend(proposal);
+  return cryptoWallet.postTxSend(proposal,tokens);
 };
 
 export const makeStakeTransaction = (

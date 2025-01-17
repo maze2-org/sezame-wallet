@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useMemo } from "react"
 import Clipboard from '@react-native-clipboard/clipboard';
-import {IWalletAsset} from 'models';
+import { IWalletAsset, useStores } from "models"
 import {useEffect, useState} from 'react';
-import {Animated, View} from 'react-native';
+import {Animated, View,Image} from 'react-native';
 import FlashMessage from 'react-native-flash-message';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {SvgXml} from 'react-native-svg';
@@ -10,6 +10,7 @@ import {color} from 'theme';
 import copyImg from '@assets/svg/copy.svg';
 import {Text} from 'components';
 import {palette} from 'theme/palette';
+const tokens = require('@config/tokens.json');
 
 function AddressEntry({
   asset,
@@ -48,6 +49,11 @@ function AddressEntry({
       speed: 10,
     }).start();
   }, [selected]);
+
+  const assetImage = useMemo(()=>{
+    const foundedAsset = tokens?.find((token)=> asset.cid === token.id)
+    return foundedAsset ? foundedAsset.thumb : null;
+  },[asset])
 
   return (
     <Animated.View
@@ -108,18 +114,36 @@ function AddressEntry({
               style={{
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 flexDirection: 'row',
                 margin: 'auto',
                 alignSelf: 'stretch',
               }}>
-              <Text
-                style={{
-                  color: color.palette.white,
-                  flexGrow: 1,
-                  textAlign: 'center',
-                }}>
-                {asset.balance} א
-              </Text>
+              <View>
+                {assetImage ?
+                  <View style={{ flexDirection:'row', alignItems: "center", gap: 4 }}>
+                    <View style={{ backgroundColor: "#fff", borderRadius: 15, padding: 2 }}>
+                      <Image source={{ uri: assetImage }} width={12} height={12} />
+                    </View>
+                    <Text
+                      style={{
+                        color: color.palette.white,
+                        flexGrow: 1,
+                        textAlign: "center",
+                      }}>
+                      {asset.balance}
+                    </Text>
+                  </View>
+                  :
+                  <Text
+                    style={{
+                      color: color.palette.white,
+                      flexGrow: 1,
+                      textAlign: "center",
+                    }}>
+                    {asset.balance} א
+                  </Text>}
+              </View>
             </View>
           </View>
           <View style={{justifyContent: 'center'}}>
