@@ -502,21 +502,6 @@ export const CoinDetailsScreen: FC<
                                 minimalConfirmations={BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL} />
                             </View>
                           }
-                          {alephiumBridgeStore.isProcessingConfirmations &&
-                            <View style={componentStyles.alephiumPendingBrideWrapper}>
-                              <AlephiumPendingBridge
-                                onPressRedeem={() => {
-                                  navigation.navigate("bridge", {
-                                    coinId: selectedAsset.cid,
-                                    chain: selectedAsset.chain,
-                                  })
-                                }}
-                                onPressCopyTxId={onPressCopyTxId}
-                                txId={alephiumBridgeStore.currentTxId}
-                                currentConfirmations={alephiumBridgeStore.chainConfirmations}
-                                minimalConfirmations={BRIDGE_CONSTANTS.ALEPHIUM_MINIMAL_CONSISTENCY_LEVEL} />
-                            </View>
-                          }
                           {selectedAsset.chain === "ETH" && (
                               alephiumBridgeStore.isTransferringFromETH ||
                               alephiumBridgeStore.isGettingSignedVAA ||

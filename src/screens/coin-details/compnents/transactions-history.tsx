@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import { BaseWalletDescription, IWalletAsset, useStores } from "models"
 import { View } from "react-native"
 import styles from "../styles"
@@ -9,6 +9,7 @@ import {
   getTransactionStatus,
 } from "services/api"
 import { MessageType, showMessage } from "react-native-flash-message"
+import { useFocusEffect } from "@react-navigation/native"
 
 type TransactionsHistoryProps = {
   asset: BaseWalletDescription;
@@ -77,7 +78,7 @@ const TransactionsHistory = ({ asset }: TransactionsHistoryProps) => {
     })
   }
 
-  useEffect(() => {
+  useFocusEffect(useCallback(()=>{
     // Get transaction once then once every 10sec
     updateTransactions()
     const interval = setInterval(updateTransactions, 20000)
@@ -88,7 +89,7 @@ const TransactionsHistory = ({ asset }: TransactionsHistoryProps) => {
     return () => {
       clearInterval(interval)
     }
-  }, [asset.address])
+  },[asset.address]))
 
   useEffect(() => {
     const tsxStatuses: any = {}

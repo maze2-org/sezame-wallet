@@ -114,7 +114,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
   const numericRegEx = useRef(/^\d+(.\d+)?$/).current
   const { setBalance } = currentWalletStore
 
-  const { control, handleSubmit, watch, setValue: setFormValue, formState: { errors, isValid } } = useForm({
+  const { control, handleSubmit, watch, setValue: setFormValue, formState: { errors, isValid },trigger } = useForm({
     mode: "onChange",
     defaultValues: {
       amount: "",
@@ -303,6 +303,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
       const totalFee: number = gasAmount * gasPrice / 1e18
       alephiumBridgeStore.setTotalFees(totalFee)
     } catch (err) {
+      alephiumBridgeStore.resetStore()
       console.log("THERE WAS AN ERROR IN transferLocalTokenFromAlph", err)
     } finally {
       console.log("Done...")
@@ -477,6 +478,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
     if (asset?.balance === undefined) return
     const amountValue = checked ? "" : (asset?.balance * el.percent / 100).toString()
     setFormValue("amount", amountValue)
+    void trigger('amount')
   }
 
   const init = useCallback(async (asset: BaseWalletDescription) => {
@@ -1152,7 +1154,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
             </View>
           }
 
-          {!!alephiumBridgeStore.bridgingAmount && !alephiumBridgeStore.isProcessingConfirmations &&
+          {!!alephiumBridgeStore.bridgingAmount && !alephiumBridgeStore.isProcessingConfirmations && !alephiumBridgeStore?.isTransferringFromALPH &&
             <View style={stylesComponent.previewOperation}>
               <WalletButton
                 type="primary"
