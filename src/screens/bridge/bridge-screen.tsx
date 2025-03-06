@@ -114,7 +114,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
   const numericRegEx = useRef(/^\d+(.\d+)?$/).current
   const { setBalance } = currentWalletStore
 
-  const { control, handleSubmit, watch, setValue: setFormValue, formState: { errors, isValid },trigger } = useForm({
+  const { control, handleSubmit, watch, setValue: setFormValue, formState: { errors, isValid }, trigger } = useForm({
     mode: "onChange",
     defaultValues: {
       amount: "",
@@ -134,8 +134,8 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
   const BRIDGE_CONSTANTS = useMemo(() => (getConfigs(rootStore.TESTNET ? "testnet" : "mainnet")), [rootStore.TESTNET])
   const alphNetworkAlephiumCoin = useMemo(() => {
     const founed = assets.find((el) => el.chain === "ALPH" && el.cid === "alephium")
-    if(!!founed?.derivedAddresses) {
-      return founed.derivedAddresses.find(a=>a.group === '0')
+    if (!!founed?.derivedAddresses) {
+      return founed.derivedAddresses.find(a => a.group === "0")
     }
   }, [assets.length])
   const ethNetworkETHCoin = useMemo(() => assets.find((el) => el.chain === "ETH" && el.cid === "ethereum"), [assets.length])
@@ -478,7 +478,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
     if (asset?.balance === undefined) return
     const amountValue = checked ? "" : (asset?.balance * el.percent / 100).toString()
     setFormValue("amount", amountValue)
-    void trigger('amount')
+    void trigger("amount")
   }
 
   const init = useCallback(async (asset: BaseWalletDescription) => {
@@ -630,9 +630,9 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
       const nodeProvider: NodeProvider = generator.getNodeProvider()
       web3.setCurrentNodeProvider(nodeProvider)
 
-      console.log('alphNetworkAlephiumCoin?.privateKey',alphNetworkAlephiumCoin?.privateKey)
+      console.log("alphNetworkAlephiumCoin?.privateKey", alphNetworkAlephiumCoin?.privateKey)
       const wallet = new PrivateKeyWallet({
-        privateKey: alphNetworkAlephiumCoin?.privateKey || '',
+        privateKey: alphNetworkAlephiumCoin?.privateKey || "",
         nodeProvider,
       })
       const feeParsed = ethers.utils.parseUnits("0", 18)
@@ -694,7 +694,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
         CHAIN_ID_ALEPHIUM,
         sequence.toString(),
       ) as { vaaBytes: Uint8Array })
-      console.log('vaaBytes', vaaBytes)
+      console.log("vaaBytes", vaaBytes)
 
 
       setSingedVaa(vaaBytes)
@@ -732,7 +732,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
 
       async function waitALPHTxConfirmed(provider: NodeProvider, txId: string, confirmations: number): Promise<node.Confirmed> {
         try {
-          const txStatus = await provider.transactions.getTransactionsStatus({txId: txId})
+          const txStatus = await provider.transactions.getTransactionsStatus({ txId: txId })
           if (txStatus.type === "Confirmed" && txStatus.chainConfirmations >= confirmations) {
             return txStatus as node.Confirmed
           }
@@ -748,10 +748,10 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
       const result = await redeemOnAlph(wallet, tokenBridgeForChainId, vaaBytes)
       const txId = result.txId
       console.log("txId!", txId)
-      console.log('waitALPHTxConfirmed [PENDING]')
+      console.log("waitALPHTxConfirmed [PENDING]")
       const confirmedTx = await waitALPHTxConfirmed(wallet.nodeProvider, txId, 1)
-      console.log('waitALPHTxConfirmed [SUCCESS]')
-      console.log('FINISSHHHHHHHHH!')
+      console.log("waitALPHTxConfirmed [SUCCESS]")
+      console.log("FINISSHHHHHHHHH!")
       // Manual redeem
 
       alephiumBridgeStore.setWaitForTransferCompleted(false)
@@ -1015,7 +1015,15 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
                           control={control}
                           rules={rulesAmount}
                           render={({ field: { onChange, value, onBlur } }) => (
-                            <AlephiumInput value={value} onBlur={onBlur} onChangeText={onChange}
+                            <AlephiumInput value={value} onBlur={onBlur} onChangeText={(value) => {
+                              if (
+                                value.includes(".") && value.at(value.length - 1) === "," ||
+                                value === ","
+                              ) {
+                                return
+                              }
+                              onChange(value.replaceAll(",", "."))
+                            }}
                                            errorMessage={errors?.["amount"]?.message || ""} />)}
                         />
                         <View style={stylesComponent.checkboxes}>

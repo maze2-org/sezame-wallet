@@ -8,7 +8,8 @@
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "ios-aram": "react-native run-ios --device=\"Aram's 15 Pro Max\" --terminal=\"Terminal\""
   },
   "dependencies": {
     "@alephium/token-list": "^0.0.15",
@@ -18,7 +19,7 @@
     "@alephium/wormhole-sdk": "0.4.0-rc.0",
     "@el173/react-native-passcode-auth": "^1.0.1",
     "@improbable-eng/grpc-web-react-native-transport": "^0.15.0",
-    "@maze2/sezame-sdk": "1.7.6",
+    "@maze2/sezame-sdk": "1.7.7",
     "@mgcrea/vision-camera-barcode-scanner": "^0.11.2",
     "@react-native-async-storage/async-storage": "^1.21.0",
     "@react-native-clipboard/clipboard": "^1.13.2",

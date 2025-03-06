@@ -103,9 +103,9 @@
     stream-browserify "^3.0.0"
 
 "@alephium/web3@^1.8.5":
-  version "1.9.0"
-  resolved "https://registry.npmjs.org/@alephium/web3/-/web3-1.9.0.tgz"
-  integrity sha512-1VjkXeABrDGvSo0vBpRZCytVfdvCoeaJj/TkYIntqRxCKzwH67AcIUb8H2C3aRKA48J7SedtTfslmGSCPrjZsw==
+  version "1.11.6"
+  resolved "https://registry.yarnpkg.com/@alephium/web3/-/web3-1.11.6.tgz#1112832a06c46718f756fd412d3b9d71595d19ff"
+  integrity sha512-ifdDxDFs7oLxZeqHWcUTTImVrhYoRJhNb5lc/J3pnq6eSnY4OII3WwsIphEKzB19x32gHsHwISkjVRxlwwLlVw==
   dependencies:
     "@noble/secp256k1" "1.7.1"
     base-x "4.0.0"
@@ -114,14 +114,14 @@
     bn.js "5.2.1"
     cross-fetch "^3.1.5"
     crypto-browserify "^3.12.0"
-    elliptic "6.6.0"
+    elliptic "6.6.1"
     eventemitter3 "^4.0.7"
     path-browserify "^1.0.1"
     stream-browserify "^3.0.0"
 
 "@alephium/wormhole-sdk@0.4.0-rc.0":
   version "0.4.0-rc.0"
-  resolved "https://registry.npmjs.org/@alephium/wormhole-sdk/-/wormhole-sdk-0.4.0-rc.0.tgz"
+  resolved "https://registry.yarnpkg.com/@alephium/wormhole-sdk/-/wormhole-sdk-0.4.0-rc.0.tgz#486ad687217842f6a51c816f8f2815dc6f357eb3"
   integrity sha512-pPg9hzYIkS3HoisVcfHbi/Gl3vT564Uaj6XCeCpKb052y80Q5wrdAmciUQJ7/V4gVOyQTyjoen1C19tFNlT/Xw==
   dependencies:
     "@alephium/token-list" "0.0.11"
@@ -2543,10 +2543,10 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@maze2/sezame-sdk@1.7.6":
-  version "1.7.6"
-  resolved "https://registry.yarnpkg.com/@maze2/sezame-sdk/-/sezame-sdk-1.7.6.tgz#d669d3ee116b78d4a7a96a736485822e966bb79f"
-  integrity sha512-kOEiAhyHlQ+Woz5uxLwh1im0Q00oWwSYYtWEt8wlcbQp1z9AoZgI3x92ouFd1ePmGHTYBvmklUcz+K+Zp4HHCA==
+"@maze2/sezame-sdk@1.7.7":
+  version "1.7.7"
+  resolved "https://registry.yarnpkg.com/@maze2/sezame-sdk/-/sezame-sdk-1.7.7.tgz#441c3fa8ec3eb37bc225aeb5e9d7e054a8771c17"
+  integrity sha512-0zMbZm0Jodxx25ciVbK189qTwBBUiKlAy+Su3lWeoq943b6ZqOpoidWMdV1fwhu7VyQMOKopRHqUutnUkl1kLw==
   dependencies:
     "@alephium/web3" "^1.0.5"
     "@alephium/web3-wallet" "^1.0.5"
@@ -9568,20 +9568,7 @@ elliptic@6.5.4:
     minimalistic-assert "^1.0.1"
     minimalistic-crypto-utils "^1.0.1"
 
-elliptic@6.6.0:
-  version "6.6.0"
-  resolved "https://registry.npmjs.org/elliptic/-/elliptic-6.6.0.tgz"
-  integrity sha512-dpwoQcLc/2WLQvJvLRHKZ+f9FgOdjnq11rurqwekGQygGPsYSK29OMMD2WalatiqQ+XGFDglTNixpPfI+lpaAA==
-  dependencies:
-    bn.js "^4.11.9"
-    brorand "^1.1.0"
-    hash.js "^1.0.0"
-    hmac-drbg "^1.0.1"
-    inherits "^2.0.4"
-    minimalistic-assert "^1.0.1"
-    minimalistic-crypto-utils "^1.0.1"
-
-elliptic@^6.4.0, elliptic@^6.5.2, elliptic@^6.5.4, elliptic@^6.5.7:
+elliptic@6.6.1, elliptic@^6.4.0, elliptic@^6.5.2, elliptic@^6.5.4, elliptic@^6.5.7:
   version "6.6.1"
   resolved "https://registry.yarnpkg.com/elliptic/-/elliptic-6.6.1.tgz#3b8ffb02670bf69e382c7f65bf524c97c5405c06"
   integrity sha512-RaddvvMatK2LJHqFJ+YA4WysVN5Ita9E35botqIYspQ4TkRAlCicdzKOjlyv/1Za5RyTNn7di//eEV0uTAfe3g==
