@@ -39,25 +39,22 @@ const COIN_NAME: TextStyle = {
 const COIN_AMOUNT: TextStyle = {
   fontSize: 16,
   fontWeight: "bold",
-  color:color.palette.white
+  color: color.palette.white,
 }
+
 export interface CoinCardProps {
-  /**
-   * An optional style override useful for padding & margin.
-   */
   style?: StyleProp<ViewStyle>
   imageUrl: string
-  name: string
-  chain: string
+  name?: string
+  chain?: string
   balance?: number
-  symbol: string
 }
 
 /**
  * Describe your component here
  */
 export const CoinCard = observer(function CoinCard(props: CoinCardProps) {
-  const { style, imageUrl, name, chain, balance, symbol } = props
+  const { style, imageUrl, name, chain, balance } = props
   const styles = Object.assign({}, CONTAINER, style)
 
   return (
@@ -65,11 +62,8 @@ export const CoinCard = observer(function CoinCard(props: CoinCardProps) {
       <Image style={COIN_IMAGE} source={{ uri: imageUrl }}></Image>
       <View style={COIN_CARD_CONTENT}>
         {!!chain && <Text text={chain} />}
-        <Text style={COIN_NAME} preset="header" text={name} />
-        {balance !== undefined && (
-          // <Text style={COIN_AMOUNT} preset="header" text={} />
-          <TextReact style={COIN_AMOUNT}>{(Number(balance).toFixed(4))}</TextReact>
-        )}
+        {!!name && <Text style={COIN_NAME} preset="header" text={name} />}
+        {balance !== undefined && <TextReact style={COIN_AMOUNT}>{(Number(balance).toFixed(4))}</TextReact>}
       </View>
     </View>
   )

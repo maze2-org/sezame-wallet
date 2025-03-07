@@ -135,7 +135,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
   const alphNetworkAlephiumCoin = useMemo(() => {
     const founed = assets.find((el) => el.chain === "ALPH" && el.cid === "alephium")
     if (!!founed?.derivedAddresses) {
-      return founed.derivedAddresses.find(a => a.group === "0")
+      return { ...founed, ...founed.derivedAddresses.find(a => a.group === "0") }
     }
   }, [assets.length])
   const ethNetworkETHCoin = useMemo(() => assets.find((el) => el.chain === "ETH" && el.cid === "ethereum"), [assets.length])
@@ -892,7 +892,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
   const fromAsset = useMemo(() => {
     switch (asset?.chain) {
       case "ETH":
-        return { ...ethNetworkAlephiumCoin, image: ethNetworkETHCoin?.image }
+        return { ...ethNetworkAlephiumCoin, image: ethNetworkETHCoin?.image || ethNetworkAlephiumCoin?.image }
       case "ALPH":
         return asset
     }
@@ -902,34 +902,42 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
       case "ETH":
         return alphNetworkAlephiumCoin
       case "ALPH":
-        return { ...ethNetworkAlephiumCoin, image: ethNetworkETHCoin?.image }
+        return { ...ethNetworkAlephiumCoin, image: ethNetworkETHCoin?.image || ethNetworkAlephiumCoin?.image }
     }
   }, [asset, ethNetworkAlephiumCoin, ethNetworkETHCoin, alphNetworkAlephiumCoin])
 
   const currencyBlockCond = useMemo(() => {
     switch (asset?.chain) {
       case "ETH":
-        return !!alphNetworkAlephiumCoin
+        return !!ethNetworkETHCoin && !!alphNetworkAlephiumCoin
       case "ALPH":
-        return !!ethNetworkAlephiumCoin
+        return !!ethNetworkETHCoin && !!ethNetworkAlephiumCoin
     }
-  }, [asset, ethNetworkAlephiumCoin, alphNetworkAlephiumCoin])
+  }, [asset, ethNetworkETHCoin, ethNetworkAlephiumCoin, alphNetworkAlephiumCoin])
 
   const addButtonInfo = useMemo(() => {
-    const mapper: any = {
-      "ALPH": {
-        text: "Add Ethereum network to the wallet",
-        onAddHandler: onPressGoAddEthereum,
-        isVisible: !ethNetworkAlephiumCoin,
-      },
-      "ETH": {
-        text: "Add Alephium network to the wallet",
-        onAddHandler: onPressGoAddAlephium,
-        isVisible: !alphNetworkAlephiumCoin,
-      },
+    const addEthInfo = {
+      text: "Add Ethereum network to the wallet",
+      onAddHandler: onPressGoAddEthereum,
+      isVisible: !ethNetworkETHCoin || !ethNetworkAlephiumCoin,
     }
-    return asset?.chain ? mapper[asset.chain] : ""
-  }, [asset, ethNetworkAlephiumCoin, alphNetworkAlephiumCoin])
+    const addAlphInfo = {
+      text: "Add Alephium network to the wallet",
+      onAddHandler: onPressGoAddAlephium,
+      isVisible: !ethNetworkETHCoin || !alphNetworkAlephiumCoin,
+    }
+
+    const mapper: any = {
+      "ALPH": addEthInfo,
+      "ETH": addAlphInfo,
+    }
+
+    if (!ethNetworkETHCoin) {
+      return addEthInfo
+    } else {
+      return asset?.chain ? mapper[asset.chain] : ""
+    }
+  }, [asset, ethNetworkETHCoin, ethNetworkAlephiumCoin, alphNetworkAlephiumCoin])
 
   const alephiumConfirmationsInfo = useMemo(() => {
     return {
@@ -977,7 +985,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
                 />
               )}
 
-              {!alephiumBridgeStore.bridgingAmount &&
+              {!addButtonInfo?.isVisible && !alephiumBridgeStore.bridgingAmount &&
                 <>
                   <AlephiumBridgeBadge
                     title={"Important"}
@@ -1122,7 +1130,7 @@ export const BridgeScreen: FC<StackScreenProps<NavigatorParamList, "bridge">> = 
           {/*  onPress={test}*/}
           {/*/>*/}
 
-          {asset?.chain === "ETH" &&
+          {!addButtonInfo?.isVisible && asset?.chain === "ETH" &&
             <View style={stylesComponent.previewOperation}>
               {!!alephiumBridgeStore.approvedEthResult ? (
                   <>

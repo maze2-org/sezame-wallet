@@ -81,6 +81,7 @@ export const CurrencyDescriptionBlock = observer(function CurrencyDescriptionBlo
     color: color.palette.white,
     fontSize: 27,
     lineHeight: 37,
+    textTransform: "uppercase",
   }
 
   const smallStyle: ViewStyle = {

@@ -300,8 +300,7 @@ export const CoinDetailsScreen: FC<
                     name={coinData.name}
                     balance={asset?.balance}
                     imageUrl={tokenInfo?.thumb || coinData.image?.large}
-                    symbol={coinData.symbol}
-                    chain={`${mainAsset?.chain}`}
+                    chain={mainAsset?.chain}
                   />
                   {!!mainAsset && (
                     <View style={styles.BTNS_CONTAINER}>
