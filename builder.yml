@@ -2,7 +2,7 @@ flows:
 - android-react-native-redmine
 - publish-github
 options:
-- external_git_url: "git@github.com:maze2-org/sezame-wallet.git"
+ external_git_url: "git@github.com:maze2-org/sezame-wallet.git"
 modes:
 - ON_VERSION
 
