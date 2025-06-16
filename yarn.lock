@@ -2543,10 +2543,10 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@maze2/sezame-sdk@1.7.7":
-  version "1.7.7"
-  resolved "https://registry.yarnpkg.com/@maze2/sezame-sdk/-/sezame-sdk-1.7.7.tgz#441c3fa8ec3eb37bc225aeb5e9d7e054a8771c17"
-  integrity sha512-0zMbZm0Jodxx25ciVbK189qTwBBUiKlAy+Su3lWeoq943b6ZqOpoidWMdV1fwhu7VyQMOKopRHqUutnUkl1kLw==
+"@maze2/sezame-sdk@1.7.8":
+  version "1.7.8"
+  resolved "https://registry.yarnpkg.com/@maze2/sezame-sdk/-/sezame-sdk-1.7.8.tgz#1a3170d0584d120cd2dd113c5be4bd99f036ebf5"
+  integrity sha512-HJ5ZPMFoakSzPLTImxNS1ID1tj5z7x2kY2KNpb6ku3uyw8a0WRra8RJYPdt9yqq3auPaBWlw21TvdPR6xvqMvA==
   dependencies:
     "@alephium/web3" "^1.0.5"
     "@alephium/web3-wallet" "^1.0.5"
