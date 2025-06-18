@@ -1,56 +1,53 @@
-import {useStores} from 'models';
-import React, {useEffect, useState} from 'react';
-import {
-  Modal,
-  View,
-  ViewStyle,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  TextStyle,
-} from 'react-native';
-
+import React, { useEffect, useState } from "react"
+import { Camera } from "react-native-vision-camera"
+import { observer } from "mobx-react-lite"
+import { useStores } from "models"
+import { Worklets } from "react-native-worklets-core"
+import { KeyValueStorage } from "@walletconnect/keyvaluestorage"
+import { mapToObj, objToMap } from "@walletconnect/utils"
+import { useCameraDevice, useCameraPermission } from "react-native-vision-camera"
 import {
   CameraHighlights,
   useBarcodeScanner,
-} from '@mgcrea/vision-camera-barcode-scanner';
-
-import {useCameraDevice, useCameraPermission} from 'react-native-vision-camera';
-
-import {Camera} from 'react-native-vision-camera';
-
-import {color} from 'theme';
-import {Button} from 'components';
-import {WalletConnectActionType} from 'models/wallet-connect/wallet-connect.model';
-import {observer} from 'mobx-react-lite';
-import WalletConnectConnectionAction from './components/wallet-connect-connection-action/wallet-connect-connection-action.component';
-import {
-  JsonRpcRecord,
-  MessageRecord,
-  PendingRequestTypes,
-  SessionTypes,
-} from '@walletconnect/types';
-import {KeyValueStorage} from '@walletconnect/keyvaluestorage';
-import {
-  CORE_STORAGE_OPTIONS,
-  CORE_STORAGE_PREFIX,
-  HISTORY_CONTEXT,
-  HISTORY_STORAGE_VERSION,
-  MESSAGES_CONTEXT,
-  MESSAGES_STORAGE_VERSION,
-  STORE_STORAGE_VERSION,
-} from '@walletconnect/core';
-import {mapToObj, objToMap} from '@walletconnect/utils';
+} from "@mgcrea/vision-camera-barcode-scanner"
 import {
   REQUEST_CONTEXT,
   SESSION_CONTEXT,
   SIGN_CLIENT_STORAGE_PREFIX,
-} from '@walletconnect/sign-client';
-import {SvgXml} from 'react-native-svg';
-import walletConnectIcon from '@assets/svg/walletconnect.svg';
-import {INPUT, textInput} from 'theme/elements';
-import {TextInputField} from 'components/text-input-field/text-input-field';
+} from "@walletconnect/sign-client"
+import {
+  SessionTypes,
+  JsonRpcRecord,
+  MessageRecord,
+  PendingRequestTypes,
+} from "@walletconnect/types"
+import {
+  View,
+  Text,
+  Modal,
+  ViewStyle,
+  StyleSheet,
+  TextStyle,
+  TouchableOpacity,
+} from "react-native"
+import {
+  HISTORY_CONTEXT,
+  MESSAGES_CONTEXT,
+  CORE_STORAGE_PREFIX,
+  CORE_STORAGE_OPTIONS,
+  STORE_STORAGE_VERSION,
+  HISTORY_STORAGE_VERSION,
+  MESSAGES_STORAGE_VERSION,
+} from "@walletconnect/core"
+
+import walletConnectIcon from "@assets/svg/walletconnect.svg"
+import WalletConnectConnectionAction from "./components/wallet-connect-connection-action/wallet-connect-connection-action.component"
+import { color } from "theme"
+import { Button } from "components"
+import { SvgXml } from "react-native-svg"
+import { textInput } from "theme/elements"
+import { TextInputField } from "components/text-input-field/text-input-field"
+import { WalletConnectActionType } from "models/wallet-connect/wallet-connect.model"
 
 type WalletConnectScannerModalProps = {
   visible: boolean;
@@ -318,7 +315,7 @@ export const WalletConnectScannerModal = observer(
                         style={{flex: 1, width: '100%'}}
                         device={device}
                         isActive={true}
-                        {...cameraProps}
+                        frameProcessor={cameraProps.frameProcessor}
                       />
                       <CameraHighlights
                         highlights={highlights}
@@ -332,7 +329,7 @@ export const WalletConnectScannerModal = observer(
                   )}
                 </View>
               )}
-              <View style={{marginTop: '20px'}}>
+              <View style={{marginTop: 20}}>
                 <TextInputField
                   name="walletConnectAddress"
                   multiline={true}

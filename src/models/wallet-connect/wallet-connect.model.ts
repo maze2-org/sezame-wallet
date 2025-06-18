@@ -1,4 +1,4 @@
-import { flow, getRoot, Instance, SnapshotOut, types } from 'mobx-state-tree';
+import { cast, flow, getRoot, Instance, SnapshotOut, types } from "mobx-state-tree"
 import SignClient from '@walletconnect/sign-client';
 import { buildApprovedNamespaces, getSdkError } from '@walletconnect/utils';
 import {
@@ -19,6 +19,7 @@ import {
 import { showMessage } from 'react-native-flash-message';
 
 const WalletConnectAction = types.model({
+  id: types.number,
   action: types.string,
   title: types.string,
   description: types.string,
@@ -62,6 +63,7 @@ export const WalletConnectModel = types
   .views(self => ({}))
   .actions(self => ({
     init: flow(function* connect() {
+      const store = cast<WalletConnectType>(self);
 
       if (self.client) {
         return;
@@ -80,6 +82,16 @@ export const WalletConnectModel = types
         },
       });
       self.client = walletConnectClient;
+
+      walletConnectClient.on('session_proposal', store.onSessionProposal);
+      walletConnectClient.on('session_request', store.onSessionRequest);
+      walletConnectClient.on('session_delete', store.onSessionDelete);
+      walletConnectClient.on('session_update', store.onSessionUpdate);
+      walletConnectClient.on('session_event', store.onSessionEvent);
+      walletConnectClient.on('session_ping', store.onSessionPing);
+      walletConnectClient.on('session_expire', store.onSessionExpire);
+      walletConnectClient.on('session_extend', store.onSessionExtend);
+      walletConnectClient.on('proposal_expire', store.onProposalExpire);
     }),
     connect: flow(function* connect(uri: string, topic?: string) {
       const walletConnectClient = self.client;
@@ -94,16 +106,6 @@ export const WalletConnectModel = types
       } catch (e) {
         console.log('❌ connect ERROR', e);
       }
-
-      walletConnectClient.on('session_proposal', self.onSessionProposal);
-      walletConnectClient.on('session_request', self.onSessionRequest);
-      walletConnectClient.on('session_delete', self.onSessionDelete);
-      walletConnectClient.on('session_update', self.onSessionUpdate);
-      walletConnectClient.on('session_event', self.onSessionEvent);
-      walletConnectClient.on('session_ping', self.onSessionPing);
-      walletConnectClient.on('session_expire', self.onSessionExpire);
-      walletConnectClient.on('session_extend', self.onSessionExtend);
-      walletConnectClient.on('proposal_expire', self.onProposalExpire);
 
       const pairingTopic = topic
         ? topic
@@ -184,15 +186,16 @@ export const WalletConnectModel = types
       }
 
       self.nextActions.push({
-        action: 'sessionProposal',
+        id: data.id,
+        action: "sessionProposal",
         blockchain,
         title: data.params.proposer.metadata.name,
         description: data.params.proposer.metadata.description,
         logo: data.params.proposer.metadata.icons[0],
         eventData: data,
         alephiumGroup: getWalletConnectProposalAlephiumGroup(data),
-        status: 'pending',
-      });
+        status: "pending",
+      })
     }),
     onSessionRequest: flow(function* onSessionRequest(
       data: SignClientTypes.EventArguments['session_request'],
@@ -441,14 +444,14 @@ export const WalletConnectModel = types
     }),
     approveConnection: flow(function* (
       action: IWalletConnectAction,
-      walletToBeUsed: BaseWalletDescription,
+      walletToBeUsed: BaseWalletDescription | null,
       activeSessions: SessionTypes.Struct[],
-      ethWalletToBeUsed: BaseWalletDescription,
+      ethWalletToBeUsed: BaseWalletDescription | null,
     ) {
       const proposalEvent = action.eventData;
       console.log('Approving session...', proposalEvent);
 
-      let blockchainType = 'ethereum'; // 'alephium' or 'ethereum'
+      let blockchainType = 'ethereum'; // 'alephium' or 'ethereum';
       const { id, requiredNamespaces, relays } = proposalEvent.params || {};
       const nameSpaceName = Object.keys(requiredNamespaces)[0];
       const requiredNamespace = requiredNamespaces[nameSpaceName];

@@ -1,16 +1,17 @@
-import {Button, Text} from 'components';
-import {useStores} from 'models';
-import {IWalletConnectAction} from 'models/wallet-connect/wallet-connect.model';
 import React, {useEffect, useRef} from 'react';
-import {Image, View, ViewStyle} from 'react-native';
+import SignClient from '@walletconnect/sign-client';
 import FlashMessage from 'react-native-flash-message';
+import {observer} from 'mobx-react-lite';
+import {Image, View, ViewStyle} from 'react-native';
+
 import AddAddress from 'screens/alph-choose-address/components/add-address/add-address.component';
 import AddressEntry from 'screens/alph-choose-address/components/address-entry/address-entry.component';
-import {color} from 'theme';
-import {addDerivedAddress} from 'utils/wallet-utils';
 import WalletConnectModal from '../wallet-connect-modal/wallet-connect-modal.component';
-import {observer} from 'mobx-react-lite';
-import SignClient from '@walletconnect/sign-client';
+import {color} from 'theme';
+import {useStores} from 'models';
+import {Button, Text} from 'components';
+import {addDerivedAddress} from 'utils/wallet-utils';
+import {IWalletConnectAction} from 'models/wallet-connect/wallet-connect.model';
 
 type WalletConnectConnectionActionProps = {
   walletAction: IWalletConnectAction;
@@ -59,9 +60,11 @@ const WalletConnectConnectionAction = observer(function ({
           activeSessions,
           ethSelectedAddress,
         );
+      } else {
+        alert('Missing APLH or ETH token!')
       }
     } catch (err) {
-      console.log('handleConnect error ----------------', error);
+      console.log('handleConnect error ----------------', err);
       // ignore error...
     } finally {
     }
@@ -78,7 +81,7 @@ const WalletConnectConnectionAction = observer(function ({
   };
 
   const onSelectAddress = (address: string) => {
-    setSelectedAddress(address, 'ALPH');
+    setSelectedAddress(address, 'ALPH', 'alephium');
   };
 
   const onCancel = () => {
@@ -159,6 +162,7 @@ const WalletConnectConnectionAction = observer(function ({
               style={{
                 margin: 'auto',
                 alignSelf: 'center',
+                marginBottom: 16,
               }}
               source={{
                 uri: walletAction.logo,
@@ -169,9 +173,9 @@ const WalletConnectConnectionAction = observer(function ({
           )}
           <Text
             style={{
-              color: color.palette.white,
-              textAlign: 'center',
               fontSize: 22,
+              textAlign: 'center',
+              color: color.palette.white,
             }}>
             {walletAction.title}
           </Text>

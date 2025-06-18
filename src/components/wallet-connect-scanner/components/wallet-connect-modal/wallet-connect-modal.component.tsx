@@ -1,9 +1,10 @@
-import React, {PropsWithChildren} from 'react';
-import {Modal, TouchableOpacity, View} from 'react-native';
-import walletConnectStyles from '../../wallet-connect-scanner.styles';
-import {Text} from 'components';
-import {color} from 'theme';
-import FlashMessage from 'react-native-flash-message';
+import React, { PropsWithChildren } from "react"
+import FlashMessage from "react-native-flash-message"
+import { Modal, TouchableOpacity, View } from "react-native"
+
+import { Text } from "components"
+import { color } from "theme"
+import walletConnectStyles from "../../wallet-connect-scanner.styles"
 
 type WalletConnectModalProps = PropsWithChildren & {
   title: string;
@@ -13,25 +14,24 @@ type WalletConnectModalProps = PropsWithChildren & {
 };
 
 function WalletConnectModal({
-  visible,
-  title,
-  children,
-  onClose,
-  flashMessageRef,
-}: WalletConnectModalProps) {
+                              visible,
+                              title,
+                              children,
+                              onClose,
+                              flashMessageRef,
+                            }: WalletConnectModalProps) {
   return (
-    <Modal transparent animationType={'fade'} visible={visible}>
+    <Modal transparent animationType={"fade"} visible={visible}>
       <TouchableOpacity
-        // activeOpacity={1}
         style={walletConnectStyles.WALLETCONNECT_CONTAINER}
         onPress={() => {
-          onClose && onClose();
+          onClose && onClose()
         }}>
         <View style={walletConnectStyles.WALLETCONNECT_CONTAINER_INNER}>
           <TouchableOpacity
             activeOpacity={1}
             style={walletConnectStyles.WALLETCONNECT_BOX}>
-            <Text style={{fontSize: 18, color: color.palette.white}}>
+            <Text style={{ fontSize: 18, color: color.palette.white, marginBottom: 16 }}>
               {title}
             </Text>
             {children}
@@ -42,7 +42,7 @@ function WalletConnectModal({
         <FlashMessage ref={flashMessageRef as any} position="bottom" />
       )}
     </Modal>
-  );
+  )
 }
 
-export default WalletConnectModal;
+export default WalletConnectModal
