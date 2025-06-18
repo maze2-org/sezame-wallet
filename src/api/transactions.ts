@@ -1,8 +1,9 @@
-import {DUST_AMOUNT, transactionSign} from '@alephium/web3';
-import {CallContractTxData} from 'types/transactions.ts';
-import {ALPH} from '@alephium/token-list';
-import {client} from '../../packages/shared/src/api/client.ts';
-import SignClient from '@walletconnect/sign-client';
+import SignClient from "@walletconnect/sign-client"
+import { ALPH } from "@alephium/token-list"
+import { CallContractTxData } from "types/transactions.ts"
+import { DUST_AMOUNT, transactionSign } from "@alephium/web3"
+
+import { client } from "../../packages/shared/src/api/client.ts"
 
 export const getTransactionAssetAmounts = (assetAmounts: any[]) => {
   const alphAmount =

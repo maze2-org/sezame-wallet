@@ -231,6 +231,7 @@ export const WalletConnectModel = types
       );
 
       const newAction = {
+        id: data.id,
         action: data.params.request.method,
         blockchain,
         description: '',

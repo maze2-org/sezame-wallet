@@ -29,14 +29,14 @@ export enum NetworkNames {
 export const networkSettingsPresets: any = {
   [NetworkNames.mainnet]: {
     networkId: 0,
-    nodeHost: 'https://node-v20.mainnet.alephium.org',
-    explorerApiHost: 'https://backend-v115.mainnet.alephium.org',
+    nodeHost: 'https://node.mainnet.alephium.org',
+    explorerApiHost: 'https://backend.mainnet.alephium.org',
     explorerUrl: 'https://explorer.alephium.org'
   },
   [NetworkNames.testnet]: {
     networkId: 1,
-    nodeHost: 'https://node-v20.testnet.alephium.org',
-    explorerApiHost: 'https://backend-v115.testnet.alephium.org',
+    nodeHost: 'https://node.testnet.alephium.org',
+    explorerApiHost: 'https://backend.testnet.alephium.org',
     explorerUrl: 'https://testnet.alephium.org'
   },
   [NetworkNames.devnet]: {
@@ -48,6 +48,7 @@ export const networkSettingsPresets: any = {
 }
 
 export const defaultNetworkSettings = clone(networkSettingsPresets.mainnet) as any
+console.log('defaultNetworkSettings', defaultNetworkSettings)
 
 export const isEqualNetwork = (a: any, b: any): boolean =>
   a.nodeHost === b.nodeHost && a.explorerUrl === b.explorerUrl && a.explorerApiHost === b.explorerApiHost
