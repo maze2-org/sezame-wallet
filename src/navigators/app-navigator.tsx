@@ -31,7 +31,7 @@ import {
   CreateWalletScreen,
   DashboardScreen,
   SendScreen,
-  StakeScreen,
+  // StakeScreen,  // REMOVED - Staking deprecated 2026-02-09
   SettingsScreen,
   ChangePasswordScreen,
   AddCurrencyScreen,
@@ -246,10 +246,11 @@ export type NavigatorParamList = {
     coinId: string;
     chain: string;
   };
-  stake: {
-    chain: string;
-    coinId: string;
-  };
+  // REMOVED - Staking deprecated 2026-02-09
+  // stake: {
+  //   chain: string;
+  //   coinId: string;
+  // };
   unstake: {
     chain: string;
     coinId: string;
@@ -425,7 +426,8 @@ const AppStack = () => {
             name="alphChooseAddress"
             component={AlphChooseAddressScreen}
           />
-          <Stack.Screen
+          {/* REMOVED - Staking deprecated 2026-02-09 */}
+          {/* <Stack.Screen
             options={{
               presentation: 'modal',
               headerShown: true,
@@ -435,7 +437,7 @@ const AppStack = () => {
             }}
             name="stake"
             component={StakeScreen}
-          />
+          /> */}
           <Stack.Screen
             options={{
               presentation: 'modal',

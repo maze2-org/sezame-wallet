@@ -475,7 +475,7 @@ export const CoinDetailsScreen: FC<
                                 />
                                 <Text
                                   style={styles.BALANCE_STAKING_CARD_BTN_TEXT}>
-                                  MANAGE STAKING
+                                  UNSTAKE TOKENS
                                 </Text>
                               </Button>
                             </>

@@ -3,7 +3,8 @@ import { View, Text, ScrollView, Image, TouchableOpacity } from "react-native"
 
 import styles from "./styles"
 import IonIcons from "react-native-vector-icons/Ionicons"
-import icon_stack from "@assets/svg/stake.svg"
+// REMOVED - Staking deprecated 2026-02-09
+// import icon_stack from "@assets/svg/stake.svg"
 import icon_unStake from "@assets/svg/unstake.svg"
 import { SvgXml } from "react-native-svg"
 import { Footer, Screen } from "../../components"
@@ -36,12 +37,13 @@ const StakingBalance = (props: StackingBalanceProps) => {
   } = props
   const { exchangeRates, pendingTransactions, setOverlayLoadingShown } = useStores()
 
-  const pressStackIcon = () => {
-    navigation.navigate("stake", {
-      chain: asset.chain,
-      coinId: asset.cid,
-    })
-  }
+  // REMOVED - Staking deprecated 2026-02-09
+  // const pressStackIcon = () => {
+  //   navigation.navigate("stake", {
+  //     chain: asset.chain,
+  //     coinId: asset.cid,
+  //   })
+  // }
 
   const pressUnsStakeIcon = () => {
     navigation.navigate("unstake", {
@@ -93,7 +95,8 @@ const StakingBalance = (props: StackingBalanceProps) => {
         </View>
 
         <View style={styles.BODY}>
-          <View style={styles.CARD}>
+          {/* REMOVED - Staking deprecated 2026-02-09 */}
+          {/* <View style={styles.CARD}>
             <View>
               <Text style={styles.GOLD_TEXT}>Available Balance</Text>
               <Text style={styles.MIDDLE_TEXT}>{asset?.freeBalance.toFixed(4)}</Text>
@@ -114,7 +117,7 @@ const StakingBalance = (props: StackingBalanceProps) => {
                 <Text style={styles.TEXT}>Stake</Text>
               </View>
             </View>
-          </View>
+          </View> */}
 
           <View style={[styles.CARD, asset.stakedBalance <= 0 && styles.DISABLED]}>
             <View>
